@@ -10,6 +10,7 @@ const sequelize = new Sequelize(
 		"logging": /^true$/i.test(process.env.DB_ACCOUNT_LOG_QUERY) ? console.log : false,
 		"dialect": "mysql",
 		"host": process.env.DB_ACCOUNT_HOST,
+		"port": process.env.DB_ACCOUNT_PORT || 3306,
 		"define": {
 			"timestamps": false,
 			"freezeTableName": true

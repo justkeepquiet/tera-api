@@ -10,7 +10,7 @@
 * @param {DataTypes} DataTypes
 */
 module.exports = (sequelize, DataTypes) =>
-	sequelize.define("accountinfo", {
+	sequelize.define("account_info", {
 		"accountDBID": {
 			"type": DataTypes.INTEGER,
 			"primaryKey": true
