@@ -36,7 +36,7 @@ planetIds.forEach(id => {
 	);
 
 	const models = {
-		"users": require("./planet/users.model.js")(sequelize, DataTypes)
+		"users": require("./planet/planetUsers.model.js")(sequelize, DataTypes)
 	};
 
 	_exports[id] = { ...models, sequelize };
