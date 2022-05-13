@@ -12,7 +12,7 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("account_info", {
 		"accountDBID": {
-			"type": DataTypes.INTEGER,
+			"type": DataTypes.BIGINT,
 			"primaryKey": true
 		},
 		"userName": {
