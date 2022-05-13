@@ -46,7 +46,6 @@ class TeraController {
 					"Msg": "password error"
 				});
 			} else {
-				console.log("TEST");
 				accountModel.info.update({
 					"authKey": authKey
 				}, {
@@ -67,27 +66,21 @@ class TeraController {
 					} catch (_) {}
 
 					res.json({
-						"FailureCount": 0,
-						"VipitemInfo": "",
-						"PassitemInfo": "",
+						"Return": true,
+						"ReturnCode": 0,
+						"Msg": "success",
+						"VipitemInfo": "", // @todo
+						"PassitemInfo": "", // @todo
 						"CharacterCount": characterCount,
 						"Permission": account.get("permission"),
 						"UserNo": account.get("accountDBID"),
-						"AuthKey": authKey,
-						"UserStatus": {
-							"enumType": "com.common.auth.User$UserStatus",
-							"name": "JOIN"
-						},
-						"phoneLock": false,
-						"Return": true,
-						"ReturnCode": 0,
-						"Msg": "success"
+						"AuthKey": authKey
 					});
 				}).catch(() =>
 					res.json({
 						"Return": false,
 						"ReturnCode": 50811,
-						"Msg": "account not exist"
+						"Msg": "failure insert auth token"
 					})
 				);
 			}
@@ -133,13 +126,13 @@ class TeraController {
 			} catch (_) {}
 
 			res.json({
-				"charcountstr": characterCount, // CharacterCount
-				"passitemInfo": "", // PassitemInfo
-				"permission": account.get("permission"), // Permission
-				"vipitemInfo": "", // VipitemInfo
 				"Return": true,
 				"ReturnCode": 0,
-				"Msg": "success"
+				"Msg": "success",
+				"VipitemInfo": "", // @todo
+				"PassitemInfo": "", // @todo
+				"CharacterCount": characterCount,
+				"Permission": account.get("permission")
 			});
 		}).catch(() =>
 			res.json({
