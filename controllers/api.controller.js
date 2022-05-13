@@ -88,7 +88,7 @@ class ApiController {
 
 			res.json({
 				"vip_pub_exp": 0, // @todo
-				"permission": account.get("isBlocked"),
+				"permission": account.get("permission"),
 				"privilege": account.get("privilege"),
 				"char_count_info": char_count_info,
 				"benefit": benefit,

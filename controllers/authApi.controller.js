@@ -23,7 +23,7 @@ class AuthApiController {
 				"accountDBID": userNo
 			}
 		}).then(account => {
-			if (account.get("isBlocked") > 0) {
+			if (account.get("permission") > 0) {
 				res.json({
 					"Return": false,
 					"ReturnCode": 50010,

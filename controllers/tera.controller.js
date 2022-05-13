@@ -71,7 +71,7 @@ class TeraController {
 						"VipitemInfo": "",
 						"PassitemInfo": "",
 						"CharacterCount": characterCount,
-						"Permission": account.get("isBlocked"),
+						"Permission": account.get("permission"),
 						"UserNo": account.get("accountDBID"),
 						"AuthKey": authKey,
 						"UserStatus": {
@@ -135,7 +135,7 @@ class TeraController {
 			res.json({
 				"charcountstr": characterCount, // CharacterCount
 				"passitemInfo": "", // PassitemInfo
-				"permission": account.get("isBlocked"), // Permission
+				"permission": account.get("permission"), // Permission
 				"vipitemInfo": "", // VipitemInfo
 				"Return": true,
 				"ReturnCode": 0,

@@ -16,26 +16,26 @@ module.exports = (sequelize, DataTypes) =>
 			"primaryKey": true
 		},
 		"userName": {
-			"type": DataTypes.STRING,
+			"type": DataTypes.STRING(64),
 			"primaryKey": true
 		},
 		"passWord": {
-			"type": DataTypes.STRING
+			"type": DataTypes.STRING(128)
 		},
 		"RMB": {
 			"type": DataTypes.INTEGER
 		},
 		"authKey": {
-			"type": DataTypes.STRING
+			"type": DataTypes.STRING(128)
 		},
 		"registerTime": {
 			"type": DataTypes.TIME
 		},
 		"lastLoginTime": {
-			"type": DataTypes.TIME
+			"type": DataTypes.INTEGER
 		},
 		"lastLoginIP": {
-			"type": DataTypes.STRING
+			"type": DataTypes.STRING(64)
 		},
 		"playTimeLast": {
 			"type": DataTypes.INTEGER
@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) =>
 		"playCount": {
 			"type": DataTypes.INTEGER
 		},
-		"isBlocked": {
+		"permission": {
 			"type": DataTypes.INTEGER
 		},
 		"privilege": {
