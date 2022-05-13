@@ -11,7 +11,7 @@ USE `accountdb`;
 CREATE TABLE IF NOT EXISTS `account_benefits` (
   `accountDBID` bigint(20) NOT NULL,
   `benefitId` int(11) NOT NULL,
-  `availableUntil` timestamp NOT NULL DEFAULT '2030-01-01 00:00:00',
+  `availableUntil` timestamp NOT NULL,
   PRIMARY KEY (`accountDBID`,`benefitId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
