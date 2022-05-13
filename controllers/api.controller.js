@@ -3,6 +3,7 @@
 
 const validateIP = require("validate-ip-node");
 const accountModel = require("../models/account.model");
+const reportModel = require("../models/report.model");
 
 class ApiController {
 	/**
@@ -279,11 +280,22 @@ class ApiController {
 			});
 		}
 
-		// @todo Write cheats report to database
-
-		res.json({
-			"result_code": 0
-		});
+		reportModel.cheats.create({
+			"accountDBID": usr_srl,
+			"serverId": svr_id,
+			"ip": ip,
+			"type": type,
+			"cheatInfo": cheat_info
+		}).then(() =>
+			res.json({
+				"result_code": 0
+			})
+		).catch(() =>
+			res.json({
+				"result_code": 50000,
+				"msg": "account not exist"
+			})
+		);
 	}
 }
 
