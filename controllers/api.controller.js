@@ -119,7 +119,8 @@ class ApiController {
 		const primises = [
 			accountModel.info.update({
 				"lastLoginTime": Math.floor(Date.now() / 1000),
-				"lastLoginIP": ip
+				"lastLoginIP": ip,
+				"playCount": accountModel.sequelize.literal("playCount + 1")
 			}, {
 				"where": {
 					"accountDBID": user_srl

@@ -34,6 +34,7 @@ class TeraController {
 		}).then(account => {
 			const authKey = uuid.v4();
 			let passwordString = password;
+			let characterCount = "0";
 
 			if (/^true$/i.test(process.env.API_USE_SHA512_PASSWORDS)) {
 				passwordString = crypto.createHash("sha512").update(process.env.API_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
@@ -53,8 +54,6 @@ class TeraController {
 						"accountDBID": account.get("accountDBID")
 					}
 				}).then(async () => {
-					let characterCount = "0";
-
 					try {
 						const characters = await accountModel.characters.findAll({
 							"where": {

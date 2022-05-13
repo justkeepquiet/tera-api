@@ -22,9 +22,6 @@ module.exports = (sequelize, DataTypes) =>
 		"passWord": {
 			"type": DataTypes.STRING(128)
 		},
-		"RMB": {
-			"type": DataTypes.INTEGER
-		},
 		"authKey": {
 			"type": DataTypes.STRING(128)
 		},

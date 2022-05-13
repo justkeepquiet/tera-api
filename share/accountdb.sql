@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS `account_info` (
   `accountDBID` bigint(20) NOT NULL AUTO_INCREMENT,
   `userName` varchar(64) NOT NULL,
   `passWord` varchar(128) NOT NULL,
-  `RMB` int(11) NOT NULL DEFAULT '0',
   `authKey` varchar(128) DEFAULT NULL,
   `registerTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `lastLoginTime` int(11) NOT NULL DEFAULT '0',
