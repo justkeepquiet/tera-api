@@ -11,7 +11,7 @@ USE `accountdb`;
 CREATE TABLE IF NOT EXISTS `account_benefits` (
   `accountDBID` bigint(20) NOT NULL,
   `benefitId` int(11) NOT NULL,
-  `availableUntil` timestamp NOT NULL,
+  `availableUntil` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`accountDBID`,`benefitId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `account_info` (
   `passWord` varchar(128) NOT NULL,
   `authKey` varchar(128) DEFAULT NULL,
   `registerTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `lastLoginTime` timestamp NOT NULL,
+  `lastLoginTime` timestamp NULL DEFAULT NULL,
   `lastLoginIP` varchar(64) DEFAULT NULL,
   `playTimeLast` int(11) NOT NULL DEFAULT '0',
   `playTimeTotal` int(11) NOT NULL DEFAULT '0',
