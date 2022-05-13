@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 "use strict";
 
+const moment = require("moment-timezone");
 const validateIP = require("validate-ip-node");
 const accountModel = require("../models/account.model");
 const reportModel = require("../models/report.model");
@@ -84,7 +85,10 @@ class ApiController {
 					}
 				});
 
-				benefit = benefits.map(b => [b.get("benefitId"), b.get("availableUntil")]);
+				benefit = benefits.map(b => [
+					b.get("benefitId"),
+					Math.floor((new Date(b.get("availableUntil")).getTime() - Date.now()) / 1000)
+				]);
 			} catch (_) {}
 
 			res.json({
@@ -118,7 +122,7 @@ class ApiController {
 
 		const primises = [
 			accountModel.info.update({
-				"lastLoginTime": Math.floor(Date.now() / 1000),
+				"lastLoginTime": moment.utc().format("YYYY-MM-DD HH:mm:ss"),
 				"lastLoginIP": ip,
 				"playCount": accountModel.sequelize.literal("playCount + 1")
 			}, {
