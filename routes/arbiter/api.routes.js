@@ -1,7 +1,7 @@
 "use strict";
 
 const express = require("express");
-const controller = require("../controllers/api.controller");
+const controller = require("../../controllers/api.controller");
 
 module.exports = express.Router()
 	.get("/ServiceTest", controller.serviceTest)

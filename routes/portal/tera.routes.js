@@ -1,7 +1,7 @@
 "use strict";
 
 const express = require("express");
-const controller = require("../controllers/tera.controller");
+const controller = require("../../controllers/tera.controller");
 
 module.exports = express.Router()
 	.get("/ServerList", controller.serverList)
