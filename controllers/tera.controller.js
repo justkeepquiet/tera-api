@@ -36,7 +36,7 @@ class TeraController {
 			let passwordString = password;
 
 			if (/^true$/i.test(process.env.API_USE_SHA512_PASSWORDS)) {
-				passwordString = crypto.createHash("sha512").update(password).digest("hex");
+				passwordString = crypto.createHash("sha512").update(process.env.API_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
 			}
 
 			if (account.get("passWord") !== passwordString) {
