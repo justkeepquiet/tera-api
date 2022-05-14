@@ -11,46 +11,46 @@
 */
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("account_info", {
-		"accountDBID": {
-			"type": DataTypes.BIGINT,
-			"primaryKey": true
+		accountDBID: {
+			type: DataTypes.BIGINT,
+			primaryKey: true
 		},
-		"userName": {
-			"type": DataTypes.STRING(64),
-			"primaryKey": true
+		userName: {
+			type: DataTypes.STRING(64),
+			primaryKey: true
 		},
-		"passWord": {
-			"type": DataTypes.STRING(128)
+		passWord: {
+			type: DataTypes.STRING(128)
 		},
-		"authKey": {
-			"type": DataTypes.STRING(128)
+		authKey: {
+			type: DataTypes.STRING(128)
 		},
-		"registerTime": {
-			"type": DataTypes.TIME
+		registerTime: {
+			type: DataTypes.TIME
 		},
-		"lastLoginTime": {
-			"type": DataTypes.INTEGER
+		lastLoginTime: {
+			type: DataTypes.INTEGER
 		},
-		"lastLoginIP": {
-			"type": DataTypes.STRING(64)
+		lastLoginIP: {
+			type: DataTypes.STRING(64)
 		},
-		"lastLoginServer": {
-			"type": DataTypes.INTEGER
+		lastLoginServer: {
+			type: DataTypes.INTEGER
 		},
-		"playTimeLast": {
-			"type": DataTypes.INTEGER
+		playTimeLast: {
+			type: DataTypes.INTEGER
 		},
-		"playTimeTotal": {
-			"type": DataTypes.INTEGER
+		playTimeTotal: {
+			type: DataTypes.INTEGER
 		},
-		"playCount": {
-			"type": DataTypes.INTEGER
+		playCount: {
+			type: DataTypes.INTEGER
 		},
-		"permission": {
-			"type": DataTypes.INTEGER
+		permission: {
+			type: DataTypes.INTEGER
 		},
-		"privilege": {
-			"type": DataTypes.INTEGER
+		privilege: {
+			type: DataTypes.INTEGER
 		}
 	})
 ;

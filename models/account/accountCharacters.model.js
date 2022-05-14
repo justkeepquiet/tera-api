@@ -11,16 +11,16 @@
 */
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("account_characters", {
-		"accountDBID": {
-			"type": DataTypes.BIGINT,
-			"primaryKey": true
+		accountDBID: {
+			type: DataTypes.BIGINT,
+			primaryKey: true
 		},
-		"serverId": {
-			"type": DataTypes.INTEGER,
-			"primaryKey": true
+		serverId: {
+			type: DataTypes.INTEGER,
+			primaryKey: true
 		},
-		"charCount": {
-			"type": DataTypes.INTEGER
+		charCount: {
+			type: DataTypes.INTEGER
 		}
 	})
 ;

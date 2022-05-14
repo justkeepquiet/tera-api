@@ -7,15 +7,15 @@ const morganBody = require("morgan-body");
 const bodyParser = require("body-parser");
 
 createApi(require("./routes/arbiter.index.js"), {
-	"name": "Arbiter",
-	"port": process.env.API_ARBITER_LISTEN_PORT,
-	"log": process.env.API_ARBITER_LOG
+	name: "Arbiter",
+	port: process.env.API_ARBITER_LISTEN_PORT,
+	log: process.env.API_ARBITER_LOG
 });
 
 createApi(require("./routes/portal.index.js"), {
-	"name": "Portal",
-	"port": process.env.API_PORTAL_LISTEN_PORT,
-	"log": process.env.API_PORTAL_LOG
+	name: "Portal",
+	port: process.env.API_PORTAL_LISTEN_PORT,
+	log: process.env.API_PORTAL_LOG
 });
 
 function createApi(router, params) {
@@ -23,7 +23,7 @@ function createApi(router, params) {
 
 	app.disable("x-powered-by");
 	app.use(express.json());
-	app.use(bodyParser.urlencoded({ "extended": true }));
+	app.use(bodyParser.urlencoded({ extended: true }));
 	app.use(bodyParser.json());
 
 	if (/^true$/i.test(params.log)) {

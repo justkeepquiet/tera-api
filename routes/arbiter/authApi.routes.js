@@ -1,8 +1,8 @@
 "use strict";
 
 const express = require("express");
-const controller = require("../../controllers/authApi.controller");
+const arbiterAuthController = require("../../controllers/arbiterAuth.controller");
 
 module.exports = express.Router()
-	.post("/GameAuthenticationLogin", controller.gameAuthenticationLogin)
+	.post("/GameAuthenticationLogin", ...arbiterAuthController.GameAuthenticationLogin)
 ;

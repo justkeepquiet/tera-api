@@ -1,10 +1,11 @@
 "use strict";
 
 const express = require("express");
-const controller = require("../../controllers/tera.controller");
+const portalSlsController = require("../../controllers/portalSls.controller");
+const portalLauncherController = require("../../controllers/portalLauncher.controller");
 
 module.exports = express.Router()
-	.get("/ServerList", controller.serverList)
-	.post("/GetAccountInfoByUserNo", controller.getAccountInfoByUserNo)
-	.post("/LauncherLoginAction", controller.launcherLoginAction)
+	.get("/ServerList", ...portalSlsController.getServerListXML)
+	.post("/GetAccountInfoByUserNo", ...portalLauncherController.GetAccountInfoByUserNo)
+	.post("/LauncherLoginAction", ...portalLauncherController.LauncherLoginAction)
 ;
