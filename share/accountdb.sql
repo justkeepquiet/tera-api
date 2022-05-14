@@ -42,9 +42,9 @@ CREATE TABLE IF NOT EXISTS `account_info` (
 CREATE TABLE IF NOT EXISTS `report_cheats` (
   `accountDBID` bigint(20) DEFAULT NULL,
   `serverId` int(11) DEFAULT NULL,
-  `ip` varchar(64) CHARACTER SET latin1 DEFAULT NULL,
+  `ip` varchar(64) DEFAULT NULL,
   `type` int(11) DEFAULT NULL,
-  `cheatInfo` varchar(1024) CHARACTER SET latin1 DEFAULT NULL,
+  `cheatInfo` varchar(1024) DEFAULT NULL,
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   KEY `accountDBID` (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
