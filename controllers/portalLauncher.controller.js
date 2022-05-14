@@ -23,61 +23,61 @@ module.exports = {
 
 			const { userID, password } = req.body;
 
-			accountModel.info.findOne({ where: { userName: userID } })
-				.then(account => {
-					let passwordString = password;
+			accountModel.info.findOne({ where: { userName: userID } }).then(account => {
+				let passwordString = password;
 
-					if (/^true$/i.test(process.env.API_USE_SHA512_PASSWORDS)) {
-						passwordString = crypto.createHash("sha512").update(process.env.API_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
-					}
+				if (/^true$/i.test(process.env.API_USE_SHA512_PASSWORDS)) {
+					passwordString = crypto.createHash("sha512").update(process.env.API_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
+				}
 
-					if (account.get("passWord") !== passwordString) {
+				if (account.get("passWord") !== passwordString) {
+					res.json({
+						Return: false,
+						ReturnCode: 50015,
+						Msg: "password error"
+					});
+				} else {
+					const authKey = uuid.v4();
+
+					accountModel.info.update({ authKey: authKey }, {
+						where: { accountDBID: account.get("accountDBID") }
+					}).then(async () => {
+						let characterCount = "0";
+
+						try {
+							const characters = await accountModel.characters.findAll(
+								{ where: { accountDBID: account.get("accountDBID") } }
+							);
+
+							characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
+						} catch (_) {}
+
+						res.json({
+							Return: true,
+							ReturnCode: 0,
+							Msg: "success",
+							VipitemInfo: "", // @todo
+							PassitemInfo: "", // @todo
+							CharacterCount: characterCount,
+							Permission: account.get("permission"),
+							UserNo: account.get("accountDBID"),
+							AuthKey: authKey
+						});
+					}).catch(() =>
 						res.json({
 							Return: false,
-							ReturnCode: 50015,
-							Msg: "password error"
-						});
-					} else {
-						const authKey = uuid.v4();
-
-						accountModel.info.update({ authKey: authKey }, { where: { accountDBID: account.get("accountDBID") } })
-							.then(async () => {
-								let characterCount = "0";
-
-								try {
-									const characters = await accountModel.characters.findAll(
-										{ where: { accountDBID: account.get("accountDBID") } }
-									);
-
-									characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
-								} catch (_) {}
-
-								res.json({
-									Return: true,
-									ReturnCode: 0,
-									Msg: "success",
-									VipitemInfo: "", // @todo
-									PassitemInfo: "", // @todo
-									CharacterCount: characterCount,
-									Permission: account.get("permission"),
-									UserNo: account.get("accountDBID"),
-									AuthKey: authKey
-								});
-							})
-							.catch(() =>
-								res.json({
-									Return: false,
-									ReturnCode: 50811,
-									Msg: "failure insert auth token"
-								})
-							);
-					}
-				})
-				.catch(() => res.json({
+							ReturnCode: 50811,
+							Msg: "failure insert auth token"
+						})
+					);
+				}
+			}).catch(() =>
+				res.json({
 					Return: false,
 					ReturnCode: 50000,
 					Msg: "account not exist"
-				}));
+				})
+			);
 		}
 	],
 
@@ -97,33 +97,33 @@ module.exports = {
 
 			const { id } = req.body;
 
-			accountModel.info.findOne({ where: { accountDBID: id } })
-				.then(async account => {
-					let characterCount = "0";
+			accountModel.info.findOne({ where: { accountDBID: id } }).then(async account => {
+				let characterCount = "0";
 
-					try {
-						const characters = await accountModel.characters.findAll(
-							{ where: { accountDBID: account.get("accountDBID") } }
-						);
+				try {
+					const characters = await accountModel.characters.findAll(
+						{ where: { accountDBID: account.get("accountDBID") } }
+					);
 
-						characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
-					} catch (_) {}
+					characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
+				} catch (_) {}
 
-					res.json({
-						Return: true,
-						ReturnCode: 0,
-						Msg: "success",
-						VipitemInfo: "", // @todo
-						PassitemInfo: "", // @todo
-						CharacterCount: characterCount,
-						Permission: account.get("permission")
-					});
-				})
-				.catch(() => res.json({
+				res.json({
+					Return: true,
+					ReturnCode: 0,
+					Msg: "success",
+					VipitemInfo: "", // @todo
+					PassitemInfo: "", // @todo
+					CharacterCount: characterCount,
+					Permission: account.get("permission")
+				});
+			}).catch(() =>
+				res.json({
 					Return: false,
 					ReturnCode: 50000,
 					Msg: "account not exist"
-				}));
+				})
+			);
 		}
 	]
 };

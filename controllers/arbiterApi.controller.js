@@ -13,15 +13,17 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			accountModel.sequelize.authenticate()
-				.then(() => res.json({
+			accountModel.sequelize.authenticate().then(() =>
+				res.json({
 					server_time: Date.now() / 1000,
 					result_code: 0
-				}))
-				.catch(() => res.json({
+				})
+			).catch(() =>
+				res.json({
 					result_code: 1,
 					msg: "database error"
-				}));
+				})
+			);
 		}
 	],
 
@@ -81,47 +83,43 @@ module.exports = {
 
 			const { ip, server_id, user_srl } = req.body;
 
-			accountModel.info.findOne({ where: { accountDBID: user_srl } })
-				.then(async account => {
-					let charCountInfo = "0";
-					let benefit = [];
+			accountModel.info.findOne({ where: { accountDBID: user_srl } }).then(async account => {
+				let charCountInfo = "0";
+				let benefit = [];
 
-					try {
-						const characters = await accountModel.characters.findAll({
-							where: {
-								accountDBID: account.get("accountDBID")
-							}
-						});
-
-						charCountInfo = helpers.getCharCountString(characters, "serverId", "charCount");
-					} catch (_) {}
-
-					try {
-						const benefits = await accountModel.benefits.findAll({
-							where: {
-								accountDBID: account.get("accountDBID")
-							}
-						});
-
-						benefit = helpers.getBenefitsArray(benefits, "benefitId", "availableUntil");
-					} catch (_) {}
-
-					res.json({
-						// "last_connected_server": account.get("lastLoginServer"),
-						// "last_play_time": account.get("playTimeTotal"),
-						// "logout_time_diff": account.get("playTimeLast"),
-						permission: account.get("permission"),
-						privilege: account.get("privilege"),
-						char_count_info: charCountInfo,
-						benefit: benefit,
-						// "vip_pub_exp": 0, // @todo
-						result_code: 0
+				try {
+					const characters = await accountModel.characters.findAll({
+						where: { accountDBID: account.get("accountDBID") }
 					});
-				})
-				.catch(() => res.json({
+
+					charCountInfo = helpers.getCharCountString(characters, "serverId", "charCount");
+				} catch (_) {}
+
+				try {
+					const benefits = await accountModel.benefits.findAll({
+						where: { accountDBID: account.get("accountDBID") }
+					});
+
+					benefit = helpers.getBenefitsArray(benefits, "benefitId", "availableUntil");
+				} catch (_) {}
+
+				res.json({
+					// "last_connected_server": account.get("lastLoginServer"),
+					// "last_play_time": account.get("playTimeTotal"),
+					// "logout_time_diff": account.get("playTimeLast"),
+					permission: account.get("permission"),
+					privilege: account.get("privilege"),
+					char_count_info: charCountInfo,
+					benefit: benefit,
+					// "vip_pub_exp": 0, // @todo
+					result_code: 0
+				});
+			}).catch(() =>
+				res.json({
 					result_code: 50000,
 					msg: "account not exist"
-				}));
+				})
+			);
 		}
 	],
 
@@ -153,19 +151,23 @@ module.exports = {
 				}, {
 					where: { accountDBID: user_srl }
 				}),
-				accountModel.serverInfo.increment({ usersOnline: 1 }, { where: { serverId: server_id } }),
+				accountModel.serverInfo.increment({ usersOnline: 1 }, {
+					where: { serverId: server_id }
+				}),
 				accountModel.characters.upsert({
 					accountDBID: user_srl,
 					serverId: server_id
 				})
 			];
 
-			Promise.all(primises)
-				.then(() => res.json({ result_code: 0 }))
-				.catch(() => res.json({
+			Promise.all(primises).then(() =>
+				res.json({ result_code: 0 })
+			).catch(() =>
+				res.json({
 					result_code: 50000,
 					msg: "account not exist"
-				}));
+				})
+			);
 		}
 	],
 
@@ -203,12 +205,14 @@ module.exports = {
 				})
 			];
 
-			Promise.all(primises)
-				.then(() => res.json({ result_code: 0 }))
-				.catch(() => res.json({
+			Promise.all(primises).then(() =>
+				res.json({ result_code: 0 })
+			).catch(() =>
+				res.json({
 					result_code: 50000,
 					msg: "account not exist"
-				}));
+				})
+			);
 		}
 	],
 
@@ -242,12 +246,14 @@ module.exports = {
 				})
 			];
 
-			Promise.all(primises)
-				.then(() => res.json({ result_code: 0 }))
-				.catch(() => res.json({
+			Promise.all(primises).then(() =>
+				res.json({ result_code: 0 })
+			).catch(() =>
+				res.json({
 					result_code: 50000,
 					msg: "account not exist"
-				}));
+				})
+			);
 		}
 	],
 
@@ -294,12 +300,14 @@ module.exports = {
 				})
 			];
 
-			Promise.all(primises)
-				.then(() => res.json({ result_code: 0 }))
-				.catch(() => res.json({
+			Promise.all(primises).then(() =>
+				res.json({ result_code: 0 })
+			).catch(() =>
+				res.json({
 					result_code: 50000,
 					msg: "account not exist"
-				}));
+				})
+			);
 		}
 	],
 
@@ -355,12 +363,14 @@ module.exports = {
 				ip: ip,
 				type: type,
 				cheatInfo: cheat_info
-			})
-				.then(() => res.json({ result_code: 0 }))
-				.catch(() => res.json({
+			}).then(() =>
+				res.json({ result_code: 0 })
+			).catch(() =>
+				res.json({
 					result_code: 50000,
 					msg: "account not exist"
-				}));
+				})
+			);
 		}
 	]
 };

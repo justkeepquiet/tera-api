@@ -10,9 +10,11 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			accountModel.sequelize.authenticate()
-				.then(() => res.json({ Return: true }))
-				.catch(() => res.json({ Return: false }));
+			accountModel.sequelize.authenticate().then(() =>
+				res.json({ Return: true })
+			).catch(() =>
+				res.json({ Return: false })
+			);
 		}
 	],
 
@@ -32,38 +34,38 @@ module.exports = {
 
 			const { authKey, clientIP, userNo } = req.body;
 
-			accountModel.info.findOne({ where: { accountDBID: userNo } })
-				.then(account => {
-					if (account.get("permission") > 0) { // @todo
-						res.json({
-							Return: false,
-							ReturnCode: 50010,
-							Msg: "account banned"
-						});
-					} else if (account.get("authKey") !== authKey) {
-						res.json({
-							Return: false,
-							ReturnCode: 50011,
-							Msg: "authkey mismatch"
-						});
-					} else {
-						res.json({
-							Return: true,
-							ReturnCode: 0,
-							Msg: "success",
-							UserID: account.get("accountDBID"),
-							AuthKey: account.get("authKey"),
-							UserNo: account.get("accountDBID"),
-							UserType: "PURCHASE",
-							isUsedOtp: false
-						});
-					}
-				})
-				.catch(() => res.json({
+			accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
+				if (account.get("permission") > 0) { // @todo
+					res.json({
+						Return: false,
+						ReturnCode: 50010,
+						Msg: "account banned"
+					});
+				} else if (account.get("authKey") !== authKey) {
+					res.json({
+						Return: false,
+						ReturnCode: 50011,
+						Msg: "authkey mismatch"
+					});
+				} else {
+					res.json({
+						Return: true,
+						ReturnCode: 0,
+						Msg: "success",
+						UserID: account.get("accountDBID"),
+						AuthKey: account.get("authKey"),
+						UserNo: account.get("accountDBID"),
+						UserType: "PURCHASE",
+						isUsedOtp: false
+					});
+				}
+			}).catch(() =>
+				res.json({
 					Return: false,
 					ReturnCode: 50000,
 					Msg: "account not exist"
-				}));
+				})
+			);
 		}
 	]
 };
