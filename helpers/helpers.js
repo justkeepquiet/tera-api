@@ -10,9 +10,8 @@
 * @return {string}
 */
 module.exports.getCharCountString = (characters, field1, field2) =>
-	`${characters.map((c, i) =>
-		`${i}|${c.get(field1)},${c.get(field2)}`).join("|")
-	}|`;
+	characters.map((c, i) => `${i}|${c.get(field1)},${c.get(field2)}`).join("|").concat("|")
+;
 
 /**
 * @param {Model[]} benefits
@@ -23,4 +22,5 @@ module.exports.getCharCountString = (characters, field1, field2) =>
 module.exports.getBenefitsArray = (benefits, field1, field2) =>
 	benefits.map(b =>
 		[b.get(field1), Math.floor((new Date(b.get(field2)).getTime() - Date.now()) / 1000)]
-	);
+	)
+;
