@@ -17,7 +17,8 @@ The account database structure used differs from that used in the leaked retail 
 ### Requirements
 
 * Node.js v18.1.0
-* Microsoft SQL Server 2014 v12.0.2000.8
+* MySQL Server v5.7.38
+* Microsoft SQL Server 2014 v12.0.2000.8 (not needed yet)
 
 ### API Architecture
 
