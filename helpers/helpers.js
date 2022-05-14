@@ -1,4 +1,5 @@
 "use strict";
+
 /**
 * @typedef {import("sequelize").Model} Model
 */
