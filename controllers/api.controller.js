@@ -42,6 +42,13 @@ class ApiController {
 	static serverDown(req, res) {
 		const { server_id } = req.body;
 
+		if (!server_id) {
+			return res.json({
+				"result_code": 2,
+				"msg": `server_id=${server_id}`
+			});
+		}
+
 		accountModel.serverInfo.update({
 			"isAvailable": 0, // set server is offline (me need open server manually on start?!)
 			"usersOnline": 0
