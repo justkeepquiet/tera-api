@@ -3,6 +3,7 @@
 
 const moment = require("moment-timezone");
 const validateIP = require("validate-ip-node");
+const helpers = require("../helpers/helpers");
 const accountModel = require("../models/account.model");
 const reportModel = require("../models/report.model");
 
@@ -73,7 +74,7 @@ class ApiController {
 				"accountDBID": user_srl
 			}
 		}).then(async account => {
-			let char_count_info = "0";
+			let charCountInfo = "0";
 			let benefit = [];
 
 			try {
@@ -83,7 +84,7 @@ class ApiController {
 					}
 				});
 
-				char_count_info = `${characters.map((c, i) => `${i}|${c.get("serverId")},${c.get("charCount")}`).join("|")}|`;
+				charCountInfo = helpers.getCharCountString(characters, "serverId", "charCount");
 			} catch (_) {}
 
 			try {
@@ -93,19 +94,16 @@ class ApiController {
 					}
 				});
 
-				benefit = benefits.map(b => [
-					b.get("benefitId"),
-					Math.floor((new Date(b.get("availableUntil")).getTime() - Date.now()) / 1000)
-				]);
+				benefit = helpers.getBenefitsArray(benefits, "benefitId", "availableUntil");
 			} catch (_) {}
 
 			res.json({
-				"last_connected_server": account.get("lastLoginServer"),
+				// "last_connected_server": account.get("lastLoginServer"),
 				// "last_play_time": account.get("playTimeTotal"),
 				// "logout_time_diff": account.get("playTimeLast"),
 				"permission": account.get("permission"),
 				"privilege": account.get("privilege"),
-				"char_count_info": char_count_info,
+				"char_count_info": charCountInfo,
 				"benefit": benefit,
 				// "vip_pub_exp": 0, // @todo
 				"result_code": 0

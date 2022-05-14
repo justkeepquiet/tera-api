@@ -3,6 +3,7 @@
 const crypto = require("crypto");
 const uuid = require("uuid");
 const xmlbuilder = require("xmlbuilder");
+const helpers = require("../helpers/helpers");
 const accountModel = require("../models/account.model");
 
 class TeraController {
@@ -116,7 +117,7 @@ class TeraController {
 							}
 						});
 
-						characterCount = `${characters.map((c, i) => `${i}|${c.get("serverId")},${c.get("charCount")}`).join("|")}|`;
+						characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
 					} catch (_) {}
 
 					res.json({
@@ -176,7 +177,7 @@ class TeraController {
 					}
 				});
 
-				characterCount = `${characters.map((c, i) => `${i}|${c.get("serverId")},${c.get("charCount")}`).join("|")}|`;
+				characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
 			} catch (_) {}
 
 			res.json({
