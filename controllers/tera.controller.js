@@ -38,9 +38,9 @@ class TeraController {
 					open = [1, `<font color="#00ff00">${strings.get("serverLow")}</font>`];
 
 					if (server.get("usersOnline") > server.get("tresholdLow")) {
-						open = [2, `<font color="#ffff00">${strings.get("serverMiddle")}</font>`];
+						open = [2, `<font color="#ffffff">${strings.get("serverMedium")}</font>`];
 					}
-					if (server.get("usersOnline") > server.get("tresholdMiddle")) {
+					if (server.get("usersOnline") > server.get("tresholdMedium")) {
 						open = [3, `<font color="#ffff00">${strings.get("serverHigh")}</font>`];
 					}
 				}

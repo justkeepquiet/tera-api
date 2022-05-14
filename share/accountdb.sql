@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS `server_info` (
   `nameString` varchar(256) DEFAULT NULL,
   `descrString` varchar(1024) DEFAULT NULL,
   `tresholdLow` int(11) DEFAULT '50',
-  `tresholdMiddle` int(11) DEFAULT '100',
+  `tresholdMedium` int(11) DEFAULT '100',
   `isPvE` tinyint(1) DEFAULT '0',
   `isCrowdness` tinyint(1) DEFAULT '0',
   `isAvailable` tinyint(1) DEFAULT '0',
@@ -68,18 +68,24 @@ CREATE TABLE IF NOT EXISTS `server_info` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `server_strings` (
-  `language` varchar(3) CHARACTER SET utf8 NOT NULL,
-  `categoryPvE` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
-  `categoryPvP` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
-  `serverOffline` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
-  `serverLow` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
-  `serverMiddle` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
-  `serverHigh` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
-  `crowdNo` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
-  `crowdYes` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
-  `popup` varchar(2048) CHARACTER SET utf8 DEFAULT NULL,
+  `language` varchar(3) NOT NULL,
+  `categoryPvE` varchar(50) DEFAULT NULL,
+  `categoryPvP` varchar(50) DEFAULT NULL,
+  `serverOffline` varchar(50) DEFAULT NULL,
+  `serverLow` varchar(50) DEFAULT NULL,
+  `serverMedium` varchar(50) DEFAULT NULL,
+  `serverHigh` varchar(50) DEFAULT NULL,
+  `crowdNo` varchar(50) DEFAULT NULL,
+  `crowdYes` varchar(50) DEFAULT NULL,
+  `popup` varchar(2048) DEFAULT NULL,
   PRIMARY KEY (`language`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*!40000 ALTER TABLE `server_strings` DISABLE KEYS */;
+INSERT INTO `server_strings` (`language`, `categoryPvE`, `categoryPvP`, `serverOffline`, `serverLow`, `serverMedium`, `serverHigh`, `crowdNo`, `crowdYes`, `popup`) VALUES
+	('en', 'PvE', 'PvP', 'Offline', 'Low', 'Medium', 'High', 'No', 'Yes', 'Unable to access the server at this time.'),
+	('ru', 'PvE', 'PvP', 'Отключен', 'Низко', 'Средне', 'Высоко', 'Нет', 'Да', 'В настоящее время невозможно войти на сервер.');
+/*!40000 ALTER TABLE `server_strings` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;

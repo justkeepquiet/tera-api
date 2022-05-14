@@ -27,7 +27,7 @@ module.exports = (sequelize, DataTypes) =>
 		"serverLow": {
 			"type": DataTypes.STRING(50)
 		},
-		"serverMiddle": {
+		"serverMedium": {
 			"type": DataTypes.STRING(50)
 		},
 		"serverHigh": {

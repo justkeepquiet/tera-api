@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) =>
 		"tresholdLow": {
 			"type": DataTypes.INTEGER
 		},
-		"tresholdMiddle": {
+		"tresholdMedium": {
 			"type": DataTypes.INTEGER
 		},
 		"isPvE": {
