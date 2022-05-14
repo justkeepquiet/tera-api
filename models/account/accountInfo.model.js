@@ -34,6 +34,9 @@ module.exports = (sequelize, DataTypes) =>
 		"lastLoginIP": {
 			"type": DataTypes.STRING(64)
 		},
+		"lastLoginServer": {
+			"type": DataTypes.INTEGER
+		},
 		"playTimeLast": {
 			"type": DataTypes.INTEGER
 		},

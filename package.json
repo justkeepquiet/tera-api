@@ -19,7 +19,8 @@
     "sequelize": "^6.19.0",
     "tedious": "^14.5.0",
     "uuid": "^8.3.2",
-    "validate-ip-node": "^1.0.8"
+    "validate-ip-node": "^1.0.8",
+    "xmlbuilder": "^15.1.1"
   },
   "devDependencies": {
     "@types/express": "^4.17.13",
