@@ -1,6 +1,6 @@
 "use strict";
 
-const { body, validationResult } = require("express-validator");
+const body = require("express-validator").body;
 const moment = require("moment-timezone");
 const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
@@ -47,7 +47,7 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!validationResult(req).isEmpty()) {
+			if (!helpers.validationResultLog(req).isEmpty()) {
 				return res.json({
 					result_code: 2,
 					msg: "invalid parameter"
@@ -75,7 +75,7 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!validationResult(req).isEmpty()) {
+			if (!helpers.validationResultLog(req).isEmpty()) {
 				return res.json({
 					result_code: 2,
 					msg: "invalid parameter"
@@ -139,7 +139,7 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!validationResult(req).isEmpty()) {
+			if (!helpers.validationResultLog(req).isEmpty()) {
 				return res.json({
 					result_code: 2,
 					msg: "invalid parameter"
@@ -187,7 +187,7 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!validationResult(req).isEmpty()) {
+			if (!helpers.validationResultLog(req).isEmpty()) {
 				return res.json({
 					result_code: 2,
 					msg: "invalid parameter"
@@ -233,7 +233,7 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!validationResult(req).isEmpty()) {
+			if (!helpers.validationResultLog(req).isEmpty()) {
 				return res.json({
 					result_code: 2,
 					msg: "invalid parameter"
@@ -288,7 +288,7 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!validationResult(req).isEmpty()) {
+			if (!helpers.validationResultLog(req).isEmpty()) {
 				return res.json({
 					result_code: 2,
 					msg: "invalid parameter"
@@ -331,7 +331,7 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!validationResult(req).isEmpty()) {
+			if (!helpers.validationResultLog(req).isEmpty()) {
 				return res.json({
 					result_code: 2,
 					msg: "invalid parameter"
@@ -358,7 +358,7 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!validationResult(req).isEmpty()) {
+			if (!helpers.validationResultLog(req).isEmpty()) {
 				return res.json({
 					result_code: 2,
 					msg: "invalid parameter"

@@ -1,6 +1,6 @@
 "use strict";
 
-const { body, validationResult } = require("express-validator");
+const body = require("express-validator").body;
 const crypto = require("crypto");
 const uuid = require("uuid");
 const logger = require("../utils/logger");
@@ -14,7 +14,7 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!validationResult(req).isEmpty()) {
+			if (!helpers.validationResultLog(req).isEmpty()) {
 				return res.json({
 					Return: false,
 					ReturnCode: 2,
@@ -92,7 +92,7 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!validationResult(req).isEmpty()) {
+			if (!helpers.validationResultLog(req).isEmpty()) {
 				return res.json({
 					Return: false,
 					ReturnCode: 2,
