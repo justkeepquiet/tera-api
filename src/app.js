@@ -16,9 +16,7 @@ const createApi = (router, params) => {
 	app.use(bodyParser.urlencoded({ extended: true }));
 	app.use(bodyParser.json());
 
-	morgan.token("api-name", () => params.name);
-
-	app.use(morgan(":api-name :method :url :status - :response-time ms", {
+	app.use(morgan(`${params.name} :method :url :status - :response-time ms`, {
 		stream: { write: text => logger.info(text.trim()) }
 	}));
 
