@@ -37,9 +37,9 @@ planetIds.forEach(id => {
 	);
 
 	sequelize.authenticate().then(() =>
-		logger.info("Account database connected.")
+		logger.info("Planet database connected.")
 	).catch(err =>
-		logger.error("Account database connection error:", err)
+		logger.error("Planet database connection error:", err)
 	);
 
 	const models = {
