@@ -90,6 +90,10 @@ class SlsBuilder {
 
 		return this.xml.end({ pretty });
 	}
+
+	get getServers() {
+		return this.servers;
+	}
 }
 
 module.exports = SlsBuilder;
