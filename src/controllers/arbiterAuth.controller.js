@@ -1,7 +1,7 @@
-/* eslint-disable no-unused-vars */
 "use strict";
 
 const { body, validationResult } = require("express-validator");
+const logger = require("../helpers/logger");
 const accountModel = require("../models/account.model");
 
 module.exports = {
@@ -12,9 +12,10 @@ module.exports = {
 		(req, res) => {
 			accountModel.sequelize.authenticate().then(() =>
 				res.json({ Return: true })
-			).catch(() =>
-				res.json({ Return: false })
-			);
+			).catch(err => {
+				logger.error(err.toString());
+				res.json({ Return: false });
+			});
 		}
 	],
 
@@ -59,13 +60,14 @@ module.exports = {
 						isUsedOtp: false
 					});
 				}
-			}).catch(() =>
+			}).catch(err => {
+				logger.error(err.toString());
 				res.json({
 					Return: false,
 					ReturnCode: 50000,
 					Msg: "account not exist"
-				})
-			);
+				});
+			});
 		}
 	]
 };

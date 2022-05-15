@@ -1,8 +1,8 @@
-/* eslint-disable no-unused-vars */
 "use strict";
 
 const { body, validationResult } = require("express-validator");
 const moment = require("moment-timezone");
+const logger = require("../helpers/logger");
 const helpers = require("../helpers/helpers");
 const accountModel = require("../models/account.model");
 const reportModel = require("../models/report.model");
@@ -18,12 +18,13 @@ module.exports = {
 					server_time: Date.now() / 1000,
 					result_code: 0
 				})
-			).catch(() =>
+			).catch(err => {
+				logger.error(err.toString());
 				res.json({
 					result_code: 1,
 					msg: "database error"
-				})
-			);
+				});
+			});
 		}
 	],
 
@@ -93,7 +94,9 @@ module.exports = {
 					});
 
 					charCountInfo = helpers.getCharCountString(characters, "serverId", "charCount");
-				} catch (_) {}
+				} catch (err) {
+					logger.error(err.toString());
+				}
 
 				try {
 					const benefits = await accountModel.benefits.findAll({
@@ -101,7 +104,9 @@ module.exports = {
 					});
 
 					benefit = helpers.getBenefitsArray(benefits, "benefitId", "availableUntil");
-				} catch (_) {}
+				} catch (err) {
+					logger.error(err.toString());
+				}
 
 				res.json({
 					// "last_connected_server": account.get("lastLoginServer"),
@@ -114,12 +119,13 @@ module.exports = {
 					// "vip_pub_exp": 0, // @todo
 					result_code: 0
 				});
-			}).catch(() =>
+			}).catch(err => {
+				logger.error(err.toString());
 				res.json({
 					result_code: 50000,
 					msg: "account not exist"
-				})
-			);
+				});
+			});
 		}
 	],
 
@@ -162,12 +168,13 @@ module.exports = {
 
 			Promise.all(primises).then(() =>
 				res.json({ result_code: 0 })
-			).catch(() =>
+			).catch(err => {
+				logger.error(err.toString());
 				res.json({
 					result_code: 50000,
 					msg: "account not exist"
-				})
-			);
+				});
+			});
 		}
 	],
 
@@ -207,12 +214,13 @@ module.exports = {
 
 			Promise.all(primises).then(() =>
 				res.json({ result_code: 0 })
-			).catch(() =>
+			).catch(err => {
+				logger.error(err.toString());
 				res.json({
 					result_code: 50000,
 					msg: "account not exist"
-				})
-			);
+				});
+			});
 		}
 	],
 
@@ -248,12 +256,13 @@ module.exports = {
 
 			Promise.all(primises).then(() =>
 				res.json({ result_code: 0 })
-			).catch(() =>
+			).catch(err => {
+				logger.error(err.toString());
 				res.json({
 					result_code: 50000,
 					msg: "account not exist"
-				})
-			);
+				});
+			});
 		}
 	],
 
@@ -302,12 +311,13 @@ module.exports = {
 
 			Promise.all(primises).then(() =>
 				res.json({ result_code: 0 })
-			).catch(() =>
+			).catch(err => {
+				logger.error(err.toString());
 				res.json({
 					result_code: 50000,
 					msg: "account not exist"
-				})
-			);
+				});
+			});
 		}
 	],
 
@@ -365,12 +375,13 @@ module.exports = {
 				cheatInfo: cheat_info
 			}).then(() =>
 				res.json({ result_code: 0 })
-			).catch(() =>
+			).catch(err => {
+				logger.error(err.toString());
 				res.json({
 					result_code: 50000,
 					msg: "account not exist"
-				})
-			);
+				});
+			});
 		}
 	]
 };

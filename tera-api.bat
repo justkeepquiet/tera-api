@@ -1,3 +1,3 @@
 @echo off
-node --max_old_space_size=4096 index
+node --max_old_space_size=4096 src/app
 pause

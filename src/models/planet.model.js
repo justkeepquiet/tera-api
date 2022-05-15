@@ -1,6 +1,7 @@
 "use strict";
 
 const { Sequelize, DataTypes } = require("sequelize");
+const logger = require("../helpers/logger");
 
 const _exports = {};
 const planetIds = [];
@@ -19,7 +20,7 @@ planetIds.forEach(id => {
 		process.env[`DB_PLANET_${id}_USERNAME`],
 		process.env[`DB_PLANET_${id}_PASSWORD`],
 		{
-			logging: /^true$/i.test(process.env[`DB_PLANET_${id}_LOG_QUERY`]) ? console.log : false,
+			logging: msg => logger.debug(msg),
 			dialect: "mssql",
 			dialectOptions: {
 				options: {
@@ -33,6 +34,12 @@ planetIds.forEach(id => {
 				freezeTableName: true
 			}
 		}
+	);
+
+	sequelize.authenticate().then(() =>
+		logger.info("Account database connected.")
+	).catch(err =>
+		logger.error("Account database connection error:", err)
 	);
 
 	const models = {

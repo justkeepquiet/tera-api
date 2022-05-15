@@ -16,7 +16,7 @@
 		"init-declarations": ["error", "always"],
 		"no-setter-return": "warn",
 		"no-duplicate-imports": "warn",
-		"no-unused-vars": ["warn", { "args": "none" }],
+		"no-unused-vars": "off",
 		"no-const-assign": "error",
 		"no-import-assign": "error",
 		"space-unary-ops": ["error", { "words": true, "nonwords": false }],

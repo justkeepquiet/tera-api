@@ -3,6 +3,7 @@
 const { body, validationResult } = require("express-validator");
 const crypto = require("crypto");
 const uuid = require("uuid");
+const logger = require("../helpers/logger");
 const helpers = require("../helpers/helpers");
 const accountModel = require("../models/account.model");
 
@@ -50,7 +51,9 @@ module.exports = {
 							);
 
 							characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
-						} catch (_) {}
+						} catch (err) {
+							logger.error(err.toString());
+						}
 
 						res.json({
 							Return: true,
@@ -63,21 +66,23 @@ module.exports = {
 							UserNo: account.get("accountDBID"),
 							AuthKey: authKey
 						});
-					}).catch(() =>
+					}).catch(err => {
+						logger.error(err.toString());
 						res.json({
 							Return: false,
 							ReturnCode: 50811,
 							Msg: "failure insert auth token"
-						})
-					);
+						});
+					});
 				}
-			}).catch(() =>
+			}).catch(err => {
+				logger.error(err.toString());
 				res.json({
 					Return: false,
 					ReturnCode: 50000,
 					Msg: "account not exist"
-				})
-			);
+				});
+			});
 		}
 	],
 
@@ -106,7 +111,9 @@ module.exports = {
 					);
 
 					characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
-				} catch (_) {}
+				} catch (err) {
+					logger.error(err.toString());
+				}
 
 				res.json({
 					Return: true,
@@ -117,13 +124,14 @@ module.exports = {
 					CharacterCount: characterCount,
 					Permission: account.get("permission")
 				});
-			}).catch(() =>
+			}).catch(err => {
+				logger.error(err.toString());
 				res.json({
 					Return: false,
 					ReturnCode: 50000,
 					Msg: "account not exist"
-				})
-			);
+				});
+			});
 		}
 	]
 };

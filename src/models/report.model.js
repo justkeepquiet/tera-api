@@ -1,13 +1,14 @@
 "use strict";
 
 const { Sequelize, DataTypes } = require("sequelize");
+const logger = require("../helpers/logger");
 
 const sequelize = new Sequelize(
 	process.env.DB_REPORT_DATABASE,
 	process.env.DB_REPORT_USERNAME,
 	process.env.DB_REPORT_PASSWORD,
 	{
-		logging: /^true$/i.test(process.env.DB_REPORT_LOG_QUERY) ? console.log : false,
+		logging: msg => logger.debug(msg),
 		dialect: "mysql",
 		host: process.env.DB_REPORT_HOST,
 		port: process.env.DB_REPORT_PORT || 3306,
@@ -16,6 +17,12 @@ const sequelize = new Sequelize(
 			freezeTableName: true
 		}
 	}
+);
+
+sequelize.authenticate().then(() =>
+	logger.info("Report database connected.")
+).catch(err =>
+	logger.error("Report database connection error:", err)
 );
 
 const models = {

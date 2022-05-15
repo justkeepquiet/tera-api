@@ -1,6 +1,7 @@
 "use strict";
 
 const xmlbuilder = require("xmlbuilder");
+const logger = require("../helpers/logger");
 const accountModel = require("../models/account.model");
 
 module.exports = {
@@ -56,9 +57,10 @@ module.exports = {
 
 				res.type("application/xml");
 				res.send(xml.end({ pretty: true }));
-			})).catch(() =>
-				res.status(500).end("getting sls error")
-			);
+			})).catch(err => {
+				logger.error(err.toString());
+				res.status(500).end("getting sls error");
+			});
 		}
 	]
 };

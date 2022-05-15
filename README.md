@@ -8,7 +8,7 @@ API implementation for the TERA Online retail server (patch 92) on Node.js. The 
 2. Run the `npm install` command.
 3. Copy the `.env.example` file to `.env`.
 4. Configure the parameters in the `.env` file.
-5. Execute the `node index` command, or run the file `tera-api.bat`.
+5. Execute the `node src/app` command, or run the file `tera-api.bat`.
 
 #### Important!
 
