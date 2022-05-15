@@ -35,17 +35,21 @@ const createApi = (router, params) => {
 	app.use((req, res) =>
 		res.status(404).send(`Invalid endpoint: ${req.url}`)
 	);
-	app.listen(params.port, () =>
-		logger.info(`${params.name} API is listening at port: ${params.port}`)
+	app.listen(params.port, params.host, () =>
+		logger.info(`${params.name} API is listening at: ${!params.host ? "*" : params.host}:${params.port}`)
+	).on("error", err =>
+		logger.error(`${params.name} API has error: ${err.message}`)
 	);
 };
 
 createApi(require("./routes/arbiter.index.js"), {
 	name: "Arbiter",
+	host: process.env.API_ARBITER_LISTEN_HOST,
 	port: process.env.API_ARBITER_LISTEN_PORT
 });
 
 createApi(require("./routes/portal.index.js"), {
 	name: "Portal",
+	host: process.env.API_PORTAL_LISTEN_HOST,
 	port: process.env.API_PORTAL_LISTEN_PORT
 });
