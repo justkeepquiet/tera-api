@@ -7,21 +7,29 @@ const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
 
+/**
+ * @type {import("express").RequestHandler}
+ */
+const validationHandler = (req, res, next) => {
+	if (!helpers.validationResultLog(req).isEmpty()) {
+		return res.json({
+			Return: false,
+			ReturnCode: 2,
+			Msg: "invalid parameter"
+		});
+	}
+
+	next();
+};
+
 module.exports = {
 	ActionLogin: [
 		[body("userID").notEmpty(), body("password").notEmpty()],
+		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!helpers.validationResultLog(req).isEmpty()) {
-				return res.json({
-					Return: false,
-					ReturnCode: 2,
-					Msg: "invalid parameter"
-				});
-			}
-
 			const { userID, password } = req.body;
 
 			accountModel.info.findOne({ where: { userName: userID } }).then(account => {
@@ -87,18 +95,11 @@ module.exports = {
 
 	ActionLogout: [
 		[body("authKey").notEmpty(), body("userNo").notEmpty().isNumeric()],
+		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!helpers.validationResultLog(req).isEmpty()) {
-				return res.json({
-					Return: false,
-					ReturnCode: 2,
-					Msg: "invalid parameter"
-				});
-			}
-
 			const { authKey, userNo } = req.body;
 
 			accountModel.info.findOne({
@@ -141,18 +142,11 @@ module.exports = {
 
 	GetAccountInfo: [
 		[body("id").notEmpty().isNumeric()],
+		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!helpers.validationResultLog(req).isEmpty()) {
-				return res.json({
-					Return: false,
-					ReturnCode: 2,
-					Msg: "invalid parameter"
-				});
-			}
-
 			const { id } = req.body;
 
 			accountModel.info.findOne({ where: { accountDBID: id } }).then(async account => {

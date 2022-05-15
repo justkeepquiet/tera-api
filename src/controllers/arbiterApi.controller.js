@@ -7,6 +7,20 @@ const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
 const reportModel = require("../models/report.model");
 
+/**
+ * @type {import("express").RequestHandler}
+ */
+const validationHandler = (req, res, next) => {
+	if (!helpers.validationResultLog(req).isEmpty()) {
+		return res.json({
+			result_code: 2,
+			msg: "invalid parameter"
+		});
+	}
+
+	next();
+};
+
 module.exports = {
 	ServiceTest: [
 		/**
@@ -43,17 +57,11 @@ module.exports = {
 
 	ServerDown: [
 		[body("server_id").notEmpty().isNumeric()],
+		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!helpers.validationResultLog(req).isEmpty()) {
-				return res.json({
-					result_code: 2,
-					msg: "invalid parameter"
-				});
-			}
-
 			const { server_id } = req.body;
 
 			accountModel.serverInfo.update({
@@ -71,17 +79,11 @@ module.exports = {
 
 	GetUserInfo: [
 		[body("user_srl").notEmpty().isNumeric()],
+		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!helpers.validationResultLog(req).isEmpty()) {
-				return res.json({
-					result_code: 2,
-					msg: "invalid parameter"
-				});
-			}
-
 			const { ip, server_id, user_srl } = req.body;
 
 			accountModel.info.findOne({ where: { accountDBID: user_srl } }).then(async account => {
@@ -142,17 +144,11 @@ module.exports = {
 			body("server_id").notEmpty().isNumeric(),
 			body("user_srl").notEmpty().isNumeric()
 		],
+		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!helpers.validationResultLog(req).isEmpty()) {
-				return res.json({
-					result_code: 2,
-					msg: "invalid parameter"
-				});
-			}
-
 			const { ip, server_id, user_srl } = req.body;
 
 			const primises = [
@@ -190,17 +186,11 @@ module.exports = {
 			body("play_time").notEmpty().isNumeric(),
 			body("user_srl").notEmpty().isNumeric()
 		],
+		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!helpers.validationResultLog(req).isEmpty()) {
-				return res.json({
-					result_code: 2,
-					msg: "invalid parameter"
-				});
-			}
-
 			const { play_time, user_srl } = req.body;
 
 			const primises = [
@@ -238,17 +228,11 @@ module.exports = {
 			body("server_id").notEmpty().isNumeric(),
 			body("user_srl").notEmpty().isNumeric()
 		],
+		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!helpers.validationResultLog(req).isEmpty()) {
-				return res.json({
-					result_code: 2,
-					msg: "invalid parameter"
-				});
-			}
-
 			const { char_name, char_srl, class_id, gender_id, level, race_id, server_id, user_srl } = req.body;
 
 			const primises = [
@@ -293,17 +277,11 @@ module.exports = {
 			body("server_id").notEmpty().isNumeric(),
 			body("user_srl").notEmpty().isNumeric()
 		],
+		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!helpers.validationResultLog(req).isEmpty()) {
-				return res.json({
-					result_code: 2,
-					msg: "invalid parameter"
-				});
-			}
-
 			const { char_srl, server_id, user_srl } = req.body;
 
 			const primises = [
@@ -336,17 +314,11 @@ module.exports = {
 			body("chrono_id").notEmpty().isNumeric(),
 			body("user_srl").notEmpty().isNumeric()
 		],
+		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!helpers.validationResultLog(req).isEmpty()) {
-				return res.json({
-					result_code: 2,
-					msg: "invalid parameter"
-				});
-			}
-
 			const { server_id, chrono_id, user_srl } = req.body;
 
 			// @todo Use premium item to account
@@ -363,17 +335,11 @@ module.exports = {
 			body("type").notEmpty().isNumeric(),
 			body("usr_srl").notEmpty().isNumeric()
 		],
+		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			if (!helpers.validationResultLog(req).isEmpty()) {
-				return res.json({
-					result_code: 2,
-					msg: "invalid parameter"
-				});
-			}
-
 			const { cheat_info, ip, svr_id, type, usr_srl } = req.body;
 
 			reportModel.cheats.create({
