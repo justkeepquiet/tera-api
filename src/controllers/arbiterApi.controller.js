@@ -8,14 +8,18 @@ const accountModel = require("../models/account.model");
 const reportModel = require("../models/report.model");
 
 /**
+ * @param {import("express").Response} res
+ */
+const result = (res, code, params = {}) => res.json({
+	result_code: code, ...params
+});
+
+/**
  * @type {import("express").RequestHandler}
  */
 const validationHandler = (req, res, next) => {
 	if (!helpers.validationResultLog(req).isEmpty()) {
-		return res.json({
-			result_code: 2,
-			msg: "invalid parameter"
-		});
+		return result(res, 2, { msg: "invalid parameter" });
 	}
 
 	next();
@@ -28,16 +32,10 @@ module.exports = {
 		 */
 		(req, res) => {
 			accountModel.sequelize.authenticate().then(() =>
-				res.json({
-					server_time: Date.now() / 1000,
-					result_code: 0
-				})
+				result(res, 0, { server_time: Date.now() / 1000 })
 			).catch(err => {
 				logger.error(err.toString());
-				res.json({
-					result_code: 1,
-					msg: "database error"
-				});
+				result(res, 1, { msg: "database error" });
 			});
 		}
 	],
@@ -48,10 +46,7 @@ module.exports = {
 		 */
 		(req, res) => {
 			// @todo
-			res.json({
-				result_code: 0,
-				permission: 0
-			});
+			result(res, 0, { permission: 0 });
 		}
 	],
 
@@ -71,9 +66,7 @@ module.exports = {
 				where: { serverId: server_id }
 			});
 
-			res.json({
-				result_code: 0
-			});
+			result(res, 0);
 		}
 	],
 
@@ -88,10 +81,7 @@ module.exports = {
 
 			accountModel.info.findOne({ where: { accountDBID: user_srl } }).then(async account => {
 				if (account === null) {
-					return res.json({
-						result_code: 50000,
-						msg: "account not exist"
-					});
+					return result(res, 50000, { msg: "account not exist" });
 				}
 
 				let charCountInfo = "0";
@@ -117,8 +107,7 @@ module.exports = {
 					logger.error(err.toString());
 				}
 
-				res.json({
-					result_code: 0,
+				result(res, 0, {
 					// "last_connected_server": account.get("lastLoginServer"),
 					// "last_play_time": account.get("playTimeTotal"),
 					// "logout_time_diff": account.get("playTimeLast"),
@@ -130,10 +119,7 @@ module.exports = {
 				});
 			}).catch(err => {
 				logger.error(err.toString());
-				res.json({
-					result_code: 50000,
-					msg: "account not exist"
-				});
+				result(res, 50000, { msg: "account not exist" });
 			});
 		}
 	],
@@ -170,13 +156,10 @@ module.exports = {
 			];
 
 			Promise.all(primises).then(() =>
-				res.json({ result_code: 0 })
+				result(res, 0)
 			).catch(err => {
 				logger.error(err.toString());
-				res.json({
-					result_code: 50000,
-					msg: "account not exist"
-				});
+				result(res, 50000, { msg: "account not exist" });
 			});
 		}
 	],
@@ -212,13 +195,10 @@ module.exports = {
 			];
 
 			Promise.all(primises).then(() =>
-				res.json({ result_code: 0 })
+				result(res, 0)
 			).catch(err => {
 				logger.error(err.toString());
-				res.json({
-					result_code: 50000,
-					msg: "account not exist"
-				});
+				result(res, 50000, { msg: "account not exist" });
 			});
 		}
 	],
@@ -248,13 +228,10 @@ module.exports = {
 			];
 
 			Promise.all(primises).then(() =>
-				res.json({ result_code: 0 })
+				result(res, 0)
 			).catch(err => {
 				logger.error(err.toString());
-				res.json({
-					result_code: 50000,
-					msg: "account not exist"
-				});
+				result(res, 50000, { msg: "account not exist" });
 			});
 		}
 	],
@@ -268,7 +245,7 @@ module.exports = {
 
 			// nothing here
 
-			res.json({ result_code: 0 });
+			result(res, 0);
 		}
 	],
 
@@ -297,13 +274,10 @@ module.exports = {
 			];
 
 			Promise.all(primises).then(() =>
-				res.json({ result_code: 0 })
+				result(res, 0)
 			).catch(err => {
 				logger.error(err.toString());
-				res.json({
-					result_code: 50000,
-					msg: "account not exist"
-				});
+				result(res, 50000, { msg: "account not exist" });
 			});
 		}
 	],
@@ -323,7 +297,7 @@ module.exports = {
 
 			// @todo Use premium item to account
 
-			res.json({ result_code: 0 });
+			result(res, 0);
 		}
 	],
 
@@ -349,13 +323,10 @@ module.exports = {
 				type: type,
 				cheatInfo: cheat_info
 			}).then(() =>
-				res.json({ result_code: 0 })
+				result(res, 0)
 			).catch(err => {
 				logger.error(err.toString());
-				res.json({
-					result_code: 50000,
-					msg: "account not exist"
-				});
+				result(res, 50000, { msg: "account not exist" });
 			});
 		}
 	]

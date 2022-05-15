@@ -8,15 +8,18 @@ const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
 
 /**
+ * @param {import("express").Response} res
+ */
+const result = (res, code, message, params = {}) => res.json({
+	Return: code === 0, ReturnCode: code, Msg: message, ...params
+});
+
+/**
  * @type {import("express").RequestHandler}
  */
 const validationHandler = (req, res, next) => {
 	if (!helpers.validationResultLog(req).isEmpty()) {
-		return res.json({
-			Return: false,
-			ReturnCode: 2,
-			Msg: "invalid parameter"
-		});
+		return result(res, 2, "invalid parameter");
 	}
 
 	next();
@@ -41,11 +44,7 @@ module.exports = {
 
 				if (account === null || account.get("passWord") !== passwordString) {
 					logger.warn("Invalid login or password");
-					return res.json({
-						Return: false,
-						ReturnCode: 50015,
-						Msg: "password error"
-					});
+					return result(res, 50015, "password error");
 				}
 
 				const authKey = uuid.v4();
@@ -65,10 +64,7 @@ module.exports = {
 						logger.error(err.toString());
 					}
 
-					res.json({
-						Return: true,
-						ReturnCode: 0,
-						Msg: "success",
+					result(res, 0, "success", {
 						CharacterCount: characterCount,
 						Permission: account.get("permission"),
 						UserNo: account.get("accountDBID"),
@@ -76,19 +72,11 @@ module.exports = {
 					});
 				}).catch(err => {
 					logger.error(err.toString());
-					res.json({
-						Return: false,
-						ReturnCode: 50811,
-						Msg: "failure update auth token"
-					});
+					result(res, 50811, "failure update auth token");
 				});
 			}).catch(err => {
 				logger.error(err.toString());
-				res.json({
-					Return: false,
-					ReturnCode: 50000,
-					Msg: "account not exist"
-				});
+				result(res, 50000, "account not exist");
 			});
 		}
 	],
@@ -106,36 +94,20 @@ module.exports = {
 				where: { accountDBID: userNo, authKey: authKey }
 			}).then(account => {
 				if (account === null) {
-					return res.json({
-						Return: false,
-						ReturnCode: 50000,
-						Msg: "account not exist"
-					});
+					return result(res, 50000, "account not exist");
 				}
 
 				accountModel.info.update({ authKey: null }, {
 					where: { accountDBID: account.get("accountDBID") }
 				}).then(() =>
-					res.json({
-						Return: true,
-						ReturnCode: 0,
-						Msg: "success"
-					})
+					result(res, 0, "success")
 				).catch(err => {
 					logger.error(err.toString());
-					res.json({
-						Return: false,
-						ReturnCode: 50811,
-						Msg: "failure update auth token"
-					});
+					result(res, 50811, "failure update auth token");
 				});
 			}).catch(err => {
 				logger.error(err.toString());
-				res.json({
-					Return: false,
-					ReturnCode: 50000,
-					Msg: "account not exist"
-				});
+				result(res, 50000, "account not exist");
 			});
 		}
 	],
@@ -151,11 +123,7 @@ module.exports = {
 
 			accountModel.info.findOne({ where: { accountDBID: id } }).then(async account => {
 				if (account === null) {
-					return res.json({
-						Return: false,
-						ReturnCode: 50000,
-						Msg: "account not exist"
-					});
+					return result(res, 50000, "account not exist");
 				}
 
 				let characterCount = "0";
@@ -170,22 +138,13 @@ module.exports = {
 					logger.error(err.toString());
 				}
 
-				res.json({
-					Return: true,
-					ReturnCode: 0,
-					Msg: "success",
-					// VipitemInfo: "", // @todo
-					// PassitemInfo: "", // @todo
+				result(res, 0, "success", {
 					CharacterCount: characterCount,
 					Permission: account.get("permission")
 				});
 			}).catch(err => {
 				logger.error(err.toString());
-				res.json({
-					Return: false,
-					ReturnCode: 50000,
-					Msg: "account not exist"
-				});
+				result(res, 50000, "account not exist");
 			});
 		}
 	]

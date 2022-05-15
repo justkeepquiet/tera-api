@@ -6,15 +6,18 @@ const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
 
 /**
+ * @param {import("express").Response} res
+ */
+const result = (res, code, message, params = {}) => res.json({
+	Return: code === 0, ReturnCode: code, Msg: message, ...params
+});
+
+/**
  * @type {import("express").RequestHandler}
  */
 const validationHandler = (req, res, next) => {
 	if (!helpers.validationResultLog(req).isEmpty()) {
-		return res.json({
-			Return: false,
-			ReturnCode: 2,
-			Msg: "invalid parameter"
-		});
+		return result(res, 2, "invalid parameter");
 	}
 
 	next();
@@ -48,41 +51,21 @@ module.exports = {
 
 			accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
 				if (account === null) {
-					return res.json({
-						Return: false,
-						ReturnCode: 50000,
-						Msg: "account not exist"
-					});
+					return result(res, 50000, "account not exist");
 				}
 
 				if (account.get("permission") > 0) { // @todo
-					return res.json({
-						Return: false,
-						ReturnCode: 50010,
-						Msg: "account banned"
-					});
+					return result(res, 50010, "account banned");
 				}
 
 				if (account.get("authKey") !== authKey) {
-					return res.json({
-						Return: false,
-						ReturnCode: 50011,
-						Msg: "authkey mismatch"
-					});
+					return result(res, 50011, "authkey mismatch");
 				}
 
-				res.json({
-					Return: true,
-					ReturnCode: 0,
-					Msg: "success"
-				});
+				result(res, 0, "success");
 			}).catch(err => {
 				logger.error(err.toString());
-				res.json({
-					Return: false,
-					ReturnCode: 50000,
-					Msg: "account not exist"
-				});
+				result(res, 50000, "account not exist");
 			});
 		}
 	]
