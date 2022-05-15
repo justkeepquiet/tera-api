@@ -2,10 +2,11 @@
 
 const express = require("express");
 const portalSlsController = require("../../controllers/portalSls.controller");
-const portalLauncherController = require("../../controllers/portalLauncher.controller");
+const portalAccountController = require("../../controllers/portalAccount.controller");
 
 module.exports = express.Router()
-	.get("/ServerList", ...portalSlsController.getServerListXML)
-	.post("/GetAccountInfoByUserNo", ...portalLauncherController.GetAccountInfoByUserNo)
-	.post("/LauncherLoginAction", ...portalLauncherController.LauncherLoginAction)
+	.get("/ServerList", ...portalSlsController.GetServerListXML)
+	.post("/GetAccountInfoByUserNo", ...portalAccountController.GetAccountInfo)
+	.post("/LauncherLoginAction", ...portalAccountController.ActionLogin)
+	.post("/LauncherLogoutAction", ...portalAccountController.ActionLogout)
 ;

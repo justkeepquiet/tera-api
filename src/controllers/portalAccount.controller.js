@@ -8,7 +8,7 @@ const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
 
 module.exports = {
-	LauncherLoginAction: [
+	ActionLogin: [
 		[body("userID").notEmpty(), body("password").notEmpty()],
 		/**
 		 * @type {import("express").RequestHandler}
@@ -39,6 +39,7 @@ module.exports = {
 						Msg: "password error"
 					});
 				}
+
 				const authKey = uuid.v4();
 
 				accountModel.info.update({ authKey: authKey }, {
@@ -60,8 +61,6 @@ module.exports = {
 						Return: true,
 						ReturnCode: 0,
 						Msg: "success",
-						VipitemInfo: "", // @todo
-						PassitemInfo: "", // @todo
 						CharacterCount: characterCount,
 						Permission: account.get("permission"),
 						UserNo: account.get("accountDBID"),
@@ -72,7 +71,7 @@ module.exports = {
 					res.json({
 						Return: false,
 						ReturnCode: 50811,
-						Msg: "failure insert auth token"
+						Msg: "failure update auth token"
 					});
 				});
 			}).catch(err => {
@@ -86,7 +85,61 @@ module.exports = {
 		}
 	],
 
-	GetAccountInfoByUserNo: [
+	ActionLogout: [
+		[body("authKey").notEmpty(), body("userNo").notEmpty().isNumeric()],
+		/**
+		 * @type {import("express").RequestHandler}
+		 */
+		(req, res) => {
+			if (!helpers.validationResultLog(req).isEmpty()) {
+				return res.json({
+					Return: false,
+					ReturnCode: 2,
+					Msg: "invalid parameter"
+				});
+			}
+
+			const { authKey, userNo } = req.body;
+
+			accountModel.info.findOne({
+				where: { accountDBID: userNo, authKey: authKey }
+			}).then(account => {
+				if (account === null) {
+					return res.json({
+						Return: false,
+						ReturnCode: 50000,
+						Msg: "account not exist"
+					});
+				}
+
+				accountModel.info.update({ authKey: null }, {
+					where: { accountDBID: account.get("accountDBID") }
+				}).then(() =>
+					res.json({
+						Return: true,
+						ReturnCode: 0,
+						Msg: "success"
+					})
+				).catch(err => {
+					logger.error(err.toString());
+					res.json({
+						Return: false,
+						ReturnCode: 50811,
+						Msg: "failure update auth token"
+					});
+				});
+			}).catch(err => {
+				logger.error(err.toString());
+				res.json({
+					Return: false,
+					ReturnCode: 50000,
+					Msg: "account not exist"
+				});
+			});
+		}
+	],
+
+	GetAccountInfo: [
 		[body("id").notEmpty().isNumeric()],
 		/**
 		 * @type {import("express").RequestHandler}
@@ -127,8 +180,8 @@ module.exports = {
 					Return: true,
 					ReturnCode: 0,
 					Msg: "success",
-					VipitemInfo: "", // @todo
-					PassitemInfo: "", // @todo
+					// VipitemInfo: "", // @todo
+					// PassitemInfo: "", // @todo
 					CharacterCount: characterCount,
 					Permission: account.get("permission")
 				});

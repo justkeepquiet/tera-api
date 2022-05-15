@@ -6,7 +6,7 @@ const winston = require("winston");
 const moment = require("moment-timezone");
 
 const logDirectory = "../../logs";
-const logger = winston.createLogger({ level: process.env.API_LOG_LEVEL || "info" });
+const logger = winston.createLogger({ level: process.env.LOG_LEVEL || "info" });
 
 logger.add(new winston.transports.Console({
 	format: winston.format.combine(
@@ -18,7 +18,7 @@ logger.add(new winston.transports.Console({
 	)
 }));
 
-if (/^true$/i.test(process.env.API_LOG_WRITE)) {
+if (/^true$/i.test(process.env.LOG_WRITE)) {
 	const logFilename = `log_${moment.utc().local().format("YYYY-MM-DD_HH-mm-ss")}_${process.pid}.log`;
 
 	if (!fs.existsSync(path.resolve(__dirname, logDirectory))) {

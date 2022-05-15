@@ -35,8 +35,8 @@ module.exports = {
 		(req, res) => {
 			// @todo
 			res.json({
-				permission: 0,
-				result_code: 0
+				result_code: 0,
+				permission: 0
 			});
 		}
 	],
@@ -116,15 +116,15 @@ module.exports = {
 				}
 
 				res.json({
+					result_code: 0,
 					// "last_connected_server": account.get("lastLoginServer"),
 					// "last_play_time": account.get("playTimeTotal"),
 					// "logout_time_diff": account.get("playTimeLast"),
+					// "vip_pub_exp": 0,
 					permission: account.get("permission"),
 					privilege: account.get("privilege"),
 					char_count_info: charCountInfo,
-					benefit: benefit,
-					// "vip_pub_exp": 0, // @todo
-					result_code: 0
+					benefit: benefit
 				});
 			}).catch(err => {
 				logger.error(err.toString());

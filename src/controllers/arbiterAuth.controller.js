@@ -6,6 +6,7 @@ const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
 
 module.exports = {
+	// endpoint: /systemApi/RequestAPIServerStatusAvailable
 	RequestAPIServerStatusAvailable: [
 		/**
 		 * @type {import("express").RequestHandler}
@@ -20,8 +21,9 @@ module.exports = {
 		}
 	],
 
+	// endpoint: /authApi/GameAuthenticationLogin
 	GameAuthenticationLogin: [
-		[body("authKey").notEmpty(), body("userNo").notEmpty()],
+		[body("authKey").notEmpty(), body("userNo").notEmpty().isNumeric()],
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
@@ -46,29 +48,26 @@ module.exports = {
 				}
 
 				if (account.get("permission") > 0) { // @todo
-					res.json({
+					return res.json({
 						Return: false,
 						ReturnCode: 50010,
 						Msg: "account banned"
 					});
-				} else if (account.get("authKey") !== authKey) {
-					res.json({
+				}
+
+				if (account.get("authKey") !== authKey) {
+					return res.json({
 						Return: false,
 						ReturnCode: 50011,
 						Msg: "authkey mismatch"
 					});
-				} else {
-					res.json({
-						Return: true,
-						ReturnCode: 0,
-						Msg: "success",
-						UserID: account.get("accountDBID"),
-						AuthKey: account.get("authKey"),
-						UserNo: account.get("accountDBID"),
-						UserType: "PURCHASE",
-						isUsedOtp: false
-					});
 				}
+
+				res.json({
+					Return: true,
+					ReturnCode: 0,
+					Msg: "success"
+				});
 			}).catch(err => {
 				logger.error(err.toString());
 				res.json({

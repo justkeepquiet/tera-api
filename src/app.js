@@ -20,7 +20,7 @@ const createApi = (router, params) => {
 		stream: { write: text => logger.info(text.trim()) }
 	}));
 
-	if (/^debug$/i.test(process.env.API_LOG_LEVEL)) {
+	if (/^debug$/i.test(process.env.LOG_LEVEL)) {
 		morganBody(app, {
 			noColors: true,
 			prettify: false,
