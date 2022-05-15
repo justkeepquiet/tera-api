@@ -85,6 +85,13 @@ module.exports = {
 			const { ip, server_id, user_srl } = req.body;
 
 			accountModel.info.findOne({ where: { accountDBID: user_srl } }).then(async account => {
+				if (account === null) {
+					return res.json({
+						result_code: 50000,
+						msg: "account not exist"
+					});
+				}
+
 				let charCountInfo = "0";
 				let benefit = [];
 
@@ -199,11 +206,13 @@ module.exports = {
 			const primises = [
 				accountModel.info.findOne({
 					where: { accountDBID: user_srl }
-				}).then(account =>
-					accountModel.serverInfo.decrement({ usersOnline: 1 }, {
-						where: { serverId: account.get("lastLoginServer") }
-					})
-				),
+				}).then(account => {
+					if (account !== null) {
+						accountModel.serverInfo.decrement({ usersOnline: 1 }, {
+							where: { serverId: account.get("lastLoginServer") }
+						});
+					}
+				}),
 				accountModel.info.update({
 					playTimeLast: play_time,
 					playTimeTotal: accountModel.sequelize.literal(`playTimeTotal + ${play_time}`)

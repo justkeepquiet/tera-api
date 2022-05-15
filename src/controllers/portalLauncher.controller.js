@@ -31,50 +31,50 @@ module.exports = {
 					passwordString = crypto.createHash("sha512").update(process.env.API_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
 				}
 
-				if (account.get("passWord") !== passwordString) {
-					res.json({
+				if (account === null || account.get("passWord") !== passwordString) {
+					logger.warn("Invalid login or password");
+					return res.json({
 						Return: false,
 						ReturnCode: 50015,
 						Msg: "password error"
 					});
-				} else {
-					const authKey = uuid.v4();
-
-					accountModel.info.update({ authKey: authKey }, {
-						where: { accountDBID: account.get("accountDBID") }
-					}).then(async () => {
-						let characterCount = "0";
-
-						try {
-							const characters = await accountModel.characters.findAll(
-								{ where: { accountDBID: account.get("accountDBID") } }
-							);
-
-							characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
-						} catch (err) {
-							logger.error(err.toString());
-						}
-
-						res.json({
-							Return: true,
-							ReturnCode: 0,
-							Msg: "success",
-							VipitemInfo: "", // @todo
-							PassitemInfo: "", // @todo
-							CharacterCount: characterCount,
-							Permission: account.get("permission"),
-							UserNo: account.get("accountDBID"),
-							AuthKey: authKey
-						});
-					}).catch(err => {
-						logger.error(err.toString());
-						res.json({
-							Return: false,
-							ReturnCode: 50811,
-							Msg: "failure insert auth token"
-						});
-					});
 				}
+				const authKey = uuid.v4();
+
+				accountModel.info.update({ authKey: authKey }, {
+					where: { accountDBID: account.get("accountDBID") }
+				}).then(async () => {
+					let characterCount = "0";
+
+					try {
+						const characters = await accountModel.characters.findAll(
+							{ where: { accountDBID: account.get("accountDBID") } }
+						);
+
+						characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
+					} catch (err) {
+						logger.error(err.toString());
+					}
+
+					res.json({
+						Return: true,
+						ReturnCode: 0,
+						Msg: "success",
+						VipitemInfo: "", // @todo
+						PassitemInfo: "", // @todo
+						CharacterCount: characterCount,
+						Permission: account.get("permission"),
+						UserNo: account.get("accountDBID"),
+						AuthKey: authKey
+					});
+				}).catch(err => {
+					logger.error(err.toString());
+					res.json({
+						Return: false,
+						ReturnCode: 50811,
+						Msg: "failure insert auth token"
+					});
+				});
 			}).catch(err => {
 				logger.error(err.toString());
 				res.json({
@@ -103,6 +103,14 @@ module.exports = {
 			const { id } = req.body;
 
 			accountModel.info.findOne({ where: { accountDBID: id } }).then(async account => {
+				if (account === null) {
+					return res.json({
+						Return: false,
+						ReturnCode: 50000,
+						Msg: "account not exist"
+					});
+				}
+
 				let characterCount = "0";
 
 				try {

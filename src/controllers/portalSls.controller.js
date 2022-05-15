@@ -15,6 +15,10 @@ module.exports = {
 			}).then(strings => accountModel.serverInfo.findAll({
 				where: { isEnabled: 1 }
 			}).then(servers => {
+				if (strings === null || servers === null) {
+					return res.status(500).end("getting sls error");
+				}
+
 				const xml = xmlbuilder.create("serverlist", { encoding: "utf-8" });
 
 				servers.forEach(server => {

@@ -37,6 +37,14 @@ module.exports = {
 			const { authKey, clientIP, userNo } = req.body;
 
 			accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
+				if (account === null) {
+					return res.json({
+						Return: false,
+						ReturnCode: 50000,
+						Msg: "account not exist"
+					});
+				}
+
 				if (account.get("permission") > 0) { // @todo
 					res.json({
 						Return: false,
