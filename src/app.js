@@ -6,7 +6,7 @@ const express = require("express");
 const morgan = require("morgan");
 const morganBody = require("morgan-body");
 const bodyParser = require("body-parser");
-const logger = require("./helpers/logger");
+const logger = require("./utils/logger");
 
 const createApi = (router, params) => {
 	const app = express();

@@ -1,7 +1,7 @@
 "use strict";
 
 const xmlbuilder = require("xmlbuilder");
-const logger = require("../helpers/logger");
+const logger = require("../utils/logger");
 const accountModel = require("../models/account.model");
 
 module.exports = {

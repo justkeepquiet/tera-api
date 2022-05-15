@@ -2,8 +2,8 @@
 
 const { body, validationResult } = require("express-validator");
 const moment = require("moment-timezone");
-const logger = require("../helpers/logger");
-const helpers = require("../helpers/helpers");
+const logger = require("../utils/logger");
+const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
 const reportModel = require("../models/report.model");
 

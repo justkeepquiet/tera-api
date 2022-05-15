@@ -1,7 +1,7 @@
 "use strict";
 
 const { Sequelize, DataTypes } = require("sequelize");
-const logger = require("../helpers/logger");
+const logger = require("../utils/logger");
 
 const sequelize = new Sequelize(
 	process.env.DB_ACCOUNT_DATABASE,

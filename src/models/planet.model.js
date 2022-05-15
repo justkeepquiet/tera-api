@@ -1,7 +1,7 @@
 "use strict";
 
 const { Sequelize, DataTypes } = require("sequelize");
-const logger = require("../helpers/logger");
+const logger = require("../utils/logger");
 
 const _exports = {};
 const planetIds = [];
