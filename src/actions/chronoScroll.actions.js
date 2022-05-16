@@ -28,6 +28,12 @@ const сhronoScrollController = {
 	// VIP 30 Day
 	215306: userId => (new EliteStatusVoucherBenefit(userId)).add(30),
 
+	// TERA Club Membership (3 Days)
+	155780: userId => (new EliteStatusVoucherBenefit(userId)).add(3),
+
+	// TERA Club Membership (30 Days)
+	155503: userId => (new EliteStatusVoucherBenefit(userId)).add(30),
+
 	// Elite Status Voucher (1-day)
 	183455: userId => (new EliteStatusVoucherBenefit(userId)).add(1),
 
