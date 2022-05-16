@@ -55,9 +55,9 @@ module.exports = {
 					let characterCount = "0";
 
 					try {
-						const characters = await accountModel.characters.findAll(
-							{ where: { accountDBID: account.get("accountDBID") } }
-						);
+						const characters = await accountModel.characters.findAll({
+							where: { accountDBID: account.get("accountDBID") }
+						});
 
 						characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
 					} catch (err) {
@@ -129,9 +129,9 @@ module.exports = {
 				let characterCount = "0";
 
 				try {
-					const characters = await accountModel.characters.findAll(
-						{ where: { accountDBID: account.get("accountDBID") } }
-					);
+					const characters = await accountModel.characters.findAll({
+						where: { accountDBID: account.get("accountDBID") }
+					});
 
 					characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
 				} catch (err) {

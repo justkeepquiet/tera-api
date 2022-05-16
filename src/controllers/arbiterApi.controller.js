@@ -6,6 +6,7 @@ const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
 const reportModel = require("../models/report.model");
+const ChronoScrollActions = require("../actions/chronoScroll.actions");
 
 /**
  * @param {import("express").Response} res
@@ -294,10 +295,15 @@ module.exports = {
 		 */
 		(req, res) => {
 			const { server_id, chrono_id, user_srl } = req.body;
+			const actions = new ChronoScrollActions(server_id);
 
-			// @todo Use premium item to account
-
-			result(res, 0);
+			try {
+				actions.emit(chrono_id, user_srl);
+				result(res, 0);
+			} catch (err) {
+				logger.error(err.toString());
+				result(res, 50000, { msg: "account not exist" });
+			}
 		}
 	],
 
