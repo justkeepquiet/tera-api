@@ -61,11 +61,13 @@ module.exports = {
 			const { server_id } = req.body;
 
 			accountModel.serverInfo.update({
-				isAvailable: 0, // set server is offline (me need open server manually on start?!)
+				isAvailable: 0,
 				usersOnline: 0
 			}, {
 				where: { serverId: server_id }
-			});
+			}).catch(err =>
+				logger.error(err.toString())
+			);
 
 			result(res, 0);
 		}
