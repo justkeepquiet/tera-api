@@ -7,6 +7,27 @@ const accountModel = require("../models/account.model");
 const BENEFIT_ID_ELITE_STATUS = 533; // RU VIP
 
 const сhronoScrollController = {
+	// VIP 1 Day
+	149897: userId => (new EliteStatusVoucherBenefit(userId)).add(1),
+
+	// VIP 15 Day
+	149901: userId => (new EliteStatusVoucherBenefit(userId)).add(15),
+
+	// VIP 3 Day
+	149898: userId => (new EliteStatusVoucherBenefit(userId)).add(3),
+
+	// VIP 30 Day
+	149902: userId => (new EliteStatusVoucherBenefit(userId)).add(30),
+
+	// VIP 5 Day
+	149899: userId => (new EliteStatusVoucherBenefit(userId)).add(5),
+
+	// VIP 7 Day
+	149900: userId => (new EliteStatusVoucherBenefit(userId)).add(7),
+
+	// VIP 30 Day
+	215306: userId => (new EliteStatusVoucherBenefit(userId)).add(30),
+
 	// Elite Status Voucher (1-day)
 	183455: userId => (new EliteStatusVoucherBenefit(userId)).add(1),
 
