@@ -8,31 +8,31 @@ const BENEFIT_ID_ELITE_STATUS = 533; // RU VIP
 
 const сhronoScrollController = {
 	// Elite Status Voucher (1-day)
-	183455: (serverId, userId) => (new EliteStatusVoucherBenefit(userId)).addDays(1),
+	183455: userId => (new EliteStatusVoucherBenefit(userId)).add(1),
 
 	// Elite Status Voucher (14-day)
-	183459: (serverId, userId) => (new EliteStatusVoucherBenefit(userId)).addDays(14),
+	183459: userId => (new EliteStatusVoucherBenefit(userId)).add(14),
 
 	// Elite Status Voucher (180-day)
-	183463: (serverId, userId) => (new EliteStatusVoucherBenefit(userId)).addDays(180),
+	183463: userId => (new EliteStatusVoucherBenefit(userId)).add(180),
 
 	// Elite Status Voucher (30-day)
-	183460: (serverId, userId) => (new EliteStatusVoucherBenefit(userId)).addDays(30),
+	183460: userId => (new EliteStatusVoucherBenefit(userId)).add(30),
 
 	// Elite Status Voucher (360-day)
-	183464: (serverId, userId) => (new EliteStatusVoucherBenefit(userId)).addDays(360),
+	183464: userId => (new EliteStatusVoucherBenefit(userId)).add(360),
 
 	// Elite Status Voucher (5-day)
-	183457: (serverId, userId) => (new EliteStatusVoucherBenefit(userId)).addDays(5),
+	183457: userId => (new EliteStatusVoucherBenefit(userId)).add(5),
 
 	// Elite Status Voucher (60-day)
-	183461: (serverId, userId) => (new EliteStatusVoucherBenefit(userId)).addDays(60),
+	183461: userId => (new EliteStatusVoucherBenefit(userId)).add(60),
 
 	// Elite Status Voucher (7-day)
-	183458: (serverId, userId) => (new EliteStatusVoucherBenefit(userId)).addDays(7),
+	183458: userId => (new EliteStatusVoucherBenefit(userId)).add(7),
 
 	// Elite Status Voucher (90-day)
-	183462: (serverId, userId) => (new EliteStatusVoucherBenefit(userId)).addDays(90)
+	183462: userId => (new EliteStatusVoucherBenefit(userId)).add(90)
 };
 
 class EliteStatusVoucherBenefit {
@@ -41,7 +41,7 @@ class EliteStatusVoucherBenefit {
 		this.benefitId = BENEFIT_ID_ELITE_STATUS;
 	}
 
-	async addDays(days) {
+	async add(days) {
 		const benefit = await accountModel.benefits.findOne({
 			where: { accountDBID: this.userId, benefitId: this.benefitId }
 		});
@@ -71,7 +71,7 @@ class ChronoScrollActions extends EventEmitter {
 
 	assign() {
 		Object.keys(сhronoScrollController).forEach(chronoId =>
-			this.on(chronoId, userId => сhronoScrollController[chronoId](this.serverId, userId))
+			this.on(chronoId, userId => сhronoScrollController[chronoId](userId, this.serverId))
 		);
 	}
 }
