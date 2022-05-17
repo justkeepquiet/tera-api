@@ -13,7 +13,7 @@ class ServerUpActions {
 
 		if (portStatus === true) {
 			accountModel.serverInfo.update({ isAvailable: 1 }, {
-				where: { serverId: serverId }
+				where: { serverId }
 			}).catch(err =>
 				logger.error(err.toString())
 			);
