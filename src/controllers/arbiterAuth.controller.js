@@ -41,7 +41,7 @@ module.exports = {
 
 	// endpoint: /authApi/GameAuthenticationLogin
 	GameAuthenticationLogin: [
-		[body("authKey").notEmpty(), body("userNo").notEmpty().isNumeric()],
+		[body("authKey").notEmpty(), body("userNo").isNumeric()],
 		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}

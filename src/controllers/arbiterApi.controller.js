@@ -52,7 +52,7 @@ module.exports = {
 	],
 
 	ServerDown: [
-		[body("server_id").notEmpty().isNumeric()],
+		[body("server_id").isNumeric()],
 		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
@@ -74,7 +74,7 @@ module.exports = {
 	],
 
 	GetUserInfo: [
-		[body("user_srl").notEmpty().isNumeric()],
+		[body("user_srl").isNumeric()],
 		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
@@ -135,9 +135,9 @@ module.exports = {
 
 	EnterGame: [
 		[
-			body("ip").notEmpty().isIP(),
-			body("server_id").notEmpty().isNumeric(),
-			body("user_srl").notEmpty().isNumeric()
+			body("ip").isIP(),
+			body("server_id").isNumeric(),
+			body("user_srl").isNumeric()
 		],
 		validationHandler,
 		/**
@@ -171,8 +171,8 @@ module.exports = {
 
 	LeaveGame: [
 		[
-			body("play_time").notEmpty().isNumeric(),
-			body("user_srl").notEmpty().isNumeric()
+			body("play_time").isNumeric(),
+			body("user_srl").isNumeric()
 		],
 		validationHandler,
 		/**
@@ -210,14 +210,14 @@ module.exports = {
 
 	CreateChar: [
 		[
-			body("char_name").notEmpty(),
-			body("char_srl").notEmpty().isNumeric(),
-			body("class_id").notEmpty().isNumeric(),
-			body("gender_id").notEmpty().isNumeric(),
-			body("level").notEmpty().isNumeric(),
-			body("race_id").notEmpty().isNumeric(),
-			body("server_id").notEmpty().isNumeric(),
-			body("user_srl").notEmpty().isNumeric()
+			body("server_id").isNumeric(),
+			body("user_srl").isNumeric(),
+			body("char_srl").isNumeric(),
+			body("class_id").isNumeric(),
+			body("gender_id").isNumeric(),
+			body("level").isNumeric(),
+			body("race_id").isNumeric(),
+			body("char_name").notEmpty()
 		],
 		validationHandler,
 		/**
@@ -253,14 +253,13 @@ module.exports = {
 
 	ModifyChar: [
 		[
-			body("char_name").notEmpty(),
-			body("char_srl").notEmpty().isNumeric(),
-			body("class_id").notEmpty().isNumeric(),
-			body("gender_id").notEmpty().isNumeric(),
-			body("level").notEmpty().isNumeric(),
-			body("race_id").notEmpty().isNumeric(),
-			body("server_id").notEmpty().isNumeric(),
-			body("user_srl").notEmpty().isNumeric()
+			body("char_srl").isNumeric(),
+			body("server_id").isNumeric(),
+			body("user_srl").isNumeric(),
+			body("class_id").optional().isNumeric(),
+			body("gender_id").optional().isNumeric(),
+			body("level").optional().isNumeric(),
+			body("race_id").optional().isNumeric()
 		],
 		validationHandler,
 		/**
@@ -268,14 +267,19 @@ module.exports = {
 		 */
 		(req, res) => {
 			const { char_name, char_srl, class_id, gender_id, level, race_id, server_id, user_srl } = req.body;
+			const fields = {};
 
-			accountModel.characters.update({
-				name: decodeURI(char_name),
-				classId: class_id,
-				genderId: gender_id,
-				raceId: race_id,
-				level
-			}, {
+			if (char_name !== undefined) fields.name = decodeURI(char_name);
+			if (class_id !== undefined) fields.classId = class_id;
+			if (gender_id !== undefined) fields.genderId = gender_id;
+			if (race_id !== undefined) fields.race_id = race_id;
+			if (level !== undefined) fields.level = level;
+
+			if (Object.keys(fields).length === 0) {
+				return result(res, 0);
+			}
+
+			accountModel.characters.update(fields, {
 				where: {
 					characterId: char_srl,
 					serverId: server_id,
@@ -292,9 +296,9 @@ module.exports = {
 
 	DeleteChar: [
 		[
-			body("char_srl").notEmpty().isNumeric(),
-			body("server_id").notEmpty().isNumeric(),
-			body("user_srl").notEmpty().isNumeric()
+			body("char_srl").isNumeric(),
+			body("server_id").isNumeric(),
+			body("user_srl").isNumeric()
 		],
 		validationHandler,
 		/**
@@ -327,9 +331,9 @@ module.exports = {
 
 	UseChronoScroll: [
 		[
-			body("server_id").notEmpty().isNumeric(),
-			body("chrono_id").notEmpty().isNumeric(),
-			body("user_srl").notEmpty().isNumeric()
+			body("server_id").isNumeric(),
+			body("chrono_id").isNumeric(),
+			body("user_srl").isNumeric()
 		],
 		validationHandler,
 		/**
@@ -351,11 +355,11 @@ module.exports = {
 
 	ReportCheater: [
 		[
-			body("cheat_info").notEmpty().isNumeric(),
-			body("ip").notEmpty().isIP(),
-			body("svr_id").notEmpty().isNumeric(),
-			body("type").notEmpty().isNumeric(),
-			body("usr_srl").notEmpty().isNumeric()
+			body("cheat_info").isNumeric(),
+			body("ip").isIP(),
+			body("svr_id").isNumeric(),
+			body("type").isNumeric(),
+			body("usr_srl").isNumeric()
 		],
 		validationHandler,
 		/**
