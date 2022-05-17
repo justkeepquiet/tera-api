@@ -1,6 +1,7 @@
 "use strict";
 
 const EventEmitter = require("events").EventEmitter;
+const moment = require("moment-timezone");
 const accountModel = require("../models/account.model");
 
 // @see StrSheet_AccountBenefit
@@ -70,6 +71,7 @@ class EliteStatusVoucherBenefit {
 
 	async add(days) {
 		const benefit = await accountModel.benefits.findOne({
+			attributes: ["availableUntil", [accountModel.characters.sequelize.fn("NOW"), "dateNow"]],
 			where: { accountDBID: this.userId, benefitId: this.benefitId }
 		});
 
@@ -80,8 +82,12 @@ class EliteStatusVoucherBenefit {
 				availableUntil: accountModel.sequelize.fn("ADDDATE", accountModel.sequelize.fn("NOW"), days)
 			});
 		} else {
+			const currentDate = moment(benefit.get("dateNow")).isAfter(benefit.get("availableUntil")) ?
+				accountModel.sequelize.fn("NOW") :
+				accountModel.sequelize.col("availableUntil");
+
 			return accountModel.benefits.update({
-				availableUntil: accountModel.sequelize.fn("ADDDATE", accountModel.sequelize.col("availableUntil"), days)
+				availableUntil: accountModel.sequelize.fn("ADDDATE", currentDate, days)
 			}, {
 				where: { accountDBID: this.userId, benefitId: this.benefitId }
 			});
