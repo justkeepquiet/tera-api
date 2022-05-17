@@ -16,10 +16,15 @@ CREATE TABLE IF NOT EXISTS `account_benefits` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `account_characters` (
+  `characterId` int(11) NOT NULL,
+  `serverId` int(11) NOT NULL,
   `accountDBID` bigint(20) NOT NULL,
-  `serverID` int(11) NOT NULL,
-  `charCount` int(11) DEFAULT '0',
-  PRIMARY KEY (`accountDBID`,`serverID`) USING BTREE
+  `name` varchar(64) DEFAULT NULL,
+  `classId` int(11) DEFAULT NULL,
+  `genderId` int(11) DEFAULT NULL,
+  `raceId` int(11) DEFAULT NULL,
+  `level` int(11) DEFAULT NULL,
+  PRIMARY KEY (`characterId`,`serverId`,`accountDBID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `account_info` (

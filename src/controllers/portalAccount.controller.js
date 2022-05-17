@@ -56,10 +56,14 @@ module.exports = {
 
 					try {
 						const characters = await accountModel.characters.findAll({
+							attributes: ["serverId", [accountModel.characters.sequelize.fn("COUNT", "characterId"), "charCount"]],
+							group: ["serverId"],
 							where: { accountDBID: account.get("accountDBID") }
 						});
 
-						characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
+						if (characters !== null) {
+							characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
+						}
 					} catch (err) {
 						logger.error(err.toString());
 					}
@@ -130,10 +134,14 @@ module.exports = {
 
 				try {
 					const characters = await accountModel.characters.findAll({
+						attributes: ["serverId", [accountModel.characters.sequelize.fn("COUNT", "characterId"), "charCount"]],
+						group: ["serverId"],
 						where: { accountDBID: account.get("accountDBID") }
 					});
 
-					characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
+					if (characters !== null) {
+						characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
+					}
 				} catch (err) {
 					logger.error(err.toString());
 				}

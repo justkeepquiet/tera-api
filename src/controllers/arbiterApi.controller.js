@@ -92,10 +92,14 @@ module.exports = {
 
 				try {
 					const characters = await accountModel.characters.findAll({
+						attributes: ["serverId", [accountModel.characters.sequelize.fn("COUNT", "characterId"), "charCount"]],
+						group: ["serverId"],
 						where: { accountDBID: account.get("accountDBID") }
 					});
 
-					charCountInfo = helpers.getCharCountString(characters, "serverId", "charCount");
+					if (characters !== null) {
+						charCountInfo = helpers.getCharCountString(characters, "serverId", "charCount");
+					}
 				} catch (err) {
 					logger.error(err.toString());
 				}
@@ -105,7 +109,9 @@ module.exports = {
 						where: { accountDBID: account.get("accountDBID") }
 					});
 
-					benefit = helpers.getBenefitsArray(benefits, "benefitId", "availableUntil");
+					if (benefits !== null) {
+						benefit = helpers.getBenefitsArray(benefits, "benefitId", "availableUntil");
+					}
 				} catch (err) {
 					logger.error(err.toString());
 				}
@@ -151,10 +157,6 @@ module.exports = {
 				}),
 				accountModel.serverInfo.increment({ usersOnline: 1 }, {
 					where: { serverId: server_id }
-				}),
-				accountModel.characters.upsert({
-					accountDBID: user_srl,
-					serverId: server_id
 				})
 			];
 
@@ -208,6 +210,12 @@ module.exports = {
 
 	CreateChar: [
 		[
+			body("char_name").notEmpty(),
+			body("char_srl").notEmpty().isNumeric(),
+			body("class_id").notEmpty().isNumeric(),
+			body("gender_id").notEmpty().isNumeric(),
+			body("level").notEmpty().isNumeric(),
+			body("race_id").notEmpty().isNumeric(),
 			body("server_id").notEmpty().isNumeric(),
 			body("user_srl").notEmpty().isNumeric()
 		],
@@ -222,11 +230,15 @@ module.exports = {
 				accountModel.serverInfo.increment({ usersTotal: 1 }, {
 					where: { serverId: server_id }
 				}),
-				accountModel.characters.increment({ charCount: 1 }, {
-					where: {
-						accountDBID: user_srl,
-						serverId: server_id
-					}
+				accountModel.characters.create({
+					characterId: char_srl,
+					serverId: server_id,
+					accountDBID: user_srl,
+					name: decodeURI(char_name),
+					classId: class_id,
+					genderId: gender_id,
+					raceId: race_id,
+					level
 				})
 			];
 
@@ -240,20 +252,47 @@ module.exports = {
 	],
 
 	ModifyChar: [
+		[
+			body("char_name").notEmpty(),
+			body("char_srl").notEmpty().isNumeric(),
+			body("class_id").notEmpty().isNumeric(),
+			body("gender_id").notEmpty().isNumeric(),
+			body("level").notEmpty().isNumeric(),
+			body("race_id").notEmpty().isNumeric(),
+			body("server_id").notEmpty().isNumeric(),
+			body("user_srl").notEmpty().isNumeric()
+		],
+		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
 			const { char_name, char_srl, class_id, gender_id, level, race_id, server_id, user_srl } = req.body;
 
-			// nothing here
-
-			result(res, 0);
+			accountModel.characters.update({
+				name: decodeURI(char_name),
+				classId: class_id,
+				genderId: gender_id,
+				raceId: race_id,
+				level
+			}, {
+				where: {
+					characterId: char_srl,
+					serverId: server_id,
+					accountDBID: user_srl
+				}
+			}).then(() =>
+				result(res, 0)
+			).catch(err => {
+				logger.error(err.toString());
+				result(res, 50000, { msg: "account not exist" });
+			});
 		}
 	],
 
 	DeleteChar: [
 		[
+			body("char_srl").notEmpty().isNumeric(),
 			body("server_id").notEmpty().isNumeric(),
 			body("user_srl").notEmpty().isNumeric()
 		],
@@ -268,10 +307,11 @@ module.exports = {
 				accountModel.serverInfo.decrement({ usersTotal: 1 }, {
 					where: { serverId: server_id }
 				}),
-				accountModel.characters.decrement({ charCount: 1 }, {
+				accountModel.characters.destroy({
 					where: {
-						accountDBID: user_srl,
-						serverId: server_id
+						characterId: char_srl,
+						serverId: server_id,
+						accountDBID: user_srl
 					}
 				})
 			];
