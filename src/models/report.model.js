@@ -26,6 +26,7 @@ sequelize.authenticate().then(() =>
 );
 
 const models = {
+	activity: require("./report/reportActivity.model")(sequelize, DataTypes),
 	characters: require("./report/reportCharacters.model")(sequelize, DataTypes),
 	cheats: require("./report/reportCheats.model")(sequelize, DataTypes),
 	chronoScrolls: require("./report/reportChronoScrolls.model")(sequelize, DataTypes)

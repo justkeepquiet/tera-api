@@ -157,6 +157,12 @@ module.exports = {
 				}),
 				accountModel.serverInfo.increment({ usersOnline: 1 }, {
 					where: { serverId: server_id }
+				}),
+				reportModel.activity.create({
+					accountDBID: user_srl,
+					serverId: server_id,
+					ip,
+					reportType: 1
 				})
 			];
 
@@ -184,10 +190,18 @@ module.exports = {
 			const primises = [
 				accountModel.info.findOne({
 					where: { accountDBID: user_srl }
-				}).then(account => {
+				}).then(async account => {
 					if (account !== null) {
-						accountModel.serverInfo.decrement({ usersOnline: 1 }, {
+						await accountModel.serverInfo.decrement({ usersOnline: 1 }, {
 							where: { serverId: account.get("lastLoginServer") }
+						});
+
+						await reportModel.activity.create({
+							accountDBID: user_srl,
+							serverId: account.get("lastLoginServer"),
+							ip: account.get("lastLoginIP"),
+							playTime: play_time,
+							reportType: 2
 						});
 					}
 				}),
