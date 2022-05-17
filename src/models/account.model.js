@@ -26,11 +26,11 @@ sequelize.authenticate().then(() =>
 );
 
 const models = {
-	info: require("./account/accountInfo.model.js")(sequelize, DataTypes),
-	characters: require("./account/accountCharacters.model.js")(sequelize, DataTypes),
-	benefits: require("./account/accountBenefits.model.js")(sequelize, DataTypes),
-	serverInfo: require("./account/serverInfo.model.js")(sequelize, DataTypes),
-	serverStrings: require("./account/serverStrings.model.js")(sequelize, DataTypes)
+	info: require("./account/accountInfo.model")(sequelize, DataTypes),
+	characters: require("./account/accountCharacters.model")(sequelize, DataTypes),
+	benefits: require("./account/accountBenefits.model")(sequelize, DataTypes),
+	serverInfo: require("./account/serverInfo.model")(sequelize, DataTypes),
+	serverStrings: require("./account/serverStrings.model")(sequelize, DataTypes)
 };
 
 module.exports = { ...models, sequelize };

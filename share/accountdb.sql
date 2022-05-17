@@ -44,12 +44,34 @@ CREATE TABLE IF NOT EXISTS `account_info` (
   PRIMARY KEY (`accountDBID`,`userName`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
+CREATE TABLE IF NOT EXISTS `report_characters` (
+  `accountDBID` bigint(20) NOT NULL,
+  `serverId` int(11) NOT NULL,
+  `characterId` int(11) NOT NULL,
+  `name` varchar(64) DEFAULT NULL,
+  `classId` int(11) DEFAULT NULL,
+  `genderId` int(11) DEFAULT NULL,
+  `raceId` int(11) DEFAULT NULL,
+  `level` int(11) DEFAULT NULL,
+  `reportType` int(11) DEFAULT NULL,
+  `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY `accountDBID` (`accountDBID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `report_cheats` (
   `accountDBID` bigint(20) DEFAULT NULL,
   `serverId` int(11) DEFAULT NULL,
   `ip` varchar(64) DEFAULT NULL,
   `type` int(11) DEFAULT NULL,
   `cheatInfo` varchar(1024) DEFAULT NULL,
+  `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  KEY `accountDBID` (`accountDBID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `report_chronoscrolls` (
+  `accountDBID` bigint(20) DEFAULT NULL,
+  `serverId` int(11) DEFAULT NULL,
+  `chronoId` int(11) DEFAULT NULL,
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   KEY `accountDBID` (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

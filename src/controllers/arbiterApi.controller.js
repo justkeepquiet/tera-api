@@ -239,6 +239,17 @@ module.exports = {
 					genderId: gender_id,
 					raceId: race_id,
 					level
+				}),
+				reportModel.characters.create({
+					characterId: char_srl,
+					serverId: server_id,
+					accountDBID: user_srl,
+					name: decodeURI(char_name),
+					classId: class_id,
+					genderId: gender_id,
+					raceId: race_id,
+					level,
+					reportType: 1
 				})
 			];
 
@@ -279,13 +290,24 @@ module.exports = {
 				return result(res, 0);
 			}
 
-			accountModel.characters.update(fields, {
-				where: {
+			const primises = [
+				accountModel.characters.update(fields, {
+					where: {
+						characterId: char_srl,
+						serverId: server_id,
+						accountDBID: user_srl
+					}
+				}),
+				reportModel.characters.create({
 					characterId: char_srl,
 					serverId: server_id,
-					accountDBID: user_srl
-				}
-			}).then(() =>
+					accountDBID: user_srl,
+					...fields,
+					reportType: 2
+				})
+			];
+
+			Promise.all(primises).then(() =>
 				result(res, 0)
 			).catch(err => {
 				logger.error(err.toString());
@@ -317,6 +339,12 @@ module.exports = {
 						serverId: server_id,
 						accountDBID: user_srl
 					}
+				}),
+				reportModel.characters.create({
+					characterId: char_srl,
+					serverId: server_id,
+					accountDBID: user_srl,
+					reportType: 3
 				})
 			];
 
@@ -339,12 +367,19 @@ module.exports = {
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
-		(req, res) => {
+		async (req, res) => {
 			const { server_id, chrono_id, user_srl } = req.body;
 			const actions = new ChronoScrollActions(server_id);
 
 			try {
 				actions.emit(chrono_id, user_srl);
+
+				await reportModel.chronoScrolls.create({
+					accountDBID: user_srl,
+					serverId: server_id,
+					chronoId: chrono_id
+				});
+
 				result(res, 0);
 			} catch (err) {
 				logger.error(err.toString());

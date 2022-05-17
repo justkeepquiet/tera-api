@@ -14,7 +14,9 @@ class ServerUpActions {
 		if (portStatus === true) {
 			accountModel.serverInfo.update({ isAvailable: 1 }, {
 				where: { serverId }
-			}).catch(err =>
+			}).then(() =>
+				logger.info(`ServerUpActions: Set isAvailable=1 for server ID: ${serverId}`)
+			).catch(err =>
 				logger.error(err.toString())
 			);
 		}
