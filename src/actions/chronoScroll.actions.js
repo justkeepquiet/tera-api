@@ -81,17 +81,17 @@ class EliteStatusVoucherBenefit {
 				benefitId: this.benefitId,
 				availableUntil: accountModel.sequelize.fn("ADDDATE", accountModel.sequelize.fn("NOW"), days)
 			});
-		} else {
-			const currentDate = moment(benefit.get("dateNow")).isAfter(benefit.get("availableUntil")) ?
-				accountModel.sequelize.fn("NOW") :
-				accountModel.sequelize.col("availableUntil");
-
-			return accountModel.benefits.update({
-				availableUntil: accountModel.sequelize.fn("ADDDATE", currentDate, days)
-			}, {
-				where: { accountDBID: this.userId, benefitId: this.benefitId }
-			});
 		}
+
+		const currentDate = moment(benefit.get("dateNow")).isAfter(benefit.get("availableUntil")) ?
+			accountModel.sequelize.fn("NOW") :
+			accountModel.sequelize.col("availableUntil");
+
+		return accountModel.benefits.update({
+			availableUntil: accountModel.sequelize.fn("ADDDATE", currentDate, days)
+		}, {
+			where: { accountDBID: this.userId, benefitId: this.benefitId }
+		});
 	}
 }
 
