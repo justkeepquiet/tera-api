@@ -18,7 +18,6 @@ The account database structure used differs from that used in the leaked retail 
 
 * Node.js v18.1.0
 * MySQL Server v5.7.38
-* Microsoft SQL Server 2014 v12.0.2000.8 (not needed yet)
 
 ### API Architecture
 
@@ -43,5 +42,8 @@ POST | `/api/report_cheater` | The event of sending a cheater report
 Method | Endpoint | Description
 --- | --- | ---
 GET | `/tera/ServerList?lang=%lang` | Server List request
+GET | `/tera/LauncherMaintenanceStatus` | Request server maintenance Status
+GET | `/tera/LauncherMain` | Get Launcher main HTML page
+GET | `/tera/LauncherLoginForm` | Get Launcher login HTML page (login form)
 POST | `/tera/LauncherLoginAction` | Authorization request via Launcher
 POST | `/tera/GetAccountInfoByUserNo` | User data request
