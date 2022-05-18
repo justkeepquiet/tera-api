@@ -88,6 +88,9 @@ a {
 	background-color: transparent;
 	padding-left: 50px;
 }
+.form-control.form-email {
+	background-position: 0 -100px;
+}
 .form-control.form-password {
 	background-position: 0 -50px;
 }
