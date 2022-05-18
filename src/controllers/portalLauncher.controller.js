@@ -92,7 +92,7 @@ module.exports = {
 				}
 			}).catch(err => {
 				logger.error(err.toString());
-				result(res, 0, "success");
+				result(res, 1, "database error");
 			});
 		}
 	],
