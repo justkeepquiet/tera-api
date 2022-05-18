@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge;">
+<title>Launcher</title>
+<link rel="stylesheet" href="/public/launcher/css/core.css">
+<link rel="stylesheet" href="/public/launcher/css/buttons-<%= locale %>.css">
+<link rel="stylesheet" href="/public/launcher/css/ad.css">
+<script type="text/javascript" src="/public/launcher/js/jquery-1.11.1.min.js"></script>
+<script>
+var startFileChekingString = "<%= __('Start files checking?') %>";
+
+var QA_MODE = false;
+var PATCH_URL = "<%= patchUrl %>";
+var REGION = "<%= region %>";
+var PATCH_INFO_STRINGS = {
+	"0": "<%= __('Preparing...') %>",
+	"1": "<%= __('Download') %>",
+	"2": "<%= __('Unpack') %>",
+	"3": "<%= __('Patch') %>",
+	"4": "<%= __('Check') %>",
+	"5": "<%= __('Delete') %>",
+	"6": "<%= __('Check') %>",
+	"11": "<%= __('Making patch list...') %>"
+};
+
+/*
+$(function() {
+	$("#qaHide").click(function() {
+		$("#qaBox a,#qaBox fieldset").hide();
+		$("#qaBox").fadeOut("fast");
+	});
+
+	setTimeout(function() {
+		$("#qaMode").prop("checked", true);
+	}, 500);
+});
+*/
+
+document.onkeydown = function() {
+	if (event.keyCode == 116) {
+		event.keyCode = 2;
+		return false;
+	} else if (event.ctrlKey && (event.keyCode == 78 || event.keyCode == 82)) {
+		return false;
+	}
+};
+</script>
+<script type="text/javascript" src="/public/launcher/js/launcher-util.js"></script>
+<script type="text/javascript" src="/public/launcher/js/launcher-errors.js"></script>
+<script type="text/javascript" src="/public/launcher/js/launcher.js"></script>
+<style type="text/css">
+	html { overflow: hidden; padding: 0; margin: 0; }
+</style>
+</head>
+<body oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
+	<div class="wrap" style="display:none;" id="launcherMain">
+		<div class="header">
+			<div class="logo"><img src="/public/launcher/images/logo.png"></div>
+			<!--/logo-->
+			<div class="col">
+				<h3><%= __("Welcome") %>, <span id="userName""></span>!</h3>
+			</div>
+			<!--/col-->
+		</div>
+		<!--/header-->
+		<div class="content">
+			<div class="notice"></div>
+			<!--/notice-->
+			<div class="ad"></div>
+			<!--/ad-->
+			<div style="display: block; width: 840px;">
+				<div class="progress">
+					<h3></h3>
+					<div class="total">
+						<div class="tit"><%= __("total") %></div>
+						<div class="progress-bar progressAll">
+							<div class="progress-bar-complete" id="progressBar2" style="width: 30%;"></div>
+							<span class="file-name" id="totalText"></span>
+						</div>
+					</div>
+					<div class="now">
+						<div class="tit"><%= __("now") %></div>
+						<div class="progress-bar progressNow">
+							<div class="progress-bar-complete" id="progressBar1" style="width: 80%;"></div>
+							<span class="file-name" id="fileName"></span>
+						</div>
+					</div>&nbsp;
+				</div>
+				<!--/progress--> 
+				<div class="check">
+					<button class="btn-check" onclick="if (confirm(startFileChekingString)) Launcher.filesCheck();">Repair</button>&nbsp;
+				</div>
+				<!--/check-->
+				<div class="gamestart">
+					<button class="btn-gamestart btn" id="playButton" onclick="Launcher.onButtonClick();">Play</button>
+				</div>
+			</div>
+			<!--/gamestart-->
+		</div>
+		<!--/content-->
+		<div class="footer">&copy; Tera Private &amp; KRAFTON Inc. All Rights Reserved.</div>
+		<!--/footer-->
+		<button class="btn-logout" onclick="loginIFrame.logout();"><%= __("Logout") %></button>
+		<button class="btn-close" onclick="Launcher.sendCommand('close');">Close</button>
+	</div>
+	<!--/wrap-->
+	<div id="loginScreen" class="modalScreen">
+		<iframe src="/tera/LauncherLoginForm" id="loginIFrame" name="loginIFrame"></iframe>
+	</div>
+</body>
+</html>

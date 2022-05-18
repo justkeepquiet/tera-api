@@ -3,10 +3,15 @@
 const express = require("express");
 const portalSlsController = require("../../controllers/portalSls.controller");
 const portalAccountController = require("../../controllers/portalAccount.controller");
+const portalLauncherController = require("../../controllers/portalLauncher.controller");
 
 module.exports = express.Router()
-	.get("/ServerList", ...portalSlsController.GetServerListXML)
+	// Interfaces
+	.get("/ServerList", ...portalSlsController.GetServerListXml)
 	.post("/GetAccountInfoByUserNo", ...portalAccountController.GetAccountInfo)
-	.post("/LauncherLoginAction", ...portalAccountController.ActionLogin)
-	.post("/LauncherLogoutAction", ...portalAccountController.ActionLogout)
+	// Launcher
+	.get("/LauncherMain", ...portalLauncherController.MainHtml)
+	.get("/LauncherLoginForm", ...portalLauncherController.LoginFormHtml)
+	.post("/LauncherLoginAction", ...portalLauncherController.LoginAction)
+	.post("/LauncherLogoutAction", ...portalLauncherController.LogoutAction)
 ;

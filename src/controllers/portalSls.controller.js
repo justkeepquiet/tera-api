@@ -6,7 +6,7 @@ const ServerUpActions = require("../actions/serverUp.actions");
 const accountModel = require("../models/account.model");
 
 module.exports = {
-	GetServerListXML: [
+	GetServerListXml: [
 		/**
 		 * @type {import("express").RequestHandler}
 		 */

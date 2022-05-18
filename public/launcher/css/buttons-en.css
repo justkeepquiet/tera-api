@@ -1,0 +1,75 @@
+﻿@charset "utf-8";
+.gamestart {
+	float: left;
+	margin-top: -15px;
+}
+.gamestart .btn {
+	cursor: pointer;
+	width: 240px;
+	height: 90px;
+	border-width: 0;
+	display: block;
+	text-decoration: -9999px;
+	background-image: url(../images/en/btn-game-start.png);
+	background-repeat: no-repeat;
+	text-indent: -9999px;
+	background-color: transparent;
+	background-position: 0px 0px;
+}
+.gamestart .btn:hover {
+	background-position: 0px -100px;
+}
+.gamestart .btn-gamestart {
+	background-image: url(../images/en/btn-game-start.png);
+}
+.gamestart .btn-wrong {
+	background-image: url(../images/en/btn-wrong.png);
+}
+.gamestart .btn-wait {
+	background-image: url(../images/en/btn-wait.png);
+}
+.gamestart .btn-update {
+	background-image: url(../images/en/btn-update.png);
+}
+.gamestart .btn-break {
+	background-image: url(../images/en/btn-break.png);
+}
+.gamestart .btn-repair {
+	background-image: url(../images/en/btn-repair.png);
+}
+/* Login form */
+button.btn-submit {
+	background-image: url(../images/en/btn-auth.png);
+	width: 224px;
+	height: 67px;
+	background-color: transparent;
+	border-width: 0;
+	text-indent: -9999px;
+	padding: 0;
+	display: block;
+	cursor: pointer;
+	margin-top: 15px;
+	margin-bottom: 5px;
+}
+button.btn-join {
+	background-image: url(../images/en/btn-auth.png);
+	width: 224px;
+	height: 67px;
+	background-color: transparent;
+	border-width: 0;
+	text-indent: -9999px;
+	padding: 0;
+	display: block;
+	cursor: pointer;
+	margin-bottom: 5px;
+	background-position: 0 -70px;
+}
+a.btn-join {
+	background-image: url(../images/en/btn-auth.png);
+	width: 224px;
+	height: 67px;
+	text-indent: -9999px;
+	display: block;
+	cursor: pointer;
+	background-position: 0 -70px;
+}

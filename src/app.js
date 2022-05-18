@@ -3,53 +3,83 @@
 require("dotenv").config();
 
 const express = require("express");
+const path = require("path");
 const morgan = require("morgan");
 const morganBody = require("morgan-body");
 const bodyParser = require("body-parser");
 const logger = require("./utils/logger");
 
-const createApi = (router, params) => {
-	const app = express();
+class API {
+	constructor(displayName) {
+		this.app = express();
+		this.displayName = displayName;
 
-	app.disable("x-powered-by");
-	app.use(express.json());
-	app.use(bodyParser.urlencoded({ extended: true }));
-	app.use(bodyParser.json());
+		this.app.disable("x-powered-by");
+		this.app.use(express.json());
+		this.app.use(bodyParser.urlencoded({ extended: true }));
+		this.app.use(bodyParser.json());
 
-	app.use(morgan(`${params.name} :method :url :status - :response-time ms`, {
-		stream: { write: text => logger.info(text.trim()) }
-	}));
-
-	if (/^debug$/i.test(process.env.LOG_LEVEL)) {
-		morganBody(app, {
-			noColors: true,
-			prettify: false,
-			logReqDateTime: false,
-			logReqUserAgent: false,
-			stream: { write: text => logger.debug(text.trim()) }
+		this.app.use((req, res, next) => {
+			res.set("Cache-Control", "no-store");
+			next();
 		});
+
+		this.app.set("etag", false);
+		this.app.set("view engine", "ejs");
+		this.app.set("views", path.resolve(__dirname, "views"));
+
+		if (/^debug$/i.test(process.env.LOG_LEVEL)) {
+			morganBody(this.app, {
+				noColors: true,
+				prettify: false,
+				logReqDateTime: false,
+				logReqUserAgent: false,
+				stream: { write: text => logger.debug(text.trim()) }
+			});
+		}
 	}
 
-	router(app);
+	setRouter(router) {
+		this.app.use(morgan(`${this.displayName} :method :url :status - :response-time ms`, {
+			stream: { write: text => logger.info(text.trim()) }
+		}));
 
-	app.use((req, res) =>
-		res.status(404).send(`Invalid endpoint: ${req.url}`)
-	);
-	app.listen(params.port, params.host, () =>
-		logger.info(`${params.name} API is listening at: ${!params.host ? "*" : params.host}:${params.port}`)
-	).on("error", err =>
-		logger.error(`${params.name} API has error: ${err.message}`)
-	);
-};
+		router(this.app);
+	}
 
-createApi(require("./routes/arbiter.index.js"), {
-	name: "Arbiter",
-	host: process.env.API_ARBITER_LISTEN_HOST,
-	port: process.env.API_ARBITER_LISTEN_PORT
-});
+	setStatic(endpoint, directory) {
+		this.app.use(endpoint, express.static(directory));
+	}
 
-createApi(require("./routes/portal.index.js"), {
-	name: "Portal",
-	host: process.env.API_PORTAL_LISTEN_HOST,
-	port: process.env.API_PORTAL_LISTEN_PORT
-});
+	bind(host, port) {
+		this.app.use((req, res) =>
+			res.status(404).send(`Invalid endpoint: ${req.url}`)
+		);
+
+		this.app.listen(port, host, () =>
+			logger.info(`${this.displayName} API is listening at: ${!host ? "*" : host}:${port}`)
+		).on("error", err =>
+			logger.error(`${this.displayName} API has error: ${err.message}`)
+		);
+	}
+}
+
+const arbiterApi = new API("Arbiter");
+const portalApi = new API("Portal");
+
+if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
+	portalApi.setStatic("/public", "public");
+}
+
+arbiterApi.setRouter(require("./routes/arbiter.index"));
+portalApi.setRouter(require("./routes/portal.index"));
+
+arbiterApi.bind(
+	process.env.API_ARBITER_LISTEN_HOST,
+	process.env.API_ARBITER_LISTEN_PORT
+);
+
+portalApi.bind(
+	process.env.API_PORTAL_LISTEN_HOST,
+	process.env.API_PORTAL_LISTEN_PORT
+);

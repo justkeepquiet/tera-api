@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge;">
+<title>Login</title>
+<link rel="stylesheet" href="/public/launcher/css/login.css">
+<link rel="stylesheet" href="/public/launcher/css/buttons-<%= locale %>.css">
+<script type="text/javascript" src="/public/launcher/js/jquery-1.11.1.min.js"></script>
+<script>
+	var ACCOUNT_ID = null;
+	var ACCOUNT_NAME = null;
+	var AUTH_KEY = null;
+	var PERMISSION = null;
+	var CHAR_COUNT = null;
+
+	$(function() {
+		if (localStorage.ACCOUNT_ID) {
+			loginFromLocalStorage();
+		}
+
+		$("#userloginForm").submit(function() {
+			authByLoginAndPassword($('#login').val(), $('#password').val(), $('#remember').is(':checked'));
+			return false;
+		});
+	});
+
+	function authByLoginAndPassword(login, password, remember) {
+		var result = parent.launcherLoginAction(login, password);
+
+		if (result) {
+			if (result.Return) {
+				ACCOUNT_ID = result.UserNo;
+				ACCOUNT_NAME = result.UserName;
+				AUTH_KEY = result.AuthKey;
+				PERMISSION = result.Permission.toString();
+				CHAR_COUNT = result.CharacterCount;
+
+				if (remember) {
+					localStorage.ACCOUNT_ID = ACCOUNT_ID;
+					localStorage.AUTH_KEY = AUTH_KEY;
+				} else {
+					localStorage.clear();
+				}
+
+				parent.Launcher.loginSuccess();
+			} else {
+				logout()
+				alert('<%= __("Invalid login or password.") %>');
+				console.log(result.Msg);
+			}
+		}
+	}
+
+	function loginFromLocalStorage() {
+		var result = parent.getAccountInfoByUserNo(localStorage.ACCOUNT_ID);
+
+		if (result) {
+			if (result.Return) {
+				ACCOUNT_ID = result.UserNo;
+				ACCOUNT_NAME = result.UserName;
+				AUTH_KEY = localStorage.AUTH_KEY;
+				PERMISSION = result.Permission.toString();
+				CHAR_COUNT = result.CharacterCount;
+
+				parent.Launcher.loginSuccess();
+			} else {
+				logout();
+				console.log(result.Msg);
+			}
+		}
+	}
+
+	function logout() {
+		localStorage.clear();
+		parent.Launcher.showLoginIFrame();
+	}
+</script>
+</head>
+<body oncontextmenu="return false" ondragstart="return false" onselectstart="return false" style="overflow: hidden;">
+<div class="wrap">
+	<form class="form-horizontal" name="userloginForm" method="post" action="" id="userloginForm">
+		<div class="form-group">
+			<div class="col">
+				<input type="text" class="form-control form-uid" id="login" name="login" placeholder="<%= __('Login') %>" maxlength="30" tabindex="1">
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col">
+				<input type="password" class="form-control form-password" id="password" name="password" placeholder="<%= __('Password') %>" maxlength="30" tabindex="2">
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col">
+				<div class="checkbox">
+					<label>
+					<input type="checkbox" name="remember" id="remember"> <%= __("remember password") %></label>
+				</div>
+				<br><br>
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col">
+				<button type="submit" tabindex="3" class="btn-submit">Sign in</button>
+			</div>
+		</div>
+	</form>
+	<button class="btn-close" onclick="parent.Launcher.sendCommand('close');">Close</button>
+</div>
+<!--/wrap-->
+</body>
+</html>

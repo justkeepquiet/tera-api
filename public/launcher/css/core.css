@@ -1,0 +1,335 @@
+﻿@charset "utf-8";
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1.2;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after, q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+* {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+body {
+	background-color: #000;
+	font-size: 12px;
+}
+body, button {
+	font-family: Helvetica, Arial, sans-serif;
+}
+button {
+	outline: none;
+}
+a {
+	text-decoration: none;
+	color: #fff;
+}
+.wrap {
+	background-image: url(../images/bg.png);
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+	width: 960px;
+	height: 610px;
+	padding-top: 1px;
+	position: relative;
+}
+.header {
+	margin-top: 100px;
+	margin-left: 20px;
+	margin-bottom: 13px;
+	float: left;
+}
+.header h3 {
+	color: #8ea8df;
+	font-size: 18px;
+	margin-left: 10px;
+	margin-top: 15px;
+	margin-bottom: 7px;
+}
+.content {
+	clear: both;
+	float: left;
+	margin-left: 20px;
+}
+.logo {
+	float: left;
+}
+.col {
+	float: left;
+	margin-left: 15px;
+	height: 75px;
+}
+.ico-wrap {
+	float: left;
+	width: 344px;
+	margin-bottom: 10px;
+}
+.ico-wrap li {
+	float: left;
+}
+.ico-wrap li a, .ico-wrap li span {
+	background-image: url(../images/btn-ico.png);
+	background-repeat: no-repeat;
+	display: block;
+	text-indent: -9999px;
+}
+.ico-wrap li a {
+	height: 30px;
+	width: 30px;
+	margin-top: 6px;
+}
+.ico-wrap li.ico-fb a {
+	background-position: 0 -20px;
+	margin-right: 10px;
+}
+.ico-wrap li.ico-gamer a {
+	background-position: -50px -20px;
+}
+.ico-wrap li.ico-vip {
+	float: right;
+	margin-top: -14px;
+}
+.ico-wrap li.ico-vip span {
+	height: 50px;
+	width: 110px;
+	background-position: -100px 0px;
+}
+.nav {
+	margin-bottom: 10px;
+	font-size: 14px;
+}
+.nav li {
+	float: left;
+	margin-right: 6px;
+}
+.nav li a {
+	border-width: 1px;
+	border-color: #3b4367;
+	border-style: solid;
+	padding: .26em .56em;
+	display: block;
+}
+.nav li a:hover {
+	border-color: #ffffff;
+}
+.notice {
+	width: 400px;
+	margin-bottom: 14px;
+	height: 125px;
+}
+.notice h3 {
+	color: #8ea8df;
+	font-size: 18px;
+	padding-left: 27px;
+	background-image: url(../images/ico.png);
+	background-repeat: no-repeat;
+	background-position: 0px 0px;
+	margin-bottom: 7px;
+}
+.notice li {
+	font-family: Helvetica, Arial, sans-serif;
+	border-color: #4d152f;
+	border-style: solid;
+	border-bottom-width: 1px;
+	height: 24px;
+	line-height: 24px;
+}
+.notice li a {
+	color: #bbbbbb;
+	display: block;
+}
+.notice li a:hover {
+	color: #ffd74d;
+}
+.notice li a span.time {
+	float: right;
+}
+.ad {
+	width: 500px;
+	height: 162px;
+	margin-bottom: 14px;
+}
+.ad h3 {
+	display: none;
+}
+.progress {
+	margin-right: 20px;
+	color: #5b5e8b;
+	line-height: 22px;
+	width: 439px;
+	float: left;
+	overflow-x: hidden;
+	white-space: nowrap;
+}
+.progress h3 {
+	display: none;
+}
+.progress>div {
+	margin-bottom: 10px;
+	height: 22px;
+}
+.progress .tit {
+	float: left;
+	margin-right: 9px;
+	text-align: right;
+	width: 40px;
+}
+.progress .progress-bar {
+	float: left;
+	background-color: #0a1343;
+	color: #fff;
+	width: 390px;
+	height: 22px;
+	position: relative;
+}
+.progress .progress-bar-complete {
+	background-color: #4489cf;
+	height: 22px;
+	position: absolute;
+	z-index: 1;
+	top: 0px;
+	left: 0px;
+}
+.progress .file-name {
+	position: absolute;
+	z-index: 2;
+	top: 0xp;
+	left: .5em;
+}
+.check {
+	float: left;
+	margin-left: -5px;
+	margin-right: 10px;
+	width: 72px;
+}
+.check .btn-check {
+	width: 50px;
+	height: 50px;
+	border-width: 0;
+	font-size: 11px;
+	margin-top: 2px;
+	cursor: pointer;
+	text-decoration: -9999px;
+	background-image: url(../images/repair-btn.png);
+	background-repeat: no-repeat;
+	text-indent: -9999px;
+	background-color: transparent;
+	background-position: 0px 0px;
+}
+.check .btn-check:hover {
+	background-position: 0px -50px;
+}
+.gamestart {
+	float: left;
+	margin-top: -15px;
+}
+.gamestart .btn {
+	cursor: pointer;
+	width: 240px;
+	height: 90px;
+	border-width: 0;
+	display: block;
+	text-decoration: -9999px;
+	background-image: url(../images/btn-game-start.png);
+	background-repeat: no-repeat;
+	text-indent: -9999px;
+	background-color: transparent;
+	background-position: 0px 0px;
+}
+.gamestart .btn:hover {
+	background-position: 0px -100px;
+}
+.gamestart .btn-gamestart {
+	background-image: url(../images/btn-game-start.png);
+}
+.gamestart .btn-wrong {
+	background-image: url(../images/btn-wrong.png);
+}
+.gamestart .btn-wait {
+	background-image: url(../images/btn-wait.png);
+}
+.gamestart .btn-update {
+	background-image: url(../images/btn-update.png);
+}
+.gamestart .btn-break {
+	background-image: url(../images/btn-break.png);
+}
+.gamestart .btn-repair {
+	background-image: url(../images/btn-repair.png);
+}
+.footer {
+	font-size: 11px;
+	color: #5b5e8b;
+	clear: both;
+	position: relative;
+	top: -6px;
+	margin-left: 26px;
+}
+.btn-close {
+	cursor: pointer;
+	width: 22px;
+	height: 22px;
+	border-width: 0;
+	background-image: url(../images/btn-close.png);
+	background-position: 0px 0px;
+	position: absolute;
+	top: 92px;
+	right: 135px;
+	text-indent: -9999px;
+	background-color: transparent;
+}
+.btn-close:hover {
+	background-position: 0px -22px;
+}
+.btn-logout {
+	cursor: pointer;
+	width: 64px;
+	height: 22px;
+	border-width: 1px;
+	border-color: #3b4367;
+	color: #b5bfe4;
+	border-style: solid;
+	position: absolute;
+	top: 92px;
+	right: 172px;
+	background-color: transparent;
+}
+.btn-logout:hover {
+	border-color: #b7afc8;
+}
+.modalScreen {
+	display: none;
+	width: 340px;
+	height: 420px;
+	top: 80px;
+	position: fixed;
+	overflow: hidden;
+	z-index: 1;
+}
+.modalScreen iframe {
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+}
