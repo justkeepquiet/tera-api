@@ -41,7 +41,7 @@
 </style>
 </head>
 <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false">
-	<div class="wrap" style="display:none;" id="launcherMain">
+	<div class="wrap" style="display: none;" id="launcherMain">
 		<div class="header">
 			<div class="logo"><img src="/public/launcher/images/logo.png"></div>
 			<!--/logo-->
@@ -53,25 +53,25 @@
 		<!--/header-->
 		<div class="content">
 			<div class="notice">
-				<div id="qaBox" style="display: none; position: absolute; margin-top: 150px; background: #ededed; border: 1px solid #000; width: 320px; height: 137px; padding: 0 10px 20px 10px; line-height: 30px">
-					<fieldset style="border: 1px solid #000; padding-bottom: 5px;">
+				<div id="qaBox" class="qa-box" style="display: none;">
+					<fieldset>
 						<legend>QA Operations Menu</legend>
-						<table style="margin: 0 10px; border: 0; width: 100%; height: 70px; vertical-align: middle;">
-							<tr><td>Disable file check</td><td><input type="checkbox" id="qaModeCheck" style="position: absolute; margin-top: -11px" checked></td></tr>
+						<table>
+							<tr><td>Disable file check</td><td><input type="checkbox" id="qaModeCheck" checked></td></tr>
 							<tr><td>Client language</td><td><select id="qaRegion">
-								<option value="EUR">English</option>
-								<option value="RUS">Russian</option>
-								<option value="TW">Taiwanese</option>
+							<% Object.keys(regions).forEach(key => { %>
+								<option value="<%= key %>"><%= __(regions[key]) %></option>
+							<% }) %>
 							</select></td></tr>
 						</table>
 					</fieldset>
-					<a href="#" style="color: blue; font-size: 11px" id="qaHide">Hide block</a>
+					<a href="#" id="qaHide" class="qa-hide">Hide block</a>
 				</div>
 			</div>
 			<!--/notice-->
 			<div class="ad"></div>
 			<!--/ad-->
-			<div style="display: block; width: 840px;">
+			<div class="bottom">
 				<div class="progress">
 					<h3></h3>
 					<div class="total">
@@ -97,8 +97,9 @@
 				<div class="gamestart">
 					<button class="btn-gamestart btn" id="playButton" onclick="Launcher.onButtonClick();">Play</button>
 				</div>
+				<!--/gamestart-->
 			</div>
-			<!--/gamestart-->
+			<!--/bottom-->
 		</div>
 		<!--/content-->
 		<div class="footer">&copy; <%= new Date().getFullYear() %> <%= __("Tera Private Server") %>. All Rights Reserved.</div>

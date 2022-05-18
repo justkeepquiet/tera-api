@@ -241,6 +241,10 @@ a {
 .check .btn-check:hover {
 	background-position: 0px -50px;
 }
+.bottom {
+	width: 840px;
+	display: block;
+}
 .gamestart {
 	float: left;
 	margin-top: -15px;
@@ -332,4 +336,33 @@ a {
 	width: 100%;
 	height: 100%;
 	z-index: 1;
+}
+#qaBox {
+	position: absolute;
+	margin-top: 150px;
+	background: #ededed;
+	border: 1px solid #000;
+	width: 320px;
+	height: 137px;
+	padding: 0 10px 20px 10px;
+	line-height: 30px;
+}
+#qaBox fieldset {
+	border: 1px solid #000;
+	padding-bottom: 5px;
+}
+#qaBox table {
+	margin: 0 10px;
+	border: 0;
+	width: 100%;
+	height: 70px;
+	vertical-align: middle;
+}
+#qaBox .qa-hide {
+	color: blue;
+	font-size: 11px;
+}
+#qaBox #qaModeCheck {
+	position: absolute;
+	margin-top: -11px;
 }

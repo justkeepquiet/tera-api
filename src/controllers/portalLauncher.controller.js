@@ -49,10 +49,21 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
+			const regions = {};
+
+			Object.keys(process.env).forEach(key => {
+				const found = key.match(/API_PORTAL_CLIENT_REGIONS_([A-Z]+)$/);
+
+				if (found) {
+					regions[found[1]] = process.env[key];
+				}
+			});
+
 			res.render("launcherMain", {
 				locale: i18n.getLocale(),
 				patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
-				region: process.env.API_PORTAL_CLIENT_DEFAULT_REGION
+				region: process.env.API_PORTAL_CLIENT_DEFAULT_REGION,
+				regions
 			});
 		}
 	],
