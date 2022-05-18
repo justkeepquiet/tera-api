@@ -80,10 +80,12 @@
 		"displayPatchError": true,
 		"displayLauncherError": true,
 		"loginIFrame": true,
+		"accountBlockedString": true,
 		"debug": true,
 		"sprintf": true,
 		"REGION": true,
 		"LANGUAGE": true,
+		"DEBUG_STR": true,
 		"PATCH_URL": true,
 		"PATCH_INFO_STRINGS": true
 	}

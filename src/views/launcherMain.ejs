@@ -6,33 +6,32 @@
 <title>Launcher</title>
 <link rel="stylesheet" href="/public/launcher/css/core.css">
 <link rel="stylesheet" href="/public/launcher/css/buttons-<%= locale %>.css">
-<link rel="stylesheet" href="/public/launcher/css/ad.css">
 <script type="text/javascript" src="/public/launcher/js/jquery-1.11.1.min.js"></script>
 <script>
-var startFileChekingString = "<%= __('Start files checking?') %>";
+	var startFileChekingString = "<%= __('Start files checking?') %>";
+	var accountBlockedString = "<%= __('Account blocked. Please contact support.') %>";
 
-var QA_MODE = false;
-var PATCH_URL = "<%= patchUrl %>";
-var REGION = "<%= region %>";
-var PATCH_INFO_STRINGS = {
-	"0": "<%= __('Preparing...') %>",
-	"1": "<%= __('Download') %>",
-	"2": "<%= __('Unpack') %>",
-	"3": "<%= __('Patch') %>",
-	"4": "<%= __('Check') %>",
-	"5": "<%= __('Delete') %>",
-	"6": "<%= __('Check') %>",
-	"11": "<%= __('Making patch list...') %>"
-};
+	var PATCH_URL = "<%= patchUrl %>";
+	var REGION = "<%= region %>";
+	var PATCH_INFO_STRINGS = {
+		"0": "<%= __('Preparing...') %>",
+		"1": "<%= __('Download') %>",
+		"2": "<%= __('Unpack') %>",
+		"3": "<%= __('Patch') %>",
+		"4": "<%= __('Check') %>",
+		"5": "<%= __('Delete') %>",
+		"6": "<%= __('Check') %>",
+		"11": "<%= __('Making patch list...') %>"
+	};
 
-document.onkeydown = function() {
-	if (event.keyCode == 116) {
-		event.keyCode = 2;
-		return false;
-	} else if (event.ctrlKey && (event.keyCode == 78 || event.keyCode == 82)) {
-		return false;
-	}
-};
+	document.onkeydown = function() {
+		if (event.keyCode == 116) {
+			event.keyCode = 2;
+			return false;
+		} else if (event.ctrlKey && (event.keyCode == 78 || event.keyCode == 82)) {
+			return false;
+		}
+	};
 </script>
 <script type="text/javascript" src="/public/launcher/js/launcher-util.js"></script>
 <script type="text/javascript" src="/public/launcher/js/launcher-errors.js"></script>
@@ -53,7 +52,22 @@ document.onkeydown = function() {
 		</div>
 		<!--/header-->
 		<div class="content">
-			<div class="notice"></div>
+			<div class="notice">
+				<div id="qaBox" style="display: none; position: absolute; margin-top: 150px; background: #ededed; border: 1px solid #000; width: 320px; height: 137px; padding: 0 10px 20px 10px; line-height: 30px">
+					<fieldset style="border: 1px solid #000; padding-bottom: 5px;">
+						<legend>QA Operations Menu</legend>
+						<table style="margin: 0 10px; border: 0; width: 100%; height: 70px; vertical-align: middle;">
+							<tr><td>Disable file check</td><td><input type="checkbox" id="qaModeCheck" style="position: absolute; margin-top: -11px" checked></td></tr>
+							<tr><td>Client language</td><td><select id="qaRegion">
+								<option value="EUR">English</option>
+								<option value="RUS">Russian</option>
+								<option value="TW">Taiwanese</option>
+							</select></td></tr>
+						</table>
+					</fieldset>
+					<a href="#" style="color: blue; font-size: 11px" id="qaHide">Hide block</a>
+				</div>
+			</div>
 			<!--/notice-->
 			<div class="ad"></div>
 			<!--/ad-->
@@ -87,7 +101,7 @@ document.onkeydown = function() {
 			<!--/gamestart-->
 		</div>
 		<!--/content-->
-		<div class="footer">&copy; Tera Private &amp; KRAFTON Inc. All Rights Reserved.</div>
+		<div class="footer">&copy; <%= new Date().getFullYear() %> <%= __("Tera Private Server") %>. All Rights Reserved.</div>
 		<!--/footer-->
 		<button class="btn-logout" onclick="loginIFrame.logout();"><%= __("Logout") %></button>
 		<button class="btn-close" onclick="Launcher.sendCommand('close');">Close</button>

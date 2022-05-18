@@ -30,7 +30,8 @@ const models = {
 	characters: require("./account/accountCharacters.model")(sequelize, DataTypes),
 	benefits: require("./account/accountBenefits.model")(sequelize, DataTypes),
 	serverInfo: require("./account/serverInfo.model")(sequelize, DataTypes),
-	serverStrings: require("./account/serverStrings.model")(sequelize, DataTypes)
+	serverStrings: require("./account/serverStrings.model")(sequelize, DataTypes),
+	maintenance: require("./account/serverMaintenance.model")(sequelize, DataTypes)
 };
 
 module.exports = { ...models, sequelize };

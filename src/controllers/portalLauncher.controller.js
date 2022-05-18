@@ -4,6 +4,8 @@ const path = require("path");
 const crypto = require("crypto");
 const uuid = require("uuid");
 const i18n = require("i18n");
+const Op = require("sequelize").Op;
+const moment = require("moment-timezone");
 const body = require("express-validator").body;
 const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
@@ -50,7 +52,7 @@ module.exports = {
 			res.render("launcherMain", {
 				locale: i18n.getLocale(),
 				patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
-				region: "RUS"
+				region: process.env.API_PORTAL_CLIENT_DEFAULT_REGION
 			});
 		}
 	],
@@ -62,7 +64,35 @@ module.exports = {
 		 */
 		(req, res) => {
 			res.render("launcherLoginForm", {
-				locale: i18n.getLocale()
+				locale: i18n.getLocale(),
+				qaPrivilege: process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE
+			});
+		}
+	],
+
+	MaintenanceStatus: [
+		/**
+		 * @type {import("express").RequestHandler}
+		 */
+		(req, res) => {
+			accountModel.maintenance.findOne({
+				where: {
+					startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
+					endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+				}
+			}).then(maintenance => {
+				if (maintenance !== null) {
+					result(res, 0, "success", {
+						StartTime: moment(maintenance.get("startTime")).unix(),
+						EndTime: moment(maintenance.get("startTime")).unix(),
+						Description: maintenance.get("description")
+					});
+				} else {
+					result(res, 0, "success");
+				}
+			}).catch(err => {
+				logger.error(err.toString());
+				result(res, 0, "success");
 			});
 		}
 	],
@@ -112,6 +142,7 @@ module.exports = {
 					result(res, 0, "success", {
 						CharacterCount: characterCount,
 						Permission: account.get("permission"),
+						Privilege: account.get("privilege"),
 						UserNo: account.get("accountDBID"),
 						UserName: account.get("userName"),
 						AuthKey: authKey

@@ -10,6 +10,7 @@ module.exports = express.Router()
 	.get("/ServerList", ...portalSlsController.GetServerListXml)
 	.post("/GetAccountInfoByUserNo", ...portalAccountController.GetAccountInfo)
 	// Launcher
+	.get("/LauncherMaintenanceStatus", ...portalLauncherController.MaintenanceStatus)
 	.get("/LauncherMain", ...portalLauncherController.MainHtml)
 	.get("/LauncherLoginForm", ...portalLauncherController.LoginFormHtml)
 	.post("/LauncherLoginAction", ...portalLauncherController.LoginAction)

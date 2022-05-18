@@ -8,11 +8,13 @@
 	"total": "всего",
 	"now": "текущ.",
 	"Logout": "Выйти",
-    "Preparing...": "Подготовка...",
-    "Download": "Загрузка",
-    "Unpack": "Распаковка",
-    "Patch": "Применение",
-    "Check": "Проверка",
-    "Delete": "Удаление",
-    "Making patch list...": "Создания списка обновлений..."
+	"Preparing...": "Подготовка...",
+	"Download": "Загрузка",
+	"Unpack": "Распаковка",
+	"Patch": "Применение",
+	"Check": "Проверка",
+	"Delete": "Удаление",
+	"Making patch list...": "Создания списка обновлений...",
+	"Tera Private Server": "Tera Private",
+	"Account blocked. Please contact support.": "Account blocked. Please contact support."
 }

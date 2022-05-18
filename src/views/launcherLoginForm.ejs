@@ -8,10 +8,13 @@
 <link rel="stylesheet" href="/public/launcher/css/buttons-<%= locale %>.css">
 <script type="text/javascript" src="/public/launcher/js/jquery-1.11.1.min.js"></script>
 <script>
+	var QA_MODE = false;
+	var QA_MODE_NOCHECK = false;
 	var ACCOUNT_ID = null;
 	var ACCOUNT_NAME = null;
 	var AUTH_KEY = null;
 	var PERMISSION = null;
+	var PRIVILEGE = null;
 	var CHAR_COUNT = null;
 
 	$(function() {
@@ -27,6 +30,26 @@
 		});
 	});
 
+	function setQaBox() {
+		var q  = parent.$;
+
+		q("#qaRegion option[value=" + parent.REGION + "]").attr("selected", "selected");
+		q("#qaBox").show();
+
+		q('#qaHide').click(function () {
+			q("#qaBox a, #qaBox fieldset").hide();
+			q("#qaBox").fadeOut("fast");
+		});
+		q("#qaRegion").on('change', function() {
+			parent.REGION = this.value;
+		});
+		q('#qaModeCheck').click(function (){
+			QA_MODE_NOCHECK = q(this).is(':checked');
+		});
+
+		QA_MODE_NOCHECK = q('#qaModeCheck').is(':checked');
+	}
+
 	function authByLoginAndPassword(login, password, remember) {
 		var result = parent.launcherLoginAction(login, password);
 
@@ -36,7 +59,13 @@
 				ACCOUNT_NAME = result.UserName;
 				AUTH_KEY = result.AuthKey;
 				PERMISSION = result.Permission.toString();
+				PRIVILEGE = result.Privilege.toString();
 				CHAR_COUNT = result.CharacterCount;
+				QA_MODE = PRIVILEGE == "<%= qaPrivilege %>";
+
+				if (QA_MODE) {
+					setQaBox();
+				}
 
 				if (remember) {
 					localStorage.ACCOUNT_ID = ACCOUNT_ID;
@@ -63,7 +92,13 @@
 				ACCOUNT_NAME = result.UserName;
 				AUTH_KEY = localStorage.AUTH_KEY;
 				PERMISSION = result.Permission.toString();
+				PRIVILEGE = result.Privilege.toString();
 				CHAR_COUNT = result.CharacterCount;
+				QA_MODE = PRIVILEGE == "<%= qaPrivilege %>";
+
+				if (QA_MODE) {
+					setQaBox();
+				}
 
 				parent.Launcher.loginSuccess();
 			} else {

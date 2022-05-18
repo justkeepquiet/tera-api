@@ -57,6 +57,7 @@ module.exports = {
 				result(res, 0, "success", {
 					CharacterCount: characterCount,
 					Permission: account.get("permission"),
+					Privilege: account.get("privilege"),
 					UserNo: account.get("accountDBID"),
 					UserName: account.get("userName")
 				});

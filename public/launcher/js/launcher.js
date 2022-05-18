@@ -1,4 +1,5 @@
 var host = "http://" + location.hostname + ((location.port && location.port != 80) ? ":" + location.port : ""); // Only HTTP is supported!
+var debug = DEBUG_STR;
 
 /**
  * Init
@@ -7,10 +8,6 @@ $(function() {
 	initErrorMsgArray();
 	Launcher.startup();
 });
-
-function debug() {
-	//
-}
 
 /**
  * API calls
@@ -70,8 +67,19 @@ function getAccountInfoByUserNo(accointId) {
 	return response;
 }
 
-function getMaintenanceStatus() {
-	return false;
+function launcherMaintenanceStatus() {
+	var response = null;
+
+	$.ajax({
+		url: "/tera/LauncherMaintenanceStatus",
+		method: "get",
+		async: false,
+		success: function(data) {
+			response = data;
+		}
+	});
+
+	return response;
 }
 
 /**
@@ -171,30 +179,28 @@ var Launcher = {
 		Launcher.disableLaunchButton("Wait", "btn-wait");
 
 		if (!loginIFrame.QA_MODE) {
-			var maintenance = getMaintenanceStatus();
+			var maintenance = launcherMaintenanceStatus();
 
-			if (maintenance !== null && maintenance.status) {
-				alert(maintenance.message);
+			if (maintenance && maintenance.Return && maintenance.Description) {
+				alert(maintenance.Description);
 				Launcher.enableLaunchButton("Play", "btn-gamestart");
 				return;
 			}
 		}
 
-		/*
-		if (loginIFrame.PERMISSION > 0) {
-			alert("Ваш аккаунт заблокирован. Свяжитесь со службой поддержки.");
-			Launcher.enableLaunchButton("Play", "btn-gamestart");
+		if (loginIFrame.PERMISSION > 0) { // @todo
+			alert(accountBlockedString);
+			Launcher.disableLaunchButton("Error", "btn-wrong");
 			return;
 		}
-		*/
 
 		Launcher.status = 3;
 
-		if (!loginIFrame.QA_MODE) {
-			Launcher.sendCommand("start_p|0");
-		} else {
+		if (loginIFrame.QA_MODE && loginIFrame.QA_MODE_NOCHECK) { // no check files in QA mode
 			Launcher.status = 0;
 			Launcher.sendCommand("execute|" + REGION);
+		} else {
+			Launcher.sendCommand("start_p|0");
 		}
 	},
 
@@ -287,7 +293,7 @@ function l2w_tooManyRetry() {
 function l2w_checkPatchResult(patch_result, patch_error, file, reason, code) {
 	debug(sprintf("Check patch finished with %d %d [%s] %d, %d", patch_result, patch_error, file, reason, code));
 
-	if (loginIFrame.QA_MODE) {
+	if (loginIFrame.QA_MODE && loginIFrame.QA_MODE_NOCHECK) { // no check files in QA mode
 		Launcher.enableLaunchButton("Play", "btn-gamestart");
 		return;
 	}

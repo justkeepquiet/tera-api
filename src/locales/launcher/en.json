@@ -14,5 +14,7 @@
     "Patch": "Patch",
     "Check": "Check",
     "Delete": "Delete",
-    "Making patch list...": "Making patch list..."
+    "Making patch list...": "Making patch list...",
+    "Account blocked. Please contact support.": "Account blocked. Please contact support.",
+    "Tera Private Server": "Tera Private"
 }
