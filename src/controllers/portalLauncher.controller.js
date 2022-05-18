@@ -7,10 +7,22 @@ const i18n = require("i18n");
 const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
+const Recaptcha = require("express-recaptcha").RecaptchaV3;
 const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
-const { locale } = require("moment-timezone");
+const e = require("express");
+
+let recaptcha = null;
+
+if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
+	recaptcha = new Recaptcha(
+		process.env.API_PORTAL_RECAPTCHA_SITE_KEY,
+		process.env.API_PORTAL_RECAPTCHA_SECRET_KEY, {
+			callback: "bindFormAction"
+		}
+	);
+}
 
 i18n.configure({
 	directory: path.resolve(__dirname, "../locales/launcher"),
@@ -88,8 +100,11 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
+			const captcha = recaptcha ? recaptcha.render() : "";
+
 			res.render("launcherRegisterForm", {
-				locale: i18n.getLocale()
+				locale: i18n.getLocale(),
+				captcha
 			});
 		}
 	],
@@ -248,23 +263,37 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		async (req, res) => {
-			const { login, password, email } = req.body;
-			const authKey = uuid.v4();
+			const handler = () => {
+				const { login, password, email } = req.body;
+				const authKey = uuid.v4();
 
-			accountModel.info.create({
-				userName: login,
-				passWord: password,
-				authKey,
-				email
-			}).then(account => {
-				result(res, 0, "success", {
-					UserNo: account.get("accountDBID"),
-					AuthKey: account.get("authKey")
+				accountModel.info.create({
+					userName: login,
+					passWord: password,
+					authKey,
+					email
+				}).then(account => {
+					result(res, 0, "success", {
+						UserNo: account.get("accountDBID"),
+						AuthKey: account.get("authKey")
+					});
+				}).catch(err => {
+					logger.error(err.toString());
+					result(res, 1, "database error");
 				});
-			}).catch(err => {
-				logger.error(err.toString());
-				result(res, 1, "database error");
-			});
+			};
+
+			if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
+				recaptcha.verify(req, error => {
+					if (error) {
+						return result(res, 2, "captcha error");
+					}
+
+					handler();
+				});
+			} else {
+				handler();
+			}
 		}
 	]
 };

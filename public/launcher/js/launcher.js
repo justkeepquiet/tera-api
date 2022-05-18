@@ -25,8 +25,9 @@ function launcherLogoutAction(authKey) {
 	});
 }
 
-function launcherRegisterAction(login, email, password) {
+function launcherRegisterAction(login, email, password, token) {
 	return apiRequest("LauncherRegisterAction", {
+		"g-recaptcha-response": token,
 		login: login,
 		email: email,
 		password: password

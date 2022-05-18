@@ -107,3 +107,7 @@ a {
 .btn-close:hover {
 	background-position: 0px -22px;
 }
+.grecaptcha-badge { 
+	visibility: hidden;
+	top: -1000px;
+}
