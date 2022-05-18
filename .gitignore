@@ -2,3 +2,4 @@ node_modules/*
 logs/*
 package-lock.json
 .env
+Thumbs.db
