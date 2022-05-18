@@ -49,6 +49,7 @@
 	}
 
 	function bindFormAction(token) {
+		$("#loader").hide();
 		$("#userRegisterForm").show();
 		$("#userRegisterForm").submit(function() {
 			registerAction($('#login').val(), $('#email').val(), $('#password').val(), $('#password2').val(), token);
@@ -64,6 +65,7 @@
 </head>
 <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false" style="overflow: hidden;">
 <div class="wrap">
+	<div class="loader" id="loader"></div>
 	<form class="form-horizontal" name="userRegisterForm"  method="post" action="" id="userRegisterForm" style="display: none;">
 		<div class="form-group">
 			<div class="col">

@@ -52,6 +52,14 @@ a {
 	text-decoration: none;
 	color: #fff;
 }
+.loader {
+	background-image: url(../images/loader.gif);
+	background-size: 32px;
+	background-repeat: no-repeat;
+	width: 32px;
+	height: 32px;
+	margin: 200px auto;
+}
 .wrap {
 	background-image: url(../images/bg.jpg);
 	background-repeat: no-repeat;
