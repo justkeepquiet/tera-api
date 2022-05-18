@@ -82,7 +82,6 @@ var Launcher = {
 	isLoginSuccess: false,
 
 	startup: function() {
-		Launcher.showLoginIFrame();
 		Launcher.sendCommand("client|0,80,1024,768");
 		Launcher.sendCommand("loaded");
 

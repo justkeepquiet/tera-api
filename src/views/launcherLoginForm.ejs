@@ -17,6 +17,8 @@
 	$(function() {
 		if (localStorage.ACCOUNT_ID) {
 			loginFromLocalStorage();
+		} else {
+			parent.Launcher.showLoginIFrame();
 		}
 
 		$("#userloginForm").submit(function() {
