@@ -238,12 +238,21 @@ var Launcher = {
  * Launcher L2W hooks
  */
 
-function l2w_getLauncherInfoUrl() {
-	return (PATCH_URL ? PATCH_URL : host + "/patch") + "/launcher_info.ini";
+function l2w_getBaseUrl() {
+	var patchUrl = PATCH_URL;
+
+	if (!patchUrl) {
+		patchUrl = host + "/public/patch";
+	}
+	if (!patchUrl.match(new RegExp("^http", "i"))) {
+		patchUrl = host + patchUrl;
+	}
+
+	return patchUrl;
 }
 
-function l2w_getBaseUrl() {
-	return PATCH_URL ? PATCH_URL : host + "/patch";
+function l2w_getLauncherInfoUrl() {
+	return l2w_getBaseUrl() + "/launcher_info.ini";
 }
 
 function l2w_getServerList() {
@@ -303,7 +312,7 @@ function l2w_checkPatchResult(patch_result, patch_error, file, reason, code) {
 				Launcher.disableLaunchButton("Error", "btn-wrong");
 			}
 
-			Launcher.DisplayPatchError(patch_error, file, reason, code);
+			displayPatchError(patch_error, file, reason, code);
 			break;
 	}
 }
