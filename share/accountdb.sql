@@ -104,6 +104,14 @@ CREATE TABLE IF NOT EXISTS `server_info` (
   PRIMARY KEY (`serverId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `server_maintenance` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `startTime` timestamp NULL DEFAULT NULL,
+  `endTime` timestamp NULL DEFAULT NULL,
+  `description` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `server_strings` (
   `language` varchar(3) NOT NULL,
   `categoryPvE` varchar(50) DEFAULT NULL,
