@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) =>
 	sequelize.define("account_info", {
 		accountDBID: {
 			type: DataTypes.BIGINT,
-			primaryKey: true
+			primaryKey: true,
+			autoIncrement: true
 		},
 		userName: {
 			type: DataTypes.STRING(64),
@@ -24,6 +25,10 @@ module.exports = (sequelize, DataTypes) =>
 		},
 		authKey: {
 			type: DataTypes.STRING(128)
+		},
+		email: {
+			type: DataTypes.STRING(64),
+			primaryKey: true
 		},
 		registerTime: {
 			type: DataTypes.TIME

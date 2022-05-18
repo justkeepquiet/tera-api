@@ -19,5 +19,14 @@
 	"Tera Private Server": "Tera Private",
 	"English": "English",
 	"Russian": "Russian",
-	"Taiwanese": "Taiwanese"
+	"Taiwanese": "Taiwanese",
+	"This login is already exists.": "This login is already exists.",
+	"Please enter 4-13 alphanumeric characters for login.": "Please enter 4-13 alphanumeric characters for login.",
+	"Please enter valid email address.": "Please enter valid email address.",
+	"Please enter 8-14 alphanumeric characters password.": "Please enter 8-14 alphanumeric characters password.",
+	"Two password entries do not match.": "Two password entries do not match.",
+	"Enter login": "Enter login",
+	"Enter email": "Enter email",
+	"Enter password": "Enter password",
+	"Confirm password": "Confirm password"
 }

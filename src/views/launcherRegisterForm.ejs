@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge;">
+<title>Login</title>
+<link rel="stylesheet" href="/public/launcher/css/login.css">
+<link rel="stylesheet" href="/public/launcher/css/buttons-<%= locale %>.css">
+<script type="text/javascript" src="/public/launcher/js/jquery-1.11.1.min.js"></script>
+<script>
+	$(function() {
+		$("#userRegisterForm").submit(function() {
+			registerAction($('#login').val(), $('#email').val(), $('#password').val(), $('#password2').val());
+			return false;
+		});
+	});
+
+	function registerAction(login, email, password, password2) {
+		if (password != password2) {
+			alert("<%= __('Two password entries do not match.') %>");
+			return;
+		}
+
+		var result = parent.launcherRegisterAction(login, email, password);
+
+		if (result) {
+			if (result.Return) {
+				localStorage.ACCOUNT_ID = result.UserNo;
+				localStorage.AUTH_KEY = result.AuthKey;
+
+				document.location.replace("LauncherLoginForm");
+			} else {
+				switch (result.Msg) {
+					case "$0":
+						alert("<%= __('This login is already exists.') %>");
+						break;
+
+					case "$1":
+						alert("<%= __('Please enter 4-13 alphanumeric characters for login.') %>");
+						break;
+
+					case "$2":
+						alert("<%= __('Please enter valid email address.') %>");
+						break;
+
+					case "$3":
+						alert("<%= __('Please enter 8-14 alphanumeric characters password.') %>");
+						break;
+					default:
+						alert(result.Msg);
+						console.log(result.Msg);
+				}
+			}
+		}
+	}
+</script>
+</head>
+<body oncontextmenu="return false" ondragstart="return false" onselectstart="return false" style="overflow: hidden;">
+<div class="wrap">
+	<form class="form-horizontal" name="userRegisterForm"  method="post" action="" id="userRegisterForm">
+		<div class="form-group">
+			<div class="col">
+				<input type="text" class="form-control form-uid" id="login" name="login" value="" placeholder="<%= __('Enter login') %>" maxlength="30" tabindex="1">
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col">
+				<input type="text" class="form-control form-uid" id="email" name="email" value=""  placeholder="<%= __('Enter email') %>" maxlength="30" tabindex="2">
+			</div>
+		</div>
+		<br>
+		<div class="form-group">
+			<div class="col">
+				<input type="password" class="form-control form-password" id="password" name="password" value="" placeholder="<%= __('Enter password') %>" maxlength="30" tabindex="2">
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col">
+				<input type="password" class="form-control form-password" id="password2" name="password2" value=""  placeholder="<%= __('Confirm password') %>" maxlength="30" tabindex="2">
+			</div>
+		</div>
+		<br>
+		<br>
+		<div class="form-group">
+			<div class="col">
+				<button type="submit" tabindex="3" class="btn-join">Sign in</button>
+			</div>
+		</div>
+	</form>
+	<button class="btn-close" onclick="parent.Launcher.sendCommand('close');">Close</button>
+</div>
+<!--/wrap-->
+</body>
+</html>

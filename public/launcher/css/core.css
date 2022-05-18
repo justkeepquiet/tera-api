@@ -326,7 +326,7 @@ a {
 .modalScreen {
 	display: none;
 	width: 340px;
-	height: 420px;
+	height: 500px;
 	top: 80px;
 	position: fixed;
 	overflow: hidden;

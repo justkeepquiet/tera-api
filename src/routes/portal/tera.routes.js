@@ -13,6 +13,8 @@ module.exports = express.Router()
 	.get("/LauncherMaintenanceStatus", ...portalLauncherController.MaintenanceStatus)
 	.get("/LauncherMain", ...portalLauncherController.MainHtml)
 	.get("/LauncherLoginForm", ...portalLauncherController.LoginFormHtml)
+	.get("/LauncherRegisterForm", ...portalLauncherController.RegisterFormHtml)
 	.post("/LauncherLoginAction", ...portalLauncherController.LoginAction)
+	.post("/LauncherRegisterAction", ...portalLauncherController.RegisterAction)
 	.post("/LauncherLogoutAction", ...portalLauncherController.LogoutAction)
 ;

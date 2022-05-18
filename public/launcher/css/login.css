@@ -57,17 +57,14 @@ a {
 	background-repeat: no-repeat;
 	background-position: 0px 0px;
 	width: 320px;
-	height: 420px;
+	height: 500px;
 	/*margin: 0px auto 0px;*/
 	position: relative;
 	padding-top: 1px;
 }
-.col {
-	margin: 8px 0;
-}
 .form-horizontal {
 	width: 224px;
-	margin: 120px auto 0;
+	margin: 105px auto 0;
 	display: block;
 }
 .form-control {

@@ -24,9 +24,14 @@
 			parent.Launcher.showLoginIFrame();
 		}
 
-		$("#userloginForm").submit(function() {
+		$("#userLoginForm").submit(function() {
 			authByLoginAndPassword($('#login').val(), $('#password').val(), $('#remember').is(':checked'));
 			return false;
+		});
+
+		$("#btnJoin").click(function() {
+			document.location.replace("LauncherRegisterForm");
+			parent.Launcher.sendCommand("size|320,530");
 		});
 	});
 
@@ -116,7 +121,7 @@
 </head>
 <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false" style="overflow: hidden;">
 <div class="wrap">
-	<form class="form-horizontal" name="userloginForm" method="post" action="" id="userloginForm">
+	<form class="form-horizontal" name="userLoginForm" method="post" action="" id="userLoginForm">
 		<div class="form-group">
 			<div class="col">
 				<input type="text" class="form-control form-uid" id="login" name="login" placeholder="<%= __('Login') %>" maxlength="30" tabindex="1">
@@ -131,7 +136,7 @@
 			<div class="col">
 				<div class="checkbox">
 					<label>
-					<input type="checkbox" name="remember" id="remember"> <%= __("remember password") %></label>
+					<input type="checkbox" name="remember" id="remember" checked> <%= __("remember password") %></label>
 				</div>
 				<br><br>
 			</div>
@@ -139,6 +144,7 @@
 		<div class="form-group">
 			<div class="col">
 				<button type="submit" tabindex="3" class="btn-submit">Sign in</button>
+				<button type="button" tabindex="3" class="btn-join" id="btnJoin">Join a member</button>
 			</div>
 		</div>
 	</form>

@@ -13,66 +13,43 @@ $(function() {
  * API calls
  */
 function launcherLoginAction(login, password) {
-	var response = null;
-
-	$.ajax({
-		url: "/tera/LauncherLoginAction",
-		method: "post",
-		data: {
-			login: login,
-			password: password
-		},
-		async: false,
-		success: function(data) {
-			response = data;
-		}
+	return apiRequest("LauncherLoginAction", {
+		login: login,
+		password: password
 	});
-
-	return response;
 }
 
 function launcherLogoutAction(authKey) {
-	var response = null;
-
-	$.ajax({
-		url: "/tera/LauncherLogoutAction",
-		method: "post",
-		data: {
-			authKey: authKey
-		},
-		async: false,
-		success: function(data) {
-			response = data;
-		}
+	return apiRequest("LauncherLogoutAction", {
+		authKey: authKey
 	});
+}
 
-	return response;
+function launcherRegisterAction(login, email, password) {
+	return apiRequest("LauncherRegisterAction", {
+		login: login,
+		email: email,
+		password: password
+	});
 }
 
 function getAccountInfoByUserNo(accointId) {
-	var response = null;
-
-	$.ajax({
-		url: "/tera/GetAccountInfoByUserNo",
-		method: "post",
-		data: {
-			id: accointId
-		},
-		async: false,
-		success: function(data) {
-			response = data;
-		}
+	return apiRequest("GetAccountInfoByUserNo", {
+		id: accointId
 	});
-
-	return response;
 }
 
 function launcherMaintenanceStatus() {
+	return apiRequest("LauncherMaintenanceStatus");
+}
+
+function apiRequest(action, params) {
 	var response = null;
 
 	$.ajax({
-		url: "/tera/LauncherMaintenanceStatus",
-		method: "get",
+		url: "/tera/" + action,
+		method: params ? "post" : "get",
+		data: params,
 		async: false,
 		success: function(data) {
 			response = data;

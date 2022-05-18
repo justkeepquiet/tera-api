@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) =>
 	sequelize.define("server_maintenance", {
 		id: {
 			type: DataTypes.INTEGER(11),
-			primaryKey: true
+			primaryKey: true,
+			autoIncrement: true
 		},
 		startTime: {
 			type: DataTypes.TIME

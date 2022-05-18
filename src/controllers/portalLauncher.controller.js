@@ -10,6 +10,7 @@ const body = require("express-validator").body;
 const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
+const { locale } = require("moment-timezone");
 
 i18n.configure({
 	directory: path.resolve(__dirname, "../locales/launcher"),
@@ -77,6 +78,18 @@ module.exports = {
 			res.render("launcherLoginForm", {
 				locale: i18n.getLocale(),
 				qaPrivilege: process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE
+			});
+		}
+	],
+
+	RegisterFormHtml: [
+		i18nHandler,
+		/**
+		 * @type {import("express").RequestHandler}
+		 */
+		(req, res) => {
+			res.render("launcherRegisterForm", {
+				locale: i18n.getLocale()
 			});
 		}
 	],
@@ -196,6 +209,61 @@ module.exports = {
 			}).catch(err => {
 				logger.error(err.toString());
 				result(res, 50000, "account not exist");
+			});
+		}
+	],
+
+	RegisterAction: [
+		[
+			body("login")
+				.isLength({ min: 3, max: 13 }).withMessage("$1")
+				.isAlphanumeric().withMessage("$1")
+				.custom((value, { req }) => accountModel.info.findOne({
+					where: {
+						userName: req.body.login
+					}
+				}).then(user => {
+					if (user) {
+						return Promise.reject("$0");
+					}
+				})),
+			body("email").isEmail().withMessage("$2"),
+			body("password")
+				.isLength({ min: 8, max: 14 }).withMessage("$3")
+				.isAlphanumeric().withMessage("$3")
+		],
+		/**
+		 * @type {import("express").RequestHandler}
+		 */
+		(req, res, next) => {
+			const errors = helpers.validationResultLog(req);
+
+			if (!errors.isEmpty()) {
+				return result(res, 2, errors.array()[0].msg);
+			}
+
+			next();
+		},
+		/**
+		 * @type {import("express").RequestHandler}
+		 */
+		async (req, res) => {
+			const { login, password, email } = req.body;
+			const authKey = uuid.v4();
+
+			accountModel.info.create({
+				userName: login,
+				passWord: password,
+				authKey,
+				email
+			}).then(account => {
+				result(res, 0, "success", {
+					UserNo: account.get("accountDBID"),
+					AuthKey: account.get("authKey")
+				});
+			}).catch(err => {
+				logger.error(err.toString());
+				result(res, 1, "database error");
 			});
 		}
 	]
