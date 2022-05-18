@@ -1,4 +1,4 @@
-var host = location.protocol + "//" + location.hostname + (location.port != 80 ? ":" + location.port : "");
+var host = "http://" + location.hostname + ((location.port && location.port != 80) ? ":" + location.port : ""); // Only HTTP is supported!
 
 /**
  * Init
@@ -238,8 +238,12 @@ var Launcher = {
  * Launcher L2W hooks
  */
 
+function l2w_getLauncherInfoUrl() {
+	return (PATCH_URL ? PATCH_URL : host + "/patch") + "/launcher_info.ini";
+}
+
 function l2w_getBaseUrl() {
-	return PATCH_URL;
+	return PATCH_URL ? PATCH_URL : host + "/patch";
 }
 
 function l2w_getServerList() {
@@ -443,10 +447,6 @@ function l2w_displayInfoResult(result) {
 	if (json.result) {
 		// alert(json.description);
 	}
-}
-
-function l2w_getLauncherInfoUrl() {
-	return PATCH_URL + "/launcher_info.ini";
 }
 
 function l2w_openPopup(page_id) {

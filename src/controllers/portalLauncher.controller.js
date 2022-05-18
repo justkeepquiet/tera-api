@@ -49,7 +49,7 @@ module.exports = {
 		(req, res) => {
 			res.render("launcherMain", {
 				locale: i18n.getLocale(),
-				patchUrl: "http://tera.hsdn.org/patch",
+				patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
 				region: "RUS"
 			});
 		}
