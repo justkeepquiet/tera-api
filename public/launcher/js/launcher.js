@@ -245,9 +245,17 @@ function l2w_getServerList() {
 	var lang = "en";
 
 	switch (REGION) {
-		case "RUS": lang = "ru"; break;
+		case "CHN": lang = "cn"; break;
 		case "EUR": lang = "en"; break;
+		case "FRA": lang = "fr"; break;
+		case "GER": lang = "de"; break;
+		case "INT": lang = "en"; break;
+		case "JPN": lang = "jp"; break;
+		case "RUS": lang = "ru"; break;
+		case "SE": lang = "se"; break;
+		case "THA": lang = "th"; break;
 		case "TW": lang = "tw"; break;
+		case "USA": lang = "en"; break;
 	}
 
 	return host + "/tera/ServerList?lang=" + lang;
