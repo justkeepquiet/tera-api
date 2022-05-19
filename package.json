@@ -22,7 +22,6 @@
     "morgan-body": "^2.6.6",
     "mysql2": "^2.3.3",
     "sequelize": "^6.19.0",
-    "tedious": "^14.5.0",
     "uuid": "^8.3.2",
     "winston": "^3.7.2",
     "xmlbuilder": "^15.1.1"
