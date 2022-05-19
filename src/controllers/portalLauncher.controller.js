@@ -121,7 +121,7 @@ module.exports = {
 		}
 	],
 
-	RegisterFormHtml: [
+	SignupFormHtml: [
 		i18nHandler,
 		/**
 		 * @type {import("express").RequestHandler}
@@ -129,7 +129,7 @@ module.exports = {
 		(req, res) => {
 			const captcha = recaptcha ? recaptcha.render() : "";
 
-			res.render("launcherRegisterForm", {
+			res.render("launcherSignupForm", {
 				locale: i18n.getLocale(),
 				captcha
 			});
@@ -197,7 +197,7 @@ module.exports = {
 		}
 	],
 
-	RegisterAction: [
+	SignupAction: [
 		[
 			body("login")
 				.isLength({ min: 3, max: 13 }).withMessage("$1")

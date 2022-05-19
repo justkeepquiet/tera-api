@@ -45,5 +45,7 @@ GET | `/tera/ServerList?lang=%lang` | Server List request
 GET | `/tera/LauncherMaintenanceStatus` | Request server maintenance Status
 GET | `/tera/LauncherMain` | Get Launcher main HTML page
 GET | `/tera/LauncherLoginForm` | Get Launcher login HTML page (login form)
+GET | `/tera/LauncherSignupForm` | Get Launcher registration HTML page (registration form)
 POST | `/tera/LauncherLoginAction` | Authorization request via Launcher
+POST | `/tera/LauncherSignupAction` | Registration request via Launcher
 POST | `/tera/GetAccountInfoByUserNo` | User data request

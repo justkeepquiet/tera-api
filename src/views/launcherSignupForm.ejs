@@ -9,13 +9,13 @@
 <script type="text/javascript" src="/public/launcher/js/jquery-1.11.1.min.js"></script>
 <%- captcha %>
 <script>
-	function registerAction(login, email, password, password2, captcha) {
+	function signupAction(login, email, password, password2, captcha) {
 		if (password != password2) {
 			alert("<%= __('Two password entries do not match.') %>");
 			return;
 		}
 
-		var result = parent.launcherRegisterAction(login, email, password, captcha);
+		var result = parent.launcherSignupAction(login, email, password, captcha);
 
 		if (result) {
 			if (result.Return) {
@@ -50,9 +50,9 @@
 
 	function bindFormAction(token) {
 		$("#loader").hide();
-		$("#userRegisterForm").show();
-		$("#userRegisterForm").submit(function() {
-			registerAction($('#login').val(), $('#email').val(), $('#password').val(), $('#password2').val(), token);
+		$("#userSignupForm").show();
+		$("#userSignupForm").submit(function() {
+			signupAction($('#login').val(), $('#email').val(), $('#password').val(), $('#password2').val(), token);
 			return false;
 		});
 	}
@@ -66,7 +66,7 @@
 <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false" style="overflow: hidden;">
 <div class="wrap">
 	<div class="loader" id="loader"></div>
-	<form class="form-horizontal" name="userRegisterForm"  method="post" action="" id="userRegisterForm" style="display: none;">
+	<form class="form-horizontal" name="userSignupForm"  method="post" action="" id="userSignupForm" style="display: none;">
 		<div class="form-group">
 			<div class="col">
 				<input type="text" class="form-control form-uid" id="login" name="login" value="" placeholder="<%= __('Enter login') %>" maxlength="30" tabindex="1">
@@ -92,7 +92,7 @@
 		<br>
 		<div class="form-group">
 			<div class="col">
-				<button type="submit" tabindex="3" class="btn-join">Sign in</button>
+				<button type="submit" tabindex="3" class="btn-join">Sign up</button>
 			</div>
 		</div>
 	</form>
