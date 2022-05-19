@@ -1,14 +1,28 @@
 {
   "name": "tera-api",
   "version": "1.0.0",
-  "description": "",
-  "main": "app.js",
+  "description": "Tera API implementation on node.js",
+  "main": "src/app.js",
   "scripts": {
     "start": "node src/app",
     "dev": "nodemon src/app.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Non-commercial Project 'HSDN' <info@hsdn.org>",
+  "keywords": [
+    "mvc",
+    "api",
+    "tera",
+    "arbiter",
+    "launcher"
+  ],
+  "homepage": "https://git.dev.hsdn.org/tera-server/tera-api/",
+  "repository": {
+    "type": "git",
+    "url": "https://git.dev.hsdn.org/tera-server/tera-api.git"
+  },
+  "bugs": {
+    "url": "https://git.dev.hsdn.org/tera-server/tera-api/issues"
+  },
   "dependencies": {
     "body-parser": "^1.20.0",
     "dotenv": "^16.0.1",
@@ -30,5 +44,9 @@
     "@types/express": "^4.17.13",
     "@types/sequelize": "^4.28.13",
     "nodemon": "^2.0.16"
-  }
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "license": "MIT"
 }
