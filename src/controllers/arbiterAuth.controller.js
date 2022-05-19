@@ -30,7 +30,9 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			accountModel.sequelize.authenticate().then(() =>
+			accountModel.serverInfo.update({ isAvailable: 0, usersOnline: 0 }, {
+				where: { isEnabled: 1 }
+			}).then(() =>
 				res.json({ Return: true })
 			).catch(err => {
 				logger.error(err.toString());

@@ -18,24 +18,24 @@ class SlsBuilder {
 	addServer(server, strings) {
 		const category = server.get("isPvE") ?
 			{ sort: 1, value: strings.get("categoryPvE") } :
-			{ sort: 2, value: strings.get("categoryPvP") };
+			{ sort: 1, value: strings.get("categoryPvP") };
 
 		const crowdness = server.get("isCrowdness") ?
-			{ sort: 2, value: strings.get("crowdYes") } :
+			{ sort: 1, value: strings.get("crowdYes") } :
 			{ sort: 1, value: strings.get("crowdNo") };
 
 		let permissionMask = "0x00010000";
-		let open = { sort: 0, value: strings.get("serverOffline"), color: "#990000" };
+		let open = { sort: 1, value: strings.get("serverOffline"), color: "#990000" };
 
 		if (server.get("isAvailable")) {
 			permissionMask = "0x00000000";
 			open = { sort: 1, value: strings.get("serverLow"), color: "#00ff00" };
 
 			if (server.get("usersOnline") > server.get("tresholdLow")) {
-				open = { sort: 2, value: strings.get("serverMedium"), color: "#ffffff" };
+				open = { sort: 1, value: strings.get("serverMedium"), color: "#ffffff" };
 			}
 			if (server.get("usersOnline") > server.get("tresholdMedium")) {
-				open = { sort: 3, value: strings.get("serverHigh"), color: "#ffff00" };
+				open = { sort: 1, value: strings.get("serverHigh"), color: "#ffff00" };
 			}
 		}
 
