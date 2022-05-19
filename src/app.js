@@ -14,6 +14,10 @@ class API {
 		this.app = express();
 		this.displayName = displayName;
 
+		if (/^true$/i.test(process.env.LOG_IP_ADDRESSES_FORWARDED_FOR)) {
+			this.app.enable("trust proxy");
+		}
+
 		this.app.disable("x-powered-by");
 		this.app.use(express.json());
 		this.app.use(bodyParser.urlencoded({ extended: true }));
@@ -40,7 +44,13 @@ class API {
 	}
 
 	setRouter(router) {
-		this.app.use(morgan(`${this.displayName} :method :url :status - :response-time ms`, {
+		let logFormat = `${this.displayName}: :method :url :status - :response-time ms`;
+
+		if (/^true$/i.test(process.env.LOG_IP_ADDRESSES)) {
+			logFormat = `${this.displayName}: :remote-addr :method :url :status - :response-time ms`;
+		}
+
+		this.app.use(morgan(logFormat, {
 			stream: { write: text => logger.info(text.trim()) }
 		}));
 

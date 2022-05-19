@@ -148,8 +148,8 @@ module.exports = {
 			accountModel.info.findOne({ where: { userName: login } }).then(account => {
 				let passwordString = password;
 
-				if (/^true$/i.test(process.env.API_USE_SHA512_PASSWORDS)) {
-					passwordString = crypto.createHash("sha512").update(process.env.API_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
+				if (/^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWORDS)) {
+					passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
 				}
 
 				if (account === null || account.get("passWord") !== passwordString) {
@@ -237,8 +237,8 @@ module.exports = {
 				const authKey = uuid.v4();
 				let passwordString = password;
 
-				if (/^true$/i.test(process.env.API_USE_SHA512_PASSWORDS)) {
-					passwordString = crypto.createHash("sha512").update(process.env.API_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
+				if (/^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWORDS)) {
+					passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
 				}
 
 				accountModel.info.create({
