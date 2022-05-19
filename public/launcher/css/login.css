@@ -98,6 +98,19 @@ a {
 	float: left;
 	line-height: 30px;
 }
+.forgot-password {
+	float: right;
+	line-height: 30px;
+	padding-right: 5px;
+}
+.forgot-password a {
+	text-decoration: underline;
+	color: #8ea8df;
+}
+.forgot-password a:hover {
+	text-decoration: none;
+	color: #8ea8df;
+}
 .quick_link {
 	float: right;
 	line-height: 30px;
