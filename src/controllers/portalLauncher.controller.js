@@ -56,6 +56,33 @@ const i18nHandler = (req, res, next) => {
 };
 
 module.exports = {
+	MaintenanceStatus: [
+		/**
+		 * @type {import("express").RequestHandler}
+		 */
+		(req, res) => {
+			accountModel.maintenance.findOne({
+				where: {
+					startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
+					endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+				}
+			}).then(maintenance => {
+				if (maintenance !== null) {
+					result(res, 0, "success", {
+						StartTime: moment(maintenance.get("startTime")).unix(),
+						EndTime: moment(maintenance.get("startTime")).unix(),
+						Description: maintenance.get("description")
+					});
+				} else {
+					result(res, 0, "success");
+				}
+			}).catch(err => {
+				logger.error(err.toString());
+				result(res, 1, "database error");
+			});
+		}
+	],
+
 	MainHtml: [
 		i18nHandler,
 		/**
@@ -105,33 +132,6 @@ module.exports = {
 			res.render("launcherRegisterForm", {
 				locale: i18n.getLocale(),
 				captcha
-			});
-		}
-	],
-
-	MaintenanceStatus: [
-		/**
-		 * @type {import("express").RequestHandler}
-		 */
-		(req, res) => {
-			accountModel.maintenance.findOne({
-				where: {
-					startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
-					endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
-				}
-			}).then(maintenance => {
-				if (maintenance !== null) {
-					result(res, 0, "success", {
-						StartTime: moment(maintenance.get("startTime")).unix(),
-						EndTime: moment(maintenance.get("startTime")).unix(),
-						Description: maintenance.get("description")
-					});
-				} else {
-					result(res, 0, "success");
-				}
-			}).catch(err => {
-				logger.error(err.toString());
-				result(res, 1, "database error");
 			});
 		}
 	],
@@ -187,37 +187,6 @@ module.exports = {
 						AuthKey: authKey
 					});
 				}).catch(err => {
-					logger.error(err.toString());
-					result(res, 50811, "failure update auth token");
-				});
-			}).catch(err => {
-				logger.error(err.toString());
-				result(res, 50000, "account not exist");
-			});
-		}
-	],
-
-	LogoutAction: [
-		[body("authKey").notEmpty(), body("userNo").isNumeric()],
-		validationHandler,
-		/**
-		 * @type {import("express").RequestHandler}
-		 */
-		(req, res) => {
-			const { authKey, userNo } = req.body;
-
-			accountModel.info.findOne({
-				where: { accountDBID: userNo, authKey: authKey }
-			}).then(account => {
-				if (account === null) {
-					return result(res, 50000, "account not exist");
-				}
-
-				accountModel.info.update({ authKey: null }, {
-					where: { accountDBID: account.get("accountDBID") }
-				}).then(() =>
-					result(res, 0, "success")
-				).catch(err => {
 					logger.error(err.toString());
 					result(res, 50811, "failure update auth token");
 				});

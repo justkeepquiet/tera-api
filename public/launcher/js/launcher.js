@@ -109,6 +109,8 @@ var Launcher = {
 
 		Launcher.sendCommand("login|" + loginIFrame.ACCOUNT_ID);
 		Launcher.sendCommand("check_p");
+
+		loginIFrame.$("#userLoginForm")[0].reset();
 	},
 
 	showLoginIFrame: function() {
