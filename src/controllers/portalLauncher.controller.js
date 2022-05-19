@@ -235,10 +235,15 @@ module.exports = {
 			const handler = () => {
 				const { login, password, email } = req.body;
 				const authKey = uuid.v4();
+				let passwordString = password;
+
+				if (/^true$/i.test(process.env.API_USE_SHA512_PASSWORDS)) {
+					passwordString = crypto.createHash("sha512").update(process.env.API_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
+				}
 
 				accountModel.info.create({
 					userName: login,
-					passWord: password,
+					passWord: passwordString,
 					authKey,
 					email
 				}).then(account => {
