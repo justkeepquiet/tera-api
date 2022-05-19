@@ -8,6 +8,11 @@ const accountModel = require("../models/account.model");
 const reportModel = require("../models/report.model");
 const ChronoScrollActions = require("../actions/chronoScroll.actions");
 
+const reportActivity = /^true$/i.test(process.env.API_ARBITER_REPORT_ACTIVITY);
+const reportCharacters = /^true$/i.test(process.env.API_ARBITER_REPORT_CHARACTERS);
+const reportChronoScrolls = /^true$/i.test(process.env.API_ARBITER_REPORT_CHRONOSCROLLS);
+const reportCheats = /^true$/i.test(process.env.API_ARBITER_REPORT_CHEATS);
+
 /**
  * @param {import("express").Response} res
  */
@@ -146,7 +151,7 @@ module.exports = {
 		(req, res) => {
 			const { ip, server_id, user_srl } = req.body;
 
-			const primises = [
+			const promises = [
 				accountModel.info.update({
 					lastLoginTime: moment.utc().format("YYYY-MM-DD HH:mm:ss"),
 					lastLoginIP: ip,
@@ -157,16 +162,19 @@ module.exports = {
 				}),
 				accountModel.serverInfo.increment({ usersOnline: 1 }, {
 					where: { serverId: server_id }
-				}),
-				reportModel.activity.create({
+				})
+			];
+
+			if (reportActivity) {
+				promises.push(reportModel.activity.create({
 					accountDBID: user_srl,
 					serverId: server_id,
 					ip,
 					reportType: 1
-				})
-			];
+				}));
+			}
 
-			Promise.all(primises).then(() =>
+			Promise.all(promises).then(() =>
 				result(res, 0)
 			).catch(err => {
 				logger.error(err.toString());
@@ -187,7 +195,7 @@ module.exports = {
 		(req, res) => {
 			const { play_time, user_srl } = req.body;
 
-			const primises = [
+			const promises = [
 				accountModel.info.findOne({
 					where: { accountDBID: user_srl }
 				}).then(async account => {
@@ -196,13 +204,15 @@ module.exports = {
 							where: { serverId: account.get("lastLoginServer") }
 						});
 
-						await reportModel.activity.create({
-							accountDBID: user_srl,
-							serverId: account.get("lastLoginServer"),
-							ip: account.get("lastLoginIP"),
-							playTime: play_time,
-							reportType: 2
-						});
+						if (reportActivity) {
+							await reportModel.activity.create({
+								accountDBID: user_srl,
+								serverId: account.get("lastLoginServer"),
+								ip: account.get("lastLoginIP"),
+								playTime: play_time,
+								reportType: 2
+							});
+						}
 					}
 				}),
 				accountModel.info.update({
@@ -213,7 +223,7 @@ module.exports = {
 				})
 			];
 
-			Promise.all(primises).then(() =>
+			Promise.all(promises).then(() =>
 				result(res, 0)
 			).catch(err => {
 				logger.error(err.toString());
@@ -240,7 +250,7 @@ module.exports = {
 		(req, res) => {
 			const { char_name, char_srl, class_id, gender_id, level, race_id, server_id, user_srl } = req.body;
 
-			const primises = [
+			const promises = [
 				accountModel.serverInfo.increment({ usersTotal: 1 }, {
 					where: { serverId: server_id }
 				}),
@@ -253,8 +263,11 @@ module.exports = {
 					genderId: gender_id,
 					raceId: race_id,
 					level
-				}),
-				reportModel.characters.create({
+				})
+			];
+
+			if (reportCharacters) {
+				promises.push(reportModel.characters.create({
 					characterId: char_srl,
 					serverId: server_id,
 					accountDBID: user_srl,
@@ -264,10 +277,10 @@ module.exports = {
 					raceId: race_id,
 					level,
 					reportType: 1
-				})
-			];
+				}));
+			}
 
-			Promise.all(primises).then(() =>
+			Promise.all(promises).then(() =>
 				result(res, 0)
 			).catch(err => {
 				logger.error(err.toString());
@@ -304,24 +317,27 @@ module.exports = {
 				return result(res, 0);
 			}
 
-			const primises = [
+			const promises = [
 				accountModel.characters.update(fields, {
 					where: {
 						characterId: char_srl,
 						serverId: server_id,
 						accountDBID: user_srl
 					}
-				}),
-				reportModel.characters.create({
+				})
+			];
+
+			if (reportCharacters) {
+				promises.push(reportModel.characters.create({
 					characterId: char_srl,
 					serverId: server_id,
 					accountDBID: user_srl,
 					...fields,
 					reportType: 2
-				})
-			];
+				}));
+			}
 
-			Promise.all(primises).then(() =>
+			Promise.all(promises).then(() =>
 				result(res, 0)
 			).catch(err => {
 				logger.error(err.toString());
@@ -343,7 +359,7 @@ module.exports = {
 		(req, res) => {
 			const { char_srl, server_id, user_srl } = req.body;
 
-			const primises = [
+			const promises = [
 				accountModel.serverInfo.decrement({ usersTotal: 1 }, {
 					where: { serverId: server_id }
 				}),
@@ -353,16 +369,19 @@ module.exports = {
 						serverId: server_id,
 						accountDBID: user_srl
 					}
-				}),
-				reportModel.characters.create({
+				})
+			];
+
+			if (reportCharacters) {
+				promises.push(reportModel.characters.create({
 					characterId: char_srl,
 					serverId: server_id,
 					accountDBID: user_srl,
 					reportType: 3
-				})
-			];
+				}));
+			}
 
-			Promise.all(primises).then(() =>
+			Promise.all(promises).then(() =>
 				result(res, 0)
 			).catch(err => {
 				logger.error(err.toString());
@@ -388,11 +407,13 @@ module.exports = {
 			try {
 				actions.emit(chrono_id, user_srl);
 
-				await reportModel.chronoScrolls.create({
-					accountDBID: user_srl,
-					serverId: server_id,
-					chronoId: chrono_id
-				});
+				if (reportChronoScrolls) {
+					await reportModel.chronoScrolls.create({
+						accountDBID: user_srl,
+						serverId: server_id,
+						chronoId: chrono_id
+					});
+				}
 
 				result(res, 0);
 			} catch (err) {
@@ -416,6 +437,10 @@ module.exports = {
 		 */
 		(req, res) => {
 			const { cheat_info, ip, svr_id, type, usr_srl } = req.body;
+
+			if (!reportCheats) {
+				return result(res, 0);
+			}
 
 			reportModel.cheats.create({
 				accountDBID: usr_srl,
