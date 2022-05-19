@@ -146,15 +146,34 @@ var Launcher = {
 		}
 	},
 
-	filesCheck: function() {
-		if ($("#playButton").hasClass("btn-break")) return false;
-
-		// Launcher.status = 0;
-		// Launcher.sendCommand('start_p|2');
-		Launcher.repairGame();
-		// Launcher.sendCommand('check_p');
+	enableLaunchButton: function(text, cls) {
+		$("#playButton").addClass("ready");
+		$("#playButton").attr("class", "btn " + cls);
+		$("#playButton").text(text);
+		$("#repair").show();
 	},
 
+	disableLaunchButton: function(text, cls) {
+		$("#playButton").removeClass("ready");
+		$("#playButton").attr("class", "btn " + cls);
+		$("#playButton").text(text);
+		$("#repair").show();
+	},
+
+	/*
+	 * Repair button event
+	 */
+	filesCheck: function() {
+		if ($("#playButton").hasClass("btn-break")) {
+			return false;
+		}
+
+		Launcher.repairGame();
+	},
+
+	/*
+	 * Launcher procedures
+	 */
 	launchGame: function() {
 		Launcher.disableLaunchButton("Wait", "btn-wait");
 
@@ -203,27 +222,12 @@ var Launcher = {
 	abortPatch: function() {
 		Launcher.disableLaunchButton("Wait", "btn-wait");
 		Launcher.sendCommand("abort_p");
-	},
-
-	enableLaunchButton: function(text, cls) {
-		$("#playButton").addClass("ready");
-		$("#playButton").attr("class", "btn " + cls);
-		$("#playButton").text(text);
-		$("#repair").show();
-	},
-
-	disableLaunchButton: function(text, cls) {
-		$("#playButton").removeClass("ready");
-		$("#playButton").attr("class", "btn " + cls);
-		$("#playButton").text(text);
-		$("#repair").show();
 	}
 };
 
 /**
  * Launcher L2W hooks
  */
-
 function l2w_getBaseUrl() {
 	var patchUrl = PATCH_URL;
 
@@ -429,55 +433,42 @@ function l2w_gameEnd(end_type1, end_type2) {
 }
 
 function l2w_getExeInfo() {
-	// if (game_path.length == 0) return '';
-	// if (exe_path.length == 0) return game_path;
 	return "";
 }
 
 function l2w_systemInfoResult(result) {
 	debug(result);
-
-	var json = JSON.parse(result);
-	if (json.result) {
-		// alert(json.processor_name);
-	}
 }
 
 function l2w_displayInfoResult(result) {
 	debug(result);
-
-	var json = JSON.parse(result);
-	if (json.result) {
-		// alert(json.description);
-	}
 }
 
 function l2w_openPopup(page_id) {
 	/*
 	if (page_id == 13) { // Homepage
 		setTimeout(function() {
-			window.open("http://tera-online.ru/");
+			window.open(URLS.homepage);
 		}, 0);
 		return;
 	}
 
 	if (page_id == 30) { // Facebook
 		setTimeout(function() {
-			window.open('https://www.facebook.com/');
+			window.open(URLS.facebook);
 		}, 0);
 		return;
 	}
 
 	if (page_id == 33) { // Youtube
 		setTimeout(function() {
-			window.open('https://www.youtube.com/');
+			window.open(URLS.youtube);
 		}, 0);
 		return;
-	}*/
+	}
+	*/
 }
 
 function l2w_getWebLinkUrl(act_id, param) {
 	debug(act_id, param);
-	// if (act_id== 270) return "https://landing.mangot5.com/template/tera/event/200730battle_arena/index.html"; // TBA Chracter Event Page
-	// if (act_id== 260) return "https://'+aClass+'.mangot5.com/game/tera/mall/ingametba?tokken=' + loginIFrame.TOKEN + '&worldNo=""; // TBA Ingame Mall Page
 }
