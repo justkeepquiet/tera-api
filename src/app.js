@@ -44,15 +44,17 @@ class API {
 	}
 
 	setRouter(router) {
-		let logFormat = `${this.displayName}: :method :url :status - :response-time ms`;
+		if (/^true$/i.test(process.env.LOG_API_REQUESTS)) {
+			let logFormat = `${this.displayName}: :method :url :status - :response-time ms`;
 
-		if (/^true$/i.test(process.env.LOG_IP_ADDRESSES)) {
-			logFormat = `${this.displayName}: :remote-addr :method :url :status - :response-time ms`;
+			if (/^true$/i.test(process.env.LOG_IP_ADDRESSES)) {
+				logFormat = `${this.displayName}: :remote-addr :method :url :status - :response-time ms`;
+			}
+
+			this.app.use(morgan(logFormat, {
+				stream: { write: text => logger.info(text.trim()) }
+			}));
 		}
-
-		this.app.use(morgan(logFormat, {
-			stream: { write: text => logger.info(text.trim()) }
-		}));
 
 		router(this.app);
 	}
