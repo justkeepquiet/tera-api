@@ -25,14 +25,17 @@ logger.add(new winston.transports.Console({
 }));
 
 if (/^true$/i.test(process.env.LOG_WRITE)) {
-	const logFilename = `log_${moment.utc().local().format("YYYY-MM-DD_HH-mm-ss")}_${process.pid}.log`;
+	const logFilename = path.resolve(logDirectory,
+		`log_${moment.utc().local().format("YYYY-MM-DD_HH-mm-ss")}_${process.pid}.log`);
+
+	logger.info(`Log file: ${logFilename}`);
 
 	if (!fs.existsSync(path.resolve(logDirectory))) {
 		fs.mkdirSync(path.resolve(logDirectory));
 	}
 
 	logger.add(new winston.transports.File({
-		filename: path.resolve(logDirectory, logFilename),
+		filename: logFilename,
 		format: winston.format.combine(
 			winston.format.timestamp({ format: logTimeFormat }),
 			winston.format.printf(info =>
