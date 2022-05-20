@@ -329,9 +329,6 @@ a {
 .btn-logout:hover {
 	background-position: 0px -18px;
 }
-.btn-logout:hover {
-	border-color: #b7afc8;
-}
 .modalScreen {
 	display: none;
 	width: 340px;
@@ -349,7 +346,7 @@ a {
 }
 #qaBox {
 	position: absolute;
-	margin-top: 150px;
+	margin-top: 100px;
 	background: #ededed;
 	border: 1px solid #000;
 	width: 320px;
@@ -369,7 +366,7 @@ a {
 	vertical-align: middle;
 }
 #qaBox .qa-hide {
-	color: blue;
+	color: #87759e;
 	font-size: 11px;
 }
 #qaBox #qaModeCheck {
