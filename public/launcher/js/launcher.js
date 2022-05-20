@@ -116,6 +116,7 @@ var Launcher = {
 	showLoginIFrame: function() {
 		Launcher.sendCommand("size|320,500");
 		$("#loginScreen").show();
+		$("#launcherMain").hide();
 	},
 
 	hideLoginIFrame: function() {

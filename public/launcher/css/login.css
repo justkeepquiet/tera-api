@@ -64,14 +64,14 @@ a {
 	background-image: url(../images/bg.jpg);
 	background-repeat: no-repeat;
 	background-position: 0px 0px;
-	width: 320px;
+	width: 325px;
 	height: 500px;
 	/*margin: 0px auto 0px;*/
 	position: relative;
 	padding-top: 1px;
 }
 .form-horizontal {
-	width: 224px;
+	width: 220px;
 	margin: 105px auto 0;
 	display: block;
 }
@@ -124,7 +124,7 @@ a {
 	background-position: 0px 0px;
 	position: absolute;
 	top: 15px;
-	right: 20px;
+	right: 25px;
 	text-indent: -9999px;
 	background-color: transparent;
 }

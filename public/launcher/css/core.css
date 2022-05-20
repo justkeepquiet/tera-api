@@ -33,7 +33,7 @@ table {
 	box-sizing: border-box;
 }
 body {
-	background-color: #000;
+	background-color: #b694b6;
 	font-size: 12px;
 }
 body, button {
@@ -56,8 +56,8 @@ a {
 	position: relative;
 }
 .header {
-	margin-top: 100px;
-	margin-left: 20px;
+	margin-top: 70px;
+	margin-left: 35px;
 	margin-bottom: 13px;
 	float: left;
 }
@@ -136,17 +136,21 @@ a {
 }
 .notice {
 	width: 400px;
+	margin-left: 25px;
 	margin-bottom: 14px;
 	height: 125px;
 }
 .notice h3 {
-	color: #8ea8df;
+	color: #767c99;
 	font-size: 18px;
-	padding-left: 27px;
+	padding-left: 30px;
 	background-image: url(../images/ico.png);
 	background-repeat: no-repeat;
-	background-position: 0px 0px;
+	background-position: 0px 2px;
 	margin-bottom: 7px;
+}
+.notice h3 span {
+	font-weight: bold;
 }
 .notice li {
 	font-family: Helvetica, Arial, sans-serif;
@@ -175,8 +179,9 @@ a {
 	display: none;
 }
 .progress {
+	margin-left: 15px;
 	margin-right: 20px;
-	color: #5b5e8b;
+	color: #767c99;
 	line-height: 22px;
 	width: 439px;
 	float: left;
@@ -198,14 +203,14 @@ a {
 }
 .progress .progress-bar {
 	float: left;
-	background-color: #0a1343;
+	background-color: #1e1f45;
 	color: #fff;
 	width: 390px;
 	height: 22px;
 	position: relative;
 }
 .progress .progress-bar-complete {
-	background-color: #4489cf;
+	background-color: #68317e;
 	height: 22px;
 	position: absolute;
 	z-index: 1;
@@ -247,6 +252,7 @@ a {
 }
 .gamestart {
 	float: left;
+	margin-left: 10px;
 	margin-top: -15px;
 }
 .gamestart .btn {
@@ -285,11 +291,11 @@ a {
 }
 .footer {
 	font-size: 11px;
-	color: #5b5e8b;
+	color: #767c99;
 	clear: both;
 	position: relative;
-	top: -6px;
-	margin-left: 26px;
+	top: -10px;
+	margin-left: 30px;
 }
 .btn-close {
 	cursor: pointer;
@@ -299,8 +305,8 @@ a {
 	background-image: url(../images/btn-close.png);
 	background-position: 0px 0px;
 	position: absolute;
-	top: 92px;
-	right: 135px;
+	top: 65px;
+	right: 120px;
 	text-indent: -9999px;
 	background-color: transparent;
 }
@@ -309,16 +315,19 @@ a {
 }
 .btn-logout {
 	cursor: pointer;
-	width: 64px;
-	height: 22px;
-	border-width: 1px;
-	border-color: #3b4367;
-	color: #b5bfe4;
-	border-style: solid;
+	width: 18px;
+	height: 18px;
+	border-width: 0;
+	background-image: url(../images/btn-logout.png);
+	background-position: 0px 0px;
 	position: absolute;
-	top: 92px;
-	right: 172px;
+	text-indent: -9999px;
+	margin-left: 5px;
+	margin-top: 2px;
 	background-color: transparent;
+}
+.btn-logout:hover {
+	background-position: 0px -18px;
 }
 .btn-logout:hover {
 	border-color: #b7afc8;
@@ -327,7 +336,8 @@ a {
 	display: none;
 	width: 340px;
 	height: 500px;
-	top: 80px;
+	top: 50px;
+	left: 5px;
 	position: fixed;
 	overflow: hidden;
 	z-index: 1;

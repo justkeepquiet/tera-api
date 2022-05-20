@@ -45,15 +45,14 @@
 		<div class="header">
 			<div class="logo"><img src="/public/launcher/images/logo.png"></div>
 			<!--/logo-->
-			<div class="col">
-				<h3><%= __("Welcome") %>, <span id="userName""></span>!</h3>
-			</div>
+			<div class="col"></div>
 			<!--/col-->
 		</div>
 		<!--/header-->
 		<div class="content">
 			<div class="notice">
-				<div id="qaBox" class="qa-box" style="display: none;">
+				<h3><%= __("Welcome") %>, <span id="userName""></span>! <a href="#" class="btn-logout" onclick="loginIFrame.logout();"></a></h3>
+				<div id="qaBox_" class="qa-box" style="display: none;">
 					<fieldset>
 						<legend>QA Operations Menu</legend>
 						<table>
@@ -104,7 +103,6 @@
 		<!--/content-->
 		<div class="footer">&copy; <%= new Date().getFullYear() %> <%= __("Tera Private Server") %>. All Rights Reserved.</div>
 		<!--/footer-->
-		<button class="btn-logout" onclick="loginIFrame.logout();"><%= __("Logout") %></button>
 		<button class="btn-close" onclick="Launcher.sendCommand('close');">Close</button>
 	</div>
 	<!--/wrap-->
