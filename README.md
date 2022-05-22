@@ -34,7 +34,7 @@ POST | `/api/LeaveGame` | Game leave event
 POST | `/api/CreateChar` | Character creation event
 POST | `/api/ModifyChar` | Character modify event (not used)
 POST | `/api/DeleteChar` | Character delete event
-POST | `/api/UseChronoScroll` | VIP item usage event (not implemented yet)
+POST | `/api/UseChronoScroll` | VIP item usage event
 POST | `/api/report_cheater` | The event of sending a cheater report
 
 #### Portal/Launcher API
