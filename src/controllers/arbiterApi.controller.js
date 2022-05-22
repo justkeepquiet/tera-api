@@ -47,10 +47,14 @@ module.exports = {
 	],
 
 	GetServerPermission: [
+		[body("server_id").isNumeric()],
+		validationHandler,
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
+			const { server_id } = req.body;
+
 			// @todo
 			result(res, 0, { permission: 0 });
 		}
