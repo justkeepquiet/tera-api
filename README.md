@@ -2,11 +2,16 @@
 
 API implementation for the TERA Online retail server (patch 92/100) on Node.js. The API consists of two independent servers running on different ports (for the needs of the [portal/launcher](https://github.com/justkeepquiet/tera-launcher), and separately for the needs of the Arbiter server).
 
+### Requirements
+
+* Node.js v18.1.0
+* MySQL Server v5.7.38
+
 ### Installation
 
 1. Install latest node.js from https://nodejs.org/.
 2. Copy the all tera-api files to any directory (e.g. `c:\tera-api`).
-3. Open comsole and go to directory (type `cd c:\tera-api`).
+3. Open windows console and go to directory (type `cd c:\tera-api`).
 4. Run the `npm install` for install required node modules.
 5. Copy or rename the `.env.example` file to `.env`.
 6. Configure the parameters in the `.env` file.
@@ -16,11 +21,6 @@ API implementation for the TERA Online retail server (patch 92/100) on Node.js. 
 #### Important!
 
 The account database structure used differs from that used in the leaked retail version of the server. The supported database structure is located in the `share` folder.
-
-### Requirements
-
-* Node.js v18.1.0
-* MySQL Server v5.7.38
 
 ### API Endpoints
 
