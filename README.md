@@ -8,7 +8,8 @@ API implementation for the TERA Online retail server (patch 92/100) on Node.js. 
 2. Run the `npm install` command.
 3. Copy the `.env.example` file to `.env`.
 4. Configure the parameters in the `.env` file.
-5. Execute the `node src/app` command, or run the file `tera-api.bat`.
+5. Impport the [database structure](share/accountdb.sql) to your MySQL server.
+6. Execute the `node src/app` command, or run the file `tera-api.bat` to start API servers.
 
 #### Important!
 
