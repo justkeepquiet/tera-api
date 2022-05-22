@@ -22,6 +22,16 @@ API implementation for the TERA Online retail server (patch 92/100) on Node.js. 
 
 The account database structure used differs from that used in the leaked retail version of the server. The supported database structure is located in the `share` folder.
 
+### Arbiter API
+
+It is intended for processing internal requests from the Arbiter Server, such as checking a token, receiving events about the character's behavior, etc.
+This API must be binded only on a local IP address and must not be accessed by external users!
+
+### Portal API
+
+This API is a web server intended for the Launcher (portal). This API must be available from the outside (proxied by Nginx or binded on external IP) for use by server users: registration, registration, authorization, login.
+Also, this API allows to process static elements (directory `public`).
+
 ### API Endpoints
 
 #### Arbiter Server API
