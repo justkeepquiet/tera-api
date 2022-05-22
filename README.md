@@ -29,7 +29,7 @@ This API must be binded only on a local IP address and must not be accessed by e
 
 ### Portal API
 
-This API is a web server intended for the Launcher (portal). This API must be available from the outside (proxied by Nginx or binded on external IP) for use by server users: registration, registration, authorization, login.
+This API is a web server intended for the Launcher (portal). This API must be available from the outside (proxied by Nginx or binded on external IP) for use by server users: registration, authorization, login, update routines etc.
 Also, this API allows to process static elements (directory `public`).
 
 ### API Endpoints
