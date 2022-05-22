@@ -15,6 +15,9 @@ CREATE TABLE IF NOT EXISTS `account_benefits` (
   PRIMARY KEY (`accountDBID`,`benefitId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+/*!40000 ALTER TABLE `account_benefits` DISABLE KEYS */;
+/*!40000 ALTER TABLE `account_benefits` ENABLE KEYS */;
+
 CREATE TABLE IF NOT EXISTS `account_characters` (
   `characterId` int(11) NOT NULL,
   `serverId` int(11) NOT NULL,
@@ -27,11 +30,15 @@ CREATE TABLE IF NOT EXISTS `account_characters` (
   PRIMARY KEY (`characterId`,`serverId`,`accountDBID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+/*!40000 ALTER TABLE `account_characters` DISABLE KEYS */;
+/*!40000 ALTER TABLE `account_characters` ENABLE KEYS */;
+
 CREATE TABLE IF NOT EXISTS `account_info` (
-  `accountDBID` bigint(20) NOT NULL,
+  `accountDBID` bigint(20) NOT NULL AUTO_INCREMENT,
   `userName` varchar(64) NOT NULL,
   `passWord` varchar(128) NOT NULL,
   `authKey` varchar(128) DEFAULT NULL,
+  `email` varchar(64) DEFAULT NULL,
   `registerTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `lastLoginTime` timestamp NULL DEFAULT NULL,
   `lastLoginIP` varchar(64) DEFAULT NULL,
@@ -44,6 +51,9 @@ CREATE TABLE IF NOT EXISTS `account_info` (
   PRIMARY KEY (`accountDBID`,`userName`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
+/*!40000 ALTER TABLE `account_info` DISABLE KEYS */;
+/*!40000 ALTER TABLE `account_info` ENABLE KEYS */;
+
 CREATE TABLE IF NOT EXISTS `report_activity` (
   `accountDBID` bigint(20) DEFAULT NULL,
   `serverId` int(11) DEFAULT NULL,
@@ -53,6 +63,9 @@ CREATE TABLE IF NOT EXISTS `report_activity` (
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   KEY `accountDBID` (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*!40000 ALTER TABLE `report_activity` DISABLE KEYS */;
+/*!40000 ALTER TABLE `report_activity` ENABLE KEYS */;
 
 CREATE TABLE IF NOT EXISTS `report_characters` (
   `accountDBID` bigint(20) NOT NULL,
@@ -68,6 +81,9 @@ CREATE TABLE IF NOT EXISTS `report_characters` (
   KEY `accountDBID` (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+/*!40000 ALTER TABLE `report_characters` DISABLE KEYS */;
+/*!40000 ALTER TABLE `report_characters` ENABLE KEYS */;
+
 CREATE TABLE IF NOT EXISTS `report_cheats` (
   `accountDBID` bigint(20) DEFAULT NULL,
   `serverId` int(11) DEFAULT NULL,
@@ -78,6 +94,9 @@ CREATE TABLE IF NOT EXISTS `report_cheats` (
   KEY `accountDBID` (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+/*!40000 ALTER TABLE `report_cheats` DISABLE KEYS */;
+/*!40000 ALTER TABLE `report_cheats` ENABLE KEYS */;
+
 CREATE TABLE IF NOT EXISTS `report_chronoscrolls` (
   `accountDBID` bigint(20) DEFAULT NULL,
   `serverId` int(11) DEFAULT NULL,
@@ -85,6 +104,9 @@ CREATE TABLE IF NOT EXISTS `report_chronoscrolls` (
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   KEY `accountDBID` (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*!40000 ALTER TABLE `report_chronoscrolls` DISABLE KEYS */;
+/*!40000 ALTER TABLE `report_chronoscrolls` ENABLE KEYS */;
 
 CREATE TABLE IF NOT EXISTS `server_info` (
   `serverId` int(11) NOT NULL,
@@ -104,6 +126,9 @@ CREATE TABLE IF NOT EXISTS `server_info` (
   PRIMARY KEY (`serverId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+/*!40000 ALTER TABLE `server_info` DISABLE KEYS */;
+/*!40000 ALTER TABLE `server_info` ENABLE KEYS */;
+
 CREATE TABLE IF NOT EXISTS `server_maintenance` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `startTime` timestamp NULL DEFAULT NULL,
@@ -111,6 +136,9 @@ CREATE TABLE IF NOT EXISTS `server_maintenance` (
   `description` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*!40000 ALTER TABLE `server_maintenance` DISABLE KEYS */;
+/*!40000 ALTER TABLE `server_maintenance` ENABLE KEYS */;
 
 CREATE TABLE IF NOT EXISTS `server_strings` (
   `language` varchar(3) NOT NULL,
@@ -129,7 +157,8 @@ CREATE TABLE IF NOT EXISTS `server_strings` (
 /*!40000 ALTER TABLE `server_strings` DISABLE KEYS */;
 INSERT INTO `server_strings` (`language`, `categoryPvE`, `categoryPvP`, `serverOffline`, `serverLow`, `serverMedium`, `serverHigh`, `crowdNo`, `crowdYes`, `popup`) VALUES
 	('en', 'PvE', 'PvP', 'Offline', 'Low', 'Medium', 'High', 'No', 'Yes', 'Unable to access the server at this time.'),
-	('ru', 'PvE', 'PvP', 'Отключен', 'Низко', 'Средне', 'Высоко', 'Нет', 'Да', 'В настоящее время невозможно войти на сервер.');
+	('ru', 'PvE', 'PvP', 'Отключен', 'Низко', 'Средне', 'Высоко', 'Нет', 'Да', 'В настоящее время невозможно войти на сервер.'),
+	('tw', 'PvE', 'PvP', '离线', '低的', '中间', '高的', '不', '不', '此时无法访问服务器。');
 /*!40000 ALTER TABLE `server_strings` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
