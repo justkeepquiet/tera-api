@@ -101,6 +101,7 @@ module.exports = {
 
 			res.render("launcherMain", {
 				locale: i18n.getLocale(),
+				patchNoCheck: process.env.API_PORTAL_CLIENT_PATCH_NOCHECK,
 				patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
 				region: process.env.API_PORTAL_CLIENT_DEFAULT_REGION,
 				regions

@@ -11,6 +11,7 @@
 	var startFileChekingString = "<%= __('Start files checking?') %>";
 	var accountBlockedString = "<%= __('Account blocked. Please contact support.') %>";
 
+	var PATCH_NO_CHECK = /^true$/i.test("<%= patchNoCheck %>");
 	var PATCH_URL = "<%= patchUrl %>";
 	var REGION = "<%= region %>";
 	var PATCH_INFO_STRINGS = {
@@ -90,7 +91,9 @@
 				</div>
 				<!--/progress--> 
 				<div class="check">
+					<% if (!/^true$/i.test(patchNoCheck)) { %>
 					<button class="btn-check" onclick="if (confirm(startFileChekingString)) Launcher.filesCheck();">Repair</button>&nbsp;
+					<% } %>
 				</div>
 				<!--/check-->
 				<div class="gamestart">

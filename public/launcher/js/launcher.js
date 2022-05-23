@@ -196,7 +196,7 @@ var Launcher = {
 
 		Launcher.status = 3;
 
-		if (loginIFrame.QA_MODE && loginIFrame.QA_MODE_NOCHECK) { // no check files in QA mode
+		if ((loginIFrame.QA_MODE && loginIFrame.QA_MODE_NOCHECK) || PATCH_NO_CHECK) { // no check files in QA mode
 			Launcher.status = 0;
 			Launcher.sendCommand("execute|" + REGION);
 		} else {
@@ -286,7 +286,7 @@ function l2w_tooManyRetry() {
 function l2w_checkPatchResult(patch_result, patch_error, file, reason, code) {
 	debug(sprintf("Check patch finished with %d %d [%s] %d, %d", patch_result, patch_error, file, reason, code));
 
-	if (loginIFrame.QA_MODE && loginIFrame.QA_MODE_NOCHECK) { // no check files in QA mode
+	if ((loginIFrame.QA_MODE && loginIFrame.QA_MODE_NOCHECK) || PATCH_NO_CHECK) { // no check files in QA mode
 		Launcher.enableLaunchButton("Play", "btn-gamestart");
 		return;
 	}
