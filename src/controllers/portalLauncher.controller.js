@@ -101,6 +101,7 @@ module.exports = {
 
 			res.render("launcherMain", {
 				locale: i18n.getLocale(),
+				brandName: process.env.API_PORTAL_BRAND_NAME || "Tera Private Server",
 				patchNoCheck: process.env.API_PORTAL_CLIENT_PATCH_NO_CHECK,
 				patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
 				region: process.env.API_PORTAL_CLIENT_DEFAULT_REGION,
