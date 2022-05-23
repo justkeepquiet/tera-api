@@ -24,6 +24,16 @@ if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
 	);
 }
 
+if (!process.env.API_PORTAL_LOCALE) {
+	logger.error("Invalid configuration parameter: API_PORTAL_LOCALE");
+	process.exit();
+}
+
+if (!process.env.API_PORTAL_CLIENT_DEFAULT_REGION) {
+	logger.error("Invalid configuration parameter: API_PORTAL_CLIENT_DEFAULT_REGION");
+	process.exit();
+}
+
 i18n.configure({
 	directory: path.resolve(__dirname, "../locales/launcher"),
 	defaultLocale: process.env.API_PORTAL_LOCALE

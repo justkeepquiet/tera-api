@@ -3,6 +3,21 @@
 const { Sequelize, DataTypes } = require("sequelize");
 const logger = require("../utils/logger");
 
+if (!process.env.DB_ACCOUNT_HOST) {
+	logger.error("Invalid configuration parameter: DB_ACCOUNT_HOST");
+	process.exit();
+}
+
+if (!process.env.DB_ACCOUNT_DATABASE) {
+	logger.error("Invalid configuration parameter: DB_ACCOUNT_DATABASE");
+	process.exit();
+}
+
+if (!process.env.DB_ACCOUNT_USERNAME) {
+	logger.error("Invalid configuration parameter: DB_ACCOUNT_USERNAME");
+	process.exit();
+}
+
 const sequelize = new Sequelize(
 	process.env.DB_ACCOUNT_DATABASE,
 	process.env.DB_ACCOUNT_USERNAME,
@@ -21,9 +36,10 @@ const sequelize = new Sequelize(
 
 sequelize.authenticate().then(() =>
 	logger.info("Account database connected.")
-).catch(err =>
-	logger.error("Account database connection error:", err)
-);
+).catch(err => {
+	logger.error("Report database connection error:", err);
+	process.exit();
+});
 
 const models = {
 	info: require("./account/accountInfo.model")(sequelize, DataTypes),

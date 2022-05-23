@@ -32,7 +32,7 @@
 		"no-lone-blocks": "error",
 		"no-multi-str": "error",
 		"no-path-concat": "error",
-		"no-process-exit": "error",
+		"no-process-exit": "off",
 		"no-lonely-if": "error",
 		"no-spaced-func": "warn",
 		"no-confusing-arrow": "error",

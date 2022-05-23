@@ -70,10 +70,21 @@ class API {
 
 		this.app.listen(port, host, () =>
 			logger.info(`${this.displayName} API is listening at: ${!host ? "*" : host}:${port}`)
-		).on("error", err =>
-			logger.error(`${this.displayName} API has error: ${err.message}`)
-		);
+		).on("error", err => {
+			logger.error(`${this.displayName} API has error: ${err.message}`);
+			process.exit();
+		});
 	}
+}
+
+if (!process.env.API_ARBITER_LISTEN_PORT) {
+	logger.error("Invalid configuration parameter: API_ARBITER_LISTEN_PORT");
+	process.exit();
+}
+
+if (!process.env.API_PORTAL_LISTEN_PORT) {
+	logger.error("Invalid configuration parameter: API_PORTAL_LISTEN_PORT");
+	process.exit();
 }
 
 const arbiterApi = new API("Arbiter");
