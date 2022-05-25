@@ -5,9 +5,18 @@ const moment = require("moment-timezone");
 const accountModel = require("../models/account.model");
 
 // @see StrSheet_AccountBenefit
-const BENEFIT_ID_ELITE_STATUS = 533; // RU VIP
+const BENEFIT_ID_ELITE_STATUS = process.env.API_PORTAL_BENEFIT_ID_ELITE_STATUS || 533; // RU VIP
 
 const сhronoScrollController = {
+	// Mini Chronoscroll
+	358: userId => (new EliteStatusVoucherBenefit(userId)).add(7),
+
+	// Chronoscroll
+	372: userId => (new EliteStatusVoucherBenefit(userId)).add(30),
+
+	// Triple Chronoscroll
+	373: userId => (new EliteStatusVoucherBenefit(userId)).add(90),
+
 	// VIP 1 Day
 	149897: userId => (new EliteStatusVoucherBenefit(userId)).add(1),
 
