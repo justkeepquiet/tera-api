@@ -4,9 +4,6 @@ const EventEmitter = require("events").EventEmitter;
 const moment = require("moment-timezone");
 const accountModel = require("../models/account.model");
 
-// @see StrSheet_AccountBenefit
-const BENEFIT_ID_ELITE_STATUS = process.env.API_PORTAL_BENEFIT_ID_ELITE_STATUS || 533; // RU VIP
-
 const сhronoScrollController = {
 	// Mini Chronoscroll
 	358: userId => (new EliteStatusVoucherBenefit(userId)).add(7),
@@ -75,7 +72,7 @@ const сhronoScrollController = {
 class EliteStatusVoucherBenefit {
 	constructor(userId) {
 		this.userId = userId;
-		this.benefitId = BENEFIT_ID_ELITE_STATUS;
+		this.benefitId = process.env.API_PORTAL_BENEFIT_ID_ELITE_STATUS || 533; // RU VIP
 	}
 
 	async add(days) {
