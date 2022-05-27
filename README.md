@@ -18,6 +18,8 @@ API implementation for the TERA Online retail server (patch 92/100) on Node.js. 
 7. Import the [database structure](share/accountdb.sql) to your MySQL server.
 8. Execute the `node src/app` command, or run the file `tera-api.bat` to start API servers.
 
+If you don't plan to use [tera-client-packer](https://github.com/justkeepquiet/tera-client-packer) to automatically update the client through the launcher, set parameter **API_PORTAL_CLIENT_PATCH_NO_CHECK** to **true** in your `.env` config file.
+
 #### Important!
 
 The account database structure used differs from that used in the leaked retail version of the server. The supported database structure is located in the `share` folder.
