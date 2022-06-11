@@ -14,29 +14,36 @@ class SlsBuilder {
 	/**
 	* @param {Model} server
 	* @param {Model} strings
+	* @param {boolean} isMaintenance
 	*/
-	addServer(server, strings) {
+	addServer(server, strings, isMaintenance) {
 		const category = server.get("isPvE") ?
 			{ sort: 1, value: strings.get("categoryPvE") } :
 			{ sort: 1, value: strings.get("categoryPvP") };
 
-		const crowdness = server.get("isCrowdness") ?
-			{ sort: 1, value: strings.get("crowdYes") } :
-			{ sort: 1, value: strings.get("crowdNo") };
+		let permissionMask = "0x00000000";
+		let open = { sort: 1, value: strings.get("serverLow"), color: "#00ff00" };
+		let crowdness = { sort: 1, value: strings.get("crowdNo") };
 
-		let permissionMask = "0x00010000";
-		let open = { sort: 1, value: strings.get("serverOffline"), color: "#990000" };
+		if (server.get("isCrowdness")) {
+			permissionMask = "0x00000001";
+			crowdness = { sort: 1, value: strings.get("crowdYes") };
+		}
+
+		if (isMaintenance) {
+			permissionMask = "0x00000100";
+		}
 
 		if (server.get("isAvailable")) {
-			permissionMask = "0x00000000";
-			open = { sort: 1, value: strings.get("serverLow"), color: "#00ff00" };
-
 			if (server.get("usersOnline") > server.get("tresholdLow")) {
 				open = { sort: 1, value: strings.get("serverMedium"), color: "#ffffff" };
 			}
 			if (server.get("usersOnline") > server.get("tresholdMedium")) {
 				open = { sort: 1, value: strings.get("serverHigh"), color: "#ffff00" };
 			}
+		} else {
+			permissionMask = "0x80000000";
+			open = { sort: 1, value: strings.get("serverOffline"), color: "#990000" };
 		}
 
 		this.servers.push({

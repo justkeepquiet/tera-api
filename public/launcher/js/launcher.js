@@ -188,7 +188,7 @@ var Launcher = {
 			}
 		}
 
-		if (loginIFrame.PERMISSION > 0) { // @todo
+		if (loginIFrame.PERMISSION == 1) { // @todo
 			alert(accountBlockedString);
 			Launcher.disableLaunchButton("Error", "btn-wrong");
 			return;

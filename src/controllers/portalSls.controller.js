@@ -1,5 +1,6 @@
 "use strict";
 
+const Op = require("sequelize").Op;
 const logger = require("../utils/logger");
 const SlsBuilder = require("../utils/slsBuilder");
 const ServerUpActions = require("../actions/serverUp.actions");
@@ -11,7 +12,12 @@ module.exports = {
 		 * @type {import("express").RequestHandler}
 		 */
 		(req, res) => {
-			accountModel.serverStrings.findOne({
+			accountModel.maintenance.findOne({
+				where: {
+					startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
+					endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+				}
+			}).then(maintenance => accountModel.serverStrings.findOne({
 				where: { language: req.query.lang || "en" }
 			}).then(strings => accountModel.serverInfo.findAll({
 				where: { isEnabled: 1 }
@@ -32,11 +38,11 @@ module.exports = {
 						);
 					}
 
-					sls.addServer(server, strings);
+					sls.addServer(server, strings, maintenance !== null);
 				});
 
 				res.type("application/xml").send(sls.renderXML());
-			})).catch(err => {
+			}))).catch(err => {
 				logger.error(err.toString());
 				res.status(500).end("getting sls error");
 			});

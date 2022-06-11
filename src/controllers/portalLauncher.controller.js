@@ -243,7 +243,7 @@ module.exports = {
 		/**
 		 * @type {import("express").RequestHandler}
 		 */
-		async (req, res) => {
+		(req, res) => {
 			const handler = () => {
 				const { login, password, email } = req.body;
 				const authKey = uuid.v4();

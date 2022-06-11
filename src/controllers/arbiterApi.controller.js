@@ -2,6 +2,7 @@
 
 const body = require("express-validator").body;
 const moment = require("moment-timezone");
+const Op = require("sequelize").Op;
 const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
@@ -55,8 +56,29 @@ module.exports = {
 		(req, res) => {
 			const { server_id } = req.body;
 
-			// @todo
-			result(res, 0, { permission: 0 });
+			accountModel.maintenance.findOne({
+				where: {
+					startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
+					endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+				}
+			}).then(maintenance => accountModel.serverInfo.findOne({
+				where: { serverId: server_id }
+			}).then(server => {
+				let permission = 0x00000000;
+
+				if (server.get("isCrowdness")) {
+					permission = 0x00000001;
+				}
+
+				if (maintenance !== null) {
+					permission = 0x00000100;
+				}
+
+				result(res, 0, { permission });
+			})).catch(err => {
+				logger.error(err.toString());
+				result(res, 1, { msg: "database error" });
+			});
 		}
 	],
 
