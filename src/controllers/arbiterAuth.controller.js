@@ -56,7 +56,7 @@ module.exports = {
 					return result(res, 50000, "account not exist");
 				}
 
-				if (account.get("permission") > 0) { // @todo
+				if (account.get("permission") == 1) { // @todo
 					return result(res, 50010, "account banned");
 				}
 
