@@ -10,12 +10,13 @@ const logger = require("../utils/logger");
 
 /**
 * @param {Model[]} characters
+* @param {Number} lastLoginServer
 * @param {string} field1
 * @param {string} field2
 * @return {string}
 */
-module.exports.getCharCountString = (characters, field1, field2) =>
-	characters.map((c, i) => `${i}|${c.get(field1)},${c.get(field2)}`).join("|").concat("|")
+module.exports.getCharCountString = (characters, lastLoginServer, field1, field2) =>
+	`${lastLoginServer || 0}|`.concat(characters.map(c => `${c.get(field1)},${c.get(field2)}`).join("|")).concat("|")
 ;
 
 /**

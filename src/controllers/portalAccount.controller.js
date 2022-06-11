@@ -48,7 +48,7 @@ module.exports = {
 					});
 
 					if (characters !== null) {
-						characterCount = helpers.getCharCountString(characters, "serverId", "charCount");
+						characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
 					}
 				} catch (err) {
 					logger.error(err.toString());
