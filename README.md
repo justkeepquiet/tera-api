@@ -43,6 +43,7 @@ Method | Endpoint | Description
 GET | `/systemApi/RequestAPIServerStatusAvailable` | API status request.
 POST | `/authApi/GameAuthenticationLogin` | Authorization request via Arbiter server.
 GET | `/api/ServiceTest` | API and database status request.
+POST | `/api/GetServerPermission` | Server permission information event.
 POST | `/api/GetUserInfo` | User information event.
 POST | `/api/EnterGame` | Game enter event.
 POST | `/api/LeaveGame` | Game leave event.
