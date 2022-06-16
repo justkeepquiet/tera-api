@@ -40,6 +40,31 @@ module.exports.RequestAPIServerStatusAvailable = [
 	}
 ];
 
+// endpoint: /authApi/RequestAuthkey
+module.exports.RequestAuthkey = [
+	[body("clientIP").notEmpty(), body("userNo").isNumeric()],
+	validationHandler,
+	/**
+	 * @type {import("express").RequestHandler}
+	 */
+	(req, res) => {
+		const { clientIP, userNo } = req.body;
+
+		accountModel.info.findOne({ where: { accountDBID: userNo } }).then(async account => {
+			if (account === null) {
+				return result(res, 50000, "account not exist");
+			}
+
+			result(res, 0, "success", {
+				Tokken: account.get("authKey")
+			});
+		}).catch(err => {
+			logger.error(err.toString());
+			result(res, 50000, "account not exist");
+		});
+	}
+];
+
 // endpoint: /authApi/GameAuthenticationLogin
 module.exports.GameAuthenticationLogin = [
 	[body("authKey").notEmpty(), body("userNo").isNumeric()],

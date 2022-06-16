@@ -147,8 +147,11 @@ module.exports.GetUserInfo = [
 			}
 
 			result(res, 0, {
-				permission: account.get("permission"),
 				privilege: account.get("privilege"),
+				permission: account.get("permission"),
+				last_connected_server: account.get("lastLoginServer"),
+				last_play_time: account.get("playTimeLast"),
+				logout_time_diff: account.get("playTimeTotal"),
 				char_count_info: charCountInfo,
 				benefit: benefit
 			});
