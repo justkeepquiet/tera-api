@@ -192,17 +192,15 @@ module.exports.EnterGame = [
 			];
 
 			return Promise.all(promises).then(() => {
-				try {
-					if (reportActivity) {
-						reportModel.activity.create({
-							accountDBID: user_srl,
-							serverId: server_id,
-							ip,
-							reportType: 1
-						});
-					}
-				} catch (err) {
-					logger.error(err.toString());
+				if (reportActivity) {
+					reportModel.activity.create({
+						accountDBID: user_srl,
+						serverId: server_id,
+						ip,
+						reportType: 1
+					}).catch(err => {
+						logger.error(err.toString());
+					});
 				}
 
 				result(res, 0);
@@ -234,17 +232,15 @@ module.exports.LeaveGame = [
 					if (account === null) return;
 
 					if (reportActivity) {
-						try {
-							reportModel.activity.create({
-								accountDBID: user_srl,
-								serverId: account.get("lastLoginServer"),
-								ip: account.get("lastLoginIP"),
-								playTime: play_time,
-								reportType: 2
-							});
-						} catch (err) {
+						reportModel.activity.create({
+							accountDBID: user_srl,
+							serverId: account.get("lastLoginServer"),
+							ip: account.get("lastLoginIP"),
+							playTime: play_time,
+							reportType: 2
+						}).catch(err => {
 							logger.error(err.toString());
-						}
+						});
 					}
 
 					return accountModel.serverInfo.decrement({ usersOnline: 1 }, {
@@ -314,21 +310,19 @@ module.exports.CreateChar = [
 
 			return Promise.all(promises).then(() => {
 				if (reportCharacters) {
-					try {
-						reportModel.characters.create({
-							characterId: char_srl,
-							serverId: server_id,
-							accountDBID: user_srl,
-							name: decodeURI(char_name),
-							classId: class_id,
-							genderId: gender_id,
-							raceId: race_id,
-							level,
-							reportType: 1
-						});
-					} catch (err) {
+					reportModel.characters.create({
+						characterId: char_srl,
+						serverId: server_id,
+						accountDBID: user_srl,
+						name: decodeURI(char_name),
+						classId: class_id,
+						genderId: gender_id,
+						raceId: race_id,
+						level,
+						reportType: 1
+					}).catch(err => {
 						logger.error(err.toString());
-					}
+					});
 				}
 
 				result(res, 0);
@@ -376,17 +370,15 @@ module.exports.ModifyChar = [
 			}
 		}).then(() => {
 			if (reportCharacters) {
-				try {
-					reportModel.characters.create({
-						characterId: char_srl,
-						serverId: server_id,
-						accountDBID: user_srl,
-						...fields,
-						reportType: 2
-					});
-				} catch (err) {
+				reportModel.characters.create({
+					characterId: char_srl,
+					serverId: server_id,
+					accountDBID: user_srl,
+					...fields,
+					reportType: 2
+				}).catch(err => {
 					logger.error(err.toString());
-				}
+				});
 			}
 
 			result(res, 0);
@@ -430,16 +422,14 @@ module.exports.DeleteChar = [
 
 			return Promise.all(promises).then(() => {
 				if (reportCharacters) {
-					try {
-						reportModel.characters.create({
-							characterId: char_srl,
-							serverId: server_id,
-							accountDBID: user_srl,
-							reportType: 3
-						});
-					} catch (err) {
+					reportModel.characters.create({
+						characterId: char_srl,
+						serverId: server_id,
+						accountDBID: user_srl,
+						reportType: 3
+					}).catch(err => {
 						logger.error(err.toString());
-					}
+					});
 				}
 
 				result(res, 0);
@@ -463,28 +453,24 @@ module.exports.UseChronoScroll = [
 	 */
 	async (req, res) => {
 		const { server_id, chrono_id, user_srl } = req.body;
-		const actions = new ChronoScrollActions(server_id);
+		const actions = new ChronoScrollActions(server_id, user_srl);
 
-		try {
-			actions.emit(chrono_id, user_srl);
-
+		actions.execute(chrono_id).then(async () => {
 			if (reportChronoScrolls) {
-				try {
-					await reportModel.chronoScrolls.create({
-						accountDBID: user_srl,
-						serverId: server_id,
-						chronoId: chrono_id
-					});
-				} catch (err) {
+				reportModel.chronoScrolls.create({
+					accountDBID: user_srl,
+					serverId: server_id,
+					chronoId: chrono_id
+				}).catch(err => {
 					logger.error(err.toString());
-				}
+				});
 			}
 
 			result(res, 0);
-		} catch (err) {
+		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 50000, { msg: "account not exist" });
-		}
+			result(res, 1, { msg: "internal error" });
+		});
 	}
 ];
 

@@ -1,6 +1,5 @@
 "use strict";
 
-const EventEmitter = require("events").EventEmitter;
 const chronoScrollConfig = require("../../config/chronoScroll");
 const сhronoScrollController = {};
 
@@ -9,30 +8,32 @@ Object.keys(chronoScrollConfig).forEach(itemId => {
 		if (typeof controller[0] !== undefined) {
 			сhronoScrollController[itemId] = (...args) => {
 				const instance = new controller[0](...args);
+				const promises = [];
 
 				Object.keys(controller[1]).forEach(method => {
 					if (typeof instance[method] === "function") {
-						instance[method](...controller[1][method]);
+						promises.push(instance[method](...controller[1][method]));
 					}
 				});
 
-				return instance;
+				return Promise.all(promises);
 			};
 		}
 	});
 });
 
-class ChronoScrollActions extends EventEmitter {
-	constructor(serverId) {
-		super();
+class ChronoScrollActions {
+	constructor(serverId, userId) {
 		this.serverId = serverId;
-		this.assign();
+		this.userId = userId;
 	}
 
-	assign() {
-		Object.keys(сhronoScrollController).forEach(chronoId =>
-			this.on(chronoId, userId => сhronoScrollController[chronoId](userId, this.serverId))
-		);
+	execute(chronoId) {
+		if (сhronoScrollController[chronoId] === undefined) {
+			return Promise.reject("invalid chronoId");
+		}
+
+		return сhronoScrollController[chronoId](this.userId, this.serverId);
 	}
 }
 

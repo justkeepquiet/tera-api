@@ -14,7 +14,7 @@ class EliteStatusVoucherBenefit {
 	addBenefit(days, benefitId = null) {
 		const benefitIdentifier = benefitId || this.benefitId;
 
-		accountModel.benefits.findOne({
+		return accountModel.benefits.findOne({
 			attributes: ["availableUntil", [accountModel.characters.sequelize.fn("NOW"), "dateNow"]],
 			where: { accountDBID: this.userId, benefitId: benefitIdentifier }
 		}).then(benefit => {
@@ -49,15 +49,13 @@ class EliteStatusVoucherBenefit {
 					);
 				}
 
-				fcgiHttpHelper.get(["add_benefit", this.serverId, this.userId, this.benefitId, totalDays * 86400]);
+				return fcgiHttpHelper.get(["add_benefit", this.serverId, this.userId, this.benefitId, totalDays * 86400]);
 			});
 		});
-
-		return this;
 	}
 
 	sendBox(context) {
-		Promise.all([
+		return Promise.all([
 			fcgiHttpHelper.post(["make_box.json"], {
 				svr_id: this.serverId,
 				user_srl: this.userId,
@@ -72,8 +70,6 @@ class EliteStatusVoucherBenefit {
 			}),
 			fcgiHttpHelper.get(["box_noti", this.serverId, this.userId, 0])
 		]);
-
-		return this;
 	}
 }
 
