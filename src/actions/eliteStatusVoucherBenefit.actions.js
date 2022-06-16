@@ -55,21 +55,24 @@ class EliteStatusVoucherBenefit {
 	}
 
 	sendBox(context) {
-		return Promise.all([
-			fcgiHttpHelper.post(["make_box.json"], {
-				svr_id: this.serverId,
-				user_srl: this.userId,
-				char_srl: 0,
-				log_id: 0,
-				start_valid: moment().unix(),
-				valid_duration: context.days * 86400,
-				icon: context.icon,
-				title: context.title,
-				content: context.content,
-				items: context.items
-			}),
-			fcgiHttpHelper.get(["box_noti", this.serverId, this.userId, 0])
-		]);
+		return fcgiHttpHelper.post(["make_box.json"], {
+			svr_id: this.serverId,
+			user_srl: this.userId,
+			char_srl: 0,
+			log_id: 0,
+			start_valid: moment().unix(),
+			valid_duration: context.days * 86400,
+			icon: context.icon,
+			title: context.title,
+			content: context.content,
+			items: context.items
+		}).then(response => {
+			if (response.body.message === undefined || response.body.message != "") {
+				return Promise.reject(`fcgi_gw error: ${response.body.message || "unknown"}`);
+			}
+
+			return fcgiHttpHelper.get(["box_noti", this.serverId, this.userId, 0]);
+		});
 	}
 }
 
