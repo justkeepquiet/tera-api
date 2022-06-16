@@ -3,24 +3,24 @@
 const chronoScrollConfig = require("../../config/chronoScroll");
 const сhronoScrollController = {};
 
-Object.keys(chronoScrollConfig).forEach(itemId => {
+Object.keys(chronoScrollConfig).forEach(itemId =>
 	chronoScrollConfig[itemId].forEach(controller => {
-		if (typeof controller[0] !== undefined) {
-			сhronoScrollController[itemId] = (...args) => {
-				const instance = new controller[0](...args);
-				const promises = [];
+		if (controller[0] === undefined) return;
 
-				Object.keys(controller[1]).forEach(method => {
-					if (typeof instance[method] === "function") {
-						promises.push(instance[method](...controller[1][method]));
-					}
-				});
+		сhronoScrollController[itemId] = (...args) => {
+			const instance = new controller[0](...args);
+			const promises = [];
 
-				return Promise.all(promises);
-			};
-		}
-	});
-});
+			Object.keys(controller[1]).forEach(method => {
+				if (typeof instance[method] === "function") {
+					promises.push(instance[method](...controller[1][method]));
+				}
+			});
+
+			return Promise.all(promises);
+		};
+	})
+);
 
 class ChronoScrollActions {
 	constructor(serverId, userId) {
