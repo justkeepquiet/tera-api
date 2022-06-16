@@ -3,7 +3,7 @@
 const eliteStatusVoucherBenefit = require("../src/actions/eliteStatusVoucherBenefit.actions");
 
 const boxContext = {
-	// Ешеду of the ищч sent to the player
+	// Title of the box sent to the player
 	title: "Your Premium Gift",
 
 	// Message text included in the box
