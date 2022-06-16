@@ -41,7 +41,7 @@ module.exports.ServiceTest = [
 			result(res, 0, { server_time: Date.now() / 1000 })
 		).catch(err => {
 			logger.error(err.toString());
-			result(res, 1, { msg: "database error" });
+			result(res, 1, { msg: "internal error" });
 		});
 	}
 ];
@@ -76,7 +76,7 @@ module.exports.GetServerPermission = [
 			result(res, 0, { permission });
 		})).catch(err => {
 			logger.error(err.toString());
-			result(res, 1, { msg: "database error" });
+			result(res, 1, { msg: "internal error" });
 		});
 	}
 ];
@@ -157,7 +157,7 @@ module.exports.GetUserInfo = [
 			});
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 50000, { msg: "account not exist" });
+			result(res, 1, { msg: "internal error" });
 		});
 	}
 ];
@@ -210,7 +210,7 @@ module.exports.EnterGame = [
 			});
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 50000, { msg: "account not exist" });
+			result(res, 1, { msg: "internal error" });
 		});
 	}
 ];
@@ -267,7 +267,7 @@ module.exports.LeaveGame = [
 			);
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 50000, { msg: "account not exist" });
+			result(res, 1, { msg: "internal error" });
 		});
 	}
 ];
@@ -332,7 +332,7 @@ module.exports.CreateChar = [
 			});
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 50000, { msg: "account not exist" });
+			result(res, 1, { msg: "internal error" });
 		});
 	}
 ];
@@ -387,7 +387,7 @@ module.exports.ModifyChar = [
 			result(res, 0);
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 50000, { msg: "account not exist" });
+			result(res, 1, { msg: "internal error" });
 		});
 	}
 ];
@@ -439,7 +439,7 @@ module.exports.DeleteChar = [
 			});
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 50000, { msg: "account not exist" });
+			result(res, 1, { msg: "internal error" });
 		});
 	}
 ];
@@ -506,7 +506,7 @@ module.exports.ReportCheater = [
 			result(res, 0)
 		).catch(err => {
 			logger.error(err.toString());
-			result(res, 50000, { msg: "account not exist" });
+			result(res, 1, { msg: "internal error" });
 		});
 	}
 ];

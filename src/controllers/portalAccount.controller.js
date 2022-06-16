@@ -62,7 +62,7 @@ module.exports.GetAccountInfo = [
 			});
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 50000, "account not exist");
+			result(res, 1, "internal error");
 		});
 	}
 ];

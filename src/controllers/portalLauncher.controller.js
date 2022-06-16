@@ -87,7 +87,7 @@ module.exports.MaintenanceStatus = [
 			}
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 1, "database error");
+			result(res, 1, "internal error");
 		});
 	}
 ];
@@ -157,6 +157,10 @@ module.exports.LoginAction = [
 		const { login, password } = req.body;
 
 		accountModel.info.findOne({ where: { userName: login } }).then(account => {
+			if (account === null) {
+				return result(res, 50000, "account not exist");
+			}
+
 			let passwordString = password;
 
 			if (/^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWORDS)) {
@@ -203,7 +207,7 @@ module.exports.LoginAction = [
 			});
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 50000, "account not exist");
+			result(res, 1, "internal error");
 		});
 	}
 ];
@@ -291,7 +295,7 @@ module.exports.SignupAction = [
 				})
 			).catch(err => {
 				logger.error(err.toString());
-				result(res, 1, "database error");
+				result(res, 1, "internal error");
 			});
 		};
 

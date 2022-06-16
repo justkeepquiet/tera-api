@@ -60,7 +60,7 @@ module.exports.RequestAuthkey = [
 			});
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 50000, "account not exist");
+			result(res, 1, "internal error");
 		});
 	}
 ];
@@ -91,7 +91,7 @@ module.exports.GameAuthenticationLogin = [
 			result(res, 0, "success");
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 50000, "account not exist");
+			result(res, 1, "internal error");
 		});
 	}
 ];
