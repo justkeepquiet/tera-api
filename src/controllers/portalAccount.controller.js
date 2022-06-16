@@ -23,48 +23,46 @@ const validationHandler = (req, res, next) => {
 	next();
 };
 
-module.exports = {
-	GetAccountInfo: [
-		[body("id").isNumeric()],
-		validationHandler,
-		/**
-		 * @type {import("express").RequestHandler}
-		 */
-		(req, res) => {
-			const { id } = req.body;
+module.exports.GetAccountInfo = [
+	[body("id").isNumeric()],
+	validationHandler,
+	/**
+	 * @type {import("express").RequestHandler}
+	 */
+	(req, res) => {
+		const { id } = req.body;
 
-			accountModel.info.findOne({ where: { accountDBID: id } }).then(async account => {
-				if (account === null) {
-					return result(res, 50000, "account not exist");
-				}
+		accountModel.info.findOne({ where: { accountDBID: id } }).then(async account => {
+			if (account === null) {
+				return result(res, 50000, "account not exist");
+			}
 
-				let characterCount = "0";
+			let characterCount = "0";
 
-				try {
-					const characters = await accountModel.characters.findAll({
-						attributes: ["serverId", [accountModel.characters.sequelize.fn("COUNT", "characterId"), "charCount"]],
-						group: ["serverId"],
-						where: { accountDBID: account.get("accountDBID") }
-					});
-
-					if (characters !== null) {
-						characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
-					}
-				} catch (err) {
-					logger.error(err.toString());
-				}
-
-				result(res, 0, "success", {
-					CharacterCount: characterCount,
-					Permission: account.get("permission"),
-					Privilege: account.get("privilege"),
-					UserNo: account.get("accountDBID"),
-					UserName: account.get("userName")
+			try {
+				const characters = await accountModel.characters.findAll({
+					attributes: ["serverId", [accountModel.characters.sequelize.fn("COUNT", "characterId"), "charCount"]],
+					group: ["serverId"],
+					where: { accountDBID: account.get("accountDBID") }
 				});
-			}).catch(err => {
+
+				if (characters !== null) {
+					characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
+				}
+			} catch (err) {
 				logger.error(err.toString());
-				result(res, 50000, "account not exist");
+			}
+
+			result(res, 0, "success", {
+				CharacterCount: characterCount,
+				Permission: account.get("permission"),
+				Privilege: account.get("privilege"),
+				UserNo: account.get("accountDBID"),
+				UserName: account.get("userName")
 			});
-		}
-	]
-};
+		}).catch(err => {
+			logger.error(err.toString());
+			result(res, 50000, "account not exist");
+		});
+	}
+];
