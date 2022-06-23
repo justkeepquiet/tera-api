@@ -7,6 +7,7 @@ const path = require("path");
 const morgan = require("morgan");
 const morganBody = require("morgan-body");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const logger = require("./utils/logger");
 
 class API {
@@ -22,6 +23,7 @@ class API {
 		this.app.use(express.json());
 		this.app.use(bodyParser.urlencoded({ extended: true }));
 		this.app.use(bodyParser.json());
+		this.app.use(cookieParser());
 
 		this.app.use((req, res, next) => {
 			res.set("Cache-Control", "no-store");

@@ -1,0 +1,36 @@
+<div class="main">
+<% if (products.size == 0) { %>
+	<div class="alert alert-error fade in"><%= __("No products were found matching your request. Try looking for something else.") %></div>
+<% } else { %>
+<% products.forEach((product, id) => { %>
+	<div class="row well well-small">
+		<div class="btn-info item-icon-block">
+			<a class="buy" data-id="<%= id %>" href="#">
+				<img src="/public/shop/images/tera-icons/icon_items/<%= product.icon %>.png" class="icon_grade_<%= product.rareGrade %> item-icon" alt="icon"">
+				<img src="/public/shop/images/icons/icon_grade_<%= product.rareGrade %>.png" class="item-icon-grade" alt="">
+			</a>
+			<div class="text-center">
+				<span class="gold"><strong><%= product.price %></strong> <i class="fas fa-coins"></i></span>
+			</div>
+		</div>
+		<div class="text-block text-light">
+			<h5>
+				<a class="item_grade_<%= product.rareGrade %> buy" href="#" data-id="<%= id %>" title=""><%- product.title %></a>
+				<%= product.itemCount > 1 ? product.itemCount + " " + __("pc.") : "" %>
+			</h5>
+			<small><%- product.description %></small>
+		</div>
+		<div class="buy-block text-center">
+			<a class="btn btn-large btn-info buy" href="#" data-id="<%= id %>"><%= __("Buy") %></a>
+		</div>
+	</div>
+<% }) %>
+<% } %>
+</div>
+<script type="text/javascript">
+	$(function() {
+		$('.buy').click(function() {
+			loadContent("Product", { id: $(this).data("id"), search: "<%= search %>" });
+		});
+	});
+</script>

@@ -3,7 +3,7 @@
 const path = require("path");
 const crypto = require("crypto");
 const uuid = require("uuid");
-const i18n = require("i18n");
+const I18n = require("i18n").I18n;
 const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
@@ -11,7 +11,6 @@ const Recaptcha = require("express-recaptcha").RecaptchaV3;
 const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
-const e = require("express");
 
 let recaptcha = null;
 
@@ -34,7 +33,7 @@ if (!process.env.API_PORTAL_CLIENT_DEFAULT_REGION) {
 	process.exit();
 }
 
-i18n.configure({
+const i18n = new I18n({
 	directory: path.resolve(__dirname, "../locales/launcher"),
 	defaultLocale: process.env.API_PORTAL_LOCALE
 });
@@ -214,7 +213,7 @@ module.exports.LoginAction = [
 
 module.exports.SignupAction = [
 	[
-		body("login")
+		body("login").trim()
 			.isLength({ min: 3, max: 13 }).withMessage("$1")
 			.isAlphanumeric().withMessage("$1")
 			.custom((value, { req }) => accountModel.info.findOne({
@@ -226,8 +225,8 @@ module.exports.SignupAction = [
 					return Promise.reject("$0");
 				}
 			})),
-		body("email").isEmail().withMessage("$2"),
-		body("password")
+		body("email").trim().isEmail().withMessage("$2"),
+		body("password").trim()
 			.isLength({ min: 8, max: 14 }).withMessage("$3")
 			.isAlphanumeric().withMessage("$3")
 	],

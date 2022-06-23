@@ -8,6 +8,17 @@ const logger = require("../utils/logger");
 * @typedef {import("express").Request} Request
 */
 
+module.exports.requireReload = path => {
+	delete require.cache[require.resolve(path)];
+	return require(path);
+};
+
+module.exports.chainPromise = (functions, index = 0) => {
+	if (functions[index] !== undefined) {
+		return functions[index]().then(() => module.exports.chainPromise(functions, index + 1));
+	}
+};
+
 /**
 * @param {Model[]} characters
 * @param {Number} lastLoginServer

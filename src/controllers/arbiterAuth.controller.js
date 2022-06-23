@@ -50,7 +50,7 @@ module.exports.RequestAuthkey = [
 	(req, res) => {
 		const { clientIP, userNo } = req.body;
 
-		accountModel.info.findOne({ where: { accountDBID: userNo } }).then(async account => {
+		accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
 			if (account === null) {
 				return result(res, 50000, "account not exist");
 			}

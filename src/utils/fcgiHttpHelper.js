@@ -2,10 +2,13 @@
 
 const http = require("http");
 const logger = require("./logger");
-const fcgiGwWebapiEnabled = /^true$/i.test(process.env.API_PORTAL_FCGI_GW_WEBAPI_ENABLE) && process.env.API_PORTAL_FCGI_GW_WEBAPI_URL;
+
+module.exports.isEnabled = () =>
+	/^true$/i.test(process.env.API_PORTAL_FCGI_GW_WEBAPI_ENABLE) && !!process.env.API_PORTAL_FCGI_GW_WEBAPI_URL
+;
 
 module.exports.get = urlParts => {
-	if (!fcgiGwWebapiEnabled) {
+	if (!module.exports.isEnabled()) {
 		return Promise.resolve();
 	}
 
@@ -13,7 +16,7 @@ module.exports.get = urlParts => {
 };
 
 module.exports.post = (urlParts, body) => {
-	if (!fcgiGwWebapiEnabled) {
+	if (!module.exports.isEnabled()) {
 		return Promise.resolve();
 	}
 

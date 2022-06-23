@@ -1,0 +1,142 @@
+<div class="main">
+	<div class="text-light well" style="margin-bottom: 10px;">
+		<div class="row well-small">
+			<div class="item-icon-block">
+				<img src="/public/shop/images/tera-icons/icon_items/<%= product.icon %>.png" class="icon_grade_<%= product.rareGrade %> item-icon" alt=""">
+				<img src="/public/shop/images/icons/icon_grade_<%= product.rareGrade %>.png" class="item-icon-grade" alt="">
+			</div>
+			<div class="text-block text-light" style="width: 520px;">
+				<h5 class="item_grade_<%= product.rareGrade %>"><%- product.title %></h5>
+				<small><%- product.description %></small>
+			</div>
+			<div class="text-right text-light">
+				<a href="#" class="btn btn2" id="back"><i class="fal fa-angle-double-left"></i> <%= __("Back") %>&nbsp;</a>
+			</div>
+		</div>
+		<hr>
+		<% if (product.tradable) { %>
+		<%= __("Can be trade with other players.") %><br>
+		<% } %>
+		<% if (!product.warehouseStorable) { %>
+		<%= __("Can't put it in the warehouse.") %><br>
+		<% } %>
+		<% if (product.requiredGender === "female") { %>
+		<%= __("For female characters only.") %><br>
+		<% } %>
+		<% if (product.requiredGender === "male") { %>
+		<%= __("For male characters only.") %><br>
+		<% } %>
+		<% if (product.requiredRace.length > 0) { %>
+		<%= __("For races") %>: <%= product.requiredRace.map(race => __(race)).join(", ") %><br>
+		<% } %>
+		<% if (product.requiredClass.length > 0) { %>
+		<%= __("For classes") %>: <%= product.requiredClass.map(rclass => __(rclass)).join(", ") %><br>
+		<% } %>
+		<%if (product.requiredLevel > 1) { %>
+		<%= __("Minimum character level") %>: <%= product.requiredLevel %>.<br>
+		<% } %>
+		<% if (product.thumbnail) { %>
+		<br><a href="#" class="thumbnail" style="max-width: 280px;"><img src="/public/shop/images/screenshots/<%= product.thumbnail %>.jpg" alt="screenshot" style="max-height: 175px;"></a>
+		<% } %>
+		<% if (items.length > 0) { %>
+		<br><table class="table" style="margin-bottom: 0;">
+			<% items.forEach(item => { %>
+			<tr>
+				<td style="width: 30px;">
+					<div class="item-icon-block2">
+						<img src="/public/shop/images/tera-icons/icon_items/<%= item.get("icon") %>.png" class="icon_grade_<%= item.get("rareGrade") %> item-icon2" alt="">
+						<img src="/public/shop/images/icons/icon_grade_<%= item.get("rareGrade") %>.png" class="item-icon-grade2" alt="">
+					</div>
+				</td>
+				<td class="name">
+					<span class="item_grade_<%= item.get("rareGrade") %>"><%- item.get("string") %></span> &ndash; <%- item.get("boxItemCount") %> <%= __("pc.") %>
+				</td>
+			</tr>
+			<% }) %>
+		</table>
+		<% } %>
+		<% if (conversions.length > 0) { %>
+		<hr><%= __("Possible items") %>:<br>
+		<br><table class="table" style="margin-bottom: 0;">
+			<% conversions.forEach(conversion => { %>
+			<tr>
+				<td style="width: 30px;">
+					<div class="item-icon-block2">
+						<img src="/public/shop/images/tera-icons/icon_items/<%= conversion.get("icon") %>.png" class="icon_grade_<%= conversion.get("rareGrade") %> item-icon2" alt="">
+						<img src="/public/shop/images/icons/icon_grade_<%= conversion.get("rareGrade") %>.png" class="item-icon-grade2" alt="">
+					</div>
+				</td>
+				<td class="name">
+					<span class="item_grade_<%= conversion.get("rareGrade") %>"><%- conversion.get("string") %></span>
+				</td>
+			</tr>
+			<% }) %>
+		</table>
+		<% } %>
+		<hr>
+		<div class="row buy-info white-text">
+			<div class="span9 buy-block-left">
+				<small>
+					<%- __("Click the &laquo;Buy&raquo; button to get the item") %>:<br>
+					<b><%- product.title %></b>
+					<br>
+					<%- __("Your account will be debited") %> <b><%= product.price %></b> <%- __("coins") %>.<br>
+					<%- __("The item will appear in the &laquo;Item Claim&raquo; window.") %><br>
+					<%- __("You can open it from the main menu in the &laquo;Shop&raquo; section the &laquo;Item Claim&raquo; option.") %>
+				</small>
+			</div>
+			<div class="span3 text-center buy-block-right" style="padding-top: 20px" id="buy_block">
+				<div id="buy_available">
+					<%= __("Your price") %>: <span class="gold"><strong><%= product.price %></strong> <i class="fas fa-coins"></i></span><br>
+					<a class="btn btn-large btn-danger" href="#" id="buy"><%= __("Buy") %></a>
+				</div>
+				<span id="buy_nocoins" style="display: none"><%= __("You don't have enough coins to buy.") %></span>
+				<span id="buy_success" style="display: none"><%= __("You have success purchased an item.") %><br>
+					<br><%= __("Debited") %>: <strong><%= product.price %></strong> <i class="fas fa-coins"></i></span></span>
+				<span id="buy_error" style="display: none"><%= __("An error occurred while purchasing the product") %>:</span>
+			</div>
+		</div>
+	</div>
+</div>
+<% if (search) { %>
+<script type="text/javascript">
+	var backParams = { search: "<%= search %>" };
+</script>
+<% } else { %>
+<script type="text/javascript">
+	var backParams = { category: "<%= product.categoryId %>" };
+</script>
+<% } %>
+<script type="text/javascript">
+	$(function() {
+		function purchaseProduct(productId) {
+			shopPurchaseAction(productId, function(result) {
+				if (result.ReturnCode == 0) {
+					loadAccountInfo();
+					$('#buy_success').show();
+				} else {
+					$('#buy_error').show().append(' #' + result.ReturnCode);
+				}
+			});
+		}
+		if ($('#shop_balance').html() < '<%= product.price %>') {
+			$('#buy_available').hide();
+			$('#buy_nocoins').show();
+		}
+		$('#buy').click(function() {
+			purchaseProduct("<%= product.id %>");
+			$('#buy_available').hide();
+		});
+		$('#back').click(function() {
+			loadContent("Catalog", backParams);
+		});
+		$('a.thumbnail').click(function(e) {
+			e.preventDefault();
+			$('#image-modal .modal-body img').attr('src', $(this).find('img').attr('src'));
+			$("#image-modal").modal('show');
+		});
+		$('#image-modal .modal-body img').click(function() {
+			$("#image-modal").modal('hide');
+		});
+	});
+</script>

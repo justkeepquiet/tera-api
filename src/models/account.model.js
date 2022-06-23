@@ -42,12 +42,14 @@ sequelize.authenticate().then(() =>
 });
 
 const models = {
+	// Account
 	info: require("./account/accountInfo.model")(sequelize, DataTypes),
 	characters: require("./account/accountCharacters.model")(sequelize, DataTypes),
 	benefits: require("./account/accountBenefits.model")(sequelize, DataTypes),
+	maintenance: require("./account/serverMaintenance.model")(sequelize, DataTypes),
+	// Server
 	serverInfo: require("./account/serverInfo.model")(sequelize, DataTypes),
-	serverStrings: require("./account/serverStrings.model")(sequelize, DataTypes),
-	maintenance: require("./account/serverMaintenance.model")(sequelize, DataTypes)
+	serverStrings: require("./account/serverStrings.model")(sequelize, DataTypes)
 };
 
 module.exports = { ...models, sequelize };

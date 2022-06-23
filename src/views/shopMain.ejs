@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<title><%= __('TERA Shop') %></title>
+	<script type="text/javascript" src="/public/shop/js/coherent.js"></script>
+	<script type="text/javascript" src="/public/shop/js/screen.js"></script>
+	<script type="text/javascript">
+		if (typeof _tera_client_proxy_ !== "undefined") {
+			_tera_client_proxy_.set_title("<%= __('TERA Shop') %>")
+		};
+		window.addEventListener("error", function (e) {
+			alert("Error: " + e.message);
+		});
+	</script>
+	<link rel="stylesheet" href="/public/shop/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="/public/fontawesome/css/all.min.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="/public/shop/css/item.min.css" />
+	<link rel="stylesheet" href="/public/shop/css/core.css">
+</head>
+<body>
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="navbar-inner">
+			<div class="container-fluid">
+				<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="brand" href="#" onclick="loadContent('Welcome')">TERA SHOP</a>
+				<div class="nav-collapse collapse">
+					<div class="navbar-text pull-right" style="display: none;" id="navbar_right">
+						<p class="chip chip-lg">
+							<strong class="white-text" id="user_name"></strong>&nbsp;
+							<span class="gold2"><strong id="shop_balance"></strong> <i class="fas fa-coins"></i></span>
+						</p>
+					</div>
+					<ul class="nav">
+						<li><a href="#"  data-page="Welcome"><%= __("Home") %></a></li>
+						<!--li><a href="#"  data-page="Fund"><%= __("Buy coins") %></a></li-->
+						<li><a href="#" data-page="PromoCode"><%= __("Promo code") %></a></li>
+					</ul>
+					<form class="navbar-form form-search pull-right" method="POST" action="" style="display: none;" id="search_form">
+						<div class="input-append">
+							<input class="span2 search-query" type="text" name="search" id="search_input" placeholder="<%= __("Search") %>">
+							<button type="submit" class="btn btn2"><i class="fa fa-search"></i></button>
+						</div>
+					</form>
+				</div>
+				<!--/.nav-collapse -->
+			</div>
+		</div>
+	</div>
+	<div class="container-fluid2">
+		<div class="row-fluid">
+			<div class="span3" id="menu"></div>
+			<div class="span9 height-100" id="content"></div>
+		</div>
+		<!--/.row-fluid-->
+	</div>
+	<!--/.container-fluid2-->
+	<script type="text/javascript" src="/public/shop/js/jquery-3.2.1.min.js"></script>
+	<script type="text/javascript" src="/public/shop/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/public/shop/js/shop.js"></script>
+	<script type="text/javascript">
+		$(function() {
+			$(".nav li a").click(function() {
+				loadContent($(this).data("page"));
+			});
+			$("#search_form").submit(function() {
+				catalogSearchAction($('#search_input').val());
+				return false;
+			});
+		});
+	</script>
+</body>
+</html>

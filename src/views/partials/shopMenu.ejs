@@ -1,0 +1,17 @@
+<div class="well sidebar-nav">
+	<ul class="nav nav-list">
+	<% categories.forEach(category => { %>
+		<li class="<%= category.id == active ? "active" : "" %>">
+			<a href="#" data-id="<%= category.get("id") %>" class="menu_Link"><%= category.get("title") %></a>
+		</li>
+	<% }) %> 
+	</ul>
+</div><!--/.well -->
+<script type="text/javascript">
+	$(function() {
+		$('.menu_Link').click(function() {
+			loadContent("Catalog", { category: $(this).data("id") });
+			loadMenu($(this).data("id"));
+		});
+	});
+</script>

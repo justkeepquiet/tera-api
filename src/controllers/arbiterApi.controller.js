@@ -183,13 +183,11 @@ module.exports.EnterGame = [
 					lastLoginServer: server_id,
 					playCount: accountModel.sequelize.literal("playCount + 1")
 				}, {
-					where: { accountDBID: user_srl }
-				}, {
+					where: { accountDBID: user_srl },
 					transaction
 				}),
 				accountModel.serverInfo.increment({ usersOnline: 1 }, {
-					where: { serverId: server_id }
-				}, {
+					where: { serverId: server_id },
 					transaction
 				})
 			];
@@ -247,8 +245,7 @@ module.exports.LeaveGame = [
 					}
 
 					return accountModel.serverInfo.decrement({ usersOnline: 1 }, {
-						where: { serverId: account.get("lastLoginServer") }
-					}, {
+						where: { serverId: account.get("lastLoginServer") },
 						transaction
 					});
 				}),
@@ -256,8 +253,7 @@ module.exports.LeaveGame = [
 					playTimeLast: play_time,
 					playTimeTotal: accountModel.sequelize.literal(`playTimeTotal + ${play_time}`)
 				}, {
-					where: { accountDBID: user_srl }
-				}, {
+					where: { accountDBID: user_srl },
 					transaction
 				})
 			];
@@ -293,8 +289,7 @@ module.exports.CreateChar = [
 		accountModel.sequelize.transaction(transaction => {
 			const promises = [
 				accountModel.serverInfo.increment({ usersTotal: 1 }, {
-					where: { serverId: server_id }
-				}, {
+					where: { serverId: server_id },
 					transaction
 				}),
 				accountModel.characters.create({
@@ -408,8 +403,7 @@ module.exports.DeleteChar = [
 		accountModel.sequelize.transaction(transaction => {
 			const promises = [
 				accountModel.serverInfo.decrement({ usersTotal: 1 }, {
-					where: { serverId: server_id }
-				}, {
+					where: { serverId: server_id },
 					transaction
 				}),
 				accountModel.characters.destroy({
@@ -417,8 +411,7 @@ module.exports.DeleteChar = [
 						characterId: char_srl,
 						serverId: server_id,
 						accountDBID: user_srl
-					}
-				}, {
+					},
 					transaction
 				})
 			];
@@ -454,11 +447,11 @@ module.exports.UseChronoScroll = [
 	/**
 	 * @type {import("express").RequestHandler}
 	 */
-	async (req, res) => {
+	(req, res) => {
 		const { server_id, chrono_id, user_srl } = req.body;
 		const actions = new ChronoScrollActions(server_id, user_srl);
 
-		actions.execute(chrono_id).then(async () => {
+		actions.execute(chrono_id).then(() => {
 			if (reportChronoScrolls) {
 				reportModel.chronoScrolls.create({
 					accountDBID: user_srl,

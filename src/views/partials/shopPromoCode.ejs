@@ -1,0 +1,69 @@
+<div class="main hero-unit white-text">
+	<form id="promoForm">
+		<fieldset>
+			<legend class="white-text"><%= __("Redeem promo code") %></legend>
+			<label><%= __("Enter promo code") %>:</label>
+			<input type="text" placeholder="<%= __("promocode") %>" name="promocode" id="promocode">
+			<div id="alert">
+				<div class="alert alert-succes fade in" style="display: none;" id="promocode_success">
+					<strong><%= __("Promo code activated successfully!") %></strong>
+				</div>
+				<div class="alert alert-error fade in" style="display: none;" id="promocode_error">
+					<strong></strong>
+				</div>
+			</div>
+			<span class="help-block text-light"><%= __("Promo code must be entered with the signs of separation.") %></span>
+			<a href="#" class="btn btn-large btn-info" id="promocode_activate"><%= __("Activate") %></a>
+		</fieldset>
+	</form>
+</div>
+<% if (promoCodesAcrivated.length > 0) { %>
+<div class="main hero-unit white-text">
+	<h2><%= __("Activated promo codes") %></h2>
+	<table class="table promocode-list" style="margin-bottom: 0;">
+		<% promoCodesAcrivated.forEach(promoCodeAcrivated => { %>
+		<tr>
+			<td style="width: 1%; white-space: nowrap; text-align: center;">
+				<span class="promocode"><%= promoCodeAcrivated.get("promoCode") %></span><br>
+				<span class="date"><%= moment(promoCodeAcrivated.get("createdAt")).format("DD.MM.YYYY HH:mm:ss") %></span>
+			</td>
+			<td>
+				<%= promoCodeAcrivated.get("description") || "Activated promocode." %>
+			</td>
+		</tr>
+		<% }) %>
+	</table>
+</div>
+<% } %>
+<script type="text/javascript">
+	$(function() {
+		$('#promocode_activate').click(function() {
+			$('#promocode_success').hide();
+			$('#promocode_error').hide();
+			if ($('#promocode').val() == "") {
+				$('#promocode_error').show();
+				$('#promocode_error strong').html("<%= __('Please enter your promo code.') %>");
+				return;
+			}
+			shopPromoCodeAction($('#promocode').val(), function(result) {
+				if (result.ReturnCode == 0) {
+					loadPromoCodes(function() {
+						$('#promocode_success').show();
+					});
+				} else {
+					$('#promocode_error').show();
+					switch(result.ReturnCode) {
+						case 1000:
+							$('#promocode_error strong').html("<%= __('The specified promo code does not exist.') %>");
+							break;
+						case 1010:
+							$('#promocode_error strong').html("<%= __('The specified promo code has already been activated.') %>");
+							break;
+						default:
+							$('#promocode_error strong').html("<%= __('Activation error') %>: #" + result.ReturnCode);
+					}
+				}
+			});
+		});
+	});
+</script>
