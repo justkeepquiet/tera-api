@@ -25,11 +25,12 @@ const i18n = new I18n({
 });
 
 /**
- * @param {import("express").Response} res
+ * @type {import("express").RequestHandler}
  */
-const result = (res, code, message, params = {}) => res.json({
-	Return: code === 0, ReturnCode: code, Msg: message, ...params
-});
+const i18nHandler = (req, res, next) => {
+	res.locals.__ = i18n.__;
+	return next();
+};
 
 /**
  * @type {import("express").RequestHandler}
@@ -75,12 +76,11 @@ const authSessionHandler = (req, res, next) => {
 };
 
 /**
- * @type {import("express").RequestHandler}
+ * @param {import("express").Response} res
  */
-const i18nHandler = (req, res, next) => {
-	res.locals.__ = i18n.__;
-	return next();
-};
+const resultJson = (res, code, message, params = {}) => res.json({
+	Return: code === 0, ReturnCode: code, Msg: message, ...params
+});
 
 module.exports.Auth = [
 	i18nHandler,
@@ -173,7 +173,7 @@ module.exports.PartialCatalogHtml = [
 	/**
 	 * @type {import("express").RequestHandler}
 	 */
-	async (req, res) => {
+	(req, res) => {
 		const { category, search } = req.body;
 
 		if (search !== undefined && search.length < 3) {
@@ -549,7 +549,7 @@ module.exports.GetAccountInfo = [
 		shopModel.accounts.findOne({
 			where: { accountDBID: res.__account.get("accountDBID") }
 		}).then(shopAccount =>
-			result(res, 0, "success", {
+			resultJson(res, 0, "success", {
 				userNo: res.__account.get("accountDBID"),
 				userName: res.__account.get("userName"),
 				shopBalance: shopAccount !== null ?
@@ -557,7 +557,7 @@ module.exports.GetAccountInfo = [
 			})
 		).catch(err => {
 			logger.error(err.toString());
-			result(res, 1, "internal error");
+			resultJson(res, 1, "internal error");
 		});
 	}
 ];
@@ -574,7 +574,7 @@ module.exports.PurchaseAction = [
 		const { productId } = req.body;
 
 		if (!fcgiHttpHelper.isEnabled()) {
-			return result(res, 2, "fcgi_gw api not configured");
+			return resultJson(res, 2, "fcgi_gw api not configured");
 		}
 
 		try {
@@ -588,7 +588,7 @@ module.exports.PurchaseAction = [
 			});
 
 			if (payLog !== null) {
-				return result(res, 1010, "denied");
+				return resultJson(res, 1010, "denied");
 			}
 			*/
 
@@ -603,7 +603,7 @@ module.exports.PurchaseAction = [
 			});
 
 			if (shopProduct === null) {
-				return result(res, 2000, "product not exists");
+				return resultJson(res, 2000, "product not exists");
 			}
 
 			const shopProductItems = await shopModel.productItems.findAll({
@@ -611,7 +611,7 @@ module.exports.PurchaseAction = [
 			});
 
 			if (shopProductItems === null) {
-				return result(res, 3000, "items not exists");
+				return resultJson(res, 3000, "items not exists");
 			}
 
 			shopProductItems.forEach(item =>
@@ -622,7 +622,7 @@ module.exports.PurchaseAction = [
 			);
 
 			if (items.length === 0) {
-				return result(res, 3000, "items not exists");
+				return resultJson(res, 3000, "items not exists");
 			}
 
 			const shopAccount = await shopModel.accounts.findOne({
@@ -630,7 +630,7 @@ module.exports.PurchaseAction = [
 			});
 
 			if (shopAccount === null || shopAccount.get("balance") < shopProduct.get("price")) {
-				return result(res, 1000, "low balance");
+				return resultJson(res, 1000, "low balance");
 			}
 
 			const logResult = await shopModel.payLogs.create({
@@ -643,7 +643,7 @@ module.exports.PurchaseAction = [
 			});
 
 			if (logResult === null) {
-				return result(res, 1, "internal error");
+				return resultJson(res, 1, "internal error");
 			}
 
 			await shopModel.sequelize.transaction(async transaction => {
@@ -675,10 +675,10 @@ module.exports.PurchaseAction = [
 				});
 			});
 
-			result(res, 0);
+			resultJson(res, 0);
 		} catch (err) {
 			logger.error(err.toString());
-			result(res, 1, "internal error");
+			resultJson(res, 1, "internal error");
 		}
 	}
 ];
@@ -703,7 +703,7 @@ module.exports.PromoCodeAction = [
 			}
 		}).then(promocode => {
 			if (promocode === null) {
-				return result(res, 1000, { msg: "invalid promocode" });
+				return resultJson(res, 1000, { msg: "invalid promocode" });
 			}
 
 			return shopModel.promoCodeActivated.findOne({
@@ -713,7 +713,7 @@ module.exports.PromoCodeAction = [
 				}
 			}).then(promocodeActivated => {
 				if (promocodeActivated !== null) {
-					return result(res, 1010, { msg: "invalid promocode" });
+					return resultJson(res, 1010, { msg: "invalid promocode" });
 				}
 
 				const actions = new PromoCodeActions(
@@ -727,12 +727,12 @@ module.exports.PromoCodeAction = [
 						accountDBID: res.__account.get("accountDBID")
 					})
 				).then(() =>
-					result(res, 0, "success")
+					resultJson(res, 0, "success")
 				);
 			});
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 1, { msg: "internal error" });
+			resultJson(res, 1, { msg: "internal error" });
 		});
 	}
 ];

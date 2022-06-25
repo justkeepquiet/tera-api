@@ -39,30 +39,30 @@ const i18n = new I18n({
 });
 
 /**
- * @param {import("express").Response} res
- */
-const result = (res, code, message, params = {}) => res.json({
-	Return: code === 0, ReturnCode: code, Msg: message, ...params
-});
-
-/**
- * @type {import("express").RequestHandler}
- */
-const validationHandler = (req, res, next) => {
-	if (!helpers.validationResultLog(req).isEmpty()) {
-		return result(res, 2, "invalid parameter");
-	}
-
-	next();
-};
-
-/**
  * @type {import("express").RequestHandler}
  */
 const i18nHandler = (req, res, next) => {
 	res.locals.__ = i18n.__;
 	return next();
 };
+
+/**
+ * @type {import("express").RequestHandler}
+ */
+const validationHandler = (req, res, next) => {
+	if (!helpers.validationResultLog(req).isEmpty()) {
+		return resultJson(res, 2, "invalid parameter");
+	}
+
+	next();
+};
+
+/**
+ * @param {import("express").Response} res
+ */
+const resultJson = (res, code, message, params = {}) => res.json({
+	Return: code === 0, ReturnCode: code, Msg: message, ...params
+});
 
 module.exports.MaintenanceStatus = [
 	/**
@@ -76,17 +76,17 @@ module.exports.MaintenanceStatus = [
 			}
 		}).then(maintenance => {
 			if (maintenance !== null) {
-				result(res, 0, "success", {
+				resultJson(res, 0, "success", {
 					StartTime: moment(maintenance.get("startTime")).unix(),
 					EndTime: moment(maintenance.get("startTime")).unix(),
 					Description: maintenance.get("description")
 				});
 			} else {
-				result(res, 0, "success");
+				resultJson(res, 0, "success");
 			}
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 1, "internal error");
+			resultJson(res, 1, "internal error");
 		});
 	}
 ];
@@ -157,7 +157,7 @@ module.exports.LoginAction = [
 
 		accountModel.info.findOne({ where: { userName: login } }).then(account => {
 			if (account === null) {
-				return result(res, 50000, "account not exist");
+				return resultJson(res, 50000, "account not exist");
 			}
 
 			let passwordString = password;
@@ -168,7 +168,7 @@ module.exports.LoginAction = [
 
 			if (account === null || account.get("passWord") !== passwordString) {
 				logger.warn("Invalid login or password");
-				return result(res, 50015, "password error");
+				return resultJson(res, 50015, "password error");
 			}
 
 			const authKey = uuid.v4();
@@ -192,7 +192,7 @@ module.exports.LoginAction = [
 					logger.error(err.toString());
 				}
 
-				result(res, 0, "success", {
+				resultJson(res, 0, "success", {
 					CharacterCount: characterCount,
 					Permission: account.get("permission"),
 					Privilege: account.get("privilege"),
@@ -202,11 +202,11 @@ module.exports.LoginAction = [
 				});
 			}).catch(err => {
 				logger.error(err.toString());
-				result(res, 50811, "failure update auth token");
+				resultJson(res, 50811, "failure update auth token");
 			});
 		}).catch(err => {
 			logger.error(err.toString());
-			result(res, 1, "internal error");
+			resultJson(res, 1, "internal error");
 		});
 	}
 ];
@@ -237,7 +237,7 @@ module.exports.SignupAction = [
 		const errors = helpers.validationResultLog(req);
 
 		if (!errors.isEmpty()) {
-			return result(res, 2, errors.array()[0].msg);
+			return resultJson(res, 2, errors.array()[0].msg);
 		}
 
 		next();
@@ -286,7 +286,7 @@ module.exports.SignupAction = [
 					});
 
 					return Promise.all(promises).then(() =>
-						result(res, 0, "success", {
+						resultJson(res, 0, "success", {
 							UserNo: account.get("accountDBID"),
 							AuthKey: account.get("authKey")
 						})
@@ -294,14 +294,14 @@ module.exports.SignupAction = [
 				})
 			).catch(err => {
 				logger.error(err.toString());
-				result(res, 1, "internal error");
+				resultJson(res, 1, "internal error");
 			});
 		};
 
 		if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
 			recaptcha.verify(req, error => {
 				if (error) {
-					return result(res, 2, "captcha error");
+					return resultJson(res, 2, "captcha error");
 				}
 
 				handler();

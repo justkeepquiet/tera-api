@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/app",
     "dev": "nodemon src/app.js",
-    "itemupdater": "node src/tools/shopItemsUpdater.js"
+    "itemupden": "node src/tools/shopItemsUpdater.js en",
+    "itemupdru": "node src/tools/shopItemsUpdater.js ru"
   },
   "author": "Non-commercial Project 'HSDN' <info@hsdn.org>",
   "keywords": [
@@ -39,6 +40,9 @@
     "morgan": "^1.10.0",
     "morgan-body": "^2.6.6",
     "mysql2": "^2.3.3",
+    "promise-socket": "^7.0.0",
+    "protobufjs": "^6.11.3",
+    "python-struct": "^1.1.3",
     "sequelize": "^6.19.0",
     "uuid": "^8.3.2",
     "winston": "^3.7.2",

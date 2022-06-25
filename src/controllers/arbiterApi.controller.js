@@ -15,13 +15,6 @@ const reportChronoScrolls = /^true$/i.test(process.env.API_ARBITER_REPORT_CHRONO
 const reportCheats = /^true$/i.test(process.env.API_ARBITER_REPORT_CHEATS);
 
 /**
- * @param {import("express").Response} res
- */
-const result = (res, code, params = {}) => res.json({
-	result_code: code, ...params
-});
-
-/**
  * @type {import("express").RequestHandler}
  */
 const validationHandler = (req, res, next) => {
@@ -31,6 +24,13 @@ const validationHandler = (req, res, next) => {
 
 	next();
 };
+
+/**
+ * @param {import("express").Response} res
+ */
+const result = (res, code, params = {}) => res.json({
+	result_code: code, ...params
+});
 
 module.exports.ServiceTest = [
 	/**

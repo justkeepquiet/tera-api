@@ -10,8 +10,8 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const logger = require("./utils/logger");
 
-class API {
-	constructor(displayName) {
+class ExpressServer {
+	constructor(displayName, disableCache = true) {
 		this.app = express();
 		this.displayName = displayName;
 
@@ -25,12 +25,15 @@ class API {
 		this.app.use(bodyParser.json());
 		this.app.use(cookieParser());
 
-		this.app.use((req, res, next) => {
-			res.set("Cache-Control", "no-store");
-			next();
-		});
+		if (disableCache) {
+			this.app.use((req, res, next) => {
+				res.set("Cache-Control", "no-store");
+				next();
+			});
 
-		this.app.set("etag", false);
+			this.app.set("etag", false);
+		}
+
 		this.app.set("view engine", "ejs");
 		this.app.set("views", path.resolve(__dirname, "views"));
 
@@ -71,9 +74,9 @@ class API {
 		);
 
 		this.app.listen(port, host, () =>
-			logger.info(`${this.displayName} API is listening at: ${!host ? "*" : host}:${port}`)
+			logger.info(`${this.displayName} is listening at: ${!host ? "*" : host}:${port}`)
 		).on("error", err => {
-			logger.error(`${this.displayName} API has error: ${err.message}`);
+			logger.error(`${this.displayName} has error: ${err.message}`);
 			process.exit();
 		});
 	}
@@ -89,15 +92,24 @@ if (!process.env.API_PORTAL_LISTEN_PORT) {
 	process.exit();
 }
 
-const arbiterApi = new API("Arbiter");
-const portalApi = new API("Portal");
+if (!process.env.ADMIN_PANEL_LISTEN_PORT) {
+	logger.error("Invalid configuration parameter: ADMIN_PANEL_LISTEN_PORT");
+	process.exit();
+}
+
+const arbiterApi = new ExpressServer("Arbiter API");
+const portalApi = new ExpressServer("Portal API");
+const adminPanel = new ExpressServer("Admin Panel");
 
 if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
 	portalApi.setStatic("/public", "public");
 }
 
+adminPanel.setStatic("/assets", "src/assets/admin");
+
 arbiterApi.setRouter(require("./routes/arbiter.index"));
 portalApi.setRouter(require("./routes/portal.index"));
+adminPanel.setRouter(require("./routes/admin.index"));
 
 arbiterApi.bind(
 	process.env.API_ARBITER_LISTEN_HOST,
@@ -107,4 +119,9 @@ arbiterApi.bind(
 portalApi.bind(
 	process.env.API_PORTAL_LISTEN_HOST,
 	process.env.API_PORTAL_LISTEN_PORT
+);
+
+adminPanel.bind(
+	process.env.ADMIN_PANEL_LISTEN_HOST,
+	process.env.ADMIN_PANEL_LISTEN_PORT
 );

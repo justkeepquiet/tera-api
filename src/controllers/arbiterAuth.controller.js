@@ -6,13 +6,6 @@ const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
 
 /**
- * @param {import("express").Response} res
- */
-const result = (res, code, message, params = {}) => res.json({
-	Return: code === 0, ReturnCode: code, Msg: message, ...params
-});
-
-/**
  * @type {import("express").RequestHandler}
  */
 const validationHandler = (req, res, next) => {
@@ -22,6 +15,13 @@ const validationHandler = (req, res, next) => {
 
 	next();
 };
+
+/**
+ * @param {import("express").Response} res
+ */
+const result = (res, code, message, params = {}) => res.json({
+	Return: code === 0, ReturnCode: code, Msg: message, ...params
+});
 
 // endpoint: /systemApi/RequestAPIServerStatusAvailable
 module.exports.RequestAPIServerStatusAvailable = [
