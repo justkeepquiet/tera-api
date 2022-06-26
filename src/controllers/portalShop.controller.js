@@ -29,6 +29,8 @@ const i18n = new I18n({
  */
 const i18nHandler = (req, res, next) => {
 	res.locals.__ = i18n.__;
+	res.locals.locale = i18n.getLocale();
+
 	return next();
 };
 

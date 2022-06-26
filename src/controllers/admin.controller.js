@@ -1,27 +1,51 @@
 "use strict";
 
 const jwt = require("jsonwebtoken");
+const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
 const logger = require("../utils/logger");
 
 const {
-	i18nHandler,
 	steer,
+	i18nHandler,
 	resultJson,
 	validationHandler,
 	accessFunctionHandler
 } = require("../middlewares/admin.middlewares");
 
-module.exports.homeHtml = [
+module.exports.testHtml = [
 	i18nHandler,
 	accessFunctionHandler(),
+	expressLayouts,
 	/**
 	 * @type {import("express").RequestHandler}
 	 */
 	(req, res) => {
-		// @todo
+		res.render("adminTest", { layout: "adminLayout" });
+	}
+];
 
-		res.send("homePage");
+module.exports.homeHtml = [
+	i18nHandler,
+	accessFunctionHandler(),
+	expressLayouts,
+	/**
+	 * @type {import("express").RequestHandler}
+	 */
+	(req, res) => {
+		res.render("adminHome", { layout: "adminLayout" });
+	}
+];
+
+module.exports.profileHtml = [
+	i18nHandler,
+	accessFunctionHandler(),
+	expressLayouts,
+	/**
+	 * @type {import("express").RequestHandler}
+	 */
+	(req, res) => {
+		res.render("adminProfile", { layout: "adminLayout" });
 	}
 ];
 
@@ -33,19 +57,19 @@ module.exports.loginHtml = [
 	(req, res) => {
 		// @todo
 
-		res.send("loginPage");
+		res.render("adminLogin", { errorMessage: null });
 	}
 ];
 
-module.exports.loginAction = [
+module.exports.loginActionHtml = [
 	i18nHandler,
-	// [body("login").notEmpty(), body("password").notEmpty()],
+	[body("login").notEmpty(), body("password").notEmpty()],
 	validationHandler,
 	/**
 	 * @type {import("express").RequestHandler}
 	 */
 	(req, res) => {
-		const { login, password } = req.query;
+		const { login, password } = req.body;
 
 		new Promise((resolve, reject) => {
 			if (!/^true$/i.test(process.env.ADMIN_PANEL_STEER_ENABLE)) {
@@ -54,24 +78,24 @@ module.exports.loginAction = [
 				}
 			} else {
 				return steer.checkLoginGetSessionKey(login, password, "127.0.0.1").then(sessionKey =>
-					resolve({ sessionKey })
+					resolve({ login, sessionKey })
 				).catch(err =>
 					reject(err)
 				);
 			}
 
 			return reject("Login failed");
-		}).then(payload => {
-			const token = jwt.sign(payload, process.env.ADMIN_PANEL_JWT_SECRET, {
+		}).then(session => {
+			const token = jwt.sign(session, process.env.ADMIN_PANEL_JWT_SECRET, {
 				algorithm: "HS256",
 				expiresIn: 86400
 			});
 
 			res.cookie("token", token, { maxAge: 86400 * 1000 });
-			res.redirect("/home");
+			res.redirect("home");
 		}).catch(err => {
 			logger.warn(err.toString());
-			resultJson(res, 1, { msg: err.toString() });
+			res.render("adminLogin", { errorMessage: err.toString() });
 		});
 	}
 ];
@@ -85,15 +109,15 @@ module.exports.logoutAction = [
 	(req, res) => {
 		res.clearCookie("token");
 
-		if (steer.isRegistred && req.__payload.sessionKey) {
-			return steer.logoutSessionKey(req.__payload.sessionKey).then(() => {
-				res.redirect("/login");
+		if (steer.isRegistred && res.locals.session.sessionKey) {
+			return steer.logoutSessionKey(res.locals.session.sessionKey).then(() => {
+				res.redirect("login");
 			}).catch(err =>
 				logger.warn(err)
 			);
 		}
 
-		res.redirect("/login");
+		res.redirect("login");
 	}
 ];
 
@@ -104,6 +128,6 @@ module.exports.indexHtml = [
 	 * @type {import("express").RequestHandler}
 	 */
 	(req, res) => {
-		res.redirect("/home");
+		res.redirect("home");
 	}
 ];

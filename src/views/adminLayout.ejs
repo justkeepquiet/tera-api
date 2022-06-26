@@ -1,0 +1,16 @@
+
+<!doctype html>
+<html class="no-js" lang="<%= locale %>">
+<%- include("partials/adminHead") %>
+<body>
+<div class="main-wrapper">
+	<div class="app sidebar-fixed header-fixed" id="app">
+		<%- include("partials/adminHeader") %>
+		<%- include("partials/adminSidebar") %>
+		<%- content %>
+		<%- include("partials/adminFooter") %>
+	</div>
+</div>
+<%- include("partials/adminScripts") %>
+</body>
+</html>

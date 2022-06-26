@@ -43,6 +43,8 @@ const i18n = new I18n({
  */
 const i18nHandler = (req, res, next) => {
 	res.locals.__ = i18n.__;
+	res.locals.locale = i18n.getLocale();
+
 	return next();
 };
 
@@ -108,7 +110,6 @@ module.exports.MainHtml = [
 		});
 
 		res.render("launcherMain", {
-			locale: i18n.getLocale(),
 			brandName: process.env.API_PORTAL_BRAND_NAME || "Tera Private Server",
 			patchNoCheck: process.env.API_PORTAL_CLIENT_PATCH_NO_CHECK,
 			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
@@ -125,7 +126,6 @@ module.exports.LoginFormHtml = [
 	 */
 	(req, res) => {
 		res.render("launcherLoginForm", {
-			locale: i18n.getLocale(),
 			qaPrivilege: process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE
 		});
 	}
@@ -137,11 +137,8 @@ module.exports.SignupFormHtml = [
 	 * @type {import("express").RequestHandler}
 	 */
 	(req, res) => {
-		const captcha = recaptcha ? recaptcha.render() : "";
-
 		res.render("launcherSignupForm", {
-			locale: i18n.getLocale(),
-			captcha
+			captcha: recaptcha ? recaptcha.render() : ""
 		});
 	}
 ];

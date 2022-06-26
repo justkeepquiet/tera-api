@@ -105,7 +105,7 @@ if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
 	portalApi.setStatic("/public", "public");
 }
 
-adminPanel.setStatic("/assets", "src/assets/admin");
+adminPanel.setStatic("/static", "src/static/admin");
 
 arbiterApi.setRouter(require("./routes/arbiter.index"));
 portalApi.setRouter(require("./routes/portal.index"));

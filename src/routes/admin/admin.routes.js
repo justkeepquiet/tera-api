@@ -5,15 +5,16 @@ const adminController = require("../../controllers/admin.controller");
 const adminAccountController = require("../../controllers/adminAccount.controller");
 
 module.exports = express.Router()
-	.get("/test", ...adminController.homeHtml)
+	.get("/test", ...adminController.testHtml)
 
 	// Admin Panel Auth*
 	.get("/", ...adminController.indexHtml)
 	.get("/login", ...adminController.loginHtml)
-	.all("/loginAction", ...adminController.loginAction)
-	.get("/logoutAction", ...adminController.logoutAction)
+	.post("/login", ...adminController.loginActionHtml)
+	.get("/logout", ...adminController.logoutAction)
 	// Admin Panel Home
 	.get("/home", ...adminController.homeHtml)
+	.get("/profile", ...adminController.profileHtml)
 	// Account Management
 	.get("/account", ...adminAccountController.test)
 	.get("/accountAdd", ...adminAccountController.test)
