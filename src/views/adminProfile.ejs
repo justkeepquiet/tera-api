@@ -4,7 +4,6 @@
 		<h1 class="title">Your Profile</h1>
 	</div>
 	<section class="section">
-		<!--div class="row"-->
 		<div class="row sameheight-container">
 			<div class="col-md-6">
 				<div class="card sameheight-item">
@@ -13,7 +12,7 @@
 							<h3 class="title">Session information</h3>
 						</div>
 						<section>
-							User login name: <strong><%= session.login %></strong>
+							User login: <strong><%= session.login %></strong>
 						</section>
 						<section>
 							Authentication type: <strong><%= session.sessionKey ? "STEER" : "QA Login" %></strong>

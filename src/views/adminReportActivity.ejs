@@ -1,0 +1,44 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title">Activity Report</h1>
+	</div>
+	<%- include("partials/adminReportForm", { servers, reports, from, to, server, account }) %>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-10">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<table class="table table-hover data-table-desc">
+								<thead>
+									<tr>
+										<th>Report time</th>
+										<th>Action (playtime)</th>
+										<th>Client IP</th>
+										<th>Account ID</th>
+										<th>Server ID</th>
+									</tr>
+								</thead>
+								<tbody>
+									<% reports.forEach(report => { %>
+									<tr>
+										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td><%= report.get("reportType") == 2 ?
+											`Logout (${(report.get("playTime") / 60).toFixed(2)} min.)` :
+											"Login"
+										%></td>
+										<td><%= report.get("ip") %></td>
+										<td><%= report.get("accountDBID") %></td>
+										<td><%= report.get("serverId") %></td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

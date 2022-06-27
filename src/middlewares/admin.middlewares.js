@@ -69,6 +69,9 @@ module.exports.accessFunctionHandler = (functionId = null) =>
 				resolve();
 		}
 
+		return res.locals.session.sessionKey ? resolve() : reject("Invalid session");
+
+		/*
 		return steer.validateSessionKey(res.locals.session.sessionKey, "127.0.0.1").then(() =>
 			(functionId !== null ?
 				steer.checkFunctionExecutionPrivilege(res.locals.session.sessionKey, functionId) : // @todo
@@ -77,6 +80,7 @@ module.exports.accessFunctionHandler = (functionId = null) =>
 		).catch(err =>
 			reject(err)
 		);
+		*/
 	}).then(() => {
 		next();
 	}).catch(err => {

@@ -1,0 +1,26 @@
+<section class="section">
+	<form class="form-inline" action="" method="GET">
+		<div class="form-group">
+			<label for="from">Period from</label>
+			<input type="datetime-local" class="form-control boxed" name="from" value="<%= from.format("YYYY-MM-DDTHH:MM") %>">
+		</div>
+		<div class="form-group">
+			<label for="to">to</label>
+			<input type="datetime-local" class="form-control boxed" name="to" value="<%= to.format("YYYY-MM-DDTHH:MM") %>">
+		</div>
+		<div class="form-group">
+			<label for="account">Account ID</label>
+			<input type="number" class="form-control boxed" name="account" value="<%= account %>">
+		</div>
+		<div class="form-group">
+			<label for="server">Server ID</label>
+			<select class="form-control boxed" name="server">
+				<option value="">All</option>
+			<% servers.forEach(s => { %>
+				<option value="<%= s.get("serverId") %>" <%= s.get("serverId") == server ? "selected" : "" %>><%= s.get("serverId") %></option>
+			<% }) %>
+			</select>
+		</div>
+		<button type="submit" class="btn btn-primary">Show</button>
+	</form>
+</section>

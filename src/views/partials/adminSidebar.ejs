@@ -1,28 +1,78 @@
-<aside class="sidebar">
-    <div class="sidebar-container">
-        <div class="sidebar-header">
-            <div class="brand">
-                <b>TERA API</b> Admin Panel
-            </div>
-        </div>
-        <nav class="menu">
-            <ul class="sidebar-menu metismenu" id="sidebar-menu">
-                <li><a href="home"><i class="fa fa-home"></i> Dashboard</a></li>
-                <li><a href="profile"><i class="fa fa-user"></i> Profile</a></li>
-                <li>
-                    <a href=""><i class="fa fa-desktop"></i> Test Elements <i class="fa arrow"></i></a>
-                    <ul class="sidebar-nav open">
-                        <li><a href="#">Foo</a></li>
-                        <li><a href="#">Bar</a></li>
-                        <li><a href="test">Test</a></li>
-                        <li><a href="#">My section</a></li>
-                    </ul>
-                </li>
+<%
+	const menu = [
+		{ icon: "fa-home", name: "Dashboard", page: "home" },
+		{ icon: "fa-tasks", name: "Maintenance", page: "maintenance" },
+		{ icon: "fa-desktop", name: "Servers", elements: [
+				{ name: "Servers List (SLS)", page: "sls" },
+				{ name: "Strings", page: "slsStrings" }
+			]
+		},
+		{ icon: "fa-users", name: "Accounts", elements: [
+				{ name: "Accounts", page: "account" },
+				{ name: "Benefits", page: "benefit" },
+				{ name: "Characters", page: "characters" }
+			]
+		},
+		{ icon: "fa-book", name: "Reports", elements: [
+				{ name: "Activity", page: "reportActivity" },
+				{ name: "Characters", page: "reportCharacters" },
+				{ name: "Cheats", page: "reportCheats" },
+				{ name: "Chronoscrolls", page: "reportChronoscrolls" }
+			]
+		},
+		{ icon: "fa-shopping-cart", name: "Shop", elements: [
+				{ name: "Accounts", page: "shopAccounts" },
+				{ name: "Categories", page: "shopCategories" },
+				{ name: "Category Strings", page: "shopCategoryStrings" },
+				{ name: "Products", page: "shopProducts" },
+				{ name: "Product Strings", page: "shopProductStrings" },
+				{ name: "Product Items", page: "shopProductItems" }
+			]
+		},
+		{ icon: "fa-file-text", name: "Shop Logs", elements: [
+				{ name: "Fund Logs", page: "shopFundLogs" },
+				{ name: "Pay Logs", page: "shopPayLogs" }
+			]
+		},
+		{ icon: "fa-ticket", name: "Promocodes", elements: [
+				{ name: "List", page: "shopPromocode" },
+				{ name: "Strings", page: "shopPromocodeStrings" },
+				{ name: "Activated", page: "shopPromocodeActivated" }
+			]
+		},
+		{ icon: "fa-gear", name: "API Settings", page: "settings" },
+	];
 
-            </ul>
-        </nav>
-    </div>
+	const page = __endpoint.replace(/^\//, "");
+
+ %>
+<aside class="sidebar">
+	<div class="sidebar-container">
+		<div class="sidebar-header">
+			<div class="brand">
+				<b>TERA API</b> Admin Panel
+			</div>
+		</div>
+		<nav class="menu">
+			<ul class="sidebar-menu metismenu" id="sidebar-menu">
+				<% menu.forEach(root => { %>
+					<% if (root.elements && root.elements.length > 0) { %>
+						<li class="<%= root.elements.find(e => e.page === page) ? "active open" : "" %>">
+						<a href=""><i class="fa <%= root.icon %>"></i> <%= root.name %> <i class="fa arrow"></i></a>
+						<ul class="sidebar-nav">
+						<% root.elements.forEach(element => { %>
+							<li class="<%= element.page === page ? "active" : "" %>"><a href="<%= element.page %>"><%= element.name %></a></li>
+						<% }) %>
+						</ul></li>
+					<% } else { %>
+						<li class="<%= root.page === page ? "active" : "" %>"><a href="<%= root.page %>"><i class="fa <%= root.icon %>"></i> <%= root.name %></a></li>
+					<% } %>
+				<% }) %>
+			</ul>
+		</nav>
+	</div>
 </aside>
 <div class="sidebar-overlay" id="sidebar-overlay"></div>
 <div class="sidebar-mobile-menu-handle" id="sidebar-mobile-menu-handle"></div>
 <div class="mobile-menu-handle"></div>
+

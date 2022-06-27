@@ -1,0 +1,49 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title">API Settings</h1>
+	</div>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-block">
+						<div class="card-title-block">
+							<h3 class="title">Configuration Variables</h3>
+						</div>
+						<section class="table-responsive">
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>Parameter</th>
+										<th>Value</th>
+									</tr>
+								</thead>
+								<tbody>
+									<% settings.forEach(setting => {
+										let value = setting.value;
+
+										if (/(_SECRET|_KEY|_PASSWORD)$/i.test(setting.parameter)) {
+											value = "<span class=\"text-muted\">[hidden]</span>";
+										}
+										if (/^(true|false)$/i.test(value)) {
+											value = `<strong>${/^true$/i.test(value) ? "true" : "false"}</strong>`;
+										}
+										if (value == "") {
+											value = "<span class=\"text-muted\">[unconfigured]<span>";
+										}
+									%>
+									<tr>
+										<td><%= setting.parameter %></td>
+										<td><%- value %></td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

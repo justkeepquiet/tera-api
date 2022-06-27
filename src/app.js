@@ -25,6 +25,11 @@ class ExpressServer {
 		this.app.use(bodyParser.json());
 		this.app.use(cookieParser());
 
+		this.app.use((req, res, next) => {
+			res.locals.__endpoint = req.path;
+			next();
+		});
+
 		if (disableCache) {
 			this.app.use((req, res, next) => {
 				res.set("Cache-Control", "no-store");
@@ -99,7 +104,7 @@ if (!process.env.ADMIN_PANEL_LISTEN_PORT) {
 
 const arbiterApi = new ExpressServer("Arbiter API");
 const portalApi = new ExpressServer("Portal API");
-const adminPanel = new ExpressServer("Admin Panel");
+const adminPanel = new ExpressServer("Admin Panel", false);
 
 if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
 	portalApi.setStatic("/public", "public");

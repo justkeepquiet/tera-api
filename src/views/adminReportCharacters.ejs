@@ -1,0 +1,57 @@
+<%
+const reportType = { 1: "Create", 2: "Edit", 3: "Delete"};
+const classId = ["Warrior", "Lancer", "Slayer", "Berserker", "Sorcerer", "Archer", "Mystic", "Reaper", "Gunner", "Brawler", "Ninja", "Valkyrie"];
+const genderId = ["Male", "Female"];
+const raceId = ["Human", "High Elf", "Aman", "Castanic", "Popori", "Baraka", "Elin"];
+%>
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title">Characters Report</h1>
+	</div>
+	<%- include("partials/adminReportForm", { servers, reports, from, to, server, account }) %>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-10">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<table class="table table-hover data-table-desc">
+								<thead>
+									<tr>
+										<th>Report time</th>
+										<th>Action</th>
+										<th>ID</th>
+										<th>Name</th>
+										<th>Level</th>
+										<th>Race</th>
+										<th>Gender</th>
+										<th>Class</th>
+										<th>Account ID</th>
+										<th>Server ID</th>
+									</tr>
+								</thead>
+								<tbody>
+									<% reports.forEach(report => { %>
+									<tr>
+										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td><%= reportType[report.get("reportType")] %></td>
+										<td><%= report.get("characterId") %></td>
+										<td><%= report.get("name") || "-" %></td>
+										<td><%= report.get("level") || "-" %></td>
+										<td><%= report.get("raceId") %> <%= raceId[report.get("raceId") == 4 && report.get("genderId") == 1 ? 6 : report.get("raceId")] || "-" %></td>
+										<td><%= report.get("genderId") %> <%= genderId[report.get("genderId")] || "-" %></td>
+										<td><%= report.get("classId") %> <%= classId[report.get("classId")] || "-" %></td>
+										<td><%= report.get("accountDBID") %></td>
+										<td><%= report.get("serverId") %></td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

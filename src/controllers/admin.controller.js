@@ -1,8 +1,9 @@
 "use strict";
 
-const jwt = require("jsonwebtoken");
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
+const dotenv = require("dotenv");
+const jwt = require("jsonwebtoken");
 const logger = require("../utils/logger");
 
 const {
@@ -49,6 +50,26 @@ module.exports.profileHtml = [
 	}
 ];
 
+module.exports.settingsHtml = [
+	i18nHandler,
+	accessFunctionHandler(),
+	expressLayouts,
+	/**
+	 * @type {import("express").RequestHandler}
+	 */
+	(req, res) => {
+		const settings = [];
+
+		Object.keys(dotenv.config().parsed).forEach(parameter => {
+			if (process.env[parameter] !== undefined) {
+				settings.push({ parameter, value: process.env[parameter] });
+			}
+		});
+
+		res.render("adminSettings", { layout: "adminLayout", settings });
+	}
+];
+
 module.exports.loginHtml = [
 	i18nHandler,
 	/**
@@ -78,6 +99,11 @@ module.exports.loginActionHtml = [
 				}
 			} else {
 				return steer.checkLoginGetSessionKey(login, password, "127.0.0.1").then(sessionKey =>
+					/*
+					steer.getFunctionList(sessionKey).then(functions =>
+						resolve({ login, sessionKey, functions })
+					)
+					*/
 					resolve({ login, sessionKey })
 				).catch(err =>
 					reject(err)

@@ -3,6 +3,7 @@
 const express = require("express");
 const adminController = require("../../controllers/admin.controller");
 const adminAccountController = require("../../controllers/adminAccount.controller");
+const adminReportController = require("../../controllers/adminReport.controller");
 
 module.exports = express.Router()
 	.get("/test", ...adminController.testHtml)
@@ -15,13 +16,14 @@ module.exports = express.Router()
 	// Admin Panel Home
 	.get("/home", ...adminController.homeHtml)
 	.get("/profile", ...adminController.profileHtml)
+	.get("/settings", ...adminController.settingsHtml)
 	// Account Management
-	.get("/account", ...adminAccountController.test)
-	.get("/accountAdd", ...adminAccountController.test)
-	.post("/accountAddAction", ...adminAccountController.test)
-	.get("/accountEdit", ...adminAccountController.test)
-	.post("/accountEditAction", ...adminAccountController.test)
-	.post("/accountDeleteAction", ...adminAccountController.test)
+	.get("/account", ...adminController.homeHtml)
+	.get("/accountAdd", ...adminController.homeHtml)
+	.post("/accountAddAction", ...adminController.homeHtml)
+	.get("/accountEdit", ...adminController.homeHtml)
+	.post("/accountEditAction", ...adminController.homeHtml)
+	.post("/accountDeleteAction", ...adminController.homeHtml)
 	// Account Benefits
 	.get("/benefit", ...adminController.homeHtml)
 	.get("/benefitAdd", ...adminController.homeHtml)
@@ -53,10 +55,10 @@ module.exports = express.Router()
 	.post("/maintenanceEditAction", ...adminController.homeHtml)
 	.post("/maintenanceDeleteAction", ...adminController.homeHtml)
 	// Report
-	.get("/reportActivity", ...adminController.homeHtml)
-	.get("/reportCharacters", ...adminController.homeHtml)
-	.get("/reportCheates", ...adminController.homeHtml)
-	.get("/reportChronoscrolls", ...adminController.homeHtml)
+	.get("/reportActivity", ...adminReportController.activityHtml)
+	.get("/reportCharacters", ...adminReportController.charactersHtml)
+	.get("/reportCheats", ...adminReportController.cheatsHtml)
+	.get("/reportChronoscrolls", ...adminReportController.chronoscrollsHtml)
 	// Shop Account Management
 	.get("/shopAccount", ...adminController.homeHtml)
 	.get("/shopAccountAdd", ...adminController.homeHtml)

@@ -139,6 +139,7 @@ var npSettings = {
 }
 
 NProgress.configure(npSettings);
+
 $(function() {
 	setSameHeights();
 
@@ -195,6 +196,13 @@ $(function() {
 });
 
 $(function(){
+	$('.data-table').DataTable(dataTablesSettings);
+	$('.data-table-desc').DataTable($.extend(dataTablesSettings, {
+		order: [[0, 'desc']]
+	}));
+});
+
+$(function(){
 	// set sortable options
 	var sortable = new Sortable($('.images-container').get(0), {
 		animation: 150,
@@ -224,14 +232,6 @@ $(function(){
 
 //Sidebar menu
 $(function () {
-	var pathPage = location.pathname.slice(1);
-	var parentUl = $('#sidebar-menu a[href="' + pathPage + '"]').closest('li').addClass('active').parent('ul');
-
-	// open parent ul
-	if (parentUl.closest('#sidebar-menu li').length) {
-		parentUl.closest('li').addClass('open').addClass('active');
-	}
-
 	$('#sidebar-menu, #customize-menu').metisMenu({
 		activeClass: 'open'
 	});
