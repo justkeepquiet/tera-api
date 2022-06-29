@@ -1,0 +1,60 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Server List Strings") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-success" title="" href="serverStringAdd"><%= __("Add new srtrings") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<div class="table-responsive">
+							<table class="table table-hover data-table-nosort">
+								<thead>
+									<tr>
+										<th><%= __("Game language") %></th>
+										<th><%= __("Category PvE") %></th>
+										<th><%= __("Category PvP") %></th>
+										<th><%= __("Server offline") %></th>
+										<th><%= __("Server low") %></th>
+										<th><%= __("Server medium") %></th>
+										<th><%= __("Server high") %></th>
+										<th><%= __("Crowd no") %></th>
+										<th><%= __("Crowd yes") %></th>
+										<th><%= __("Popup") %></th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<% strings.forEach(string => { %>
+									<tr>
+										<td><%= string.get("language") %></td>
+										<td><%= string.get("categoryPvE") %></td>
+										<td><%= string.get("categoryPvP") %></td>
+										<td><%= string.get("serverOffline") %></td>
+										<td><%= string.get("serverLow") %></td>
+										<td><%= string.get("serverMedium") %></td>
+										<td><%= string.get("serverHigh") %></td>
+										<td><%= string.get("crowdNo") %></td>
+										<td><%= string.get("crowdYes") %></td>
+										<td><%= string.get("popup") %></td>
+										<td class="text-right">
+											<a class="btn btn-secondary btn-sm" href="serverStringsEdit?language=<%= string.get("language") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+										</td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

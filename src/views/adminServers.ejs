@@ -1,0 +1,60 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Server List (SLS)") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-success" title="" href="serverAdd"><%= __("Add new server") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<div class="table-responsive">
+							<table class="table table-hover data-table-nosort">
+								<thead>
+									<tr>
+										<th><%= __("ID") %></th>
+										<th><%= __("Login IP:port") %></th>
+										<th><%= __("Name") %></th>
+										<th><%= __("Language") %></th>
+										<th><%= __("Type") %></th>
+										<th><%= __("Enabled") %></th>
+										<th><%= __("Crowdness") %></th>
+										<th><%= __("Available") %></th>
+										<th><%= __("Users online") %></th>
+										<th><%= __("Users total") %></th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<% servers.forEach(servers => { %>
+									<tr>
+										<td><a href="#"><%= servers.get("serverId") %></a></td>
+										<td><%= servers.get("loginIp") %>:<%= servers.get("loginPort") %></td>
+										<td><%= servers.get("nameString") %></td>
+										<td><%= servers.get("language") %></td>
+										<td><%= servers.get("isPvE") ? "PvE" : "PvP" %></td>
+										<td class="text-<%= servers.get("isEnabled") ? "success" : "danger" %>"><%= servers.get("isEnabled") ? __("Yes") : __("No") %></td>
+										<td><%= servers.get("isCrowdness") ? "Yes" : "No" %></td>
+										<td class="text-<%= servers.get("isAvailable") ? "success" : "danger" %>"><%= servers.get("isAvailable") ? __("Yes") : __("No") %></td>
+										<td><%= servers.get("usersOnline") %></td>
+										<td><%= servers.get("usersTotal") %></td>
+										<td class="text-right">
+											<a class="btn btn-secondary btn-sm" href="serverEdit?id=<%= servers.get("serverId") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+										</td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

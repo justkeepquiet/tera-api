@@ -1,0 +1,58 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Accounts") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-success" title="" href="accountAdd"><%= __("Create new account") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<div class="table-responsive">
+							<table class="table table-hover data-table-nosort">
+								<thead>
+									<tr>
+										<th><%= __("ID") %></th>
+										<th><%= __("User name") %></th>
+										<th><%= __("Email") %></th>
+										<th><%= __("Registred") %></th>
+										<th><%= __("Permission") %></th>
+										<th><%= __("Privilege") %></th>
+										<th><%= __("Last login") %></th>
+										<th><%= __("Last server") %></th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<% accounts.forEach(account => { %>
+									<tr>
+										<td><%= account.get("accountDBID") %></td>
+										<td><a href="#"><%= account.get("userName") %></a></td>
+										<td><%= account.get("email") %></td>
+										<td><%= moment(account.get("registerTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td><%= account.get("permission") %></td>
+										<td><%= account.get("privilege") %></td>
+										<td><%= moment(account.get("lastLoginTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td><%= account.get("lastLoginServer") %></td>
+										<td class="text-right">
+											<a class="btn btn-secondary btn-sm" href="benefits?account=<%= account.get("accountDBID") %>"><i class="fa fa-tags"></i></a>
+											<a class="btn btn-secondary btn-sm" href="characters?account=<%= account.get("accountDBID") %>&amp;server=<%= account.get("lastLoginServer") %>"><i class="fa fa-user"></i></a>
+											<a class="btn btn-secondary btn-sm" href="accountEdit?id=<%= account.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+										</td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

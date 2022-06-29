@@ -1,0 +1,55 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Shop Fund Logs") %></h1>
+	</div>
+	<section class="section">
+		<form class="form-inline" action="" method="GET">
+			<div class="form-group">
+				<label for="from"><%= __("Period from") %></label>
+				<input type="datetime-local" class="form-control boxed" name="from" value="<%= from.format("YYYY-MM-DDTHH:MM") %>">
+			</div>
+			<div class="form-group">
+				<label for="to"><%= __("to") %></label>
+				<input type="datetime-local" class="form-control boxed" name="to" value="<%= to.format("YYYY-MM-DDTHH:MM") %>">
+			</div>
+			<div class="form-group">
+				<label for="account"><%= __("Account ID") %></label>
+				<input type="number" class="form-control boxed" name="account" value="<%= account %>">
+			</div>
+			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
+		</form>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<table class="table table-hover data-table-desc">
+								<thead>
+									<tr>
+										<th><%= __("Log time") %></th>
+										<th><%= __("Account ID") %></th>
+										<th><%= __("Amount") %></th>
+										<th><%= __("Operation description") %></th>
+									</tr>
+								</thead>
+								<tbody>
+									<% logs.forEach(log => { %>
+									<tr>
+										<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td><%= log.get("accountDBID") %></td>
+										<td><%= log.get("amount") %></td>
+										<td><%= log.get("description") %></td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

@@ -8,12 +8,6 @@ const accountModel = require("../models/account.model");
 const reportModel = require("../models/report.model");
 const { i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-const middlewares = [
-	i18nHandler,
-	accessFunctionHandler(),
-	expressLayouts
-];
-
 const reportHandler = (model, view) =>
 	/**
 	 * @type {import("express").RequestHandler}
@@ -54,7 +48,30 @@ const reportHandler = (model, view) =>
 	}
 ;
 
-module.exports.activityHtml = [...middlewares, reportHandler(reportModel.activity, "adminReportActivity")];
-module.exports.charactersHtml = [...middlewares, reportHandler(reportModel.characters, "adminReportCharacters")];
-module.exports.cheatsHtml = [...middlewares, reportHandler(reportModel.cheats, "adminReportCheats")];
-module.exports.chronoscrollsHtml = [...middlewares, reportHandler(reportModel.chronoScrolls, "adminReportChronoScrolls")];
+module.exports.activity = [
+	i18nHandler,
+	accessFunctionHandler(),
+	expressLayouts,
+	reportHandler(reportModel.activity, "adminReportActivity")
+];
+
+module.exports.characters = [
+	i18nHandler,
+	accessFunctionHandler(),
+	expressLayouts,
+	reportHandler(reportModel.characters, "adminReportCharacters")
+];
+
+module.exports.cheats = [
+	i18nHandler,
+	accessFunctionHandler(),
+	expressLayouts,
+	reportHandler(reportModel.cheats, "adminReportCheats")
+];
+
+module.exports.chronoscrolls = [
+	i18nHandler,
+	accessFunctionHandler(),
+	expressLayouts,
+	reportHandler(reportModel.chronoScrolls, "adminReportChronoScrolls")
+];

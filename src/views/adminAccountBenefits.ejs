@@ -1,0 +1,63 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Account Benefits List") %></h1>
+	</div>
+	<section class="section">
+		<form class="form-inline" action="" method="GET">
+			<div class="form-group">
+				<label for="account"><%= __("Account ID") %></label>
+				<input type="number" class="form-control boxed" name="account" value="<%= account %>">
+			</div>
+			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
+		</form>
+	</section>
+	<section class="section">
+		<a class="btn btn-success" title="" href="benefitAdd?account=<%= account %>"><%= __("Add new benefit") %></a>
+	</section>
+	<% if (benefits === null) { %>
+	<section class="section">
+		<div class="alert alert-info">
+			<%= __("Please enter account ID.") %>
+		</div>
+	</section>
+	<% } else { %>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<table class="table table-hover data-table-nosort">
+								<thead>
+									<tr>
+										<th><%= __("Account ID") %></th>
+										<th><%= __("Benefit ID") %></th>
+										<th><%= __("Benefit description") %></th>
+										<th><%= __("Available until") %></th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<% benefits.forEach(benefit => { %>
+									<tr>
+										<td><%= benefit.get("accountDBID") %></td>
+										<td><%= benefit.get("benefitId") %></td>
+										<td>Text of benefit description</td>
+										<td><%= moment(benefit.get("availableUntil")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td class="text-right">
+											<a class="btn btn-secondary btn-sm" href="benefitEdit?id=<%= benefit.get("benefitId") %>&amp;account=id=<%= benefit.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+										</td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<% } %>
+</article>

@@ -1,0 +1,62 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Shop Activated Promocodes") %></h1>
+	</div>
+	<section class="section">
+		<form class="form-inline" action="" method="GET">
+			<div class="form-group">
+				<label for="account"><%= __("Account ID") %></label>
+				<input type="number" class="form-control boxed" name="account" value="<%= account %>">
+			</div>
+			<div class="form-group">
+				<label for="promocode"><%= __("Promocode ID") %></label>
+				<input type="number" class="form-control boxed" name="promocode" value="<%= promocode %>">
+			</div>
+			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
+		</form>
+	</section>
+	<section class="section">
+		<a class="btn btn-warning" title="" href="promocodesActivatedAdd?promocode=<%= promocode %>&amp;account=<%= account %>"><%= __("Activate promocode") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<div class="table">
+							<table class="table table-hover data-table-nosort">
+								<thead>
+									<tr>
+										<th><%= __("ID") %></th>
+										<th><%= __("Promocode ID") %></th>
+										<th><%= __("Promocode") %></th>
+										<th><%= __("Account ID") %></th>
+										<th><%= __("Activation time") %></th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<% promocodes.forEach(activated => { %>
+									<tr>
+										<td><%= activated.get("id") %></td>
+										<td><%= activated.get("promoCodeId") %></td>
+										<td><%= activated.get("promoCode") %></td>
+										<td><%= activated.get("accountDBID") %></td>
+										<td><%= moment(activated.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td class="text-right">
+											<a class="btn btn-secondary btn-sm" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+										</td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

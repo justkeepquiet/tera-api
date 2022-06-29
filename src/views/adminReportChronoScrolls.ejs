@@ -1,22 +1,22 @@
 <%- contentFor("content") %>
 <article class="content">
 	<div class="title-block">
-		<h1 class="title">Chronoscrolls Report</h1>
+		<h1 class="title"><%= __("Chronoscrolls Report") %></h1>
 	</div>
-	<%- include("partials/adminReportForm", { servers, reports, from, to, server, account }) %>
+	<%- include("partials/adminReportForm", { servers, from, to, server, account }) %>
 	<section class="section">
 		<div class="row">
-			<div class="col-md-10">
+			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
 							<table class="table table-hover data-table-desc">
 								<thead>
 									<tr>
-										<th>Report time</th>
-										<th>Chrono ID</th>
-										<th>Account ID</th>
-										<th>Server ID</th>
+										<th><%= __("Report time") %></th>
+										<th><%= __("Chrono ID") %></th>
+										<th><%= __("Account ID") %></th>
+										<th><%= __("Server ID") %></th>
 									</tr>
 								</thead>
 								<tbody>

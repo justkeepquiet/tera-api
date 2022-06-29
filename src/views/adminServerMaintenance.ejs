@@ -1,0 +1,48 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Server Maintenance") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-success" title="" href="maintenanceAdd"><%= __("Add new maintenance plan") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<div class="table">
+							<table class="table table-hover data-table-nosort">
+								<thead>
+									<tr>
+										<th><%= __("ID") %></th>
+										<th><%= __("Start time") %></th>
+										<th><%= __("End time") %></th>
+										<th><%= __("Description") %></th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<% maintenances.forEach(maintenance => { %>
+									<tr>
+										<td><%= maintenance.get("id") %></td>
+										<td><%= moment(maintenance.get("startTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td><%= moment(maintenance.get("endTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td><%= maintenance.get("description") %></td>
+										<td class="text-right">
+											<a class="btn btn-secondary btn-sm" href="maintenanceEdit?id=<%= maintenance.get("id") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="maintenanceDelete?id=<%= maintenance.get("id") %>" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+										</td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>
