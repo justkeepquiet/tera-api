@@ -2384,6 +2384,9 @@ pre {
   border-top-right-radius: 0;
   color: #ffffff; }
 
+  .modal-header.danger {
+      background-color: #FF4444; }
+
 .modal .modal-header .close {
   color: #ffffff;
   text-shadow: 0 1px 0 #000000; }

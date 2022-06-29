@@ -4,7 +4,7 @@
 		<h1 class="title"><%= __("Shop Promocodes") %></h1>
 	</div>
 	<section class="section">
-		<a class="btn btn-success" title="" href="promocodeAdd"><%= __("Create new promocode") %></a>
+		<a class="btn btn-success" title="" href="/promocodes/add"><%= __("Create new promocode") %></a>
 	</section>
 	<section class="section">
 		<div class="row">
@@ -35,9 +35,9 @@
 										<td><%= moment(promocode.get("validAfter")).format("YYYY-MM-DD HH:MM:ss") %></td>
 										<td><%= moment(promocode.get("validBefore")).format("YYYY-MM-DD HH:MM:ss") %></td>
 										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="promocodeStrings?promocode=<%= promocode.get("promoCodeId") %>"><i class="fa fa-bars"></i></a>
-											<a class="btn btn-secondary btn-sm" href="promocodeEdit?id=<%= promocode.get("promoCodeId") %>"><i class="fa fa-pencil"></i></a>
-											<a class="btn btn-secondary btn-sm" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+											<a class="btn btn-secondary btn-sm" href="/promocode_strings?promoCodeId=<%= promocode.get("promoCodeId") %>"><i class="fa fa-bars"></i></a>
+											<a class="btn btn-secondary btn-sm" href="/promocodes/edit?promoCodeId=<%= promocode.get("promoCodeId") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="/promocodes/delete?promoCodeId=<%= promocode.get("promoCodeId") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 										</td>
 									</tr>
 									<% }) %>

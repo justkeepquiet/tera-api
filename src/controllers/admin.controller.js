@@ -7,17 +7,6 @@ const logger = require("../utils/logger");
 
 const { i18n, i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-module.exports.test = [
-	accessFunctionHandler(),
-	expressLayouts,
-	/**
-	 * @type {import("express").RequestHandler}
-	 */
-	(req, res) => {
-		res.render("adminTest", { layout: "adminLayout" });
-	}
-];
-
 module.exports.home = [
 	i18nHandler,
 	accessFunctionHandler(),
@@ -69,7 +58,7 @@ module.exports.login = [
 	 */
 	(req, res) => {
 		if (req.isAuthenticated()) {
-			return res.redirect("home");
+			return res.redirect("/home");
 		}
 
 		res.render("adminLogin", { errorMessage: null });
@@ -91,7 +80,7 @@ module.exports.loginAction = [
 			}
 
 			req.login(user, () =>
-				res.redirect("home")
+				res.redirect("/home")
 			);
 		})(req, res, next);
 	}
@@ -110,7 +99,7 @@ module.exports.logoutAction = [
 		}
 
 		req.logout(() =>
-			res.redirect("login")
+			res.redirect("/login")
 		);
 	}
 ];
@@ -121,6 +110,6 @@ module.exports.index = [
 	 * @type {import("express").RequestHandler}
 	 */
 	(req, res) => {
-		res.redirect("home");
+		res.redirect("/home");
 	}
 ];

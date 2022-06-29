@@ -36,14 +36,14 @@ const classId = [
 	<section class="section">
 		<form class="form-inline" action="" method="GET">
 			<div class="form-group">
-				<label for="account"><%= __("Account ID") %></label>
-				<input type="number" class="form-control boxed" name="account" value="<%= account %>">
+				<label for="accountDBID"><%= __("Account ID") %></label>
+				<input type="number" class="form-control boxed" name="accountDBID" value="<%= accountDBID %>">
 			</div>
 			<div class="form-group">
-				<label for="server"><%= __("Server ID") %></label>
-				<select class="form-control boxed" name="server">
+				<label for="serverId"><%= __("Server ID") %></label>
+				<select class="form-control boxed" name="serverId">
 				<% servers.forEach(s => { %>
-					<option value="<%= s.get("serverId") %>" <%= s.get("serverId") == server ? "selected" : "" %>><%= s.get("serverId") %></option>
+					<option value="<%= s.get("serverId") %>" <%= s.get("serverId") == serverId ? "selected" : "" %>><%= s.get("serverId") %></option>
 				<% }) %>
 				</select>
 			</div>

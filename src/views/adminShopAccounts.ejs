@@ -4,7 +4,7 @@
 		<h1 class="title"><%= __("Shop Accounts") %></h1>
 	</div>
 	<section class="section">
-		<a class="btn btn-success" title="" href="shopAccountAdd"><%= __("Create new account") %></a>
+		<a class="btn btn-success" title="" href="/shop_accounts/add"><%= __("Create new account") %></a>
 	</section>
 	<section class="section">
 		<div class="alert alert-secondary">
@@ -14,8 +14,8 @@
 	<section class="section">
 		<form class="form-inline" action="" method="GET">
 			<div class="form-group">
-				<label for="account"><%= __("Account ID") %></label>
-				<input type="number" class="form-control boxed" name="account" value="<%= account %>">
+				<label for="accountDBID"><%= __("Account ID") %></label>
+				<input type="number" class="form-control boxed" name="accountDBID" value="<%= accountDBID %>">
 			</div>
 			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
 		</form>
@@ -45,8 +45,8 @@
 										<td><%= account.get("active") ? __("Yes") : __("No") %></td>
 										<td><%= moment(account.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
 										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="ahopAccountEdit?id=<%= account.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
-											<a class="btn btn-secondary btn-sm" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+											<a class="btn btn-secondary btn-sm" href="/shop_accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="/shop_accounts/delete?accountDBID=<%= account.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
 										</td>
 									</tr>
 									<% }) %>

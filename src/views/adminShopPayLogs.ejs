@@ -3,7 +3,7 @@
 	<div class="title-block">
 		<h1 class="title"><%= __("Shop Fund Logs") %></h1>
 	</div>
-	<%- include("partials/adminReportForm", { servers, from, to, server, account }) %>
+	<%- include("partials/adminReportForm", { servers, from, to, serverId, accountDBID }) %>
 	<section class="section">
 		<div class="row">
 			<div class="col-md-12">
@@ -29,7 +29,7 @@
 										<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
 										<td><%= log.get("accountDBID") %></td>
 										<td><%= log.get("serverId") %></td>
-										<td><a href="shopProductEdit?id=<%= log.get("productId") %>"><%= log.get("productId") %></a></td>
+										<td><a href="/shop_products/edit?productId=<%= log.get("productId") %>"><%= log.get("productId") %></a></td>
 										<td><%= log.get("boxId") %></td>
 										<td><%= log.get("price") %></td>
 										<td class="text-<%= log.get("status") == "completed" ? "success" : "danger" %>"><%= log.get("status") %></td>

@@ -2,14 +2,15 @@
 
 const express = require("express");
 const adminController = require("../../controllers/admin.controller");
-const adminServerController = require("../../controllers/adminServer.controller");
-const adminAccountController = require("../../controllers/adminAccount.controller");
+const adminServersController = require("../../controllers/adminServers.controller");
+const adminServerStringsController = require("../../controllers/adminServerStrings.controller");
+const adminMaintenanceController = require("../../controllers/adminMaintenance.controller");
+const adminAccountsController = require("../../controllers/adminAccounts.controller");
+const adminBenefitsController = require("../../controllers/adminBenefits.controller");
 const adminReportController = require("../../controllers/adminReport.controller");
 const adminShopController = require("../../controllers/adminShop.controller");
 
 module.exports = express.Router()
-	.get("/test", ...adminController.test)
-
 	// Admin Panel Auth*
 	.get("/", ...adminController.index)
 	.get("/login", ...adminController.login)
@@ -20,76 +21,55 @@ module.exports = express.Router()
 	.get("/profile", ...adminController.profile)
 	.get("/settings", ...adminController.settings)
 	// Account Management
-	.get("/accounts", ...adminAccountController.accounts)
-	.get("/accountAdd", ...adminController.home)
-	.post("/accountAddAction", ...adminController.home)
-	.get("/accountEdit", ...adminController.home)
-	.post("/accountEditAction", ...adminController.home)
-	.post("/accountDeleteAction", ...adminController.home)
+	.get("/characters", ...adminAccountsController.characters)
+	.get("/accounts", ...adminAccountsController.index)
+	.get("/accounts/add", ...adminAccountsController.add)
+	// .post("/accounts/add", ...adminAccountsController.addAction)
+	// .get("/accounts/edit", ...adminAccountsController.edit)
+	// .post("/accounts/edit", ...adminAccountsController.editAction)
+	// .get("/accounts/delete", ...adminAccountsController.deleteAction)
 	// Account Benefits
-	.get("/benefits", ...adminAccountController.benefits)
-	.get("/benefitAdd", ...adminController.home)
-	.post("/benefitAddAction", ...adminController.home)
-	.get("/benefitEdit", ...adminController.home)
-	.post("/benefitEditAction", ...adminController.home)
-	.post("/benefitDeleteAction", ...adminController.home)
-	// Account Characters
-	.get("/characters", ...adminAccountController.characters)
-	// Servers List (SLS)
-	.get("/servers", ...adminServerController.servers)
-	.get("/serverAdd", ...adminController.home)
-	.post("/serverAddAction", ...adminController.home)
-	.get("/serverEdit", ...adminController.home)
-	.post("/serverEditAction", ...adminController.home)
-	.post("/serverDeleteAction", ...adminController.home)
+	.get("/benefits", ...adminBenefitsController.index)
+	.get("/benefits/add", ...adminBenefitsController.add)
+	.post("/benefits/add", ...adminBenefitsController.addAction)
+	.get("/benefits/edit", ...adminBenefitsController.edit)
+	.post("/benefits/edit", ...adminBenefitsController.editAction)
+	.get("/benefits/delete", ...adminBenefitsController.deleteAction)
+	// Servers List (SLS)*
+	.get("/servers", ...adminServersController.index)
+	.get("/servers/add", ...adminServersController.add)
+	.post("/servers/add", ...adminServersController.addAction)
+	.get("/servers/edit", ...adminServersController.edit)
+	.post("/servers/edit", ...adminServersController.editAction)
+	.get("/servers/delete", ...adminServersController.deleteAction)
 	// Servers Strings
-	.get("/serverStrings", ...adminServerController.serverStrings)
-	.get("/serverStringsAdd", ...adminController.home)
-	.post("/servertringsAddAction", ...adminController.home)
-	.get("/serverStringsEdit", ...adminController.home)
-	.post("/serverStringsEditAction", ...adminController.home)
-	.post("/serverStringsDeleteAction", ...adminController.home)
+	.get("/server_strings", ...adminServerStringsController.index)
 	// Server Maintenance
-	.get("/maintenance", ...adminServerController.maintenance)
-	.get("/maintenanceAdd", ...adminServerController.maintenanceAdd)
-	.post("/maintenanceAdd", ...adminServerController.maintenanceAddAction)
-	.get("/maintenanceEdit", ...adminServerController.maintenanceEdit)
-	.post("/maintenanceEdit", ...adminServerController.maintenanceEditAction)
-	.get("/maintenanceDelete", ...adminServerController.maintenanceDeleteAction)
+	.get("/maintenance", ...adminMaintenanceController.index)
+	.get("/maintenance/add", ...adminMaintenanceController.add)
+	.post("/maintenance/add", ...adminMaintenanceController.addAction)
+	.get("/maintenance/edit", ...adminMaintenanceController.edit)
+	.post("/maintenance/edit", ...adminMaintenanceController.editAction)
+	.get("/maintenance/delete", ...adminMaintenanceController.deleteAction)
 	// Report
-	.get("/reportActivity", ...adminReportController.activity)
-	.get("/reportCharacters", ...adminReportController.characters)
-	.get("/reportCheats", ...adminReportController.cheats)
-	.get("/reportChronoscrolls", ...adminReportController.chronoscrolls)
+	.get("/report_activity", ...adminReportController.activity)
+	.get("/report_characters", ...adminReportController.characters)
+	.get("/report_cheats", ...adminReportController.cheats)
+	.get("/report_chronoscrolls", ...adminReportController.chronoscrolls)
 	// Shop Account Management
-	.get("/shopAccounts", ...adminShopController.accounts)
-	.get("/shopAccountAdd", ...adminController.home)
-	.post("/shopAccountAddAction", ...adminController.home)
-	.get("/shopAccountEdit", ...adminController.home)
-	.post("/shopAccountEditAction", ...adminController.home)
-	.post("/shopAccountDeleteAction", ...adminController.home)
+	.get("/shop_accounts", ...adminShopController.accounts)
 	// Shop Categories
-	.get("/shopCategory", ...adminController.home)
-	.get("/shopCategoryAdd", ...adminController.home)
-	.post("/shopCategoryAddAction", ...adminController.home)
-	.get("/shopCategoryEdit", ...adminController.home)
-	.post("/shopCategoryEditAction", ...adminController.home)
-	.post("/shopCategoryDeleteAction", ...adminController.home)
+	.get("/shop_category", ...adminController.home)
 	// Shop Category Strings
-	.get("/shopCategoryStrings", ...adminController.home)
-	.get("/shopCategoryStringsAdd", ...adminController.home)
-	.post("/shopCategoryStringsAddAction", ...adminController.home)
-	.get("/shopCategoryStringsEdit", ...adminController.home)
-	.post("/shopCategoryStringsEditAction", ...adminController.home)
-	.post("/shopCategoryStringsDeleteAction", ...adminController.home)
+	.get("/shop_category_strings", ...adminController.home)
 	// Shop Products
 	// Shop Product Strings
 	// Shop Product Items
 	// Shop Promocodes
 	.get("/promocodes", ...adminShopController.promocodes)
-	.get("/promocodeStrings", ...adminShopController.promocodeStrings)
-	.get("/promocodesActivated", ...adminShopController.promocodesActivated)
+	.get("/promocode_strings", ...adminShopController.promocodeStrings)
+	.get("/promocodes_activated", ...adminShopController.promocodesActivated)
 	// Shop Logs
-	.get("/shopFundLogs", ...adminShopController.fundLogs)
-	.get("/shopPayLogs", ...adminShopController.payLogs)
+	.get("/shop_fund_logs", ...adminShopController.fundLogs)
+	.get("/shop_pay_logs", ...adminShopController.payLogs)
 ;

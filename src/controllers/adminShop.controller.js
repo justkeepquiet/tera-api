@@ -16,18 +16,18 @@ module.exports.accounts = [
 	 * @type {import("express").RequestHandler}
 	 */
 	(req, res) => {
-		const { account } = req.query;
+		const { accountDBID } = req.query;
 
 		shopModel.accounts.findAll({
 			where: {
-				...(account ? { accountDBID: account } : {})
+				...(accountDBID ? { accountDBID } : {})
 			}
 		}).then(accounts => {
 			res.render("adminShopAccounts", {
 				layout: "adminLayout",
 				accounts,
 				moment,
-				account
+				accountDBID
 			});
 		}).catch(err => {
 			logger.error(err.toString());
@@ -45,14 +45,14 @@ module.exports.fundLogs = [
 	 */
 	(req, res) => {
 		let { from, to } = req.query;
-		const { account } = req.query;
+		const { accountDBID } = req.query;
 
 		from = from ? moment(from) : moment().subtract(30, "days");
 		to = to ? moment(to) : moment();
 
 		shopModel.fundLogs.findAll({
 			where: {
-				...(account ? { accountDBID: account } : {}),
+				...(accountDBID ? { accountDBID } : {}),
 				createdAt: {
 					[Op.gt]: from.format("YYYY-MM-DD HH:MM:ss"),
 					[Op.lt]: to.format("YYYY-MM-DD HH:MM:ss")
@@ -65,7 +65,7 @@ module.exports.fundLogs = [
 				logs,
 				from,
 				to,
-				account
+				accountDBID
 			})
 		).catch(err => {
 			logger.error(err.toString());
@@ -83,14 +83,14 @@ module.exports.payLogs = [
 	 */
 	(req, res) => {
 		let { from, to } = req.query;
-		const { account, server } = req.query;
+		const { accountDBID, serverId } = req.query;
 
 		from = from ? moment(from) : moment().subtract(30, "days");
 		to = to ? moment(to) : moment();
 
 		shopModel.payLogs.findAll({
 			where: {
-				...(account ? { accountDBID: account } : {}),
+				...(accountDBID ? { accountDBID } : {}),
 				createdAt: {
 					[Op.gt]: from.format("YYYY-MM-DD HH:MM:ss"),
 					[Op.lt]: to.format("YYYY-MM-DD HH:MM:ss")
@@ -105,8 +105,8 @@ module.exports.payLogs = [
 					logs,
 					from,
 					to,
-					server,
-					account
+					serverId,
+					accountDBID
 				});
 			})
 		).catch(err => {
@@ -145,14 +145,14 @@ module.exports.promocodeStrings = [
 	 * @type {import("express").RequestHandler}
 	 */
 	(req, res) => {
-		const { promocode } = req.query;
+		const { promoCodeId } = req.query;
 
 		shopModel.promoCodeStrings.belongsTo(shopModel.promoCodes, { foreignKey: "promoCodeId" });
 		shopModel.promoCodeStrings.hasMany(shopModel.promoCodes, { foreignKey: "promoCodeId" });
 
 		shopModel.promoCodeStrings.findAll({
 			where: {
-				...(promocode ? { promoCodeId: promocode } : {})
+				...(promoCodeId ? { promoCodeId } : {})
 			},
 			include: [{
 				model: shopModel.promoCodes,
@@ -167,7 +167,7 @@ module.exports.promocodeStrings = [
 			res.render("adminShopPromocodeStrings", {
 				layout: "adminLayout",
 				strings,
-				promocode,
+				promoCodeId,
 				moment
 			});
 		}).catch(err => {
@@ -185,15 +185,15 @@ module.exports.promocodesActivated = [
 	 * @type {import("express").RequestHandler}
 	 */
 	(req, res) => {
-		const { promocode, account } = req.query;
+		const { promoCodeId, accountDBID } = req.query;
 
 		shopModel.promoCodeActivated.belongsTo(shopModel.promoCodes, { foreignKey: "promoCodeId" });
 		shopModel.promoCodeActivated.hasMany(shopModel.promoCodes, { foreignKey: "promoCodeId" });
 
 		shopModel.promoCodeActivated.findAll({
 			where: {
-				...(promocode ? { promoCodeId: promocode } : {}),
-				...(account ? { accountDBID: account } : {})
+				...(promoCodeId ? { promoCodeId } : {}),
+				...(accountDBID ? { accountDBID } : {})
 			},
 			include: [{
 				model: shopModel.promoCodes,
@@ -208,8 +208,8 @@ module.exports.promocodesActivated = [
 			res.render("adminShopPromocodesActivated", {
 				layout: "adminLayout",
 				promocodes,
-				promocode,
-				account,
+				promoCodeId,
+				accountDBID,
 				moment
 			});
 		}).catch(err => {

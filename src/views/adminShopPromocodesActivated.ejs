@@ -6,18 +6,18 @@
 	<section class="section">
 		<form class="form-inline" action="" method="GET">
 			<div class="form-group">
-				<label for="account"><%= __("Account ID") %></label>
-				<input type="number" class="form-control boxed" name="account" value="<%= account %>">
+				<label for="accountDBID"><%= __("Account ID") %></label>
+				<input type="number" class="form-control boxed" name="accountDBID" value="<%= accountDBID %>">
 			</div>
 			<div class="form-group">
-				<label for="promocode"><%= __("Promocode ID") %></label>
-				<input type="number" class="form-control boxed" name="promocode" value="<%= promocode %>">
+				<label for="promoCodeId"><%= __("Promocode ID") %></label>
+				<input type="number" class="form-control boxed" name="promoCodeId" value="<%= promoCodeId %>">
 			</div>
 			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
 		</form>
 	</section>
 	<section class="section">
-		<a class="btn btn-warning" title="" href="promocodesActivatedAdd?promocode=<%= promocode %>&amp;account=<%= account %>"><%= __("Activate promocode") %></a>
+		<a class="btn btn-warning" title="" href="/promocodes_activated/add?promoCodeId=<%= promoCodeId %>&amp;account=<%= accountDBID %>"><%= __("Activate promocode") %></a>
 	</section>
 	<section class="section">
 		<div class="row">
@@ -46,7 +46,7 @@
 										<td><%= activated.get("accountDBID") %></td>
 										<td><%= moment(activated.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
 										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+											<a class="btn btn-secondary btn-sm" href="/promocodes_activated/delete?promoCodeId=<%= promoCodeId %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 										</td>
 									</tr>
 									<% }) %>

@@ -4,7 +4,7 @@
 		<h1 class="title"><%= __("Server List (SLS)") %></h1>
 	</div>
 	<section class="section">
-		<a class="btn btn-success" title="" href="serverAdd"><%= __("Add new server") %></a>
+		<a class="btn btn-success" title="" href="/servers/add"><%= __("Add new server") %></a>
 	</section>
 	<section class="section">
 		<div class="row">
@@ -32,7 +32,7 @@
 								<tbody>
 									<% servers.forEach(servers => { %>
 									<tr>
-										<td><a href="#"><%= servers.get("serverId") %></a></td>
+										<td><a href="/servers/view?serverId=<%= servers.get("serverId") %>"><%= servers.get("serverId") %></a></td>
 										<td><%= servers.get("loginIp") %>:<%= servers.get("loginPort") %></td>
 										<td><%= servers.get("nameString") %></td>
 										<td><%= servers.get("language") %></td>
@@ -43,8 +43,8 @@
 										<td><%= servers.get("usersOnline") %></td>
 										<td><%= servers.get("usersTotal") %></td>
 										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="serverEdit?id=<%= servers.get("serverId") %>"><i class="fa fa-pencil"></i></a>
-											<a class="btn btn-secondary btn-sm" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+											<a class="btn btn-secondary btn-sm" href="/servers/edit?serverId=<%= servers.get("serverId") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="/servers/delete?serverId=<%= servers.get("serverId") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 										</td>
 									</tr>
 									<% }) %>

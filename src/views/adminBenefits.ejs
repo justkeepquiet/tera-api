@@ -6,14 +6,14 @@
 	<section class="section">
 		<form class="form-inline" action="" method="GET">
 			<div class="form-group">
-				<label for="account"><%= __("Account ID") %></label>
-				<input type="number" class="form-control boxed" name="account" value="<%= account %>">
+				<label for="accountDBID"><%= __("Account ID") %></label>
+				<input type="number" class="form-control boxed" name="accountDBID" value="<%= accountDBID %>">
 			</div>
 			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
 		</form>
 	</section>
 	<section class="section">
-		<a class="btn btn-success" title="" href="benefitAdd?account=<%= account %>"><%= __("Add new benefit") %></a>
+		<a class="btn btn-success" title="" href="/benefits/add?accountDBID=<%= accountDBID %>"><%= __("Add new benefit") %></a>
 	</section>
 	<% if (benefits === null) { %>
 	<section class="section">
@@ -46,8 +46,8 @@
 										<td>Text of benefit description</td>
 										<td><%= moment(benefit.get("availableUntil")).format("YYYY-MM-DD HH:MM:ss") %></td>
 										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="benefitEdit?id=<%= benefit.get("benefitId") %>&amp;account=id=<%= benefit.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
-											<a class="btn btn-secondary btn-sm" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+											<a class="btn btn-secondary btn-sm" href="/benefits/edit?benefitId=<%= benefit.get("benefitId") %>&amp;account=id=<%= benefit.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="/benefits/delete?benefitId=<%= benefit.get("benefitId") %>" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
 										</td>
 									</tr>
 									<% }) %>

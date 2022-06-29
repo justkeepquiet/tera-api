@@ -1,0 +1,79 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Add Server") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-secondary" title="" href="/servers"><i class="fa fa-chevron-left"></i> <%= __("Back to list") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="card card-block has-error">
+					<form id="form" method="POST" action="">
+						<%- include("partials/adminFormErrors", { errors }) %>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="serverId"><%= __("Server ID") %></label>
+								<input type="number" class="form-control boxed" name="serverId" value="<%= serverId %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="language"><%= __("Language code") %></label>
+								<input type="text" class="form-control boxed" name="language" value="<%= language %>">
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="loginIp"><%= __("Login IP") %></label>
+								<input type="text" class="form-control boxed" name="loginIp" value="<%= loginIp %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="loginPort"><%= __("Login port") %></label>
+								<input type="number" class="form-control boxed" name="loginPort" value="<%= loginPort %>">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="nameString"><%= __("Name string") %></label>
+							<input type="text" class="form-control boxed" name="nameString" value="<%= nameString %>">
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="descrString"><%= __("Description string") %></label>
+							<input type="text" class="form-control boxed" name="descrString" value="<%= descrString %>">
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="tresholdLow"><%= __("Treshold low") %></label>
+								<input type="number" class="form-control boxed" name="tresholdLow" value="<%= tresholdLow %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="tresholdMedium"><%= __("Treshold medium") %></label>
+								<input type="number" class="form-control boxed" name="tresholdMedium" value="<%= tresholdMedium %>">
+							</div>
+						</div>
+						<div class="form-group">
+							<label>
+								<input type="checkbox" class="checkbox" name="isPvE" <%= isPvE ? "checked=\"checked\"" : "" %>>
+								<span><%= __("Only PvE") %></span>
+							</label>
+							<label>
+								<input type="checkbox" class="checkbox" name="isCrowdness" <%= isCrowdness ? "checked=\"checked\"" : "" %>>
+								<span><%= __("Is crowdness") %></span>
+							</label>
+							<label>
+								<input type="checkbox" class="checkbox" name="isAvailable" <%= isAvailable ? "checked=\"checked\"" : "" %>>
+								<span><%= __("Is available") %></span>
+							</label>
+							<label>
+								<input type="checkbox" class="checkbox" name="isEnabled" <%= isEnabled ? "checked=\"checked\"" : "" %>>
+								<span><%= __("Is enabled") %></span>
+							</label>
+						</div>
+						<div class="form-group">
+							<button type="submit" class="btn btn-primary"><%= __("Add") %></button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

@@ -4,7 +4,7 @@
 		<h1 class="title"><%= __("Accounts") %></h1>
 	</div>
 	<section class="section">
-		<a class="btn btn-success" title="" href="accountAdd"><%= __("Create new account") %></a>
+		<a class="btn btn-success" title="" href="/accounts/add"><%= __("Create new account") %></a>
 	</section>
 	<section class="section">
 		<div class="row">
@@ -39,9 +39,9 @@
 										<td><%= moment(account.get("lastLoginTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
 										<td><%= account.get("lastLoginServer") %></td>
 										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="benefits?account=<%= account.get("accountDBID") %>"><i class="fa fa-tags"></i></a>
-											<a class="btn btn-secondary btn-sm" href="characters?account=<%= account.get("accountDBID") %>&amp;server=<%= account.get("lastLoginServer") %>"><i class="fa fa-user"></i></a>
-											<a class="btn btn-secondary btn-sm" href="accountEdit?id=<%= account.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="/benefits?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-tags"></i></a>
+											<a class="btn btn-secondary btn-sm" href="/characters?accountDBID=<%= account.get("accountDBID") %>&amp;serverId=<%= account.get("lastLoginServer") %>"><i class="fa fa-user"></i></a>
+											<a class="btn btn-secondary btn-sm" href="/accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
 											<a class="btn btn-secondary btn-sm" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
 										</td>
 									</tr>

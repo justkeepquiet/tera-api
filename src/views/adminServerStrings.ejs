@@ -4,7 +4,7 @@
 		<h1 class="title"><%= __("Server List Strings") %></h1>
 	</div>
 	<section class="section">
-		<a class="btn btn-success" title="" href="serverStringAdd"><%= __("Add new srtrings") %></a>
+		<a class="btn btn-success" title="" href="/server_strings/add"><%= __("Add new srtrings") %></a>
 	</section>
 	<section class="section">
 		<div class="row">
@@ -43,8 +43,8 @@
 										<td><%= string.get("crowdYes") %></td>
 										<td><%= string.get("popup") %></td>
 										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="serverStringsEdit?language=<%= string.get("language") %>"><i class="fa fa-pencil"></i></a>
-											<a class="btn btn-secondary btn-sm" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+											<a class="btn btn-secondary btn-sm" href="/server_strings/edit?language=<%= string.get("language") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="/server_strings/delete?language=<%= string.get("language") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 										</td>
 									</tr>
 									<% }) %>

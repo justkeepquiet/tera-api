@@ -57,6 +57,11 @@ module.exports = app => {
 	));
 
 	app.use((req, res, next) => {
+		res.locals.__quickMenu = require("../../config/admin").quickMenu;
+		next();
+	});
+
+	app.use((req, res, next) => {
 		req.steer = steer;
 		next();
 	});

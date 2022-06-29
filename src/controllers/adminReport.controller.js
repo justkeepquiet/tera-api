@@ -14,15 +14,15 @@ const reportHandler = (model, view) =>
 	*/
 	(req, res) => {
 		let { from, to } = req.query;
-		const { server, account } = req.query;
+		const { serverId, accountDBID } = req.query;
 
 		from = from ? moment(from) : moment().subtract(30, "days");
 		to = to ? moment(to) : moment();
 
 		model.findAll({
 			where: {
-				...(server ? { serverId: server } : {}),
-				...(account ? { accountDBID: account } : {}),
+				...(serverId ? { serverId } : {}),
+				...(accountDBID ? { accountDBID } : {}),
 				reportTime: {
 					[Op.gt]: from.format("YYYY-MM-DD HH:MM:ss"),
 					[Op.lt]: to.format("YYYY-MM-DD HH:MM:ss")
@@ -37,8 +37,8 @@ const reportHandler = (model, view) =>
 					reports,
 					from,
 					to,
-					server,
-					account
+					serverId,
+					accountDBID
 				});
 			})
 		).catch(err => {

@@ -4,7 +4,7 @@
 		{ icon: "fa-tasks", name: __("Maintenance"), page: "maintenance" },
 		{ icon: "fa-desktop", name: __("Servers"), elements: [
 				{ name: __("Servers List (SLS)"), page: "servers" },
-				{ name: __("Strings"), page: "serverStrings" }
+				{ name: __("Strings"), page: "server_strings" }
 			]
 		},
 		{ icon: "fa-users", name: __("Accounts"), elements: [
@@ -14,37 +14,36 @@
 			]
 		},
 		{ icon: "fa-book", name: __("Reports"), elements: [
-				{ name: __("Activity"), page: "reportActivity" },
-				{ name: __("Characters"), page: "reportCharacters" },
-				{ name: __("Cheats"), page: "reportCheats" },
-				{ name: __("Chronoscrolls"), page: "reportChronoscrolls" }
+				{ name: __("Activity"), page: "report_activity" },
+				{ name: __("Characters"), page: "report_characters" },
+				{ name: __("Cheats"), page: "report_cheats" },
+				{ name: __("Chronoscrolls"), page: "report_chronoscrolls" }
 			]
 		},
 		{ icon: "fa-shopping-cart", name: __("Shop"), elements: [
-				{ name: __("Accounts"), page: "shopAccounts" },
-				{ name: __("Categories"), page: "shopCategories" },
-				{ name: __("Category Strings"), page: "shopCategoryStrings" },
+				{ name: __("Accounts"), page: "shop_accounts" },
+				{ name: __("Categories"), page: "shop_categories" },
+				{ name: __("Category Strings"), page: "shop_category_strings" },
 				{ name: __("Products"), page: "shopProducts" },
-				{ name: __("Product Strings"), page: "shopProductStrings" },
-				{ name: __("Product Items"), page: "shopProductItems" }
+				{ name: __("Product Strings"), page: "shop_product_strings" },
+				{ name: __("Product Items"), page: "shop_product_items" }
 			]
 		},
 		{ icon: "fa-file-text", name: __("Shop Logs"), elements: [
-				{ name: __("Fund Logs"), page: "shopFundLogs" },
-				{ name: __("Pay Logs"), page: "shopPayLogs" }
+				{ name: __("Fund Logs"), page: "shop_fund_logs" },
+				{ name: __("Pay Logs"), page: "shop_pay_logs" }
 			]
 		},
 		{ icon: "fa-ticket", name: __("Promocodes"), elements: [
 				{ name: __("List"), page: "promocodes" },
-				{ name: __("Strings"), page: "promocodeStrings" },
-				{ name: __("Activated"), page: "promocodesActivated" }
+				{ name: __("Strings"), page: "promocode_strings" },
+				{ name: __("Activated"), page: "promocodes_activated" }
 			]
 		},
 		{ icon: "fa-gear", name: __("API Settings"), page: "settings" },
 	];
 
-	const page = __endpoint.replace(/^\//, "");
-
+	const page = __endpoint.split("/")[1];
  %>
 <aside class="sidebar">
 	<div class="sidebar-container">
@@ -61,11 +60,11 @@
 						<a href=""><i class="fa <%= root.icon %>"></i> <%= root.name %> <i class="fa arrow"></i></a>
 						<ul class="sidebar-nav">
 						<% root.elements.forEach(element => { %>
-							<li class="<%= element.page === page ? "active" : "" %>"><a href="<%= element.page %>"><%= element.name %></a></li>
+							<li class="<%= element.page === page ? "active" : "" %>"><a href="/<%= element.page %>"><%= element.name %></a></li>
 						<% }) %>
 						</ul></li>
 					<% } else { %>
-						<li class="<%= root.page === page ? "active" : "" %>"><a href="<%= root.page %>"><i class="fa <%= root.icon %>"></i> <%= root.name %></a></li>
+						<li class="<%= root.page === page ? "active" : "" %>"><a href="/<%= root.page %>"><i class="fa <%= root.icon %>"></i> <%= root.name %></a></li>
 					<% } %>
 				<% }) %>
 			</ul>

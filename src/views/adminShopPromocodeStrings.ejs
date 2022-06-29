@@ -6,14 +6,14 @@
 	<section class="section">
 		<form class="form-inline" action="" method="GET">
 			<div class="form-group">
-				<label for="promocode"><%= __("Promocode ID") %></label>
-				<input type="number" class="form-control boxed" name="promocode" value="<%= promocode %>">
+				<label for="promoCodeId"><%= __("Promocode ID") %></label>
+				<input type="number" class="form-control boxed" name="promoCodeId" value="<%= promoCodeId %>">
 			</div>
 			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
 		</form>
 	</section>
 	<section class="section">
-		<a class="btn btn-success" title="" href="promocodeStringAdd?promocode=<%= promocode %>"><%= __("Add new promocode string") %></a>
+		<a class="btn btn-success" title="" href="/promocode_strings/add?promoCodeId=<%= promoCodeId %>"><%= __("Add new promocode string") %></a>
 	</section>
 	<section class="section">
 		<div class="row">
@@ -42,8 +42,8 @@
 										<td><%= string.get("promoCode") %></td>
 										<td><%= string.get("description") %></td>
 										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="promocodeStringEdit?id=<%= string.get("id") %>"><i class="fa fa-pencil"></i></a>
-											<a class="btn btn-secondary btn-sm" href="#" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+											<a class="btn btn-secondary btn-sm" href="/promocode_strings/edit?id=<%= string.get("id") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="/promocode_strings/delete?id=<%= string.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 										</td>
 									</tr>
 									<% }) %>

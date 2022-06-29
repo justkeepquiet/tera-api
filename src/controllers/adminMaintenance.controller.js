@@ -1,7 +1,6 @@
 "use strict";
 
 const expressLayouts = require("express-ejs-layouts");
-const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
 const logger = require("../utils/logger");
@@ -9,53 +8,7 @@ const helpers = require("../utils/helpers");
 const accountModel = require("../models/account.model");
 const { i18n, i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-/**
- * Servers
- */
-module.exports.servers = [
-	i18nHandler,
-	accessFunctionHandler(),
-	expressLayouts,
-	/**
-	 * @type {import("express").RequestHandler}
-	 */
-	(req, res) => {
-		accountModel.serverInfo.findAll().then(servers => {
-			res.render("adminServers", {
-				layout: "adminLayout",
-				servers
-			});
-		}).catch(err => {
-			logger.error(err.toString());
-			res.render("adminError", { layout: "adminLayout", err });
-		});
-	}
-];
-
-module.exports.serverStrings = [
-	i18nHandler,
-	accessFunctionHandler(),
-	expressLayouts,
-	/**
-	 * @type {import("express").RequestHandler}
-	 */
-	(req, res) => {
-		accountModel.serverStrings.findAll().then(strings => {
-			res.render("adminServerStrings", {
-				layout: "adminLayout",
-				strings
-			});
-		}).catch(err => {
-			logger.error(err.toString());
-			res.render("adminError", { layout: "adminLayout", err });
-		});
-	}
-];
-
-/**
- * Maintenance
- */
-module.exports.maintenance = [
+module.exports.index = [
 	i18nHandler,
 	accessFunctionHandler(),
 	expressLayouts,
@@ -64,7 +17,7 @@ module.exports.maintenance = [
 	 */
 	(req, res) => {
 		accountModel.maintenance.findAll().then(maintenances => {
-			res.render("adminServerMaintenance", {
+			res.render("adminMaintenance", {
 				layout: "adminLayout",
 				maintenances,
 				moment
@@ -76,7 +29,7 @@ module.exports.maintenance = [
 	}
 ];
 
-module.exports.maintenanceAdd = [
+module.exports.add = [
 	i18nHandler,
 	accessFunctionHandler(),
 	expressLayouts,
@@ -84,7 +37,7 @@ module.exports.maintenanceAdd = [
 	 * @type {import("express").RequestHandler}
 	 */
 	(req, res) => {
-		res.render("adminServerMaintenanceAdd", {
+		res.render("adminMaintenanceAdd", {
 			layout: "adminLayout",
 			errors: null,
 			startTime: moment(),
@@ -94,7 +47,7 @@ module.exports.maintenanceAdd = [
 	}
 ];
 
-module.exports.maintenanceAddAction = [
+module.exports.addAction = [
 	i18nHandler,
 	accessFunctionHandler(),
 	expressLayouts,
@@ -114,7 +67,7 @@ module.exports.maintenanceAddAction = [
 		const errors = helpers.validationResultLog(req);
 
 		if (!errors.isEmpty()) {
-			return res.render("adminServerMaintenanceAdd", {
+			return res.render("adminMaintenanceAdd", {
 				layout: "adminLayout",
 				errors: errors.array(),
 				startTime: moment(startTime),
@@ -128,7 +81,7 @@ module.exports.maintenanceAddAction = [
 			endTime: moment(endTime).format("YYYY-MM-DD HH:MM:ss"),
 			description
 		}).then(() =>
-			res.redirect("maintenance")
+			res.redirect("/maintenance")
 		).catch(err => {
 			logger.error(err.toString());
 			res.render("adminError", { layout: "adminLayout", err });
@@ -136,7 +89,7 @@ module.exports.maintenanceAddAction = [
 	}
 ];
 
-module.exports.maintenanceEdit = [
+module.exports.edit = [
 	i18nHandler,
 	accessFunctionHandler(),
 	expressLayouts,
@@ -148,10 +101,10 @@ module.exports.maintenanceEdit = [
 
 		accountModel.maintenance.findOne({ where: { id } }).then(data => {
 			if (data === null) {
-				return res.redirect("maintenance");
+				return res.redirect("/maintenance");
 			}
 
-			res.render("adminServerMaintenanceEdit", {
+			res.render("adminMaintenanceEdit", {
 				layout: "adminLayout",
 				errors: null,
 				startTime: moment(data.get("startTime")),
@@ -166,7 +119,7 @@ module.exports.maintenanceEdit = [
 	}
 ];
 
-module.exports.maintenanceEditAction = [
+module.exports.editAction = [
 	i18nHandler,
 	accessFunctionHandler(),
 	expressLayouts,
@@ -187,7 +140,7 @@ module.exports.maintenanceEditAction = [
 		const errors = helpers.validationResultLog(req);
 
 		if (!errors.isEmpty()) {
-			return res.render("adminServerMaintenanceEdit", {
+			return res.render("adminMaintenanceEdit", {
 				layout: "adminLayout",
 				errors: errors.array(),
 				startTime: moment(startTime),
@@ -204,7 +157,7 @@ module.exports.maintenanceEditAction = [
 		}, {
 			where: { id }
 		}).then(() =>
-			res.redirect("maintenance")
+			res.redirect("/maintenance")
 		).catch(err => {
 			logger.error(err.toString());
 			res.render("adminError", { layout: "adminLayout", err });
@@ -212,7 +165,7 @@ module.exports.maintenanceEditAction = [
 	}
 ];
 
-module.exports.maintenanceDeleteAction = [
+module.exports.deleteAction = [
 	i18nHandler,
 	accessFunctionHandler(),
 	expressLayouts,
@@ -223,7 +176,7 @@ module.exports.maintenanceDeleteAction = [
 		const { id } = req.query;
 
 		accountModel.maintenance.destroy({ where: { id } }).then(() =>
-			res.redirect("maintenance")
+			res.redirect("/maintenance")
 		).catch(err => {
 			logger.error(err.toString());
 			res.render("adminError", { layout: "adminLayout", err });
