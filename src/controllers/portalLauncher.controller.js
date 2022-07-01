@@ -194,25 +194,12 @@ module.exports.SignupAction = [
 	(req, res) => {
 		const handler = async () => {
 			const { login, password, email } = req.body;
-			const initialBenefits = new Map();
 			const authKey = uuid.v4();
 			let passwordString = password;
 
 			if (/^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWORDS)) {
 				passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
 			}
-
-			Object.keys(process.env).forEach(key => {
-				const found = key.match(/API_PORTAL_INITIAL_BENEFIT_ID_(\d+)_DAYS$/);
-
-				if (found) {
-					const days = Number(process.env[key]);
-
-					if (days > 0) {
-						initialBenefits.set(found[1], Math.min(days, 3600));
-					}
-				}
-			});
 
 			accountModel.sequelize.transaction(transaction =>
 				accountModel.info.create({
@@ -223,7 +210,7 @@ module.exports.SignupAction = [
 				}, { transaction }).then(account => {
 					const promises = [];
 
-					initialBenefits.forEach((benefitDays, benefitId) => {
+					helpers.getInitialBenefits().forEach((benefitDays, benefitId) => {
 						promises.push(accountModel.benefits.create({
 							accountDBID: account.get("accountDBID"),
 							benefitId: benefitId,

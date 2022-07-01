@@ -1,0 +1,85 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Edit Account") %> ID <%= accountDBID %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-secondary" title="" href="/accounts"><i class="fa fa-chevron-left"></i> <%= __("Back to list") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="card card-block">
+					<form id="form" method="POST" action="">
+						<%- include("partials/adminFormErrors", { errors }) %>
+						<div class="form-group">
+							<label class="control-label" for="userName"><%= __("Name") %></label>
+							<input type="text" class="form-control boxed" name="userName" value="<%= userName %>">
+						</div>
+						<div class="form-group">
+						<% if (encryptPasswords) { %>
+							<label class="control-label" for="passWord"><%= __("Change password") %></label>
+							<input type="text" class="form-control boxed" name="passWord" value="" placeholder="enter a new password to change">
+						<% } else { %>
+							<label class="control-label" for="passWord"><%= __("Password") %></label>
+							<input type="text" class="form-control boxed" name="passWord" value="<%= passWord %>">
+						<% } %>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="email"><%= __("Email") %></label>
+							<input type="email" class="form-control boxed" name="email" value="<%= email %>">
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="permission"><%= __("Permission") %></label>
+								<input type="number" class="form-control boxed" name="permission" value="<%= permission %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="privilege"><%= __("Privilege") %></label>
+								<input type="number" class="form-control boxed" name="privilege" value="<%= privilege %>">
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label>
+									<button type="button" class="btn btn-secondary" id="set-ban"><i class="fa fa-ban"></i> <%= __("Ban account") %></button>
+								</label>
+								<label>
+									<button type="button" class="btn btn-secondary" id="unset-ban"><i class="fa fa-check-circle"></i> <%= __("Unban account") %></button>
+								</label>
+							</div>
+							<div class="col-sm-6">
+								<label>
+									<button type="button" class="btn btn-secondary" id="set-gm"><i class="fa fa-cog"></i> <%= __("Set GM") %></button>
+								</label>
+								<label>
+									<button type="button" class="btn btn-secondary" id="unset-gm"><i class="fa fa-refresh"></i> <%= __("Unset GM") %></button>
+								</label>
+							</div>
+						</div>
+						<div class="form-group">
+							<button type="submit" class="btn btn-primary"><%= __("Save") %></button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>
+<%- contentFor("scripts") %>
+<script>
+	$(function() {
+		$("#set-ban").click(function() {
+			$("input[name='permission']").val("1");
+		});
+		$("#unset-ban").click(function() {
+			$("input[name='permission']").val("0");
+		});
+		$("#set-gm").click(function() {
+			$("input[name='privilege']").val("33");
+		});
+		$("#unset-gm").click(function() {
+			$("input[name='privilege']").val("0");
+		});
+	});
+</script>

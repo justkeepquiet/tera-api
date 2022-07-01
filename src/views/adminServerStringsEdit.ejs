@@ -1,0 +1,73 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Edit Server Strings") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-secondary" title="" href="/server_strings"><i class="fa fa-chevron-left"></i> <%= __("Back to list") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="card card-block">
+					<form id="form" method="POST" action="">
+						<%- include("partials/adminFormErrors", { errors }) %>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="language"><%= __("Language") %></label>
+								<input type="text" class="form-control boxed" name="language" value="<%= language %>" disabled>
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="categoryPvE"><%= __("Category PvE") %></label>
+								<input type="text" class="form-control boxed" name="categoryPvE" value="<%= categoryPvE %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="categoryPvP"><%= __("Category PvP") %></label>
+								<input type="text" class="form-control boxed" name="categoryPvP" value="<%= categoryPvP %>">
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="serverOffline"><%= __("Server offline") %></label>
+								<input type="text" class="form-control boxed" name="serverOffline" value="<%= serverOffline %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="serverLow"><%= __("Server low") %></label>
+								<input type="text" class="form-control boxed" name="serverLow" value="<%= serverLow %>">
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="serverMedium"><%= __("Server medium") %></label>
+								<input type="text" class="form-control boxed" name="serverMedium" value="<%= serverMedium %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="serverHigh"><%= __("Server high") %></label>
+								<input type="text" class="form-control boxed" name="serverHigh" value="<%= serverHigh %>">
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="crowdNo"><%= __("Crowdness No") %></label>
+								<input type="text" class="form-control boxed" name="crowdNo" value="<%= crowdNo %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="crowdYes"><%= __("Crowdness Yes") %></label>
+								<input type="text" class="form-control boxed" name="crowdYes" value="<%= crowdYes %>">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="popup"><%= __("Popup") %></label>
+							<textarea class="form-control boxed" name="popup"><%= popup %></textarea>
+						</div>
+						<div class="form-group">
+							<button type="submit" class="btn btn-primary"><%= __("Save") %></button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

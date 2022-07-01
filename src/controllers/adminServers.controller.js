@@ -65,8 +65,8 @@ module.exports.addAction = [
 				where: {
 					serverId: req.body.serverId
 				}
-			}).then(user => {
-				if (user) {
+			}).then(data => {
+				if (data) {
 					return Promise.reject(i18n.__("Server ID contains an existing server ID."));
 				}
 			})),
@@ -74,7 +74,7 @@ module.exports.addAction = [
 			.isIP().withMessage(i18n.__("Login IP must contain a valid IP value.")),
 		body("loginPort")
 			.isPort().withMessage(i18n.__("Login port must contain a valid port value.")),
-		body("language").trim()
+		body("language").trim().toLowerCase()
 			.isAlpha().withMessage(i18n.__("Language must be a valid value."))
 			.isLength({ min: 2, max: 3 }).withMessage(i18n.__("Language must be between 2 and 3 characters.")),
 		body("nameString").trim()
@@ -190,7 +190,7 @@ module.exports.editAction = [
 			.isIP().withMessage(i18n.__("Login IP must contain a valid IP value.")),
 		body("loginPort")
 			.isPort().withMessage(i18n.__("Login port must contain a valid port value.")),
-		body("language").trim()
+		body("language").trim().toLowerCase()
 			.isAlpha().withMessage(i18n.__("Language must be a valid value."))
 			.isLength({ min: 2, max: 3 }).withMessage(i18n.__("Language must be between 2 and 3 characters.")),
 		body("nameString").trim()
@@ -219,8 +219,12 @@ module.exports.editAction = [
 			tresholdLow, tresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
 		const errors = helpers.validationResultLog(req);
 
+		if (!serverId) {
+			return res.redirect("/servers");
+		}
+
 		if (!errors.isEmpty()) {
-			return res.render("adminServersAdd", {
+			return res.render("adminServersEdit", {
 				layout: "adminLayout",
 				errors: errors.array(),
 				serverId,
@@ -270,6 +274,10 @@ module.exports.deleteAction = [
 	 */
 	(req, res) => {
 		const { serverId } = req.query;
+
+		if (!serverId) {
+			return res.redirect("/servers");
+		}
 
 		accountModel.serverInfo.destroy({ where: { serverId } }).then(() =>
 			res.redirect("/servers")

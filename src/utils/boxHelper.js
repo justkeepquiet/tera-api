@@ -1,8 +1,8 @@
 "use strict";
 
 const moment = require("moment-timezone");
-const logger = require("../utils/logger");
-const fcgiHttpHelper = require("../utils/fcgiHttpHelper");
+const logger = require("./logger");
+const fcgiHttpHelper = require("./fcgiHttpHelper");
 
 module.exports.makeBox = (context, logId, serverId, userId, characterId = 0) =>
 	fcgiHttpHelper.post(["make_box.json"], {

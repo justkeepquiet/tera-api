@@ -295,8 +295,8 @@ var modalMedia = {
 */
 
 $(function() {
-	$("#confirm-modal").on("show.bs.modal", function(event) {
-		$("#confirm-modal #modal-yes").click(function() {
+	$("#confirm-modal, #confirm-del-modal").on("show.bs.modal", function(event) {
+		$(this).find(".modal-yes").click(function() {
 			window.location.href = $(event.relatedTarget).attr("href");
 		});
 	});

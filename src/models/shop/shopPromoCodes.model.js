@@ -12,7 +12,7 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("shop_promocodes", {
 		promoCodeId: {
-			type: DataTypes.DATE,
+			type: DataTypes.INTEGER,
 			primaryKey: true,
 			autoIncrement: true
 		},

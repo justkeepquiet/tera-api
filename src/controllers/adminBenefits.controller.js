@@ -3,9 +3,14 @@
 const expressLayouts = require("express-ejs-layouts");
 const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
+const { query, body } = require("express-validator");
 const logger = require("../utils/logger");
+const helpers = require("../utils/helpers");
+const datasheets = require("../utils/datasheets");
 const accountModel = require("../models/account.model");
-const { i18nHandler, validationHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
+const { i18n, i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
+
+const accountBenefits = datasheets.accountBenefits[i18n.getLocale()] || new Map();
 
 module.exports.index = [
 	i18nHandler,
@@ -35,6 +40,7 @@ module.exports.index = [
 				layout: "adminLayout",
 				benefits,
 				moment,
+				accountBenefits,
 				accountDBID
 			});
 		}).catch(err => {
@@ -44,8 +50,184 @@ module.exports.index = [
 	}
 ];
 
-module.exports.add = [];
-module.exports.addAction = [];
-module.exports.edit = [];
-module.exports.editAction = [];
-module.exports.deleteAction = [];
+module.exports.add = [
+	i18nHandler,
+	accessFunctionHandler(),
+	expressLayouts,
+	[
+		query("accountDBID").trim().optional()
+			.isNumeric().withMessage(i18n.__("Account ID must contain a valid number."))
+	],
+	/**
+	 * @type {import("express").RequestHandler}
+	 */
+	(req, res) => {
+		const { accountDBID } = req.query;
+
+		res.render("adminBenefitsAdd", {
+			layout: "adminLayout",
+			errors: null,
+			moment,
+			accountBenefits,
+			accountDBID,
+			benefitId: "",
+			availableUntil: moment().add(30, "days")
+		});
+	}
+];
+
+module.exports.addAction = [
+	i18nHandler,
+	accessFunctionHandler(),
+	expressLayouts,
+	[
+		body("accountDBID").trim()
+			.isNumeric().withMessage(i18n.__("Account ID must contain a valid number."))
+			.custom((value, { req }) => accountModel.info.findOne({
+				where: {
+					accountDBID: req.body.accountDBID
+				}
+			}).then(data => {
+				if (req.body.accountDBID && data === null) {
+					return Promise.reject(i18n.__("Account ID contains not existing account ID."));
+				}
+			})),
+		body("benefitId").trim()
+			.isNumeric().withMessage(i18n.__("Benefit ID must contain a valid number.")),
+		body("availableUntil").trim()
+			.isISO8601().withMessage("Available until must contain a valid date.")
+	],
+	/**
+	 * @type {import("express").RequestHandler}
+	 */
+	(req, res) => {
+		const { accountDBID, benefitId, availableUntil } = req.body;
+		const errors = helpers.validationResultLog(req);
+
+		if (!errors.isEmpty()) {
+			return res.render("adminBenefitsAdd", {
+				layout: "adminLayout",
+				errors: errors.array(),
+				moment,
+				accountBenefits,
+				accountDBID,
+				benefitId,
+				availableUntil: moment(availableUntil)
+			});
+		}
+
+		accountModel.benefits.create({
+			accountDBID,
+			benefitId,
+			availableUntil: moment(availableUntil).format("YYYY-MM-DD HH:MM:ss")
+		}).then(() =>
+			res.redirect(`/benefits?accountDBID=${accountDBID}`)
+		).catch(err => {
+			logger.error(err.toString());
+			res.render("adminError", { layout: "adminLayout", err });
+		});
+	}
+];
+
+module.exports.edit = [
+	i18nHandler,
+	accessFunctionHandler(),
+	expressLayouts,
+	/**
+	 * @type {import("express").RequestHandler}
+	 */
+	(req, res) => {
+		const { accountDBID, benefitId } = req.query;
+
+		if (!accountDBID || !benefitId) {
+			return res.redirect("/benefits");
+		}
+
+		accountModel.benefits.findOne({
+			where: { benefitId, accountDBID }
+		}).then(data => {
+			if (data === null) {
+				return res.redirect(`/benefits?accountDBID=${accountDBID}`);
+			}
+
+			res.render("adminBenefitsEdit", {
+				layout: "adminLayout",
+				errors: null,
+				moment,
+				accountBenefits,
+				accountDBID: data.get("accountDBID"),
+				benefitId: data.get("benefitId"),
+				availableUntil: moment(data.get("availableUntil"))
+			});
+		}).catch(err => {
+			logger.error(err.toString());
+			res.render("adminError", { layout: "adminLayout", err });
+		});
+	}
+];
+
+module.exports.editAction = [
+	i18nHandler,
+	accessFunctionHandler(),
+	expressLayouts,
+	[
+		body("availableUntil").trim()
+			.isISO8601().withMessage("Available until must contain a valid date.")
+	],
+	/**
+	 * @type {import("express").RequestHandler}
+	 */
+	(req, res) => {
+		const { accountDBID, benefitId } = req.query;
+		const { availableUntil } = req.body;
+		const errors = helpers.validationResultLog(req);
+
+		if (!accountDBID || !benefitId) {
+			return res.redirect("/benefits");
+		}
+
+		if (!errors.isEmpty()) {
+			return res.render("adminBenefitsEdit", {
+				layout: "adminLayout",
+				errors: errors.array(),
+				moment,
+				accountDBID,
+				benefitId,
+				availableUntil
+			});
+		}
+
+		accountModel.benefits.update({
+			availableUntil
+		}, {
+			where: { benefitId, accountDBID }
+		}).then(() =>
+			res.redirect(`/benefits?accountDBID=${accountDBID}`)
+		).catch(err => {
+			logger.error(err.toString());
+			res.render("adminError", { layout: "adminLayout", err });
+		});
+	}
+];
+module.exports.deleteAction = [
+	i18nHandler,
+	accessFunctionHandler(),
+	expressLayouts,
+	/**
+	 * @type {import("express").RequestHandler}
+	 */
+	(req, res) => {
+		const { accountDBID, benefitId } = req.query;
+
+		if (!accountDBID || !benefitId) {
+			return res.redirect("/benefits");
+		}
+
+		accountModel.benefits.destroy({ where: { benefitId, accountDBID } }).then(() =>
+			res.redirect(`/benefits?accountDBID=${accountDBID}`)
+		).catch(err => {
+			logger.error(err.toString());
+			res.render("adminError", { layout: "adminLayout", err });
+		});
+	}
+];

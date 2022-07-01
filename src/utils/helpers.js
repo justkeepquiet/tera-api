@@ -19,6 +19,24 @@ module.exports.chainPromise = (functions, index = 0) => {
 	}
 };
 
+module.exports.getInitialBenefits = () => {
+	const initialBenefits = new Map();
+
+	Object.keys(process.env).forEach(key => {
+		const found = key.match(/API_PORTAL_INITIAL_BENEFIT_ID_(\d+)_DAYS$/);
+
+		if (found) {
+			const days = Number(process.env[key]);
+
+			if (days > 0) {
+				initialBenefits.set(found[1], Math.min(days, 3600));
+			}
+		}
+	});
+
+	return initialBenefits;
+};
+
 /**
 * @param {Model[]} characters
 * @param {Number} lastLoginServer

@@ -32,7 +32,7 @@
 								<tbody>
 									<% servers.forEach(servers => { %>
 									<tr>
-										<td><a href="/servers/view?serverId=<%= servers.get("serverId") %>"><%= servers.get("serverId") %></a></td>
+										<td><%= servers.get("serverId") %></td>
 										<td><%= servers.get("loginIp") %>:<%= servers.get("loginPort") %></td>
 										<td><%= servers.get("nameString") %></td>
 										<td><%= servers.get("language") %></td>

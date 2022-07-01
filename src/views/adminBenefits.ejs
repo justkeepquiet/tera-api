@@ -43,11 +43,11 @@
 									<tr>
 										<td><%= benefit.get("accountDBID") %></td>
 										<td><%= benefit.get("benefitId") %></td>
-										<td>Text of benefit description</td>
+										<td><%= accountBenefits.get(benefit.get("benefitId")) || "-" %></td>
 										<td><%= moment(benefit.get("availableUntil")).format("YYYY-MM-DD HH:MM:ss") %></td>
 										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="/benefits/edit?benefitId=<%= benefit.get("benefitId") %>&amp;account=id=<%= benefit.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
-											<a class="btn btn-secondary btn-sm" href="/benefits/delete?benefitId=<%= benefit.get("benefitId") %>" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+											<a class="btn btn-secondary btn-sm" href="/benefits/edit?benefitId=<%= benefit.get("benefitId") %>&amp;accountDBID=<%= benefit.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="/benefits/delete?benefitId=<%= benefit.get("benefitId") %>&amp;accountDBID=<%= benefit.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 										</td>
 									</tr>
 									<% }) %>

@@ -1,7 +1,7 @@
 <%- contentFor("content") %>
 <article class="content">
 	<div class="title-block">
-		<h1 class="title"><%= __("Edit Server Maintenance Plan") %> #<%= id %></h1>
+		<h1 class="title"><%= __("Edit Server Maintenance Plan") %> ID <%= id %></h1>
 	</div>
 	<section class="section">
 		<a class="btn btn-secondary" title="" href="/maintenance"><i class="fa fa-chevron-left"></i> <%= __("Back to list") %></a>
@@ -9,7 +9,7 @@
 	<section class="section">
 		<div class="row">
 			<div class="col-md-6">
-				<div class="card card-block has-error">
+				<div class="card card-block">
 					<form id="form" method="POST" action="">
 						<%- include("partials/adminFormErrors", { errors }) %>
 						<div class="form-group row">

@@ -99,6 +99,10 @@ module.exports.edit = [
 	(req, res) => {
 		const { id } = req.query;
 
+		if (!id) {
+			return res.redirect("/maintenance");
+		}
+
 		accountModel.maintenance.findOne({ where: { id } }).then(data => {
 			if (data === null) {
 				return res.redirect("/maintenance");
@@ -139,6 +143,10 @@ module.exports.editAction = [
 		const { startTime, endTime, description } = req.body;
 		const errors = helpers.validationResultLog(req);
 
+		if (!id) {
+			return res.redirect("/maintenance");
+		}
+
 		if (!errors.isEmpty()) {
 			return res.render("adminMaintenanceEdit", {
 				layout: "adminLayout",
@@ -174,6 +182,10 @@ module.exports.deleteAction = [
 	 */
 	(req, res) => {
 		const { id } = req.query;
+
+		if (!id) {
+			return res.redirect("/maintenance");
+		}
 
 		accountModel.maintenance.destroy({ where: { id } }).then(() =>
 			res.redirect("/maintenance")
