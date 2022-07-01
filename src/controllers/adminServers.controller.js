@@ -60,31 +60,31 @@ module.exports.addAction = [
 	expressLayouts,
 	[
 		body("serverId")
-			.isNumeric().withMessage("Server ID must contain the value as a number.")
+			.isInt({ min: 0 }).withMessage("Server ID field must contain the value as a number.")
 			.custom((value, { req }) => accountModel.serverInfo.findOne({
 				where: {
 					serverId: req.body.serverId
 				}
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("Server ID contains an existing server ID."));
+					return Promise.reject(i18n.__("Server ID field contains an existing server ID."));
 				}
 			})),
 		body("loginIp").trim()
-			.isIP().withMessage(i18n.__("Login IP must contain a valid IP value.")),
+			.isIP().withMessage(i18n.__("Login IP field must contain a valid IP value.")),
 		body("loginPort")
-			.isPort().withMessage(i18n.__("Login port must contain a valid port value.")),
+			.isPort().withMessage(i18n.__("Login port field must contain a valid port value.")),
 		body("language").trim().toLowerCase()
-			.isAlpha().withMessage(i18n.__("Language must be a valid value."))
-			.isLength({ min: 2, max: 3 }).withMessage(i18n.__("Language must be between 2 and 3 characters.")),
+			.isAlpha().withMessage(i18n.__("Language field must be a valid value."))
+			.isLength({ min: 2, max: 3 }).withMessage(i18n.__("Language field must be between 2 and 3 characters.")),
 		body("nameString").trim()
-			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string must be between 1 and 256 characters.")),
+			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
 		body("descrString").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description string must be between 1 and 1024 characters.")),
+			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field string must be between 1 and 1024 characters.")),
 		body("tresholdLow").trim()
-			.isNumeric().withMessage(i18n.__("Treshold low must contain the value as a number.")),
+			.isInt({ min: 0 }).withMessage(i18n.__("Treshold low field must contain the value as a number.")),
 		body("tresholdMedium").trim()
-			.isNumeric().withMessage(i18n.__("Treshold medium must contain the value as a number.")),
+			.isInt({ min: 0 }).withMessage(i18n.__("Treshold medium field must contain the value as a number.")),
 		body("isPvE").optional()
 			.isIn(["on"]).withMessage(i18n.__("Only PvE field has invalid value.")),
 		body("isCrowdness").optional()
@@ -187,20 +187,20 @@ module.exports.editAction = [
 	expressLayouts,
 	[
 		body("loginIp").trim()
-			.isIP().withMessage(i18n.__("Login IP must contain a valid IP value.")),
+			.isIP().withMessage(i18n.__("Login IP field must contain a valid IP value.")),
 		body("loginPort")
-			.isPort().withMessage(i18n.__("Login port must contain a valid port value.")),
+			.isPort().withMessage(i18n.__("Login port field must contain a valid port value.")),
 		body("language").trim().toLowerCase()
-			.isAlpha().withMessage(i18n.__("Language must be a valid value."))
-			.isLength({ min: 2, max: 3 }).withMessage(i18n.__("Language must be between 2 and 3 characters.")),
+			.isAlpha().withMessage(i18n.__("Language field must be a valid value."))
+			.isLength({ min: 2, max: 3 }).withMessage(i18n.__("Language field must be between 2 and 3 characters.")),
 		body("nameString").trim()
-			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string must be between 1 and 256 characters.")),
+			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
 		body("descrString").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description string must be between 1 and 1024 characters.")),
+			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description string field must be between 1 and 1024 characters.")),
 		body("tresholdLow").trim()
-			.isNumeric().withMessage(i18n.__("Treshold low must contain the value as a number.")),
+			.isInt({ min: 0 }).withMessage(i18n.__("Treshold low field must contain the value as a number.")),
 		body("tresholdMedium").trim()
-			.isNumeric().withMessage(i18n.__("Treshold medium must contain the value as a number.")),
+			.isInt({ min: 0 }).withMessage(i18n.__("Treshold medium field must contain the value as a number.")),
 		body("isPvE").optional()
 			.isIn(["on"]).withMessage(i18n.__("Only PvE field has invalid value.")),
 		body("isCrowdness").optional()

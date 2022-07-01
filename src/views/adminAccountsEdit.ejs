@@ -42,18 +42,21 @@
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label>
-									<button type="button" class="btn btn-secondary" id="set-ban"><i class="fa fa-ban"></i> <%= __("Ban account") %></button>
+									<button type="button" class="btn btn-secondary" id="permission-ban"><i class="fa fa-ban"></i> <%= __("Ban account") %></button>
 								</label>
 								<label>
-									<button type="button" class="btn btn-secondary" id="unset-ban"><i class="fa fa-check-circle"></i> <%= __("Unban account") %></button>
+									<button type="button" class="btn btn-secondary" id="permission-reset"><i class="fa fa-refresh"></i> <%= __("Reset") %></button>
 								</label>
 							</div>
 							<div class="col-sm-6">
 								<label>
-									<button type="button" class="btn btn-secondary" id="set-gm"><i class="fa fa-cog"></i> <%= __("Set GM") %></button>
+									<button type="button" class="btn btn-secondary" id="privilege-gm"><i class="fa fa-cog"></i> <%= __("Set GM") %></button>
 								</label>
 								<label>
-									<button type="button" class="btn btn-secondary" id="unset-gm"><i class="fa fa-refresh"></i> <%= __("Unset GM") %></button>
+									<button type="button" class="btn btn-secondary" id="privilege-qa"><i class="fa fa-wrench"></i> <%= __("Set QA") %></button>
+								</label>
+								<label>
+									<button type="button" class="btn btn-secondary" id="privilege-reset"><i class="fa fa-refresh"></i> <%= __("Reset") %></button>
 								</label>
 							</div>
 						</div>
@@ -69,16 +72,19 @@
 <%- contentFor("scripts") %>
 <script>
 	$(function() {
-		$("#set-ban").click(function() {
+		$("#permission-ban").click(function() {
 			$("input[name='permission']").val("1");
 		});
-		$("#unset-ban").click(function() {
+		$("#permission-reset").click(function() {
 			$("input[name='permission']").val("0");
 		});
-		$("#set-gm").click(function() {
+		$("#privilege-gm").click(function() {
 			$("input[name='privilege']").val("33");
 		});
-		$("#unset-gm").click(function() {
+		$("#privilege-qa").click(function() {
+			$("input[name='privilege']").val("<%= process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE %>");
+		});
+		$("#privilege-reset").click(function() {
 			$("input[name='privilege']").val("0");
 		});
 	});

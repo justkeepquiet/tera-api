@@ -198,12 +198,18 @@ $(function() {
 			{ orderable: false, targets: -1 }
 		]
 	}));
+	$(".data-table-desc-nosort").DataTable($.extend({}, dataTablesSettings, {
+		order: [[0, "desc"]],
+		columnDefs: [
+			{ orderable: false, targets: -1 }
+		]
+	}));
 
 	$("#sidebar-menu a").on("click", function() {
-		$(".data-table, .data-table-desc, .data-table-nosort").DataTable().state.clear();
+		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort").DataTable().state.clear();
 	});
 	$("form").on("submit", function() {
-		$(".data-table, .data-table-desc, .data-table-nosort").DataTable().state.clear();
+		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort").DataTable().state.clear();
 	});
 });
 

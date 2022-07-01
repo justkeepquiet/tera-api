@@ -4,7 +4,6 @@ const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
 const I18n = require("i18n").I18n;
-const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
 const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
@@ -67,7 +66,7 @@ module.exports.add = [
 			aFunction: "",
 			validAfter: moment(),
 			validBefore: moment().add(365, "days"),
-			active: "on",
+			active: 1,
 			description: []
 		});
 	}
@@ -79,27 +78,27 @@ module.exports.addAction = [
 	expressLayouts,
 	[
 		body("promoCode")
-			.isLength({ min: 6, max: 16 }).withMessage("Promocode must be between 6 and 16 characters.")
+			.isLength({ min: 6, max: 16 }).withMessage("Promocode field must be between 6 and 16 characters.")
 			.custom((value, { req }) => shopModel.promoCodes.findOne({
 				where: {
 					promoCode: req.body.promoCode
 				}
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("Promocode contains an existing promocode."));
+					return Promise.reject(i18n.__("Promocode field contains an existing promocode."));
 				}
 			})),
 		body("aFunction")
 			.custom(value => promocodeFunctions.includes(value))
-			.withMessage(i18n.__("Assigned function contains invalid function.")),
+			.withMessage(i18n.__("Assigned function field contains invalid function.")),
 		body("validAfter")
-			.isISO8601().withMessage(i18n.__("Valid from must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("Valid from field must contain a valid date.")),
 		body("validBefore")
-			.isISO8601().withMessage(i18n.__("Valid to must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("Valid to field must contain a valid date.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
 		body("description.*")
-			.isLength({ min: 1, max: 2048 }).withMessage("Description must be between 1 and 2048 characters.")
+			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Description must be between 1 and 2048 characters."))
 	],
 	/**
 	 * @type {import("express").RequestHandler}
@@ -170,6 +169,10 @@ module.exports.edit = [
 	(req, res) => {
 		const { promoCodeId } = req.query;
 
+		if (!promoCodeId) {
+			return res.redirect("/promocodes");
+		}
+
 		shopModel.promoCodes.findOne({
 			where: { promoCodeId }
 		}).then(promocode => {
@@ -216,15 +219,15 @@ module.exports.editAction = [
 	[
 		body("aFunction")
 			.custom(value => promocodeFunctions.includes(value))
-			.withMessage(i18n.__("Assigned function contains invalid function.")),
+			.withMessage(i18n.__("Assigned function field contains invalid function.")),
 		body("validAfter")
-			.isISO8601().withMessage(i18n.__("Valid from must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("Valid from field must contain a valid date.")),
 		body("validBefore")
-			.isISO8601().withMessage(i18n.__("Valid to must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("Valid to field must contain a valid date.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
 		body("description.*")
-			.isLength({ min: 1, max: 2048 }).withMessage("Description must be between 1 and 2048 characters.")
+			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Description field must be between 1 and 2048 characters."))
 	],
 	/**
 	 * @type {import("express").RequestHandler}

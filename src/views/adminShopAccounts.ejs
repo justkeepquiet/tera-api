@@ -46,7 +46,7 @@
 										<td><%= moment(account.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
 										<td class="text-right">
 											<a class="btn btn-secondary btn-sm" href="/shop_accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
-											<a class="btn btn-secondary btn-sm" href="/shop_accounts/delete?accountDBID=<%= account.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-modal"><i class="fa fa-trash-o "></i></a>
+											<a class="btn btn-secondary btn-sm" href="/shop_accounts/delete?accountDBID=<%= account.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 										</td>
 									</tr>
 									<% }) %>

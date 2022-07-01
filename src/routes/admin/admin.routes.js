@@ -10,8 +10,7 @@ const adminAccountsController = require("../../controllers/adminAccounts.control
 const adminBenefitsController = require("../../controllers/adminBenefits.controller");
 const adminReportController = require("../../controllers/adminReport.controller");
 const adminShopAccountsController = require("../../controllers/adminShopAccounts.controller");
-// const adminShopCategoriesController = require("../../controllers/adminShopCategories.controller");
-// const adminShopCategoryStringsController = require("../../controllers/adminShopCategoryStrings.controller");
+const adminShopCategoriesController = require("../../controllers/adminShopCategories.controller");
 const adminPromocodesController = require("../../controllers/adminPromocodes.controller");
 const adminPromocodesActivatedController = require("../../controllers/adminPromocodesActivated.controller");
 const adminShopLogsController = require("../../controllers/adminShopLogs.controller");
@@ -23,7 +22,7 @@ module.exports = express.Router()
 	.post("/login", ...adminController.loginAction)
 	.get("/logout", ...adminController.logoutAction)
 	// Admin Panel Home
-	.get("/home", ...adminController.home)
+	.get("/home", ...adminController.home) // -----------------
 	.get("/profile", ...adminController.profile)
 	.get("/settings", ...adminController.settings)
 	// Account Management
@@ -69,19 +68,18 @@ module.exports = express.Router()
 	.get("/report_chronoscrolls", ...adminReportController.chronoscrolls)
 	// Shop Account Management
 	.get("/shop_accounts", ...adminShopAccountsController.index)
-	// .get("/shop_accounts/add", ...adminShopAccountsController.add)
-	// .post("/shop_accounts/add", ...adminShopAccountsController.addAction)
-	// .get("/shop_accounts/edit", ...adminShopAccountsController.edit)
-	// .post("/shop_accounts/edit", ...adminShopAccountsController.editAction)
-	// .get("/shop_accounts/delete", ...adminShopAccountsController.deleteAction)
-	//
+	.get("/shop_accounts/add", ...adminShopAccountsController.add)
+	.post("/shop_accounts/add", ...adminShopAccountsController.addAction)
+	.get("/shop_accounts/edit", ...adminShopAccountsController.edit)
+	.post("/shop_accounts/edit", ...adminShopAccountsController.editAction)
+	.get("/shop_accounts/delete", ...adminShopAccountsController.deleteAction)
 	// Shop Categories
-	// .get("/shop_categories", ...adminShopCategoriesController.index)
-	// .get("/shop_categories/add", ...adminShopCategoriesController.add)
-	// .post("/shop_categories/add", ...adminShopCategoriesController.addAction)
-	// .get("/shop_categories/edit", ...adminShopCategoriesController.edit)
-	// .post("/shop_categories/edit", ...adminShopCategoriesController.editAction)
-	// .get("/shop_categories/delete", ...adminShopCategoriesController.deleteAction)
+	.get("/shop_categories", ...adminShopCategoriesController.index)
+	.get("/shop_categories/add", ...adminShopCategoriesController.add)
+	.post("/shop_categories/add", ...adminShopCategoriesController.addAction)
+	.get("/shop_categories/edit", ...adminShopCategoriesController.edit)
+	.post("/shop_categories/edit", ...adminShopCategoriesController.editAction)
+	.get("/shop_categories/delete", ...adminShopCategoriesController.deleteAction)
 	// Shop Products
 	// .get("/shop_products", ...adminShopProductsController.index)
 	// .get("/shop_products/add", ...adminShopProductsController.add)
@@ -89,7 +87,6 @@ module.exports = express.Router()
 	// .get("/shop_products/edit", ...adminShopProductsController.edit)
 	// .post("/shop_products/edit", ...adminShopProductsController.editAction)
 	// .get("/shop_products/delete", ...adminShopProductsController.deleteAction)
-	//
 	// Shop Promocodes
 	.get("/promocodes", ...adminPromocodesController.index)
 	.get("/promocodes/add", ...adminPromocodesController.add)
@@ -97,12 +94,11 @@ module.exports = express.Router()
 	.get("/promocodes/edit", ...adminPromocodesController.edit)
 	.post("/promocodes/edit", ...adminPromocodesController.editAction)
 	.get("/promocodes/delete", ...adminPromocodesController.deleteAction)
-	//
 	// Shop Activated Procmocodes
 	.get("/promocodes_activated", ...adminPromocodesActivatedController.index)
-	// .get("/promocodes_activated/add", ...adminPromocodesActivatedController.add)
-	// .post("/promocodes_activated/add", ...adminPromocodesActivatedController.addAction)
-	// .get("/promocodes_activated/delete", ...adminPromocodesActivatedController.deleteAction)
+	.get("/promocodes_activated/add", ...adminPromocodesActivatedController.add)
+	.post("/promocodes_activated/add", ...adminPromocodesActivatedController.addAction)
+	.get("/promocodes_activated/delete", ...adminPromocodesActivatedController.deleteAction)
 	// Shop Logs
 	.get("/shop_fund_logs", ...adminShopLogsController.fund)
 	.get("/shop_pay_logs", ...adminShopLogsController.pay)

@@ -78,4 +78,8 @@ module.exports = app => {
 	app.use(passport.session());
 
 	app.use("/", require("./admin/admin.routes"));
+
+	app.use((req, res) =>
+		res.redirect("/")
+	);
 };

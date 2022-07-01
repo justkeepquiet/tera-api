@@ -41,6 +41,8 @@
 										<% } %>
 										<% if (account.get("privilege") == 32 || account.get("privilege") == 33) { %>
 										<td class="text-success"><%= account.get("privilege") %> (<%= __("GM") %>)</td>
+										<% } else if (account.get("privilege") == process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE) { %>
+											<td class="text-primary"><%= account.get("privilege") %> (<%= __("QA") %>)</td>
 										<% } else { %>
 										<td><%= account.get("privilege") %></td>
 										<% } %>

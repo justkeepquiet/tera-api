@@ -77,28 +77,28 @@ module.exports.addAction = [
 	expressLayouts,
 	[
 		body("userName").trim()
-			.isLength({ min: 1, max: 64 }).withMessage(i18n.__("Name must be between 1 and 64 characters."))
+			.isLength({ min: 1, max: 64 }).withMessage(i18n.__("Name field must be between 1 and 64 characters."))
 			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
 					userName: req.body.userName
 				}
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("Name contains already existing name."));
+					return Promise.reject(i18n.__("Name field contains already existing name."));
 				}
 			})),
 		body("passWord").trim()
-			.isLength({ min: 1, max: 128 }).withMessage(i18n.__("Password must be between 1 and 128 characters.")),
+			.isLength({ min: 1, max: 128 }).withMessage(i18n.__("Password field must be between 1 and 128 characters.")),
 		body("email").optional({ checkFalsy: true }).trim()
-			.isEmail().withMessage(i18n.__("Email must contain a valid email.")),
+			.isEmail().withMessage(i18n.__("Email field must contain a valid email.")),
 		body("permission").trim()
-			.isNumeric().withMessage(i18n.__("Permission must contain a valid number.")),
+			.isNumeric().withMessage(i18n.__("Permission field must contain a valid number.")),
 		body("privilege").trim()
-			.isNumeric().withMessage(i18n.__("Privilege must contain a valid number.")),
-		body("*.benefitIds").optional()
-			.isNumeric().withMessage(i18n.__("Benefit ID must contain a valid number.")),
-		body("*.availableUntils").optional()
-			.isISO8601().withMessage("Available until must contain a valid date.")
+			.isNumeric().withMessage(i18n.__("Privilege field must contain a valid number.")),
+		body("benefitIds.*").optional()
+			.isInt({ min: 0 }).withMessage(i18n.__("Benefit ID field must contain a valid number.")),
+		body("availableUntils.*").optional()
+			.isISO8601().withMessage("Available field until must contain a valid date.")
 	],
 	/**
 	 * @type {import("express").RequestHandler}
@@ -211,7 +211,7 @@ module.exports.editAction = [
 	expressLayouts,
 	[
 		body("userName").trim()
-			.isLength({ min: 1, max: 64 }).withMessage(i18n.__("Name must be between 1 and 64 characters."))
+			.isLength({ min: 1, max: 64 }).withMessage(i18n.__("Name field must be between 1 and 64 characters."))
 			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
 					userName: req.body.userName,
@@ -219,17 +219,17 @@ module.exports.editAction = [
 				}
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("Name contains already existing name."));
+					return Promise.reject(i18n.__("Name field contains already existing name."));
 				}
 			})),
 		body("passWord").trim().optional({ checkFalsy: true })
-			.isLength({ max: 128 }).withMessage(i18n.__("Password must be between 1 and 128 characters.")),
+			.isLength({ max: 128 }).withMessage(i18n.__("Password field must be between 1 and 128 characters.")),
 		body("email").trim().optional({ checkFalsy: true })
-			.isEmail().withMessage(i18n.__("Email must contain a valid email.")),
+			.isEmail().withMessage(i18n.__("Email field must contain a valid email.")),
 		body("permission").trim()
-			.isNumeric().withMessage(i18n.__("Permission must contain a valid number.")),
+			.isNumeric().withMessage(i18n.__("Permission field must contain a valid number.")),
 		body("privilege").trim()
-			.isNumeric().withMessage(i18n.__("Privilege must contain a valid number."))
+			.isNumeric().withMessage(i18n.__("Privilege field must contain a valid number."))
 	],
 	/**
 	 * @type {import("express").RequestHandler}

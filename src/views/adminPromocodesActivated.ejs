@@ -17,8 +17,15 @@
 		</form>
 	</section>
 	<section class="section">
-		<a class="btn btn-warning" title="" href="/promocodes_activated/add?promoCodeId=<%= promoCodeId %>&amp;account=<%= accountDBID %>"><%= __("Activate promocode") %></a>
+		<a class="btn btn-warning" title="" href="/promocodes_activated/add?promoCodeId=<%= promoCodeId %>&amp;accountDBID=<%= accountDBID %>"><%= __("Activate promocode") %></a>
 	</section>
+	<% if (promocodes === null) { %>
+	<section class="section">
+		<div class="alert alert-info">
+			<%= __("Please enter account ID or promocode ID.") %>
+		</div>
+	</section>
+	<% } else { %>
 	<section class="section">
 		<div class="row">
 			<div class="col-md-12">
@@ -46,7 +53,7 @@
 										<td><%= activated.get("accountDBID") %></td>
 										<td><%= moment(activated.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
 										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="/promocodes_activated/delete?promoCodeId=<%= promoCodeId %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
+											<a class="btn btn-secondary btn-sm" href="/promocodes_activated/delete?id=<%= activated.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 										</td>
 									</tr>
 									<% }) %>
@@ -59,4 +66,5 @@
 			</div>
 		</div>
 	</section>
+	<% } %>
 </article>

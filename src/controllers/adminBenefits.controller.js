@@ -1,7 +1,6 @@
 "use strict";
 
 const expressLayouts = require("express-ejs-layouts");
-const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
 const logger = require("../utils/logger");
@@ -56,7 +55,7 @@ module.exports.add = [
 	expressLayouts,
 	[
 		query("accountDBID").trim().optional()
-			.isNumeric().withMessage(i18n.__("Account ID must contain a valid number."))
+			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 	],
 	/**
 	 * @type {import("express").RequestHandler}
@@ -82,20 +81,20 @@ module.exports.addAction = [
 	expressLayouts,
 	[
 		body("accountDBID").trim()
-			.isNumeric().withMessage(i18n.__("Account ID must contain a valid number."))
+			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
 					accountDBID: req.body.accountDBID
 				}
 			}).then(data => {
 				if (req.body.accountDBID && data === null) {
-					return Promise.reject(i18n.__("Account ID contains not existing account ID."));
+					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
 		body("benefitId").trim()
-			.isNumeric().withMessage(i18n.__("Benefit ID must contain a valid number.")),
+			.isInt({ min: 0 }).withMessage(i18n.__("Benefit ID field must contain a valid number.")),
 		body("availableUntil").trim()
-			.isISO8601().withMessage("Available until must contain a valid date.")
+			.isISO8601().withMessage("Available until field must contain a valid date.")
 	],
 	/**
 	 * @type {import("express").RequestHandler}
@@ -172,7 +171,7 @@ module.exports.editAction = [
 	expressLayouts,
 	[
 		body("availableUntil").trim()
-			.isISO8601().withMessage("Available until must contain a valid date.")
+			.isISO8601().withMessage("Available until field must contain a valid date.")
 	],
 	/**
 	 * @type {import("express").RequestHandler}
@@ -209,6 +208,7 @@ module.exports.editAction = [
 		});
 	}
 ];
+
 module.exports.deleteAction = [
 	i18nHandler,
 	accessFunctionHandler(),

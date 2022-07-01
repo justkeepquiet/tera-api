@@ -53,11 +53,11 @@ module.exports.addAction = [
 	expressLayouts,
 	[
 		body("startTime")
-			.isISO8601().withMessage(i18n.__("Start time must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
 		body("endTime")
-			.isISO8601().withMessage(i18n.__("End time must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
 		body("description").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description must be between 1 and 1024 characters."))
+			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
 	],
 	/**
 	 * @type {import("express").RequestHandler}
@@ -129,11 +129,11 @@ module.exports.editAction = [
 	expressLayouts,
 	[
 		body("startTime")
-			.isISO8601().withMessage(i18n.__("Start time must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
 		body("endTime")
-			.isISO8601().withMessage(i18n.__("End time must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
 		body("description").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description must be between 1 and 1024 characters."))
+			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
 	],
 	/**
 	 * @type {import("express").RequestHandler}

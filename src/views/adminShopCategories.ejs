@@ -1,0 +1,48 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Shop Categories") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-success" title="" href="/shop_categories/add"><%= __("Add new category") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<div class="table">
+							<table class="table table-hover data-table-desc-nosort">
+								<thead>
+									<tr>
+										<th><%= __("Sort") %></th>
+										<th><%= __("ID") %></th>
+										<th><%= __("Title") %> (<%= locale %>)</th>
+										<th><%= __("Active") %></th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<% categories.forEach(category => { %>
+									<tr>
+										<td><%= category.get("sort") %></td>
+										<td><%= category.get("id") %></td>
+										<td><%= category.get("title") %></td>
+										<td><%= category.get("active") ? __("Yes") : __("No") %></td>
+										<td class="text-right">
+											<a class="btn btn-secondary btn-sm" href="/shop_categories/edit?id=<%= category.get("id") %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="/shop_categories/delete?id=<%= category.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
+										</td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>
