@@ -34,8 +34,8 @@ module.exports.index = [
 
 		shopModel.promoCodeActivated.findAll({
 			where: {
-				...(promoCodeId ? { promoCodeId } : {}),
-				...(accountDBID ? { accountDBID } : {})
+				...promoCodeId ? { promoCodeId } : {},
+				...accountDBID ? { accountDBID } : {}
 			},
 			include: [{
 				model: shopModel.promoCodes,

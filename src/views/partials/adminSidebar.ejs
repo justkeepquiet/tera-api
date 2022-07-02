@@ -1,4 +1,6 @@
 <%
+	// /^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE)
+
 	const menu = [
 		{ icon: "fa-home", name: __("Dashboard"), page: "home" },
 		{ icon: "fa-tasks", name: __("Maintenance"), page: "maintenance" },
@@ -23,7 +25,7 @@
 		{ icon: "fa-shopping-cart", name: __("Shop"), elements: [
 				{ name: __("Accounts"), page: "shop_accounts" },
 				{ name: __("Categories"), page: "shop_categories" },
-				{ name: __("Products"), page: "shopProducts" }
+				{ name: __("Products"), page: "shop_products" }
 			]
 		},
 		{ icon: "fa-file-text", name: __("Shop Logs"), elements: [

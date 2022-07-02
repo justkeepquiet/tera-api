@@ -21,7 +21,7 @@ module.exports.index = [
 
 		shopModel.accounts.findAll({
 			where: {
-				...(accountDBID ? { accountDBID } : {})
+				...accountDBID ? { accountDBID } : {}
 			}
 		}).then(accounts => {
 			res.render("adminShopAccounts", {

@@ -1,0 +1,75 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Shop Products") %></h1>
+	</div>
+	<section class="section">
+		<form class="form-inline" action="" method="GET">
+			<div class="form-group">
+				<label for="categoryId"><%= __("Category ID") %></label>
+				<select class="form-control boxed" name="categoryId">
+					<option value="">- <%= __("All") %> -</option>
+				<% categories.forEach(category => { %>
+					<option value="<%= category.get("id") %>" <%= categoryId == category.get("id") ? 'selected' : "" %>>(<%= category.get("id") %>) <%= category.get("title") %></option>
+				<% }) %>
+				</select>
+			</div>
+			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
+		</form>
+	</section>
+	<section class="section">
+		<a class="btn btn-success" title="" href="/shop_products/add?categoryId=<%= categoryId %>&amp;fromCategoryId=<%= categoryId %>"><%= __("Add new product") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<table class="table table-hover data-table-desc-nosort">
+								<thead>
+									<tr>
+										<th><%= __("Sort") %></th>
+										<th><%= __("ID") %></th>
+										<th><%= __("Icon") %></th>
+										<th><%= __("Title") %></th>
+										<th><%= __("Category ID") %></th>
+										<th><%= __("Price") %></th>
+										<th><%= __("Items count") %></th>
+										<th><%= __("Active") %></th>
+										<th><%= __("Published") %></th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<% products.forEach((product, id) => { %>
+									<tr>
+										<td><%= product.sort %></td>
+										<td><%= id %></td>
+										<td style="width:1%">
+											<div class="mw-10 item-icon-block">
+												<img src="/static/images/tera-icons/icon_items/<%= product.icon %>.png" class="item-icon-grade-<%= product.rareGrade %> item-icon">
+												<img src="/static/images/icons/icon_grade_<%= product.rareGrade %>.png" class="item-icon-grade" alt="">
+											</div>
+										</td>
+										<td class="item-grade-<%= product.rareGrade %>"><%= product.title %></td>
+										<td>(<%= product.categoryId %>) <a href="/shop_products?categoryId=<%= product.categoryId %>"><%= product.categoryTitle %></a></td>
+										<td><%= product.price %></td>
+										<td><%= product.itemCount || "-" %></td>
+										<td><%= product.active ? __("Yes") : __("No") %></td>
+										<td class="text-<%= product.published ? "success" : "danger" %>"><%= product.published ? __("Yes") : __("No") %></td>
+										<td class="text-right">
+											<a class="btn btn-secondary btn-sm" href="/shop_products/edit?id=<%= id %>&amp;fromCategoryId=<%= categoryId %>"><i class="fa fa-pencil"></i></a>
+											<a class="btn btn-secondary btn-sm" href="/shop_products/delete?id=<%= id %>&amp;categoryId=<%= product.categoryId %>&amp;fromCategoryId=<%= categoryId %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
+										</td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

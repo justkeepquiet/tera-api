@@ -33,7 +33,10 @@ module.exports.index = [
 				include: [
 					[shopModel.categoryStrings.sequelize.col("title"), "title"]
 				]
-			}
+			},
+			order: [
+				["sort", "DESC"]
+			]
 		}).then(categories => {
 			res.render("adminShopCategories", {
 				layout: "adminLayout",

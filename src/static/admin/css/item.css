@@ -1,0 +1,82 @@
+
+.item-icon, .item-icon-block {
+	width: 32px!important;
+	height: 100%!important;
+	position: relative;
+	left: 0;
+	top: 0;
+	float: left;
+	-webkit-border-radius: 3px 0 0 3px;
+	-moz-border-radius: 3px 0 0 3px;
+	border-radius: 3px 0 0 3px;
+}
+
+.item-icon {
+	display: block;
+	height: 32px!important;
+	max-height: 32px!important;
+	max-width: 32px!important;
+	margin-right: 5px;
+	-webkit-border-radius: 3px 0 0 0;
+	-moz-border-radius: 3px 0 0 0;
+	border-radius: 3px 0 0 0;
+}
+
+.item-icon-grade {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 10px!important;
+	height: 10px!important;
+	max-height: 10px!important;
+	max-width: 10px!important;
+}
+
+.item-icon-grade-0 {
+	background: #020024;
+	background: linear-gradient(135deg,#020024 0,#283040 0,#0b1420 100%);
+}
+
+.item-icon-grade-1 {
+	background: #185438;
+	background: linear-gradient(135deg,#185438 0,#185438 0,#10281d 100%);
+}
+
+.item-icon-grade-2 {
+	background: #104878;
+	background: linear-gradient(135deg,rgba(16,72,120) 0,#104878 0,#082040 100%);
+}
+
+.item-icon-grade-3 {
+	background: #a07008;
+	background: linear-gradient(135deg,#a07008 0,#a07008 0,#381800 100%);
+}
+
+.item-icon-grade-4 {
+	background: #73197b;
+	background: linear-gradient(135deg,#73197b 0,#73197b 0,#200428 100%);
+}
+
+.item-grade-0, .item-icon-grade-0:hover {
+	color: #000 !important;
+}
+
+.item-grade-1, .item-icon-grade-1:hover {
+	color: #1fa717 !important;
+}
+
+.item-grade-2, .item-icon-grade-2:hover {
+	color: #0391c4 !important;
+}
+
+.item-grade-3, .item-icon-grade-3:hover {
+	color: #ffa414 !important;
+}
+
+.item-grade-4, .item-icon-grade-4:hover {
+	color: #c63db6;
+}
+
+.item-grade-5, .item-icon-grade-5:hover {
+	color: orange;
+}

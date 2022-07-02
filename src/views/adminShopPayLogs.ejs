@@ -29,8 +29,8 @@
 										<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
 										<td><%= log.get("accountDBID") %></td>
 										<td><%= log.get("serverId") %></td>
-										<td><a href="/shop_products/edit?productId=<%= log.get("productId") %>"><%= log.get("productId") %></a></td>
-										<td><%= log.get("boxId") %></td>
+										<td><a href="/shop_products?id=<%= log.get("productId") %>"><%= log.get("productId") %></a></td>
+										<td><%= log.get("boxId") || "-" %></td>
 										<td><%= log.get("price") %></td>
 										<td class="text-<%= log.get("status") == "completed" ? "success" : "danger" %>"><%= log.get("status") %></td>
 										<td><%= moment(log.get("updatedAt")).format("YYYY-MM-DD HH:MM:ss") %></td>

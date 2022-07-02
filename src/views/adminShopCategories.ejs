@@ -20,6 +20,7 @@
 										<th><%= __("ID") %></th>
 										<th><%= __("Title") %> (<%= locale %>)</th>
 										<th><%= __("Active") %></th>
+										<th><%= __("Published") %></th>
 										<th></th>
 									</tr>
 								</thead>
@@ -30,6 +31,7 @@
 										<td><%= category.get("id") %></td>
 										<td><%= category.get("title") %></td>
 										<td><%= category.get("active") ? __("Yes") : __("No") %></td>
+										<td class="text-<%= category.get("active") ? "success" : "danger" %>"><%= category.get("active") ? __("Yes") : __("No") %></td>
 										<td class="text-right">
 											<a class="btn btn-secondary btn-sm" href="/shop_categories/edit?id=<%= category.get("id") %>"><i class="fa fa-pencil"></i></a>
 											<a class="btn btn-secondary btn-sm" href="/shop_categories/delete?id=<%= category.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>

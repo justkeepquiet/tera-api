@@ -25,6 +25,9 @@ module.exports = (sequelize, DataTypes) =>
 		icon: {
 			type: DataTypes.TEXT(255)
 		},
+		rareGrade: {
+			type: DataTypes.INTEGER
+		},
 		validAfter: {
 			type: DataTypes.DATE
 		},

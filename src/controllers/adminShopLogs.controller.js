@@ -24,7 +24,7 @@ module.exports.fund = [
 
 		shopModel.fundLogs.findAll({
 			where: {
-				...(accountDBID ? { accountDBID } : {}),
+				...accountDBID ? { accountDBID } : {},
 				createdAt: {
 					[Op.gt]: from.format("YYYY-MM-DD HH:MM:ss"),
 					[Op.lt]: to.format("YYYY-MM-DD HH:MM:ss")

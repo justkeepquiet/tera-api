@@ -260,7 +260,7 @@ module.exports.editAction = [
 
 		accountModel.info.update({
 			userName,
-			...(passWord ? { passWord } : {}),
+			...passWord ? { passWord } : {},
 			email,
 			permission,
 			privilege,

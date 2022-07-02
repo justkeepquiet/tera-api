@@ -1,6 +1,7 @@
 "use strict";
 
 const uuid = require("uuid").v4;
+const express = require("express");
 const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const passport = require("passport");
@@ -77,6 +78,7 @@ module.exports = app => {
 	app.use(passport.initialize());
 	app.use(passport.session());
 
+	app.use("/static/images/tera-icons", express.static("data/tera-icons"));
 	app.use("/", require("./admin/admin.routes"));
 
 	app.use((req, res) =>

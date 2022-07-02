@@ -21,8 +21,8 @@ const reportHandler = (model, view) =>
 
 		model.findAll({
 			where: {
-				...(serverId ? { serverId } : {}),
-				...(accountDBID ? { accountDBID } : {}),
+				...serverId ? { serverId } : {},
+				...accountDBID ? { accountDBID } : {},
 				reportTime: {
 					[Op.gt]: from.format("YYYY-MM-DD HH:MM:ss"),
 					[Op.lt]: to.format("YYYY-MM-DD HH:MM:ss")

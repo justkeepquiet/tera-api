@@ -1,0 +1,206 @@
+<%
+const addInfoShow = icon || rareGrade !== null || Object.values(title).join("") || Object.values(description).join("");
+%>
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Add Shop Product") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-secondary" title="" href="/shop_products?categoryId=<%= fromCategoryId %>"><i class="fa fa-chevron-left"></i> <%= __("Back to list") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="card card-block">
+					<form id="form" method="POST" action="">
+						<%- include("partials/adminFormErrors", { errors }) %>
+						<div class="title-block">
+							<h3 class="title"><%= __("Product Information") %></h3>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="price"><%= __("Price") %></label>
+								<input type="number" class="form-control boxed" name="price" value="<%= price %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="userName"><%= __("Category ID") %></label>
+								<select class="form-control boxed" name="categoryId">
+								<% categories.forEach(category => { %>
+									<option value="<%= category.get("id") %>" <%= categoryId == category.get("id") ? 'selected' : "" %>>(<%= category.get("id") %>) <%= category.get("title") %></option>
+								<% }) %>
+								</select>
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="validAfter"><%= __("Valid from") %></label>
+								<input type="datetime-local" class="form-control boxed" name="validAfter" value="<%= validAfter.format("YYYY-MM-DDTHH:MM") %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="validBefore"><%= __("Valid to") %></label>
+								<input type="datetime-local" class="form-control boxed" name="validBefore" value="<%= validBefore.format("YYYY-MM-DDTHH:MM") %>">
+							</div>
+						</div>
+						<div class="form-group">
+							<label>
+								<input type="checkbox" class="checkbox" name="active" <%= active ? "checked=\"checked\"" : "" %>>
+								<span><%= __("Active") %></span>
+							</label>
+						</div>
+						<div class="title-block">
+							<h3 class="title"><%= __("Product Items") %></h3>
+						</div>
+						<div id="items">
+							<% itemTemplateIds.forEach((itemTemplateId, i) => { %>
+							<div class="form-group row">
+								<div class="col-sm-6">
+									<label class="control-label" for="itemTemplateIds[]">
+										<%= __("Item template ID") %>
+										<a class="btn btn-secondary btn-sm remove-item" title="" href="#"><i class="fa fa-minus"></i></a>
+									</label>
+									<% if (resolvedItems[itemTemplateId]) { %>
+									<div class="row">
+										<div class="col-sm-12">
+											<div class="form-control boxed" style="overflow: hidden;">
+												<div class="item-icon-block" style="margin: -4px 10px 0 -10px;">
+													<img src="/static/images/tera-icons/icon_items/<%= resolvedItems[itemTemplateId].get("icon") %>.png" class="item-icon-grade-<%= resolvedItems[itemTemplateId].get("rareGrade") %> item-icon">
+													<img src="/static/images/icons/icon_grade_<%= resolvedItems[itemTemplateId].get("rareGrade") %>.png" class="item-icon-grade" alt="">
+												</div>
+												<div class="item-grade-<%= resolvedItems[itemTemplateId].get("rareGrade") %>">(<%= itemTemplateId %>) <%= resolvedItems[itemTemplateId].get("string") %></div>
+											</div>
+										</div>
+									</div>
+									<input type="hidden" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
+									<% } else { %>
+									<input type="number" class="form-control boxed" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
+									<% } %>
+								</div>
+								<div class="col-sm-2">
+									<label class="control-label" for="boxItemCounts[]"><%= __("Count") %></label>
+									<input type="number" class="form-control boxed mt-2" name="boxItemCounts[]" value="<%= boxItemCounts[i] %>">
+								</div>
+								<div class="col-sm-4">
+									<label class="control-label" for="boxItemIds[]"><%= __("Box item ID") %></label>
+									<input type="number" class="form-control boxed mt-2" name="boxItemIds[]" value="<%= boxItemIds[i] %>" placeholder="<%= __("optional") %>">
+								</div>
+							</div>
+							<% }) %>
+						</div>
+						<div class="form-group">
+							<button type="button" class="btn btn-secondary" id="add-item"><i class="fa fa-plus"></i> <%= __("Add item") %></button>
+						</div>
+						<div class="form-group row"></div>
+						<div class="title-block">
+							<h3 class="title">
+								<%= __("Additional Information") %>
+								<a class="btn btn-secondary btn-sm" id="add-info-off" title="" href="#" <%- addInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-up"></i></a>
+								<a class="btn btn-secondary btn-sm" id="add-info-on" title="" href="#" <%- !addInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-down"></i></a>
+							</h3>
+						</div>
+						<div id="add-info" <%- addInfoShow ? "" : 'style="display: none;"' %>>
+							<div class="form-group row">
+								<div class="col-sm-6">
+									<label class="control-label" for="icon"><%= __("Icon") %> <span class="text-secondary">(example: gift_box01_tex)</span></label>
+									<input type="text" class="form-control boxed" name="icon" value="<%= icon %>" placeholder="<%= __("optional") %>">
+								</div>
+								<div class="col-sm-6">
+									<label class="control-label" for="rareGrade"><%= __("Rare grade") %></label>
+									<select class="form-control boxed" name="rareGrade">
+										<option value="">- <%= __("None") %> -</option>
+										<option value="0" class="item-grade-0" <%= rareGrade === 0 ? "selected" : "" %>>(0) <%= __("Common") %></option>
+										<option value="1" class="item-grade-1" <%= rareGrade === 1 ? "selected" : "" %>>(1) <%= __("Uncommon") %></option>
+										<option value="2" class="item-grade-2" <%= rareGrade === 2 ? "selected" : "" %>>(2) <%= __("Rare") %></option>
+										<option value="3" class="item-grade-3" <%= rareGrade === 3 ? "selected" : "" %>>(3) <%= __("Superior") %></option>
+										<option value="4" class="item-grade-4" <%= rareGrade === 4 ? "selected" : "" %>>(4) <%= __("Mythic") %></option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label"><%= __("Title") %></label>
+								<% shopLocales.forEach(shopLocale => { %>
+								<div class="form-group row">
+									<div class="col-sm-2 mt-2">
+										<label for="title[<%= shopLocale %>]" class="control-label">(<%= shopLocale %>) <%= __(shopLocale) %></label>
+									</div>
+									<div class="col-sm-10">
+										<input type="text" class="form-control boxed" name="title[<%= shopLocale %>]" value="<%= title[shopLocale] || "" %>" placeholder="<%= __("optional") %>">
+									</div>
+								</div>
+								<% }) %>
+							</div>
+							<div class="form-group">
+								<label class="control-label"><%= __("Description") %></label>
+								<% shopLocales.forEach(shopLocale => { %>
+								<div class="form-group row">
+									<div class="col-sm-2 mt-2">
+										<label for="description[<%= shopLocale %>]" class="control-label">(<%= shopLocale %>) <%= __(shopLocale) %></label>
+									</div>
+									<div class="col-sm-10">
+										<input type="text" class="form-control boxed" name="description[<%= shopLocale %>]" value="<%= description[shopLocale] || "" %>" placeholder="<%= __("optional") %>">
+									</div>
+								</div>
+								<% }) %>
+							</div>
+							<div class="form-group row"></div>
+							<div class="form-group alert alert-secondary">
+								<%= __("If additional information is not set, the information for the product will be taken from the first item added.") %>
+							</div>
+							<div class="form-group row"></div>
+						</div>
+						<div class="form-group">
+							<input type="hidden" name="validate" id="validate" value="<%= validate %>">
+							<button type="submit" id="submit" class="btn btn-primary"><%= validate ? __("Validate form") : __("Add") %></button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>
+<%- contentFor("scripts") %>
+<script>
+	$(function() {
+		$("#add-info-on").click(function() {
+			$("#add-info").show();
+			$("#add-info-off").show();
+			$(this).hide();
+		});
+		$("#add-info-off").click(function() {
+			$("#add-info").hide();
+			$("#add-info-on").show();
+			$(this).hide();
+		});
+		$(".remove-item").click(function() {
+			$("#validate").val("1");
+			$("#submit").html("<%= __('Validate form') %>");
+			$(this).closest(".row").remove();
+		});
+		$("#add-item").click(function() {
+			$("#validate").val("1");
+			$("#submit").html("<%= __('Validate form') %>");
+			$("#items").append(
+				"<div class='form-group row'>" +
+				"	<div class='col-sm-6'>" +
+				"		<label class='control-label' for='itemTemplateIds[]'>" +
+				"			<%= __('Item template ID') %>" +
+				"			<a class='btn btn-secondary btn-sm remove-item' title='' href='#'><i class='fa fa-minus'></i></a>" +
+				"		</label>" +
+				"		<input type='number' class='form-control boxed' name='itemTemplateIds[]' value=''>" +
+				"	</div>" +
+				"	<div class='col-sm-2'>" +
+				"		<label class='control-label' for='boxItemCounts[]'><%= __('Count') %></label>" +
+				"		<input type='number' class='form-control boxed mt-2' name='boxItemCounts[]' value='1'>" +
+				"	</div>" +
+				"	<div class='col-sm-4'>" +
+				"		<label class='control-label' for='boxItemIds[]'><%= __('Box item ID') %></label>" +
+				"		<input type='number' class='form-control boxed mt-2' name='boxItemIds[]' value='' placeholder='<%= __('optional') %>'>" +
+				"	</div>" +
+				"</div>"
+			);
+			$(".remove-item").click(function() {
+				$(this).closest(".row").remove();
+			});
+		});
+	});
+</script>

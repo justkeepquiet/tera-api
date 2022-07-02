@@ -140,7 +140,7 @@ module.exports.PartialCatalogHtml = [
 			order: [
 				["sort", "DESC"]
 			]
-		}).then(async products => {
+		}).then(products => {
 			if (products === null) {
 				return res.send();
 			}
@@ -161,7 +161,7 @@ module.exports.PartialCatalogHtml = [
 					itemCount: null
 				});
 
-				return promises.push(shopModel.productItems.findOne({
+				promises.push(shopModel.productItems.findOne({
 					where: { productId: product.get("id") },
 					include: [{
 						model: shopModel.itemTemplates,
@@ -188,42 +188,46 @@ module.exports.PartialCatalogHtml = [
 				}));
 			});
 
-			const productItemsAssoc = await Promise.all(promises);
-
-			if (productItemsAssoc !== null) {
-				for (const productItem of productItemsAssoc) {
-					const product = productsMap.get(productItem.get("productId"));
-
-					if (product) {
-						if (!product.title) {
-							product.title = productItem.get("string");
+			return Promise.all(promises).then(productItemsAssoc => {
+				if (productItemsAssoc !== null) {
+					for (const productItem of productItemsAssoc) {
+						if (productItem === null) {
+							break;
 						}
 
-						if (!product.description) {
-							product.description = productItem.get("toolTip");
+						const product = productsMap.get(productItem.get("productId"));
+
+						if (product) {
+							if (!product.title) {
+								product.title = productItem.get("string");
+							}
+
+							if (!product.description) {
+								product.description = productItem.get("toolTip");
+							}
+
+							if (!product.icon) {
+								product.icon = productItem.get("icon");
+							}
+
+							if (product.rareGrade === null) {
+								product.rareGrade = productItem.get("rareGrade");
+							}
+
+							if (!product.itemCount) {
+								product.itemCount = productItem.get("boxItemCount");
+							}
 						}
 
-						if (!product.icon) {
-							product.icon = productItem.get("icon");
+						// Remove unresolved products
+						if (!product.icon || !product.title || !product.description) {
+							productsMap.delete(productItem.get("productId"));
 						}
-
-						if (!product.rareGrade) {
-							product.rareGrade = productItem.get("rareGrade");
-						}
-
-						if (!product.itemCount) {
-							product.itemCount = productItem.get("boxItemCount");
-						}
-					}
-
-					// Remove unresolved products
-					if (!product.icon || !product.title || !product.description) {
-						productsMap.delete(productItem.get("productId"));
 					}
 				}
-			}
 
-			res.render("partials/shopCatalog", { products: productsMap, search: search || "" });
+				res.render("partials/shopCatalog", { products: productsMap, search: search || "" });
+			});
 		}).catch(err => {
 			logger.error(err.toString());
 			res.send();
