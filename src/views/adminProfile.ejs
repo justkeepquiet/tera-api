@@ -9,17 +9,48 @@
 				<div class="card sameheight-item">
 					<div class="card-block">
 						<div class="card-title-block">
-							<h3 class="title"><%= __("Session information") %></h3>
+							<h3 class="title"><%= __("Session Information") %></h3>
 						</div>
 						<section>
 							<%= __("User login ID") %>: <strong><%= passport.user.login %></strong>
 						</section>
 						<section>
-							<%= __("Authentication type") %>: <strong><%= passport.user.sessionKey ? "STEER" : "QA Login" %></strong>
+							<%= __("Authentication type") %>: <strong><%= passport.user.type === "steer" ? "STEER" : "QA Login" %></strong>
 						</section>
 					</div>
 				</div>
 			</div>
 		</div>
+		<% if (passport.user.type === "steer") { %>
+		<div class="row sameheight-container">
+			<div class="col-md-6">
+				<div class="card sameheight-item">
+					<div class="card-block">
+						<div class="card-title-block">
+							<h3 class="title"><%= __("Permitted Functions") %></h3>
+						</div>
+						<section>
+							<table class="table table-hover">
+								<thead>
+									<tr>
+										<th>GUFID</th>
+										<th><%= __("Function name") %></th>
+									</tr>
+								</thead>
+								<tbody>
+									<% Object.keys(passport.user.functions).forEach(id => { %>
+									<tr>
+										<td><%= id %></td>
+										<td><%= passport.user.functions[id] %></td>
+									</tr>
+									<% }) %>
+								</tbody>
+							</table>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+		<% } %>
 	</section>
 </article>

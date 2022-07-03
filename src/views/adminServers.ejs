@@ -13,43 +13,43 @@
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-							<table class="table table-hover data-table-nosort">
-								<thead>
-									<tr>
-										<th><%= __("ID") %></th>
-										<th><%= __("Login IP:port") %></th>
-										<th><%= __("Name") %></th>
-										<th><%= __("Language") %></th>
-										<th><%= __("Type") %></th>
-										<th><%= __("Enabled") %></th>
-										<th><%= __("Crowdness") %></th>
-										<th><%= __("Available") %></th>
-										<th><%= __("Users online") %></th>
-										<th><%= __("Users total") %></th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-									<% servers.forEach(servers => { %>
-									<tr>
-										<td><%= servers.get("serverId") %></td>
-										<td><%= servers.get("loginIp") %>:<%= servers.get("loginPort") %></td>
-										<td><%= servers.get("nameString") %></td>
-										<td><%= servers.get("language") %></td>
-										<td><%= servers.get("isPvE") ? "PvE" : "PvP" %></td>
-										<td class="text-<%= servers.get("isEnabled") ? "success" : "danger" %>"><%= servers.get("isEnabled") ? __("Yes") : __("No") %></td>
-										<td><%= servers.get("isCrowdness") ? "Yes" : "No" %></td>
-										<td class="text-<%= servers.get("isAvailable") ? "success" : "danger" %>"><%= servers.get("isAvailable") ? __("Yes") : __("No") %></td>
-										<td><%= servers.get("usersOnline") %></td>
-										<td><%= servers.get("usersTotal") %></td>
-										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="/servers/edit?serverId=<%= servers.get("serverId") %>"><i class="fa fa-pencil"></i></a>
-											<a class="btn btn-secondary btn-sm" href="/servers/delete?serverId=<%= servers.get("serverId") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-										</td>
-									</tr>
-									<% }) %>
-								</tbody>
-							</table>
+								<table class="table table-hover data-table-nosort">
+									<thead>
+										<tr>
+											<th><%= __("ID") %></th>
+											<th><%= __("Name") %></th>
+											<th><%= __("Login IP:port") %></th>
+											<th><%= __("Language") %></th>
+											<th><%= __("Type") %></th>
+											<th><%= __("Enabled") %></th>
+											<th><%= __("Crowdness") %></th>
+											<th><%= __("Available") %></th>
+											<th><%= __("Users online") %></th>
+											<th><%= __("Users total") %></th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<% servers.forEach(server => { %>
+										<tr>
+											<td><%= server.get("serverId") %></td>
+											<td><a href="/servers/edit?serverId=<%= server.get("serverId") %>"><%= server.get("nameString") %></a></td>
+											<td><%= server.get("loginIp") %>:<%= server.get("loginPort") %></td>
+											<td><%= server.get("language") %></td>
+											<td><%= server.get("isPvE") ? "PvE" : "PvP" %></td>
+											<td class="text-<%= server.get("isEnabled") ? "success" : "danger" %>"><%= server.get("isEnabled") ? __("Yes") : __("No") %></td>
+											<td><%= server.get("isCrowdness") ? "Yes" : "No" %></td>
+											<td class="text-<%= server.get("isAvailable") ? "success" : "danger" %>"><%= server.get("isAvailable") ? __("Yes") : __("No") %></td>
+											<td><%= server.get("usersOnline") %></td>
+											<td><%= server.get("usersTotal") %></td>
+											<td class="text-right">
+												<a class="btn btn-secondary btn-sm" href="/servers/edit?serverId=<%= server.get("serverId") %>"><i class="fa fa-pencil"></i></a>
+												<a class="btn btn-secondary btn-sm" href="/servers/delete?serverId=<%= server.get("serverId") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
+											</td>
+										</tr>
+										<% }) %>
+									</tbody>
+								</table>
 							</div>
 						</section>
 					</div>

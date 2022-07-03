@@ -1,0 +1,152 @@
+<StrSheet_AccountBenefit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://vezel.dev/novadrop/dc/StrSheet_AccountBenefit StrSheet_AccountBenefit.xsd" xmlns="https://vezel.dev/novadrop/dc/StrSheet_AccountBenefit">
+    <String id="31" string="Свидетельство члена экспедиции" />
+    <String id="32" string="Умелый путник" />
+    <String id="33" string="VIP" showLeftTimeOver1Year="false" />
+    <String id="34" string="Граница" hideCoolTime="true" />
+    <String id="35" string="Увеличение опыта талантов на 30" hideCoolTime="true" />
+    <String id="70" string="" showLeftTimeOver1Year="false" />
+    <String id="77" string="Месячный абонемент" showLeftTimeOver1Year="false" />
+    <String id="101" string="" showLeftTimeOver1Year="true" />
+    <String id="102" string="" hideCoolTime="true" />
+    <String id="103" string="Возвращающийся пользователь (Япония)" />
+    <String id="104" string="" showLeftTimeOver1Year="true" />
+    <String id="105" string="" showLeftTimeOver1Year="true" />
+    <String id="106" string="" showLeftTimeOver1Year="true" />
+    <String id="107" string="" showLeftTimeOver1Year="true" />
+    <String id="108" string="" showLeftTimeOver1Year="true" />
+    <String id="109" string="" showLeftTimeOver1Year="true" />
+    <String id="333" string="VIP-статус" />
+    <String id="334" string="Основатель" />
+    <String id="335" string="Console Elite" />
+    <String id="350" string="Преимущество сервера" />
+    <String id="433" string="Клуб TERA" />
+    <String id="434" string="Ветеран" />
+    <String id="435" string="Набор выгоды I" />
+    <String id="436" string="Набор выгоды II" />
+    <String id="437" string="Набор выгоды III" />
+    <String id="500" string="VIP" showLeftTimeOver1Year="false" />
+    <String id="510" string="Тайваньский сервер быстрого развития" />
+    <String id="520" string="VIP2" />
+    <String id="530" string="" showLeftTimeOver1Year="false" />
+    <String id="533" string="VIP-статус" />
+    <String id="534" string="Основатель" hideCoolTime="true" />
+    <String id="600" string="Блокировка обмена" hideCoolTime="true" />
+    <String id="601" string="Базовый набор" hideCoolTime="true" />
+    <String id="602" string="Блокировка обмена" />
+    <String id="691" string="Безопасный режим" />
+    <String id="701" string="VIP" showLeftTimeOver1Year="false" />
+    <String id="800" string="PC Café (Minor)" />
+    <String id="801" string="PC Café (Intermediate)" />
+    <String id="802" string="PC Café (Major)" />
+    <String id="803" string="PC Café (VIP)" />
+    <String id="804" string="User ELITE (Minor)" />
+    <String id="805" string="User ELITE (Intermediate)" />
+    <String id="806" string="User ELITE (Major)" />
+    <String id="807" string="User ELITE (VIP)" />
+    <String id="808" string="" />
+    <String id="809" string="" showLeftTimeOver1Year="false" />
+    <String id="810" string="" showLeftTimeOver1Year="false" />
+    <String id="1000" string="Интернет-кафе TERA" hideCoolTime="true" />
+    <String id="1001" string="" hideCoolTime="true" />
+    <String id="10031" string="Награда: два Валькионских признания при использовании системы подбора подземелий." />
+    <String id="10032" string="Подземелья восстанавливаются вдвое быстрее, а их количество увеличивается в два раза." />
+    <String id="10033" string="Комиссия за передачу товара брокеру: Бесплатно&lt;BR&gt;Комиссия за сделку через брокера: 5% &lt;BR&gt;Количество сделок с брокером: 50&lt;BR&gt;Обсуждение цены: возможно&lt;BR&gt;Подземелья восстанавливаются быстрее, увеличивается количество прохождений.&lt;BR&gt;Увеличивается максимальное количество монет странствий и скорость их начисления.&lt;BR&gt;Система подбора подземелий для новичков&lt;BR&gt;Увеличение получаемого опыта и репутации.&lt;BR&gt;Удваивается количество посещений Поляны Древней" />
+    <String id="10034" string="Награда: Валькионское признание при использовании системы подбора подземелий между серверами.&lt;BR&gt;Система подбора подземелий для новичков" />
+    <String id="10035" string="Повышает опыт талантов на 30%." />
+    <String id="10070" string="Доступно Зелье быстрого обучения (1 час).&lt;BR&gt;Комиссия за передачу товара брокеру: 2%&lt;BR&gt;Комиссия за сделку через брокера: 10% &lt;BR&gt;Количество сделок с брокером: 50&lt;BR&gt;Обсуждение цены: возможно&lt;BR&gt;Подземелья восстанавливаются быстрее, увеличивается количество прохождений.&lt;BR&gt;Увеличивается максимальное количество монет странствий и скорость их начисления.&lt;BR&gt;Система подбора подземелий для новичков.&lt;BR&gt;Действует эффект быстрого развития и дополнительных очков талантов.&lt;BR&gt;Увеличение очков мастерства снаряжения.&lt;BR&gt;Открыт доступ в премиум-зоны." />
+    <String id="10077" string="Ежедневно выдается 250 счастливых жетонов.&lt;BR&gt;Доступно Зелье быстрого обучения (1 час).&lt;BR&gt;Комиссия за передачу товара брокеру: 2%&lt;BR&gt;Комиссия за сделку через брокера: 10% &lt;BR&gt;Количество сделок с брокером: 50&lt;BR&gt;Обсуждение цены: возможно&lt;BR&gt;Подземелья восстанавливаются быстрее, увеличивается количество прохождений.&lt;BR&gt;Увеличивается максимальное количество монет странствий и скорость их начисления.&lt;BR&gt;Система подбора подземелий для новичков.&lt;BR&gt;Действует эффект быстрого развития и дополнительных очков талантов.&lt;BR&gt;Увеличение очков мастерства снаряжения.&lt;BR&gt;Открыт доступ в премиум-зоны." />
+    <String id="10101" string="" />
+    <String id="10102" string="" />
+    <String id="10103" string="Подсказка для возвращающегося пользователя (Япония)" />
+    <String id="10104" string="" />
+    <String id="10105" string="" />
+    <String id="10106" string="" />
+    <String id="10107" string="" />
+    <String id="10108" string="" />
+    <String id="10109" string="" />
+    <String id="10333" string="Увеличивается максимальное количество монет странствий и скорость их начисления&lt;BR&gt;Вдвое больше доступных ежедневных заданий &lt;BR&gt;Ежедневно пополняющийся инвентарь.&lt;BR&gt;Журнал путешественника: быстрое перемещение в деревню.&lt;BR&gt;Свиток вызова NPC, получение ключей &lt;BR&gt;Количество сделок с брокером: 50&lt;BR&gt;Комиссия за передачу товара брокеру: 2%&lt;BR&gt;Комиссия за сделку через брокера: 10% &lt;BR&gt;Защита кристалла&lt;BR&gt;Значительное сокращение времени на изготовление&#xA;Увеличение очков мастерства снаряжения&lt;BR&gt;Увеличение количества товаров для рыбалки" />
+    <String id="10334" string="Постоянные преимущества учетной записи: &lt;BR&gt;8 бесплатных слотов для персонажа на сервере.&lt;BR&gt;4 банковские вкладки на сервере.&lt;BR&gt;Терминус, боевая лошадь аргонов.&lt;BR&gt;Титул &quot;Основатель&quot;.&lt;BR&gt;До 30 предметов на торгах у брокера." hideCoolTime="true" />
+    <String id="10335" string="" />
+    <String id="10433" string="Увеличивается максимальное количество монет странствий и скорость их начисления&lt;BR&gt;Возможно использование Красного Оками&lt;BR&gt;Вдвое больше доступных ежедневных заданий &lt;BR&gt;Ежедневно пополняющийся инвентарь.&lt;BR&gt;Журнал путешественника: быстрое перемещение в деревню.&lt;BR&gt;Свиток вызова NPC, получение ключей Количество сделок с брокером: 50&lt;BR&gt;Комиссия за передачу товара брокеру: 2%&lt;BR&gt;Комиссия за сделку через брокера: 10% &lt;BR&gt;Защита кристалла&lt;BR&gt;Значительное сокращение времени на изготовление&lt;BR&gt;Увеличение очков мастерства снаряжения&lt;BR&gt;Увеличение очков опыта охотника&lt;BR&gt;Увеличение количества товаров для рыбалки" />
+    <String id="10434" string="Постоянные преимущества учетной записи: &lt;BR&gt;8 ячеек персонажа на сервере.&lt;BR&gt;4 банковские вкладки на сервере.&lt;BR&gt;Титул &quot;Ветеран Валькионской Федерации&quot;.&lt;BR&gt;До 30 предметов на торгах у брокера." hideCoolTime="true" />
+    <String id="10435" string="Постоянные награды учетной записи: &lt;BR&gt;8 ячеек персонажа на сервер&lt;BR&gt;4 банковские вкладки на сервер" hideCoolTime="true" />
+    <String id="10436" string="Постоянные награды учетной записи: &lt;BR&gt;10 ячеек персонажа на сервер&lt;BR&gt;5 банковские вкладки на сервер" hideCoolTime="true" />
+    <String id="10437" string="Постоянные награды учетной записи: &lt;BR&gt;12 ячеек персонажа на сервер&lt;BR&gt;6 банковские вкладки на сервер" hideCoolTime="true" />
+    <String id="10500" string="" />
+    <String id="10530" string="" />
+    <String id="10533" string="Бонусы для учетной записи:&lt;BR&gt; &lt;font color = '#FFBB00'&gt;Персонаж&lt;/font&gt;&lt;BR&gt; Удвоенное количество получаемого золота&lt;BR&gt; Постоянный эффект неприступного хранителя кристалла&lt;BR&gt; Удвоенное количество ежедневных заданий&lt;BR&gt; Очки доблести +100% &lt;BR&gt; Мастерство снаряжения +20%&lt;BR&gt; Опыт талантов +20%&lt;BR&gt; Удвоенное количество опыта&lt;BR&gt; &lt;font color = '#FFBB00'&gt;Подземелья&lt;/font&gt;&lt;BR&gt; Удвоенное количество входов в подземелья&lt;BR&gt; Увеличенная скорость восстановления монет странствий&lt;BR&gt; Увеличенное количество монет странствий&lt;BR&gt; Вероятность выпадения добычи +100%&lt;BR&gt; &lt;font color = '#FFBB00'&gt;Торговля и ремесло&lt;/font&gt;&lt;BR&gt; Возможность выставить до 50 предметов у брокера&lt;BR&gt; Комиссия брокера при покупке 10%&lt;BR&gt; Комиссия брокера при регистрации предметов 2%&lt;BR&gt; Повышение скорости создания предметов&lt;BR&gt; Вероятность создания шедевра +10%&lt;BR&gt; &lt;font color = '#FFBB00'&gt;Особые&lt;/font&gt;&lt;BR&gt; Атлас&lt;BR&gt; Журнал путешественника&lt;BR&gt; Возможность призыва полезных NPC&lt;BR&gt; Особое ездовое животное&lt;BR&gt; Ежедневная коробка с VIP-подарками&lt;BR&gt; Ежедневная коробка с настоем ноктиния&lt;BR&gt; Ежедневное зелье увеличения опыта на 100%&lt;BR&gt; Ежедневный доступ на Поляну Древней&#xA;&#xA;*Эффекты VIP-статуса больше не отображаются в игре значком в списке эффектов." />
+    <String id="10534" string="Вы приобрели набор раннего доступа и становитесь обладателем титула &quot;Основатель&quot;." />
+    <String id="10600" string="Блокировка передачи предметов и монет позволяет предотвратить возможные случаи воровства предметов с учетных записей, которые длительное время не подключались к игре.&lt;br&gt;Для разблокирования нажмите кнопку &quot;проверить&quot; и авторизуйтесь." />
+    <String id="10601" string="Постоянные преимущества учетной записи: &lt;BR&gt;8 ячеек персонажа на сервере.&lt;BR&gt;4 банковские вкладки на сервере.&lt;BR&gt;Титул &quot;Ветеран Валькионской Федерации&quot;.&lt;BR&gt;До 30 предметов на торгах у брокера." />
+    <String id="10602" string="Для предотвращения неправомерных действий с аккаунтом на обмен было наложено ограничение. Вы не можете передавать монеты и предметы.&lt;br&gt;Ограничение автоматически снимется через 168 часов. Даже после аутентификации ограничение может быть снято только по истечении 168 часов." />
+    <String id="10691" string="Ежемесячные награды для учетной записи:&lt;BR&gt;Два Валькионских признания за подбор подземелий.&lt;BR&gt;Вдвое больше доступных ежедневных заданий.&lt;BR&gt;Вдвое чаще доступ к подземельям.&lt;BR&gt;Пробный скакун (периодически меняется).&lt;BR&gt;До 50 предметов на торгах у брокера.&lt;BR&gt;Освобождение от залога у брокера.&lt;BR&gt;Комиссия брокера всего 10%.&lt;BR&gt;&lt;BR&gt;Атлас.&lt;BR&gt;10 ключей от ящика.&lt;BR&gt;Свитки страховки путешественника.&lt;BR&gt;Бонусы восстанавливаются ежедневно." />
+    <String id="10733" string="" />
+    <String id="10800" string="" />
+    <String id="10801" string="" />
+    <String id="10802" string="" />
+    <String id="10803" string="" />
+    <String id="10804" string="" />
+    <String id="10805" string="" />
+    <String id="10806" string="" />
+    <String id="10807" string="" />
+    <String id="10808" string="" />
+    <String id="10809" string="" />
+    <String id="10810" string="" />
+    <String id="11000" string="Количество сделок с брокером: 50&lt;BR&gt;Обсуждение цены: возможно&lt;BR&gt;Шанс создания шедевра: увеличивается на 10%&lt;BR&gt;Доступ к сумке для компьютерных клубов&lt;BR&gt;Дополнительно 100% опыта во время охоты&lt;BR&gt;Дополнительно 10% очков талантов.&lt;BR&gt;Значительно снижено время производства" />
+    <String id="11001" string="" />
+    <String id="100031" string="" />
+    <String id="100032" string="" />
+    <String id="100033" string="Свойства набора" />
+    <String id="100034" string="Свойства набора" />
+    <String id="100070" string="Свойства набора" />
+    <String id="100077" string="Свойства набора" />
+    <String id="100101" string="" />
+    <String id="100102" string="" />
+    <String id="100103" string="Награда для возвращающегося пользователя (Япония)" />
+    <String id="100104" string="" />
+    <String id="100105" string="" />
+    <String id="100106" string="" />
+    <String id="100107" string="" />
+    <String id="100108" string="" />
+    <String id="100109" string="" />
+    <String id="100333" string="Свойства набора" />
+    <String id="100334" string="Свойства набора" />
+    <String id="100335" string="" />
+    <String id="100350" string="Вы получаете удвоенное количество опыта." />
+    <String id="100433" string="Свойства набора" />
+    <String id="100434" string="Свойства набора" />
+    <String id="100435" string="Свойства набора" />
+    <String id="100436" string="Свойства набора" />
+    <String id="100437" string="Свойства набора" />
+    <String id="100500" string="" />
+    <String id="100530" string="" />
+    <String id="100533" string="Свойства набора" />
+    <String id="100534" string="Свойства набора" />
+    <String id="100600" string="Отправка по почте, использование услуг брокера и банка гильдии, участие в групповых боях." />
+    <String id="100601" string="Свойства набора" />
+    <String id="100602" string="Отправка по почте, использование услуг торгового брокера и банка гильдии, участие в групповых боях и обмен между игроками" />
+    <String id="100691" string="Безопасный режим" />
+    <String id="100733" string="" />
+    <String id="100800" string="" />
+    <String id="100801" string="" />
+    <String id="100802" string="" />
+    <String id="100803" string="" />
+    <String id="100804" string="" />
+    <String id="100805" string="" />
+    <String id="100806" string="" />
+    <String id="100807" string="" />
+    <String id="100808" string="" />
+    <String id="100809" string="" />
+    <String id="100810" string="" />
+    <String id="101000" string="Свойства набора" />
+    <String id="101001" string="" />
+    <String id="1000600" string="Блокировка передачи предметов позволяет предотвратить возможные случаи воровства предметов с учетных записей, которые длительное время не подключались к игре." />
+    <String id="1000601" string="Для предотвращения возможных случаев присвоения учетных записей передача предметов и золота ограничена." />
+    <String id="1000602" string="Для предотвращения возможных случаев кражи чужого имущества передача предметов и монет ограничена." />
+    <String id="77777777" string="&lt;font color = '#00A0FF'&gt;{EventName}&lt;/font&gt;" hideCoolTime="true" />
+    <String id="88888888" string="Событие &quot;Время в игре&quot;" hideCoolTime="true" />
+    <String id="1077777777" string="&lt;font color = '#ABF200'&gt;{EventType}&lt;/font&gt; &lt;font color = '#FFBB00'&gt;{EventValue}&lt;/font&gt;{RegionList}" hideCoolTime="true" />
+    <String id="1088888888" string="Событие &quot;Время в игре&quot;" hideCoolTime="true" />
+    <String id="1188888888" string="Взять" />
+    <String id="1288888888" string="Ок" />
+</StrSheet_AccountBenefit>

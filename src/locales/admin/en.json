@@ -30,6 +30,8 @@
 	"err_83886294": "Account already exists.",
 	"err_83886295": "User cannot log in.",
 	"err_167771910": "Database error occurred.",
+	"The session has expired.": "The session has expired.",
+	"Function access denied": "Function access denied",
 	"Login IP field must contain a valid IP value.": "Login IP field must contain a valid IP value.",
 	"Login port field must contain a valid port value.": "Login port field must contain a valid port value.",
 	"Language field must be a valid value.": "Language field must be a valid value.",
@@ -114,7 +116,8 @@
 	"activate to sort column ascending": "activate to sort column ascending",
 	"activate to sort column descending": "activate to sort column descending",
 	"Your Profile": "Your Profile",
-	"Session information": "Session information",
+	"Session Information": "Session Information",
+	"Permitted Functions": "Permitted Functions",
 	"User login ID": "User login ID",
 	"Authentication type": "Authentication type",
 	"Login ID": "Login ID",
@@ -338,5 +341,13 @@
 	"No items have been added to the product.": "No items have been added to the product.",
 	"A non-existent item has been added": "A non-existent item has been added",
 	"Edit Shop Product": "Edit Shop Product",
-	"Published": "Published"
+	"Published": "Published",
+	"Function": "Function",
+	"Last IP": "Last IP",
+	"Function name": "Function name",
+	"Shop Pay Logs": "Shop Pay Logs",
+	"Show full report": "Show full report",
+	"Show full log": "Show full log",
+	"Servers Stats": "Servers Stats",
+	"No data available.": "No data available."
 }

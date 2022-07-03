@@ -32,33 +32,33 @@
 				<div class="card">
 					<div class="card-block">
 						<section>
-							<div class="table">
-							<table class="table table-hover data-table-nosort">
-								<thead>
-									<tr>
-										<th><%= __("ID") %></th>
-										<th><%= __("Promocode ID") %></th>
-										<th><%= __("Promocode") %></th>
-										<th><%= __("Account ID") %></th>
-										<th><%= __("Activation time") %></th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-									<% promocodes.forEach(activated => { %>
-									<tr>
-										<td><%= activated.get("id") %></td>
-										<td><%= activated.get("promoCodeId") %></td>
-										<td><%= activated.get("promoCode") %></td>
-										<td><%= activated.get("accountDBID") %></td>
-										<td><%= moment(activated.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
-										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="/promocodes_activated/delete?id=<%= activated.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-										</td>
-									</tr>
-									<% }) %>
-								</tbody>
-							</table>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-nosort">
+									<thead>
+										<tr>
+											<th><%= __("ID") %></th>
+											<th><%= __("Promocode ID") %></th>
+											<th><%= __("Promocode") %></th>
+											<th><%= __("Account ID") %></th>
+											<th><%= __("Activation time") %></th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<% promocodes.forEach(activated => { %>
+										<tr>
+											<td><%= activated.get("id") %></td>
+											<td><%= activated.get("promoCodeId") %></td>
+											<td><%= activated.get("promoCode") %></td>
+											<td><%= activated.get("accountDBID") %></td>
+											<td><%= moment(activated.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
+											<td class="text-right">
+												<a class="btn btn-secondary btn-sm" href="/promocodes_activated/delete?id=<%= activated.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
+											</td>
+										</tr>
+										<% }) %>
+									</tbody>
+								</table>
 							</div>
 						</section>
 					</div>

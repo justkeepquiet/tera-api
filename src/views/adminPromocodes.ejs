@@ -12,39 +12,39 @@
 				<div class="card">
 					<div class="card-block">
 						<section>
-							<div class="table">
-							<table class="table table-hover data-table-nosort">
-								<thead>
-									<tr>
-										<th><%= __("ID") %></th>
-										<th><%= __("Promocode") %></th>
-										<th><%= __("Description") %> (<%= locale %>)</th>
-										<th><%= __("Assigned function") %></th>
-										<th><%= __("Active") %></th>
-										<th><%= __("Valid from") %></th>
-										<th><%= __("Valid to") %></th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-									<% promocodes.forEach(promocode => { %>
-									<tr>
-										<td><%= promocode.get("promoCodeId") %></td>
-										<td><%= promocode.get("promoCode") %></td>
-										<td><%= promocode.get("description") %></td>
-										<td><%= promocode.get("function") %></td>
-										<td><%= promocode.get("active") ? __("Yes") : __("No") %></td>
-										<td><%= moment(promocode.get("validAfter")).format("YYYY-MM-DD HH:MM:ss") %></td>
-										<td><%= moment(promocode.get("validBefore")).format("YYYY-MM-DD HH:MM:ss") %></td>
-										<td class="text-right">
-											<!--a class="btn btn-secondary btn-sm" href="/promocode_strings?promoCodeId=<%= promocode.get("promoCodeId") %>"><i class="fa fa-bars"></i></a-->
-											<a class="btn btn-secondary btn-sm" href="/promocodes/edit?promoCodeId=<%= promocode.get("promoCodeId") %>"><i class="fa fa-pencil"></i></a>
-											<a class="btn btn-secondary btn-sm" href="/promocodes/delete?promoCodeId=<%= promocode.get("promoCodeId") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-										</td>
-									</tr>
-									<% }) %>
-								</tbody>
-							</table>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-nosort">
+									<thead>
+										<tr>
+											<th><%= __("ID") %></th>
+											<th><%= __("Promocode") %></th>
+											<th><%= __("Description") %> (<%= locale %>)</th>
+											<th><%= __("Assigned function") %></th>
+											<th><%= __("Active") %></th>
+											<th><%= __("Valid from") %></th>
+											<th><%= __("Valid to") %></th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<% promocodes.forEach(promocode => { %>
+										<tr>
+											<td><%= promocode.get("promoCodeId") %></td>
+											<td><%= promocode.get("promoCode") %></td>
+											<td><%= promocode.get("description") %></td>
+											<td><%= promocode.get("function") %></td>
+											<td><%= promocode.get("active") ? __("Yes") : __("No") %></td>
+											<td><%= moment(promocode.get("validAfter")).format("YYYY-MM-DD HH:MM") %></td>
+											<td><%= moment(promocode.get("validBefore")).format("YYYY-MM-DD HH:MM") %></td>
+											<td class="text-right">
+												<!--a class="btn btn-secondary btn-sm" href="/promocode_strings?promoCodeId=<%= promocode.get("promoCodeId") %>"><i class="fa fa-bars"></i></a-->
+												<a class="btn btn-secondary btn-sm" href="/promocodes/edit?promoCodeId=<%= promocode.get("promoCodeId") %>"><i class="fa fa-pencil"></i></a>
+												<a class="btn btn-secondary btn-sm" href="/promocodes/delete?promoCodeId=<%= promocode.get("promoCodeId") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
+											</td>
+										</tr>
+										<% }) %>
+									</tbody>
+								</table>
 							</div>
 						</section>
 					</div>

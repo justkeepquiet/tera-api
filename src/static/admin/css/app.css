@@ -764,6 +764,10 @@ input,
 textarea {
   outline: none; }
 
+.form {
+  -ms-flex: 0 0 800px;
+  flex: 0 0 800px; }
+
 .form-group .row {
   margin-left: -10px;
   margin-right: -10px; }
@@ -1472,6 +1476,9 @@ span a {
 
 ::-webkit-scrollbar-thumb:window-inactive {
   background: #0075FF; }
+
+.table-hover tbody tr:hover {
+  background-color: #ffffff; }
 
 .table label {
   margin-bottom: 0; }

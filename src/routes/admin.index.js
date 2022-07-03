@@ -9,6 +9,8 @@ const LocalStrategy = require("passport-local").Strategy;
 const logger = require("../utils/logger");
 const SteerConnection = require("../utils/steerConnection");
 
+const steerEnabled = /^true$/i.test(process.env.ADMIN_PANEL_STEER_ENABLE);
+
 /**
 * @typedef {import("express").Express} Express
 */
@@ -19,7 +21,7 @@ const steer = new SteerConnection(
 	19, "WebIMSTool", { logger }
 );
 
-if (/^true$/i.test(process.env.ADMIN_PANEL_STEER_ENABLE)) {
+if (steerEnabled) {
 	steer.connect().catch(err =>
 		logger.error(err.toString())
 	);
@@ -39,9 +41,16 @@ module.exports = app => {
 
 	passport.use(new LocalStrategy({ usernameField: "login" },
 		(login, password, done) => {
-			if (/^true$/i.test(process.env.ADMIN_PANEL_STEER_ENABLE)) {
+			if (steerEnabled) {
 				return steer.checkLoginGetSessionKey(login, password, "127.0.0.1").then(sessionKey =>
-					done(null, { login, sessionKey })
+					steer.getFunctionList(sessionKey).then(functions =>
+						done(null, {
+							type: "steer",
+							login,
+							sessionKey,
+							functions
+						})
+					)
 				).catch(err =>
 					done(null, false, `err_${err.resultCode()}`)
 				);
@@ -50,7 +59,10 @@ module.exports = app => {
 			if (login === process.env.ADMIN_PANEL_QA_LOGIN &&
 				password === process.env.ADMIN_PANEL_QA_PASSWORD
 			) {
-				done(null, { login, password });
+				done(null, {
+					type: "qa",
+					login, password
+				});
 			} else {
 				done(null, false, "Invalid QA login or password.");
 			}
@@ -77,6 +89,7 @@ module.exports = app => {
 
 	app.use(passport.initialize());
 	app.use(passport.session());
+	// app.use(expressLayouts);
 
 	app.use("/static/images/tera-icons", express.static("data/tera-icons"));
 	app.use("/", require("./admin/admin.routes"));

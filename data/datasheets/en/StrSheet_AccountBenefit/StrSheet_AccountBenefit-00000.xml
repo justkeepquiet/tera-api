@@ -1,0 +1,152 @@
+<StrSheet_AccountBenefit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://vezel.dev/novadrop/dc/StrSheet_AccountBenefit StrSheet_AccountBenefit.xsd" xmlns="https://vezel.dev/novadrop/dc/StrSheet_AccountBenefit">
+    <String id="31" string="Proof of the expedition member" />
+    <String id="32" string="Skillful Adventurer" />
+    <String id="33" string="TERA Rewards" showLeftTimeOver1Year="false" />
+    <String id="34" string="Frontier" hideCoolTime="true" />
+    <String id="35" string="EP XP increases by 30" hideCoolTime="true" />
+    <String id="70" string="" showLeftTimeOver1Year="false" />
+    <String id="77" string="Monthly Pass" showLeftTimeOver1Year="false" />
+    <String id="101" string="" showLeftTimeOver1Year="true" />
+    <String id="102" string="" hideCoolTime="true" />
+    <String id="103" string="Japan Returning user" />
+    <String id="104" string="JP Tooltip" showLeftTimeOver1Year="true" />
+    <String id="105" string="" showLeftTimeOver1Year="true" />
+    <String id="106" string="" showLeftTimeOver1Year="true" />
+    <String id="107" string="" showLeftTimeOver1Year="true" />
+    <String id="108" string="" showLeftTimeOver1Year="true" />
+    <String id="109" string="" showLeftTimeOver1Year="true" />
+    <String id="333" string="Elite Status" />
+    <String id="334" string="Founder" />
+    <String id="335" string="Console Elite" />
+    <String id="350" string="Server Benefit" />
+    <String id="433" string="TERA Club" />
+    <String id="434" string="Veteran" />
+    <String id="435" string="Package Benefit I" />
+    <String id="436" string="Package Benefit II" />
+    <String id="437" string="Package Benefit III" />
+    <String id="500" string="VIP" showLeftTimeOver1Year="false" />
+    <String id="510" string="TW XP Boost Server" />
+    <String id="520" string="VIP2" />
+    <String id="530" string="" showLeftTimeOver1Year="false" />
+    <String id="533" string="VIP" />
+    <String id="534" string="Founder" hideCoolTime="true" />
+    <String id="600" string="Trade restricted" hideCoolTime="true" />
+    <String id="601" string="Basic Package" hideCoolTime="true" />
+    <String id="602" string="Trade Restriction" />
+    <String id="691" string="Safe Mode" />
+    <String id="701" string="VIP" showLeftTimeOver1Year="false" />
+    <String id="800" string="PC Café (Minor)" />
+    <String id="801" string="PC Café (Intermediate)" />
+    <String id="802" string="PC Café (Major)" />
+    <String id="803" string="PC Café (VIP)" />
+    <String id="804" string="User ELITE (Minor)" />
+    <String id="805" string="User ELITE (Intermediate)" />
+    <String id="806" string="User ELITE (Major)" />
+    <String id="807" string="User ELITE (VIP)" />
+    <String id="808" string="" />
+    <String id="809" string="" showLeftTimeOver1Year="false" />
+    <String id="810" string="" showLeftTimeOver1Year="false" />
+    <String id="1000" string="TERA PC cafe" hideCoolTime="true" />
+    <String id="1001" string="" hideCoolTime="true" />
+    <String id="10031" string="Reward: receive two Valkyon's Response when using instance matching." />
+    <String id="10032" string="Decrease cooldown of instance in half &amp; increase instance entries by 100%" />
+    <String id="10033" string="Earnest Money: exemption&lt;BR&gt;Trading brokerage fee: 5%&lt;BR&gt;Brokerage Registration Number: 50&lt;BR&gt;Broker's price negotiation: Available&lt;BR&gt;Reward: receive Valkyon's Response when using instance matching system between servers.&lt;BR&gt;Decrease cooldown of instance &amp; increase instance entries&lt;BR&gt;Increases maximum number and charging speed of Adventure Coin&lt;BR&gt;Apply Instance Beginner System&lt;BR&gt;Apply XP Boost and Reputation Boost&lt;BR&gt;Doubles access to Ghillieglade." />
+    <String id="10034" string="Reward: receive Valkyon's Response when using instance matching system between servers.&lt;BR&gt;Apply Instance Beginner System" />
+    <String id="10035" string="EP XP increases by 30%." />
+    <String id="10070" string="" />
+    <String id="10077" string="100% XP Boost (1 Hour) access&lt;BR&gt;Earnest Money: 2%&lt;BR&gt;Trading brokerage fee: 10%&lt;BR&gt;Brokerage Registration Number: 50&lt;BR&gt;Broker's price negotiation: Available&lt;BR&gt;Reward: receive Valkyon's Response when using instance matching system between servers.&lt;BR&gt;Decrease cooldown of instance &amp; increase instance entries&lt;BR&gt;Increases maximum number and charging speed of Adventure Coin&lt;BR&gt;Apply Instance Beginner System&lt;BR&gt;Apply XP Boost and EP Boost&lt;BR&gt;Increased Item XP gains&lt;BR&gt;Doubles access to Ghillieglade." />
+    <String id="10101" string="" />
+    <String id="10102" string="" />
+    <String id="10103" string="Japan Returning user tooltip" />
+    <String id="10104" string="JP Tooltip" />
+    <String id="10105" string="" />
+    <String id="10106" string="" />
+    <String id="10107" string="" />
+    <String id="10108" string="" />
+    <String id="10109" string="" />
+    <String id="10333" string="Monthly Account Rewards:&lt;BR&gt;Permanent 100% XP Boost.&lt;BR&gt;Permanent 100% Reputation Boost.&lt;BR&gt;Permanent 100% Quester's Gold Boost.&lt;BR&gt;Village Atlas.&lt;BR&gt;Travel Journal.&lt;BR&gt;Two Valkyon's Responses from Instance Matching.&lt;BR&gt;Twice as many available daily quests.&lt;BR&gt;Instance access twice as often.&lt;BR&gt;Up to 50 items active on brokerage.&lt;BR&gt;Exempt from earnest money requirements on brokerage.&lt;BR&gt;Brokerage fee of only 10%.&lt;BR&gt;Sampler mount (changes periodically).&lt;BR&gt;Daily boosts and loot boxes." />
+    <String id="10334" string="Permanent Account Rewards: &lt;BR&gt;8 free character slots per server.&lt;BR&gt;4 bank tabs per server.&lt;BR&gt;Terminus, the argon hybrid warhorse.&lt;BR&gt;&quot;Founder&quot; title.&lt;BR&gt;Up to 30 items active on brokerage." hideCoolTime="true" />
+    <String id="10335" string="Monthly Account Rewards:&lt;BR&gt;Permanent 100% XP Boost.&lt;BR&gt;Permanent 100% Reputation Boost.&lt;BR&gt;Permanent 100% Quester's Gold Boost.&lt;BR&gt;Village Atlas.&lt;BR&gt;Travel Journal.&lt;BR&gt;Two Valkyon's Responses from Instance Matching.&lt;BR&gt;Twice as many available daily quests.&lt;BR&gt;Instance access twice as often.&lt;BR&gt;Up to 50 items active on brokerage.&lt;BR&gt;Exempt from earnest money requirements on brokerage.&lt;BR&gt;Brokerage fee of only 10%.&lt;BR&gt;Sampler mount (changes periodically).&lt;BR&gt;Daily boosts and loot boxes." />
+    <String id="10433" string="Active Bonuses During Membership:&lt;BR&gt;Instance cooldowns halved and entries doubled&lt;BR&gt;Increased maximum and faster regeneration of Adventure Coins&lt;BR&gt;Special mount and pet&lt;BR&gt;Free teleportation to cities, towns and villages plus your own teleport locations&lt;BR&gt;Various boosts such as 100% increased character experience&lt;BR&gt;NPC summoning scrolls and keys&lt;BR&gt;Up to 50 active offers on the brokerage&lt;BR&gt;Reduced earnest money and instant buy fees from the brokerage&lt;BR&gt;Permanent crystalbind&lt;BR&gt;Additional daily deliveries to fishing NPCs&lt;BR&gt;Twice as many daily quests&lt;BR&gt;+50% skill advancement XP&lt;BR&gt;+100% EP XP&lt;BR&gt;... and much more!" />
+    <String id="10434" string="Permanent Account Rewards: &lt;BR&gt;8 characters available per server.&lt;BR&gt;4 bank tabs per server.&lt;BR&gt;&quot;Veteran of the Valkyon Federation&quot; title.&lt;BR&gt;Up to 30 items active on brokerage." hideCoolTime="true" />
+    <String id="10435" string="Permanent Account Rewards: &lt;BR&gt;8 characters available per server.&lt;BR&gt;4 bank tabs per server." hideCoolTime="true" />
+    <String id="10436" string="Permanent Account Rewards: &lt;BR&gt;10 characters available per server.&lt;BR&gt;5 bank tabs per server." hideCoolTime="true" />
+    <String id="10437" string="Permanent Account Rewards: &lt;BR&gt;12 characters available per server.&lt;BR&gt;6 bank tabs per server." hideCoolTime="true" />
+    <String id="10500" string="" />
+    <String id="10530" string="" />
+    <String id="10533" string="" />
+    <String id="10534" string="" />
+    <String id="10600" string="In order to prevent account theft, trading items or gold to inactive accounts is restricted.&lt;br&gt;Press the icon and verify your account to enable trading." />
+    <String id="10601" string="Permanent Account Rewards: &lt;BR&gt;8 characters available per server.&lt;BR&gt;4 bank tabs per server.&lt;BR&gt;&quot;Veteran of the Valkyon Federation&quot; title.&lt;BR&gt;Up to 30 items active on brokerage." />
+    <String id="10602" string="Trade restrictions have been placed on your account to prevent its misuse. You are unable to trade gold or items.&lt;br&gt;The restrictions will be lifted automatically after 168 hours. Even after you’ve completed the authentication process, the restrictions can only be lifted after a period of 168 hours." />
+    <String id="10691" string="Monthly Account Rewards:&lt;BR&gt;Two Valkyon's Responses from Instance Matching.&lt;BR&gt;Twice as many available daily quests.&lt;BR&gt;Instance access twice as often.&lt;BR&gt;Sampler mount (changes periodically).&lt;BR&gt;Up to 50 items active on brokerage.&lt;BR&gt;Exempt from earnest money requirements on brokerage.&lt;BR&gt;Brokerage fee of only 10%.&lt;BR&gt;&lt;BR&gt;Village atlas.&lt;BR&gt;Ten strongbox keys.&lt;BR&gt;Traveler's Insurance scrolls.&lt;BR&gt;Boosts that replenish daily." />
+    <String id="10733" string="" />
+    <String id="10800" string="" />
+    <String id="10801" string="" />
+    <String id="10802" string="" />
+    <String id="10803" string="" />
+    <String id="10804" string="" />
+    <String id="10805" string="" />
+    <String id="10806" string="" />
+    <String id="10807" string="" />
+    <String id="10808" string="" />
+    <String id="10809" string="" />
+    <String id="10810" string="" />
+    <String id="11000" string="Brokerage Registration Number: 50&lt;BR&gt;Broker's price negotiation: available&lt;BR&gt;Increases critical success chance by 10% on crafting items&lt;BR&gt;PC cafe inventory: available&lt;BR&gt;Acquire 100% additional experience&lt;BR&gt;Gain 100% additional hunting XP rewards&lt;BR&gt;Gain 10% additional EP XP rewards&lt;BR&gt;Significantly decreases crafting time." />
+    <String id="11001" string="" />
+    <String id="100031" string="" />
+    <String id="100032" string="" />
+    <String id="100033" string="Package Benefit" />
+    <String id="100034" string="Package Benefit" />
+    <String id="100070" string="Package Benefit" />
+    <String id="100077" string="Package Benefit" />
+    <String id="100101" string="" />
+    <String id="100102" string="" />
+    <String id="100103" string="Japan Returning user benefit" />
+    <String id="100104" string="JP Tooltip" />
+    <String id="100105" string="" />
+    <String id="100106" string="" />
+    <String id="100107" string="" />
+    <String id="100108" string="" />
+    <String id="100109" string="" />
+    <String id="100333" string="Package Benefit" />
+    <String id="100334" string="Package Benefit" />
+    <String id="100335" string="Package Benefit" />
+    <String id="100350" string="You are under the effect of double experience points." />
+    <String id="100433" string="Package Benefit" />
+    <String id="100434" string="Package Benefit" />
+    <String id="100435" string="Package Benefit" />
+    <String id="100436" string="Package Benefit" />
+    <String id="100437" string="Package Benefit" />
+    <String id="100500" string="" />
+    <String id="100530" string="" />
+    <String id="100533" string="" />
+    <String id="100534" string="" />
+    <String id="100600" string="Mail, Brokerage, Trade, Deathmatch, Guild Bank" />
+    <String id="100601" string="Package Benefit" />
+    <String id="100602" string="Mail, Brokerage, Trade, Deathmatch and Guild Bank" />
+    <String id="100691" string="Safe Mode" />
+    <String id="100733" string="" />
+    <String id="100800" string="" />
+    <String id="100801" string="" />
+    <String id="100802" string="" />
+    <String id="100803" string="" />
+    <String id="100804" string="" />
+    <String id="100805" string="" />
+    <String id="100806" string="" />
+    <String id="100807" string="" />
+    <String id="100808" string="" />
+    <String id="100809" string="" />
+    <String id="100810" string="" />
+    <String id="101000" string="Package Benefit" />
+    <String id="101001" string="" />
+    <String id="1000600" string="In order to prevent account theft, trading is restricted to inactive accounts." />
+    <String id="1000601" string="In order to prevent account theft, trading items or gold is restricted." />
+    <String id="1000602" string="In order to prevent account theft, trading items or gold is restricted." />
+    <String id="77777777" string="&lt;font color = '#00A0FF'&gt;{EventName}&lt;/font&gt;" hideCoolTime="true" />
+    <String id="88888888" string="Play Time Event" hideCoolTime="true" />
+    <String id="1077777777" string="&lt;font color = '#ABF200'&gt;{EventType}&lt;/font&gt; &lt;font color = '#FFBB00'&gt;{EventValue}&lt;/font&gt;{RegionList}" hideCoolTime="true" />
+    <String id="1088888888" string="The Play Time Event rewards players for accumulating play time each day and over the course of the event." hideCoolTime="true" />
+    <String id="1188888888" string="Claim" />
+    <String id="1288888888" string="Confirm" />
+</StrSheet_AccountBenefit>

@@ -1,9 +1,186 @@
 <%- contentFor("content") %>
-<article class="content">
-	<div class="title-block">
-		<h1 class="title">Welcome</h1>
-	</div>
-	<div class="alert alert-secondary">
-		Choose an action from the menu on the left.
-	</div>
+<article class="content dashboard-page">
+	<section class="section">
+		<div class="row">
+			<div class="col-md-6">
+				<section class="section">
+					<div class="card stats">
+						<div class="card-block">
+							<div class="title-block">
+								<h4 class="title"><%= __("Servers Stats") %></h4>
+							</div>
+							<% if (activityReport.length === 0) { %>
+							<div class="row stats-col">
+								<div class="col-12 col-md-4 stat-col">
+									<%= __("No data available.") %>
+								</div>
+							</div>
+							<% } else {%>
+							<% servers.forEach(server => { %>
+							<div class="row stats-col">
+								<div class="col-6 col-md-4 stat-col">
+									<div class="stat-icon">
+										<i class="fa fa-desktop"></i>
+									</div>
+									<div class="stat">
+										<div class="value"><%= server.get("nameString") %></div>
+										<div class="name"><%= server.get("loginIp") %>:<%= server.get("loginPort") %></div>
+									</div>
+								</div>
+								<div class="col-6 col-md-4 stat-col">
+									<div class="stat-icon">
+										<i class="fa fa-users"></i>
+									</div>
+									<div class="stat">
+										<div class="value"><%= server.get("usersTotal") %></div>
+										<div class="name">Registred Users</div>
+									</div>
+								</div>
+								<div class="col-6 col-md-4 stat-col">
+									<div class="stat-icon">
+										<i class="fa fa-sitemap"></i>
+									</div>
+									<div class="stat">
+										<div class="value"><%= server.get("usersOnline") %></div>
+										<div class="name">Online Users</div>
+									</div>
+									<div class="progress stat-progress">
+										<div class="progress-bar" <%- `style="width: ${Math.floor((server.get("usersOnline") / server.get("tresholdMedium")) * 100)}%;"` %>></div>
+									</div>
+								</div>
+							</div>
+							<% }) %>
+							<% } %>
+						</div>
+					</div><!--/stats-->
+				</section>
+				<section class="section">
+					<div class="card">
+						<div class="card-block">
+							<div class="title-block">
+								<h4 class="title"><%= __("Activity Report") %> <a class="ml-2 btn btn-sm btn-secondary" href="/report_activity"><%= __("Show full report") %></a></h4>
+							</div>
+							<div class="table-responsive">
+								<table class="table">
+									<thead>
+										<tr>
+											<th><%= __("Report time") %></th>
+											<th><%= __("Action (playtime)") %></th>
+											<th><%= __("Client IP") %></th>
+											<th><%= __("Account ID") %></th>
+											<th><%= __("Server ID") %></th>
+										</tr>
+									</thead>
+									<tbody>
+										<% if (activityReport.length === 0) { %>
+										<tr><td colspan="5" class="text-center"><%= __("No data available.") %></td></tr>
+										<% } else {%>
+										<% activityReport.forEach(report => { %>
+										<tr>
+											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
+											<td><%= report.get("reportType") == 2 ?
+												`${__("Logout")} (${(report.get("playTime") / 60).toFixed(2)} min.)` :
+												__("Login")
+											%></td>
+											<td><%= report.get("ip") %></td>
+											<td><%= report.get("accountDBID") %></td>
+											<td><%= report.get("serverId") %></td>
+										</tr>
+										<% }) %>
+										<% } %>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div><!--/report-->
+				</section>
+			</div> <!--/col-->
+			<div class="col-md-6">
+				<section class="section">
+					<div class="card">
+						<div class="card-block">
+							<div class="title-block">
+								<h4 class="title"><%= __("Shop Pay Logs") %> <a class="ml-2 btn btn-sm btn-secondary" href="/shop_pay_logs"><%= __("Show full log") %></a></h4>
+							</div>
+							<div class="table-responsive">
+								<table class="table">
+									<thead>
+										<tr>
+											<th><%= __("Log time") %></th>
+											<th><%= __("Account ID") %></th>
+											<th><%= __("Server ID") %></th>
+											<th><%= __("Product ID") %></th>
+											<th><%= __("Price") %></th>
+											<th><%= __("Status") %></th>
+										</tr>
+									</thead>
+									<tbody>
+										<% if (payLogs.length === 0) { %>
+										<tr><td colspan="6" class="text-center"><%= __("No data available.") %></td></tr>
+										<% } else {%>
+										<% payLogs.forEach(log => { %>
+										<tr>
+											<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
+											<td><%= log.get("accountDBID") %></td>
+											<td><%= log.get("serverId") %></td>
+											<td><a href="/shop_products/edit?id=<%= log.get("productId") %>"><%= log.get("productId") %></a></td>
+											<td><%= log.get("price") %></td>
+											<td class="text-<%= log.get("status") == "completed" ? "success" : "danger" %>"><%= log.get("status") %></td>
+										</tr>
+										<% }) %>
+										<% } %>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div><!--/report-->
+				</section>
+			</div> <!--/col-->
+
+		</div> <!--/row-->
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<section class="section">
+					<div class="card">
+						<div class="card-block">
+							<div class="title-block">
+								<h4 class="title"><%= __("Cheats Report") %> <a class="ml-2 btn btn-sm btn-secondary" href="/report_cheats"><%= __("Show full report") %></a></h4>
+							</div>
+							<div class="table-responsive">
+								<table class="table">
+									<thead>
+										<tr>
+											<th><%= __("Report time") %></th>
+											<th><%= __("Client IP") %></th>
+											<th><%= __("Cheat info") %></th>
+											<th><%= __("Account ID") %></th>
+											<th><%= __("Server ID") %></th>
+										</tr>
+									</thead>
+									<tbody>
+										<% if (cheatsReport.length === 0) { %>
+										<tr><td colspan="5" class="text-center"><%= __("No data available.") %></td></tr>
+										<% } else {%>
+										<% cheatsReport.forEach(report => { %>
+										<tr>
+											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
+											<td><%= report.get("ip") %></td>
+											<td><%= report.get("cheatInfo") %></td>
+											<td><%= report.get("accountDBID") %></td>
+											<td><%= report.get("serverId") %></td>
+										</tr>
+										<% }) %>
+										<% } %>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div><!--/report-->
+				</section>
+			</div>
+		</div>
+
+	</section>
 </article>

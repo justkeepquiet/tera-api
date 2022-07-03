@@ -47,7 +47,7 @@ class ExpressServer {
 				logReqDateTime: false,
 				logReqUserAgent: false,
 				stream: {
-					write: text => logger.debug(text.trim())
+					write: text => logger.debug(`${this.displayName}: ${text.trim()}`)
 				}
 			});
 		}

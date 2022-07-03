@@ -27,7 +27,10 @@ const reportHandler = (model, view) =>
 					[Op.gt]: from.format("YYYY-MM-DD HH:MM:ss"),
 					[Op.lt]: to.format("YYYY-MM-DD HH:MM:ss")
 				}
-			}
+			},
+			order: [
+				["reportTime", "DESC"]
+			]
 		}).then(reports =>
 			accountModel.serverInfo.findAll().then(servers => {
 				res.render(view, {

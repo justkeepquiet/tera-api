@@ -12,54 +12,54 @@
 				<div class="card">
 					<div class="card-block">
 						<section>
-							<div class="table">
-							<table class="table table-hover data-table-nosort">
-								<thead>
-									<tr>
-										<th><%= __("ID") %></th>
-										<th><%= __("User name") %></th>
-										<th><%= __("Email") %></th>
-										<th><%= __("Registred") %></th>
-										<th><%= __("Permission") %></th>
-										<th><%= __("Privilege") %></th>
-										<th><%= __("Last login") %></th>
-										<th><%= __("Last server") %></th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-									<% accounts.forEach(account => { %>
-									<tr>
-										<td><%= account.get("accountDBID") %></td>
-										<td><%= account.get("userName") %></td>
-										<td><%= account.get("email") %></td>
-										<td><%= moment(account.get("registerTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
-										<% if (account.get("permission") == 1) { %>
-										<td class="text-danger"><%= account.get("permission") %> (<%= __("Banned") %>)</td>
-										<% } else { %>
-										<td><%= account.get("permission") %></td>
-										<% } %>
-										<% if (account.get("privilege") == 32 || account.get("privilege") == 33) { %>
-										<td class="text-success"><%= account.get("privilege") %> (<%= __("GM") %>)</td>
-										<% } else if (account.get("privilege") == process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE) { %>
-											<td class="text-primary"><%= account.get("privilege") %> (<%= __("QA") %>)</td>
-										<% } else { %>
-										<td><%= account.get("privilege") %></td>
-										<% } %>
-										<td><%= account.get("lastLoginTime") ? moment(account.get("lastLoginTime")).format("YYYY-MM-DD HH:MM:ss") : "-" %></td>
-										<td><%= account.get("lastLoginServer") || "-" %></td>
-										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="/benefits?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-tags"></i></a>
-											<% if(account.get("lastLoginServer")) { %>
-											<a class="btn btn-secondary btn-sm" href="/characters?accountDBID=<%= account.get("accountDBID") %>&amp;serverId=<%= account.get("lastLoginServer") %>"><i class="fa fa-user"></i></a>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-nosort">
+									<thead>
+										<tr>
+											<th><%= __("ID") %></th>
+											<th><%= __("User name") %></th>
+											<th><%= __("Registred") %></th>
+											<th><%= __("Permission") %></th>
+											<th><%= __("Privilege") %></th>
+											<th><%= __("Last login") %></th>
+											<th><%= __("Last server") %></th>
+											<th><%= __("Last IP") %></th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<% accounts.forEach(account => { %>
+										<tr>
+											<td><%= account.get("accountDBID") %></td>
+											<td><a href="/accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><%= account.get("userName") %></a></td>
+											<td><%= moment(account.get("registerTime")).format("YYYY-MM-DD HH:MM") %></td>
+											<% if (account.get("permission") == 1) { %>
+											<td class="text-danger"><%= account.get("permission") %> (<%= __("Banned") %>)</td>
+											<% } else { %>
+											<td><%= account.get("permission") %></td>
 											<% } %>
-											<a class="btn btn-secondary btn-sm" href="/accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
-											<a class="btn btn-secondary btn-sm" href="/accounts/delete?accountDBID=<%= account.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-										</td>
-									</tr>
-									<% }) %>
-								</tbody>
-							</table>
+											<% if (account.get("privilege") == 32 || account.get("privilege") == 33) { %>
+											<td class="text-success"><%= account.get("privilege") %> (<%= __("GM") %>)</td>
+											<% } else if (account.get("privilege") == process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE) { %>
+												<td class="text-primary"><%= account.get("privilege") %> (<%= __("QA") %>)</td>
+											<% } else { %>
+											<td><%= account.get("privilege") %></td>
+											<% } %>
+											<td><%= account.get("lastLoginTime") ? moment(account.get("lastLoginTime")).format("YYYY-MM-DD HH:MM") : "-" %></td>
+											<td><%= account.get("lastLoginServer") || "-" %></td>
+											<td><%= account.get("lastLoginIP") || "-" %></td>
+											<td class="text-right">
+												<a class="btn btn-secondary btn-sm" href="/benefits?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-tags"></i></a>
+												<% if(account.get("lastLoginServer")) { %>
+												<a class="btn btn-secondary btn-sm" href="/characters?accountDBID=<%= account.get("accountDBID") %>&amp;serverId=<%= account.get("lastLoginServer") %>"><i class="fa fa-user"></i></a>
+												<% } %>
+												<a class="btn btn-secondary btn-sm" href="/accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
+												<a class="btn btn-secondary btn-sm" href="/accounts/delete?accountDBID=<%= account.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
+											</td>
+										</tr>
+										<% }) %>
+									</tbody>
+								</table>
 							</div>
 						</section>
 					</div>

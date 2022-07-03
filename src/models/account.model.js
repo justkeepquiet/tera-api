@@ -23,7 +23,7 @@ const sequelize = new Sequelize(
 	process.env.DB_ACCOUNT_USERNAME,
 	process.env.DB_ACCOUNT_PASSWORD,
 	{
-		logging: msg => logger.debug(msg),
+		logging: msg => logger.debug(`Account database: ${msg}`),
 		dialect: "mysql",
 		host: process.env.DB_ACCOUNT_HOST,
 		port: process.env.DB_ACCOUNT_PORT || 3306,
@@ -37,7 +37,7 @@ const sequelize = new Sequelize(
 sequelize.authenticate().then(() =>
 	logger.info("Account database connected.")
 ).catch(err => {
-	logger.error("Report database connection error:", err);
+	logger.error("Account database connection error:", err);
 	process.exit();
 });
 

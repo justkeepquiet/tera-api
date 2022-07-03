@@ -23,17 +23,18 @@ module.exports = express.Router()
 	.post("/login", ...adminController.loginAction)
 	.get("/logout", ...adminController.logoutAction)
 	// Admin Panel Home
+	.get("/test", ...adminController.home)
 	.get("/home", ...adminController.home) // @todo
 	.get("/profile", ...adminController.profile)
 	.get("/settings", ...adminController.settings)
 	// Account Management
-	.get("/characters", ...adminAccountsController.characters)
 	.get("/accounts", ...adminAccountsController.index)
 	.get("/accounts/add", ...adminAccountsController.add)
 	.post("/accounts/add", ...adminAccountsController.addAction)
 	.get("/accounts/edit", ...adminAccountsController.edit)
 	.post("/accounts/edit", ...adminAccountsController.editAction)
 	.get("/accounts/delete", ...adminAccountsController.deleteAction)
+	.get("/characters", ...adminAccountsController.characters)
 	// Account Benefits
 	.get("/benefits", ...adminBenefitsController.index)
 	.get("/benefits/add", ...adminBenefitsController.add)

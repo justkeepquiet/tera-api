@@ -12,32 +12,32 @@
 				<div class="card">
 					<div class="card-block">
 						<section>
-							<div class="table">
-							<table class="table table-hover data-table-nosort">
-								<thead>
-									<tr>
-										<th><%= __("ID") %></th>
-										<th><%= __("Start time") %></th>
-										<th><%= __("End time") %></th>
-										<th><%= __("Description") %></th>
-										<th></th>
-									</tr>
-								</thead>
-								<tbody>
-									<% maintenances.forEach(maintenance => { %>
-									<tr>
-										<td><%= maintenance.get("id") %></td>
-										<td><%= moment(maintenance.get("startTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
-										<td><%= moment(maintenance.get("endTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
-										<td><%= maintenance.get("description") %></td>
-										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="/maintenance/edit?id=<%= maintenance.get("id") %>"><i class="fa fa-pencil"></i></a>
-											<a class="btn btn-secondary btn-sm" href="/maintenance/delete?id=<%= maintenance.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-										</td>
-									</tr>
-									<% }) %>
-								</tbody>
-							</table>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-nosort">
+									<thead>
+										<tr>
+											<th><%= __("ID") %></th>
+											<th><%= __("Start time") %></th>
+											<th><%= __("End time") %></th>
+											<th><%= __("Description") %></th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<% maintenances.forEach(maintenance => { %>
+										<tr>
+											<td><%= maintenance.get("id") %></td>
+											<td><%= moment(maintenance.get("startTime")).format("YYYY-MM-DD HH:MM") %></td>
+											<td><%= moment(maintenance.get("endTime")).format("YYYY-MM-DD HH:MM") %></td>
+											<td><%= maintenance.get("description") %></td>
+											<td class="text-right">
+												<a class="btn btn-secondary btn-sm" href="/maintenance/edit?id=<%= maintenance.get("id") %>"><i class="fa fa-pencil"></i></a>
+												<a class="btn btn-secondary btn-sm" href="/maintenance/delete?id=<%= maintenance.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
+											</td>
+										</tr>
+										<% }) %>
+									</tbody>
+								</table>
 							</div>
 						</section>
 					</div>

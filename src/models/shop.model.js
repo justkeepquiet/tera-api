@@ -24,7 +24,7 @@ if (/^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE)) {
 		process.env.DB_SHOP_USERNAME,
 		process.env.DB_SHOP_PASSWORD,
 		{
-			logging: msg => logger.debug(msg),
+			logging: msg => logger.debug(`Shop database: ${msg}`),
 			dialect: "mysql",
 			host: process.env.DB_SHOP_HOST,
 			port: process.env.DB_SHOP_PORT || 3306,

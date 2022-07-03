@@ -29,7 +29,10 @@ module.exports.fund = [
 					[Op.gt]: from.format("YYYY-MM-DD HH:MM:ss"),
 					[Op.lt]: to.format("YYYY-MM-DD HH:MM:ss")
 				}
-			}
+			},
+			order: [
+				["createdAt", "DESC"]
+			]
 		}).then(logs =>
 			res.render("adminShopFundLogs", {
 				layout: "adminLayout",
@@ -67,7 +70,10 @@ module.exports.pay = [
 					[Op.gt]: from.format("YYYY-MM-DD HH:MM:ss"),
 					[Op.lt]: to.format("YYYY-MM-DD HH:MM:ss")
 				}
-			}
+			},
+			order: [
+				["createdAt", "DESC"]
+			]
 		}).then(logs =>
 			accountModel.serverInfo.findAll().then(servers => {
 				res.render("adminShopPayLogs", {

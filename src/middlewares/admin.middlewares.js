@@ -36,16 +36,24 @@ module.exports.validationHandler = (req, res, next) => {
 	next();
 };
 
-module.exports.accessFunctionHandler = (functionId = null) =>
+module.exports.accessFunctionHandler = () =>
 	/**
 	 * @type {import("express").RequestHandler}
 	 */
 	(req, res, next) => {
 		if (req.isAuthenticated()) {
 			res.locals.passport = req.session.passport;
+
+			if (req.session.passport.user.type === "steer" &&
+				!Object.values(req.session.passport.user.functions).includes(req.path)
+			) {
+				const msg = `${encodeURI(i18n.__("Function access denied"))}: ${req.path}`;
+				return res.redirect(`/logout?msg=${msg}`);
+			}
+
 			next();
 		} else {
-			res.redirect("/login");
+			res.redirect(`/login?msg=${encodeURI(i18n.__("The session has expired."))}`);
 		}
 	}
 ;
