@@ -2,14 +2,69 @@
 "use strict";
 
 const net = require("net");
-const { PromiseSocket } = require("promise-socket");
-const { OpMsg } = require("./protobuf/opMsg").op;
+const PromiseSocket = require("promise-socket").PromiseSocket;
+const struct = require("python-struct");
+const OpMsg = require("./protobuf/opMsg").op.OpMsg;
 const SteerError = require("./steerError");
-const SteerHelper = require("./steerHelper");
 
-class SteerConnection extends SteerHelper {
-	constructor(steerAddr, steerPort, serviceId, serviceName, params = { logger: null }) {
-		super(params);
+class SteerConnection {
+	constructor(steerAddr, steerPort, params) {
+		this.serverType = {
+			unknown: 254,
+			all: 255,
+			arbitergw: 0,
+			steerweb: 1,
+			steergw: 2,
+			steerhub: 3,
+			steermind: 4,
+			steerdb: 5,
+			gas: 6,
+			glogdb: 7,
+			steerclient: 8,
+			steercast: 9,
+			steersession: 10,
+			gameadmintool: 11,
+			steerbridge: 12,
+			hubgw: 13,
+			cardmaker: 14,
+			carddealer: 15,
+			boxapi: 16,
+			boxdm: 17,
+			dbgw: 18,
+			webcstool: 19,
+			cardsteerbridge: 20,
+			cardweb: 21,
+			carddb: 22,
+			boxdb: 23,
+			boxbridgedorian: 24,
+			scstool: 25,
+			boxweb: 26,
+			cardbridgenetmoderator: 27,
+			dicedb: 31,
+			dice: 32,
+			diceweb: 33,
+			steereye: 35
+		};
+
+		this.steerErrorCode = {
+			success: 0,
+			requestfail: 1,
+			unknownerror: 2,
+			accessdenied: 3,
+			notconnected: 4,
+			timeout: 5,
+			unknownfunction: 6,
+			nodata: 7,
+			dbdupkey: 8,
+			invalidcallee: 9,
+			userlogined: 10,
+			invalidsession: 11,
+			sessiontimeout: 12,
+			memcachederror: 13,
+			invalidexectype: 14,
+			dboperationfail: 15,
+			invalidstate: 16
+		};
 
 		this.socket = new PromiseSocket(new net.Socket());
 
@@ -20,8 +75,7 @@ class SteerConnection extends SteerHelper {
 		this.reconnectInterval = null;
 		this.steerAddr = steerAddr;
 		this.steerPort = steerPort;
-		this.serviceId = serviceId;
-		this.serviceName = serviceName;
+		this.params = params;
 
 		this.socket.socket.on("error", err => {
 			if (this.params.logger?.error) {
@@ -92,7 +146,7 @@ class SteerConnection extends SteerHelper {
 			jobId: 1
 		});
 
-		return this.sendAndRecv(this.socket, opMsg).then(data => {
+		return this.sendAndRecv(opMsg).then(data => {
 			if (this.getErrorCode(data.resultCode) === this.steerErrorCode.success) {
 				if (this.params.logger?.info) {
 					this.params.logger.info(`Steer Registred: category ${this.serviceId}, number ${this.uniqueServerId}`);
@@ -111,317 +165,50 @@ class SteerConnection extends SteerHelper {
 		});
 	}
 
-	checkLoginGetSessionKey(loginId, password, clientIp) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Steer Error: not registred", 3));
+	sendAndRecv(opMsg) {
+		if (this.params.logger?.debug) {
+			this.params.logger.debug(`Steer Send: ${JSON.stringify(opMsg)}`);
 		}
 
-		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steersession, 1), // openSession
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steersession, 0),
-			execType: OpMsg.ExecType.EXECUTE,
-			jobType: OpMsg.JobType.REQUEST,
+		const structFormat = ">HII";
+		const prefixLength = struct.sizeOf(structFormat);
+		const serializedData = OpMsg.encode(opMsg).finish();
 
-			arguments: [
-				OpMsg.Argument.create({
-					name: Buffer.from("loginid"),
-					value: Buffer.from(loginId)
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("password"),
-					value: Buffer.from(password)
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("clientIP"),
-					value: Buffer.from(clientIp)
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("additionalInfo"),
-					value: Buffer.from("")
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("serviceName"),
-					value: Buffer.from(this.serviceName)
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("allowMultipleLoginFlag"),
-					value: Buffer.from("1")
-				})
-			]
-		});
+		const sendData = Buffer.concat([
+			struct.pack(structFormat, serializedData.length + prefixLength, opMsg.senderGusid, opMsg.receiverGusid),
+			serializedData
+		]);
 
-		return this.sendAndRecv(this.socket, opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
+		return this.socket.write(sendData).then(() =>
+			this.socket.read().then(data => {
+				const responseData = data.slice(prefixLength);
+				const unserializedData = OpMsg.decode(responseData);
 
-			if (resultCode === this.steerErrorCode.success) {
-				return Promise.resolve(Buffer.from(data.sessionKey).toString());
-			} else {
-				return Promise.reject(new SteerError(`Steer Error: ${resultCode}`, data.resultCode));
-			}
-		});
-	}
-
-	validateSessionKey(sessionKey, clientIp) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Steer Error: not registred", 3));
-		}
-
-		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steersession, 2), // checkSession
-			sessionKey: Buffer.from(sessionKey),
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steersession, 0),
-			execType: OpMsg.ExecType.EXECUTE,
-			jobType: OpMsg.JobType.REQUEST,
-
-			arguments: [
-				OpMsg.Argument.create({
-					name: Buffer.from("clientIP"),
-					value: Buffer.from(clientIp)
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("additionalInfo"),
-					value: Buffer.from("")
-				})
-			]
-		});
-
-		return this.sendAndRecv(this.socket, opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
-
-			if (resultCode === this.steerErrorCode.success) {
-				const resultedSessionLey = Buffer.from(data.sessionKey).toString();
-
-				if (resultedSessionLey === sessionKey) {
-					return Promise.resolve(resultedSessionLey);
-				} else {
-					return Promise.reject(resultCode);
-				}
-			} else {
-				return Promise.reject(new SteerError(`Steer Error: ${resultCode}`, data.resultCode));
-			}
-		});
-	}
-
-	logoutSessionKey(sessionKey) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Steer Error: not registred", 3));
-		}
-
-		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steersession, 3), // closeSession
-			sessionKey: Buffer.from(sessionKey),
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steersession, 0),
-			execType: OpMsg.ExecType.EXECUTE,
-			jobType: OpMsg.JobType.REQUEST
-		});
-
-		return this.sendAndRecv(this.socket, opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
-
-			if (resultCode === this.steerErrorCode.success) {
-				return Promise.resolve(data);
-			} else {
-				return Promise.reject(new SteerError(`Steer Error: ${resultCode}`, data.resultCode));
-			}
-		});
-	}
-
-	getFunction(sessionKey, nextJobId, startPos, rowLength) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Steer Error: not registred", 3));
-		}
-
-		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steermind, 16), // getFunctionListBySessionAndServerType
-			sessionKey: Buffer.from(sessionKey),
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steermind, 0),
-			execType: OpMsg.ExecType.EXECUTE,
-			jobType: OpMsg.JobType.REQUEST,
-			jobId: nextJobId,
-
-			arguments: [
-				OpMsg.Argument.create({
-					name: Buffer.from("serverType"),
-					value: Buffer.from(this.serviceId.toString())
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("startPos"),
-					value: Buffer.from(startPos.toString())
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("rowlength"),
-					value: Buffer.from(rowLength.toString())
-				})
-			]
-		});
-
-		return this.sendAndRecv(this.socket, opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
-
-			if (resultCode === this.steerErrorCode.success) {
-				return Promise.resolve(data.resultSets[0]);
-			} else {
-				return Promise.reject(new SteerError(`Steer Error: ${resultCode}`, data.resultCode));
-			}
-		});
-	}
-
-	getFunctionList(sessionKey, jobId = 2) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Steer Error: not registred", 3));
-		}
-
-		let nextJobId = jobId;
-
-		return this.getFunction(sessionKey, nextJobId, 0, 0).then(({ totalCount }) => {
-			const promises = [];
-
-			for (let num = 0; num <= totalCount; num += 512) {
-				promises.push(this.getFunction(sessionKey, ++nextJobId, num, 512));
-			}
-
-			return Promise.all(promises).then(data => {
-				const functions = {};
-
-				for (const row of data[0].rows) {
-					if (row.values.length >= 6) {
-						functions[row.values[4].toString()] = row.values[5].toString();
-					}
+				if (this.params.logger?.debug) {
+					this.params.logger.debug(`Steer Recv: ${JSON.stringify(unserializedData)}`);
 				}
 
-				return Promise.resolve(functions);
-			});
-		});
+				return Promise.resolve(unserializedData);
+			})
+		);
 	}
 
-	getDisplayFunctionList(sessionKey, displayGroupType = 1) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Steer Error: not registred", 3));
-		}
-
-		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steermind, 35), // getDisplayFunctionListByUserIDintForMenu
-			sessionKey: Buffer.from(sessionKey),
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steermind, 0),
-			execType: OpMsg.ExecType.EXECUTE,
-			jobType: OpMsg.JobType.REQUEST,
-
-			arguments: [
-				OpMsg.Argument.create({
-					name: Buffer.from("displayGroupType"),
-					value: Buffer.from(displayGroupType.toString())
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("serviceName"),
-					value: Buffer.from(this.serviceName)
-				})
-			]
-		});
-
-		return this.sendAndRecv(this.socket, opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
-
-			if (resultCode === this.steerErrorCode.success) {
-				return Promise.resolve(data.resultSets[0]);
-			} else {
-				return Promise.reject(new SteerError(`Steer Error: ${resultCode}`, data.resultCode));
-			}
-		});
+	getErrorCode(resultCode) {
+		return this.readGuid(resultCode)?.value;
 	}
 
-	checkFunctionExecutionPrivilege(sessionKey, globalUniqueFunctionIDint, executeArguments = null) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Steer Error: not registred", 3));
-		}
+	makeGuid(cat, num) {
+		let category = parseInt(cat);
+		let number = parseInt(num);
 
-		let strExecuteArguments = "";
-
-		if (executeArguments !== null) {
-			if (executeArguments.length === 1) {
-				strExecuteArguments = executeArguments[0];
-			} else {
-				strExecuteArguments = executeArguments.join(",");
-			}
-		}
-
-		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steermind, 18), // checkFunctionExecutionPrivilege
-			sessionKey: Buffer.from(sessionKey),
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steermind, 0),
-			execType: OpMsg.ExecType.EXECUTE,
-			jobType: OpMsg.JobType.REQUEST,
-
-			arguments: [
-				OpMsg.Argument.create({
-					name: Buffer.from("globalUniqueFunctionIDint"),
-					value: Buffer.from(globalUniqueFunctionIDint.toString())
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("executeArguments"),
-					value: Buffer.from(strExecuteArguments)
-				})
-			]
-		});
-
-		return this.sendAndRecv(this.socket, opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
-
-			if (resultCode === this.steerErrorCode.success) {
-				return Promise.resolve(data.resultScalar);
-			} else {
-				return Promise.reject(new SteerError(`Steer Error: ${resultCode}`, data.resultCode));
-			}
-		});
+		return (category &= 0x000000FF) << 24 | (number &= 0x00FFFFFF);
 	}
 
-	notifyFunctionResult(sessionKey, strTransId, result, executeComment = null) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Steer Error: not registred", 3));
-		}
+	readGuid(guid) {
+		const serverType = parseInt(guid) >> 24;
+		const value = parseInt(guid) & 0x00FFFFFF;
 
-		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steermind, 19), // notifyFunctionResult
-			sessionKey: Buffer.from(sessionKey),
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steermind, 0),
-			execType: OpMsg.ExecType.EXECUTE,
-			jobType: OpMsg.JobType.REQUEST,
-
-			arguments: [
-				OpMsg.Argument.create({
-					name: Buffer.from("transactionIDint"),
-					value: Buffer.from(strTransId.toString())
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("executionResult"),
-					value: Buffer.from(result)
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("result"),
-					value: Buffer.from(result)
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("executeComment"),
-					value: Buffer.from(executeComment)
-				})
-			]
-		});
-
-		return this.sendAndRecv(this.socket, opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
-
-			if (resultCode === this.steerErrorCode.success) {
-				return Promise.resolve(resultCode);
-			} else {
-				return Promise.reject(new SteerError(`Steer Error: ${resultCode}`, data.resultCode));
-			}
-		});
+		return { serverType, value };
 	}
 }
 

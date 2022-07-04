@@ -24,8 +24,8 @@ const reportHandler = (model, view) =>
 				...serverId ? { serverId } : {},
 				...accountDBID ? { accountDBID } : {},
 				reportTime: {
-					[Op.gt]: from.format("YYYY-MM-DD HH:MM:ss"),
-					[Op.lt]: to.format("YYYY-MM-DD HH:MM:ss")
+					[Op.gt]: from.toDate(),
+					[Op.lt]: to.toDate()
 				}
 			},
 			order: [

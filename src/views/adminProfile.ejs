@@ -15,6 +15,9 @@
 							<%= __("User login ID") %>: <strong><%= passport.user.login %></strong>
 						</section>
 						<section>
+							<%= __("User login SN") %>: <strong><%= passport.user.userSn || __("No") %></strong>
+						</section>
+						<section>
 							<%= __("Authentication type") %>: <strong><%= passport.user.type === "steer" ? "STEER" : "QA Login" %></strong>
 						</section>
 					</div>

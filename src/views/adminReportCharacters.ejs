@@ -63,7 +63,7 @@ const classId = [
 								<tbody>
 									<% reports.forEach(report => { %>
 									<tr>
-										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= reportType[report.get("reportType")] %></td>
 										<td><%= report.get("characterId") %></td>
 										<td><%= report.get("name") || "-" %></td>

@@ -25,17 +25,6 @@ module.exports.i18nHandler = (req, res, next) => {
 	return next();
 };
 
-/**
- * @type {import("express").RequestHandler}
- */
-module.exports.validationHandler = (req, res, next) => {
-	if (!helpers.validationResultLog(req).isEmpty()) {
-		return module.exports.resultJson(res, 2, { msg: "invalid parameter" });
-	}
-
-	next();
-};
-
 module.exports.accessFunctionHandler = () =>
 	/**
 	 * @type {import("express").RequestHandler}

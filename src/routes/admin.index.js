@@ -7,15 +7,23 @@ const FileStore = require("session-file-store")(session);
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const logger = require("../utils/logger");
-const SteerConnection = require("../utils/steerConnection");
-
-const steerEnabled = /^true$/i.test(process.env.ADMIN_PANEL_STEER_ENABLE);
+const SteerFunctions = require("../utils/steerFunctions");
 
 /**
 * @typedef {import("express").Express} Express
 */
 
-const steer = new SteerConnection(
+const steerEnabled = /^true$/i.test(process.env.ADMIN_PANEL_STEER_ENABLE);
+
+const PlatformFunctions = require("../utils/platformFunctions");
+
+const platform = new PlatformFunctions(
+	process.env.ADMIN_PANEL_HUB_GW_HOST,
+	process.env.ADMIN_PANEL_HUB_GW_PORT,
+	19, { logger }
+);
+
+const steer = new SteerFunctions(
 	process.env.ADMIN_PANEL_STEER_HOST,
 	process.env.ADMIN_PANEL_STEER_PORT,
 	19, "WebIMSTool", { logger }
@@ -42,11 +50,12 @@ module.exports = app => {
 	passport.use(new LocalStrategy({ usernameField: "login" },
 		(login, password, done) => {
 			if (steerEnabled) {
-				return steer.checkLoginGetSessionKey(login, password, "127.0.0.1").then(sessionKey =>
+				return steer.checkLoginGetSessionKey(login, password, "127.0.0.1").then(({ sessionKey, userSn }) =>
 					steer.getFunctionList(sessionKey).then(functions =>
 						done(null, {
 							type: "steer",
 							login,
+							userSn,
 							sessionKey,
 							functions
 						})
@@ -61,7 +70,8 @@ module.exports = app => {
 			) {
 				done(null, {
 					type: "qa",
-					login, password
+					login,
+					password
 				});
 			} else {
 				done(null, false, "Invalid QA login or password.");
@@ -70,12 +80,10 @@ module.exports = app => {
 	));
 
 	app.use((req, res, next) => {
-		res.locals.__quickMenu = require("../../config/admin").quickMenu;
-		next();
-	});
-
-	app.use((req, res, next) => {
 		req.steer = steer;
+		req.platform = platform;
+		res.locals.__quickMenu = require("../../config/admin").quickMenu;
+
 		next();
 	});
 
@@ -89,7 +97,6 @@ module.exports = app => {
 
 	app.use(passport.initialize());
 	app.use(passport.session());
-	// app.use(expressLayouts);
 
 	app.use("/static/images/tera-icons", express.static("data/tera-icons"));
 	app.use("/", require("./admin/admin.routes"));

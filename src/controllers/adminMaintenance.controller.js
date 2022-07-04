@@ -77,8 +77,8 @@ module.exports.addAction = [
 		}
 
 		accountModel.maintenance.create({
-			startTime: moment(startTime).format("YYYY-MM-DD HH:MM:ss"),
-			endTime: moment(endTime).format("YYYY-MM-DD HH:MM:ss"),
+			startTime: moment(startTime).toDate(),
+			endTime: moment(endTime).toDate(),
 			description
 		}).then(() =>
 			res.redirect("/maintenance")
@@ -159,8 +159,8 @@ module.exports.editAction = [
 		}
 
 		accountModel.maintenance.update({
-			startTime: moment(startTime).format("YYYY-MM-DD HH:MM:ss"),
-			endTime: moment(endTime).format("YYYY-MM-DD HH:MM:ss"),
+			startTime: moment(startTime).toDate(),
+			endTime: moment(endTime).toDate(),
 			description
 		}, {
 			where: { id }

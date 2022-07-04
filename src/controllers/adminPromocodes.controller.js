@@ -126,8 +126,8 @@ module.exports.addAction = [
 			shopModel.promoCodes.create({
 				promoCode,
 				function: aFunction,
-				validAfter: moment(validAfter).format("YYYY-MM-DD HH:MM:ss"),
-				validBefore: moment(validBefore).format("YYYY-MM-DD HH:MM:ss"),
+				validAfter: moment(validAfter).toDate(),
+				validBefore: moment(validBefore).toDate(),
 				active: active == "on"
 			}, {
 				transaction
@@ -267,8 +267,8 @@ module.exports.editAction = [
 			return shopModel.sequelize.transaction(transaction =>
 				shopModel.promoCodes.update({
 					function: aFunction,
-					validAfter: moment(validAfter).format("YYYY-MM-DD HH:MM:ss"),
-					validBefore: moment(validBefore).format("YYYY-MM-DD HH:MM:ss"),
+					validAfter: moment(validAfter).toDate(),
+					validBefore: moment(validBefore).toDate(),
 					active: active == "on"
 				}, {
 					where: { promoCodeId },

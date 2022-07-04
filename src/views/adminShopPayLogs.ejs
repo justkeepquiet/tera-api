@@ -26,14 +26,14 @@
 								<tbody>
 									<% logs.forEach(log => { %>
 									<tr>
-										<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= log.get("accountDBID") %></td>
 										<td><%= log.get("serverId") %></td>
 										<td><a href="/shop_products/edit?id=<%= log.get("productId") %>"><%= log.get("productId") %></a></td>
 										<td><%= log.get("boxId") || "-" %></td>
 										<td><%= log.get("price") %></td>
 										<td class="text-<%= log.get("status") == "completed" ? "success" : "danger" %>"><%= log.get("status") %></td>
-										<td><%= moment(log.get("updatedAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td><%= moment(log.get("updatedAt")).format("YYYY-MM-DD HH:mm:ss") %></td>
 									</tr>
 									<% }) %>
 								</tbody>

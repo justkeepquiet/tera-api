@@ -23,7 +23,7 @@
 								<tbody>
 									<% reports.forEach(report => { %>
 									<tr>
-										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= report.get("ip") %></td>
 										<td><%= report.get("cheatInfo") %></td>
 										<td><%= report.get("accountDBID") %></td>

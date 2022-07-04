@@ -26,8 +26,8 @@ module.exports.fund = [
 			where: {
 				...accountDBID ? { accountDBID } : {},
 				createdAt: {
-					[Op.gt]: from.format("YYYY-MM-DD HH:MM:ss"),
-					[Op.lt]: to.format("YYYY-MM-DD HH:MM:ss")
+					[Op.gt]: from.toDate(),
+					[Op.lt]: to.toDate()
 				}
 			},
 			order: [
@@ -67,8 +67,8 @@ module.exports.pay = [
 			where: {
 				...(accountDBID ? { accountDBID } : {}),
 				createdAt: {
-					[Op.gt]: from.format("YYYY-MM-DD HH:MM:ss"),
-					[Op.lt]: to.format("YYYY-MM-DD HH:MM:ss")
+					[Op.gt]: from.toDate(),
+					[Op.lt]: to.toDate()
 				}
 			},
 			order: [

@@ -38,7 +38,7 @@
 								<tbody>
 									<% logs.forEach(log => { %>
 									<tr>
-										<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= log.get("accountDBID") %></td>
 										<td><%= log.get("amount") %></td>
 										<td><%= log.get("description") %></td>

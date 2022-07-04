@@ -23,7 +23,7 @@
 								<tbody>
 									<% reports.forEach(report => { %>
 									<tr>
-										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
+										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= report.get("reportType") == 2 ?
 											`${__("Logout")} (${(report.get("playTime") / 60).toFixed(2)} min.)` :
 											__("Login")

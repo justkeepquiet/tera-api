@@ -118,7 +118,7 @@ module.exports.addAction = [
 		accountModel.benefits.create({
 			accountDBID,
 			benefitId,
-			availableUntil: moment(availableUntil).format("YYYY-MM-DD HH:MM:ss")
+			availableUntil: moment(availableUntil).toDate()
 		}).then(() =>
 			res.redirect(`/benefits?accountDBID=${accountDBID}`)
 		).catch(err => {

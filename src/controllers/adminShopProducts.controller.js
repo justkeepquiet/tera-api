@@ -293,8 +293,8 @@ module.exports.addAction = [
 	 * @type {import("express").RequestHandler}
 	 */
 	async (req, res) => {
-		const { categoryId, fromCategoryId } = req.query;
-		const { validate, validAfter, validBefore, active, price,
+		const { fromCategoryId } = req.query;
+		const { categoryId, validate, validAfter, validBefore, active, price,
 			title, description, icon, rareGrade,
 			itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
 		const errors = helpers.validationResultLog(req);
@@ -320,44 +320,44 @@ module.exports.addAction = [
 				]
 			});
 
-			if (!errors.isEmpty() || validate == 1) {
-				const itemsPromises = [];
+			const itemsPromises = [];
+			const resolvedItems = {};
 
-				if (validate && itemTemplateIds) {
-					itemTemplateIds.forEach(itemTemplateId => {
-						shopModel.itemTemplates.belongsTo(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
-						shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+			if (itemTemplateIds) {
+				itemTemplateIds.forEach(itemTemplateId => {
+					shopModel.itemTemplates.belongsTo(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+					shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-						itemsPromises.push(shopModel.itemTemplates.findOne({
-							where: { itemTemplateId },
-							include: [{
-								model: shopModel.itemStrings,
-								where: {
-									language: i18n.getLocale()
-								},
-								attributes: []
-							}],
-							attributes: {
-								include: [
-									[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-									[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-									[shopModel.itemStrings.sequelize.col("string"), "string"],
-									[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
-								]
-							}
-						}));
-					});
-				}
-
-				const items = await Promise.all(itemsPromises);
-				const resolvedItems = {};
-
-				items.forEach(item => {
-					if (item) {
-						resolvedItems[item.get("itemTemplateId")] = item;
-					}
+					itemsPromises.push(shopModel.itemTemplates.findOne({
+						where: { itemTemplateId },
+						include: [{
+							model: shopModel.itemStrings,
+							where: {
+								language: i18n.getLocale()
+							},
+							attributes: []
+						}],
+						attributes: {
+							include: [
+								[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
+								[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
+								[shopModel.itemStrings.sequelize.col("string"), "string"],
+								[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+							]
+						}
+					}));
 				});
+			}
 
+			const items = await Promise.all(itemsPromises);
+
+			items.forEach(item => {
+				if (item) {
+					resolvedItems[item.get("itemTemplateId")] = item;
+				}
+			});
+
+			if (!errors.isEmpty() || validate == 1) {
 				return res.render("adminShopProductsAdd", {
 					layout: "adminLayout",
 					errors: errors.array(),
@@ -389,8 +389,8 @@ module.exports.addAction = [
 					price,
 					icon,
 					rareGrade: rareGrade === "" ? null : rareGrade,
-					validAfter: moment(validAfter).format("YYYY-MM-DD HH:MM:ss"),
-					validBefore: moment(validBefore).format("YYYY-MM-DD HH:MM:ss")
+					validAfter: moment(validAfter).toDate(),
+					validBefore: moment(validBefore).toDate()
 				}, {
 					transaction
 				});
@@ -403,14 +403,36 @@ module.exports.addAction = [
 							return;
 						}
 
-						promises.push(shopModel.productItems.create({
-							productId: product.get("id"),
-							itemTemplateId,
-							boxItemId: boxItemIds[i] || null,
-							boxItemCount: boxItemCounts[i]
-						}, {
-							transaction
-						}));
+						if (boxItemIds[i] === "" && resolvedItems[itemTemplateId]) {
+							promises.push(req.platform.createServiceItem(
+								req.session.passport.user.userSn || 0,
+								itemTemplateId,
+								1,
+								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
+								true,
+								resolvedItems[itemTemplateId].get("string"),
+								resolvedItems[itemTemplateId].get("toolTip"),
+								"1,1,1"
+							).then(boxItemId =>
+								shopModel.productItems.create({
+									productId: product.get("id"),
+									itemTemplateId,
+									boxItemId,
+									boxItemCount: boxItemCounts[i]
+								}, {
+									transaction
+								})
+							));
+						} else {
+							promises.push(shopModel.productItems.create({
+								productId: product.get("id"),
+								itemTemplateId,
+								boxItemId: boxItemIds[i] || null,
+								boxItemCount: boxItemCounts[i]
+							}, {
+								transaction
+							}));
+						}
 					});
 				}
 
@@ -686,44 +708,44 @@ module.exports.editAction = [
 				]
 			});
 
-			if (!errors.isEmpty() || validate == 1) {
-				const itemsPromises = [];
+			const itemsPromises = [];
+			const resolvedItems = {};
 
-				if (validate && itemTemplateIds) {
-					itemTemplateIds.forEach(itemTemplateId => {
-						shopModel.itemTemplates.belongsTo(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
-						shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+			if (itemTemplateIds) {
+				itemTemplateIds.forEach(itemTemplateId => {
+					shopModel.itemTemplates.belongsTo(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+					shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-						itemsPromises.push(shopModel.itemTemplates.findOne({
-							where: { itemTemplateId },
-							include: [{
-								model: shopModel.itemStrings,
-								where: {
-									language: i18n.getLocale()
-								},
-								attributes: []
-							}],
-							attributes: {
-								include: [
-									[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-									[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-									[shopModel.itemStrings.sequelize.col("string"), "string"],
-									[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
-								]
-							}
-						}));
-					});
-				}
-
-				const items = await Promise.all(itemsPromises);
-				const resolvedItems = {};
-
-				items.forEach(item => {
-					if (item) {
-						resolvedItems[item.get("itemTemplateId")] = item;
-					}
+					itemsPromises.push(shopModel.itemTemplates.findOne({
+						where: { itemTemplateId },
+						include: [{
+							model: shopModel.itemStrings,
+							where: {
+								language: i18n.getLocale()
+							},
+							attributes: []
+						}],
+						attributes: {
+							include: [
+								[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
+								[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
+								[shopModel.itemStrings.sequelize.col("string"), "string"],
+								[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+							]
+						}
+					}));
 				});
+			}
 
+			const items = await Promise.all(itemsPromises);
+
+			items.forEach(item => {
+				if (item) {
+					resolvedItems[item.get("itemTemplateId")] = item;
+				}
+			});
+
+			if (!errors.isEmpty() || validate == 1) {
 				return res.render("adminShopProductsEdit", {
 					layout: "adminLayout",
 					errors: errors.array(),
@@ -759,14 +781,15 @@ module.exports.editAction = [
 						sort,
 						icon,
 						rareGrade: rareGrade === "" ? null : rareGrade,
-						validAfter: moment(validAfter).format("YYYY-MM-DD HH:MM:ss"),
-						validBefore: moment(validBefore).format("YYYY-MM-DD HH:MM:ss")
+						validAfter: moment(validAfter).toDate(),
+						validBefore: moment(validBefore).toDate()
 					}, {
 						where: { id: product.get("id") },
 						transaction
 					})
 				];
 
+				// @todo не удалять все предметы, а крутить цикл по списку удаляемых
 				promises.push(shopModel.productItems.destroy({
 					where: { productId: product.get("id") },
 					transaction
@@ -778,17 +801,40 @@ module.exports.editAction = [
 							return;
 						}
 
-						promises.push(shopModel.productItems.create({
-							productId: product.get("id"),
-							itemTemplateId,
-							boxItemId: boxItemIds[i] || null,
-							boxItemCount: boxItemCounts[i]
-						}, {
-							transaction
-						}));
+						if (boxItemIds[i] === "" && resolvedItems[itemTemplateId]) {
+							promises.push(req.platform.createServiceItem(
+								req.session.passport.user.userSn || 0,
+								itemTemplateId,
+								1,
+								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
+								true,
+								resolvedItems[itemTemplateId].get("string"),
+								resolvedItems[itemTemplateId].get("toolTip"),
+								"1,1,1"
+							).then(boxItemId =>
+								shopModel.productItems.create({ // @todo заменить на upsert()
+									productId: product.get("id"),
+									itemTemplateId,
+									boxItemId,
+									boxItemCount: boxItemCounts[i]
+								}, {
+									transaction
+								})
+							));
+						} else {
+							promises.push(shopModel.productItems.create({ // @todo заменить на upsert()
+								productId: product.get("id"),
+								itemTemplateId,
+								boxItemId: boxItemIds[i] || null,
+								boxItemCount: boxItemCounts[i]
+							}, {
+								transaction
+							}));
+						}
 					});
 				}
 
+				// @todo не удалять все строки, а крутить цикл по списку очищенных
 				promises.push(shopModel.productStrings.destroy({
 					where: { productId: product.get("id") },
 					transaction
@@ -796,7 +842,7 @@ module.exports.editAction = [
 
 				if (title || description) {
 					shopLocales.forEach(language =>
-						promises.push(shopModel.productStrings.create({
+						promises.push(shopModel.productStrings.create({ // @todo заменить на upsert()
 							productId: product.get("id"),
 							...title[language] ? { title: title[language] } : {},
 							...description[language] ? { description: description[language] } : {},
@@ -825,33 +871,55 @@ module.exports.deleteAction = [
 	/**
 	 * @type {import("express").RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res) => {
 		const { id, fromCategoryId } = req.query;
 
-		if (!id) {
-			return res.redirect("/shop_products");
-		}
+		try {
+			if (!id) {
+				return res.redirect("/shop_products");
+			}
 
-		shopModel.sequelize.transaction(transaction =>
-			Promise.all([
-				shopModel.products.destroy({
-					where: { id },
-					transaction
-				}),
-				shopModel.productStrings.destroy({
-					where: { productId: id },
-					transaction
-				}),
-				shopModel.productItems.destroy({
-					where: { productId: id },
-					transaction
-				})
-			]).then(() =>
-				res.redirect(`/shop_products?categoryId=${fromCategoryId}`)
-			)
-		).catch(err => {
+			const productItems = await shopModel.productItems.findAll({
+				where: { productId: id }
+			});
+
+			await shopModel.sequelize.transaction(async transaction => {
+				const promises = [
+					shopModel.products.destroy({
+						where: { id },
+						transaction
+					}),
+					shopModel.productStrings.destroy({
+						where: { productId: id },
+						transaction
+					})
+				];
+
+				if (productItems !== null) {
+					for (const productItem of productItems) {
+						if (productItem.get("boxItemId")) {
+							promises.push(req.platform.removeServiceItem(productItem.get("boxItemId")).then(() =>
+								shopModel.productItems.destroy({
+									where: { id: productItem.get("id") },
+									transaction
+								})
+							));
+						} else {
+							promises.push(shopModel.productItems.destroy({
+								where: { id: productItem.get("id") },
+								transaction
+							}));
+						}
+					}
+				}
+
+				await Promise.all(promises);
+			});
+
+			res.redirect(`/shop_products?categoryId=${fromCategoryId}`);
+		} catch (err) {
 			logger.error(err.toString());
 			res.render("adminError", { layout: "adminLayout", err });
-		});
+		}
 	}
 ];

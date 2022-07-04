@@ -149,7 +149,7 @@ module.exports.addAction = [
 						promises.push(accountModel.benefits.create({
 							accountDBID: account.get("accountDBID"),
 							benefitId,
-							availableUntil: moment(availableUntils[i]).format("YYYY-MM-DD HH:MM:ss")
+							availableUntil: moment(availableUntils[i]).toDate()
 						}, {
 							transaction
 						}));

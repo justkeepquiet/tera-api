@@ -37,7 +37,27 @@
 								<input type="number" class="form-control boxed" name="privilege" value="<%= permission %>">
 							</div>
 						</div>
-						<div class="form-group row"></div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label>
+									<button type="button" class="btn btn-secondary" id="permission-ban"><i class="fa fa-ban"></i> <%= __("Ban account") %></button>
+								</label>
+								<label>
+									<button type="button" class="btn btn-secondary" id="permission-reset"><i class="fa fa-refresh"></i> <%= __("Reset") %></button>
+								</label>
+							</div>
+							<div class="col-sm-6">
+								<label>
+									<button type="button" class="btn btn-secondary" id="privilege-gm"><i class="fa fa-shield"></i> <%= __("Set GM") %></button>
+								</label>
+								<label>
+									<button type="button" class="btn btn-secondary" id="privilege-qa"><i class="fa fa-wrench"></i> <%= __("Set QA") %></button>
+								</label>
+								<label>
+									<button type="button" class="btn btn-secondary" id="privilege-reset"><i class="fa fa-refresh"></i> <%= __("Reset") %></button>
+								</label>
+							</div>
+						</div>
 						<div class="title-block">
 							<h3 class="title"><%= __("Account Benefits") %></h3>
 						</div>
@@ -79,6 +99,21 @@
 <%- contentFor("scripts") %>
 <script>
 	$(function() {
+		$("#permission-ban").click(function() {
+			$("input[name='permission']").val("1");
+		});
+		$("#permission-reset").click(function() {
+			$("input[name='permission']").val("0");
+		});
+		$("#privilege-gm").click(function() {
+			$("input[name='privilege']").val("33");
+		});
+		$("#privilege-qa").click(function() {
+			$("input[name='privilege']").val("<%= process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE %>");
+		});
+		$("#privilege-reset").click(function() {
+			$("input[name='privilege']").val("0");
+		});
 		$(".remove-benefit").click(function() {
 			$(this).closest(".row").remove();
 		});

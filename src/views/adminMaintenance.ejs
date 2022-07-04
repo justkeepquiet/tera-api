@@ -27,8 +27,8 @@
 										<% maintenances.forEach(maintenance => { %>
 										<tr>
 											<td><%= maintenance.get("id") %></td>
-											<td><%= moment(maintenance.get("startTime")).format("YYYY-MM-DD HH:MM") %></td>
-											<td><%= moment(maintenance.get("endTime")).format("YYYY-MM-DD HH:MM") %></td>
+											<td><%= moment(maintenance.get("startTime")).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= moment(maintenance.get("endTime")).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= maintenance.get("description") %></td>
 											<td class="text-right">
 												<a class="btn btn-secondary btn-sm" href="/maintenance/edit?id=<%= maintenance.get("id") %>"><i class="fa fa-pencil"></i></a>

@@ -12,7 +12,7 @@
 							<% if (activityReport.length === 0) { %>
 							<div class="row stats-col">
 								<div class="col-12 col-md-4 stat-col">
-									<%= __("No data available.") %>
+									<%= __("No data available in table") %>
 								</div>
 							</div>
 							<% } else {%>
@@ -73,11 +73,11 @@
 									</thead>
 									<tbody>
 										<% if (activityReport.length === 0) { %>
-										<tr><td colspan="5" class="text-center"><%= __("No data available.") %></td></tr>
+										<tr><td colspan="5" class="text-center"><%= __("No data available in table") %></td></tr>
 										<% } else {%>
 										<% activityReport.forEach(report => { %>
 										<tr>
-											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
+											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm:ss") %></td>
 											<td><%= report.get("reportType") == 2 ?
 												`${__("Logout")} (${(report.get("playTime") / 60).toFixed(2)} min.)` :
 												__("Login")
@@ -116,11 +116,11 @@
 									</thead>
 									<tbody>
 										<% if (payLogs.length === 0) { %>
-										<tr><td colspan="6" class="text-center"><%= __("No data available.") %></td></tr>
+										<tr><td colspan="6" class="text-center"><%= __("No data available in table") %></td></tr>
 										<% } else {%>
 										<% payLogs.forEach(log => { %>
 										<tr>
-											<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:MM:ss") %></td>
+											<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:mm:ss") %></td>
 											<td><%= log.get("accountDBID") %></td>
 											<td><%= log.get("serverId") %></td>
 											<td><a href="/shop_products/edit?id=<%= log.get("productId") %>"><%= log.get("productId") %></a></td>
@@ -161,11 +161,11 @@
 									</thead>
 									<tbody>
 										<% if (cheatsReport.length === 0) { %>
-										<tr><td colspan="5" class="text-center"><%= __("No data available.") %></td></tr>
+										<tr><td colspan="5" class="text-center"><%= __("No data available in table") %></td></tr>
 										<% } else {%>
 										<% cheatsReport.forEach(report => { %>
 										<tr>
-											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:MM:ss") %></td>
+											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm:ss") %></td>
 											<td><%= report.get("ip") %></td>
 											<td><%= report.get("cheatInfo") %></td>
 											<td><%= report.get("accountDBID") %></td>
