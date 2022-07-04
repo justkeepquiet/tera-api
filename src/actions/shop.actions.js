@@ -11,7 +11,7 @@ class Shop {
 
 	fund(amount) {
 		return shopModel.accounts.findOne({
-			accountDBID: this.userId
+			where: { accountDBID: this.userId }
 		}).then(account => {
 			if (account !== null) {
 				return shopModel.accounts.increment({
