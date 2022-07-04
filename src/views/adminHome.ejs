@@ -79,8 +79,8 @@
 										<tr>
 											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= report.get("reportType") == 2 ?
-												`${__("Logout")} (${(report.get("playTime") / 60).toFixed(2)} ${__("min.")})` :
-												__("Login")
+												`${__("Leave game")} (${(report.get("playTime") / 60).toFixed(2)} ${__("min.")})` :
+												__("Enter game")
 											%></td>
 											<td><%= report.get("ip") %></td>
 											<td><%= report.get("accountDBID") %></td>
