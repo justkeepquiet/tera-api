@@ -77,9 +77,9 @@
 										<% } else {%>
 										<% activityReport.forEach(report => { %>
 										<tr>
-											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm:ss") %></td>
+											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= report.get("reportType") == 2 ?
-												`${__("Logout")} (${(report.get("playTime") / 60).toFixed(2)} min.)` :
+												`${__("Logout")} (${(report.get("playTime") / 60).toFixed(2)} ${__("min.")})` :
 												__("Login")
 											%></td>
 											<td><%= report.get("ip") %></td>
@@ -120,7 +120,7 @@
 										<% } else {%>
 										<% payLogs.forEach(log => { %>
 										<tr>
-											<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:mm:ss") %></td>
+											<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= log.get("accountDBID") %></td>
 											<td><%= log.get("serverId") %></td>
 											<td><a href="/shop_products/edit?id=<%= log.get("productId") %>"><%= log.get("productId") %></a></td>
@@ -165,7 +165,7 @@
 										<% } else {%>
 										<% cheatsReport.forEach(report => { %>
 										<tr>
-											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm:ss") %></td>
+											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= report.get("ip") %></td>
 											<td><%= report.get("cheatInfo") %></td>
 											<td><%= report.get("accountDBID") %></td>
