@@ -398,12 +398,8 @@ module.exports.addAction = [
 				const promises = [];
 
 				if (itemTemplateIds) {
-					itemTemplateIds.forEach((itemTemplateId, i) => {
-						if (!itemTemplateId || boxItemIds[i] === undefined || boxItemCounts[i] === undefined) {
-							return;
-						}
-
-						if (boxItemIds[i] === "" && resolvedItems[itemTemplateId]) {
+					itemTemplateIds.forEach((itemTemplateId, index) => {
+						if (boxItemIds[index] === "" && resolvedItems[itemTemplateId]) {
 							promises.push(req.platform.createServiceItem(
 								req.session.passport.user.userSn || 0,
 								itemTemplateId,
@@ -418,7 +414,7 @@ module.exports.addAction = [
 									productId: product.get("id"),
 									itemTemplateId,
 									boxItemId,
-									boxItemCount: boxItemCounts[i]
+									boxItemCount: boxItemCounts[index]
 								}, {
 									transaction
 								})
@@ -427,8 +423,8 @@ module.exports.addAction = [
 							promises.push(shopModel.productItems.create({
 								productId: product.get("id"),
 								itemTemplateId,
-								boxItemId: boxItemIds[i] || null,
-								boxItemCount: boxItemCounts[i]
+								boxItemId: boxItemIds[index] || null,
+								boxItemCount: boxItemCounts[index]
 							}, {
 								transaction
 							}));
@@ -772,6 +768,14 @@ module.exports.editAction = [
 				});
 			}
 
+			const productItems = await shopModel.productItems.findAll({
+				where: { productId: product.get("id") }
+			});
+
+			const productStrings = await shopModel.productStrings.findAll({
+				where: { productId: product.get("id") }
+			});
+
 			await shopModel.sequelize.transaction(async transaction => {
 				const promises = [
 					shopModel.products.update({
@@ -789,19 +793,12 @@ module.exports.editAction = [
 					})
 				];
 
-				// @todo не удалять все предметы, а крутить цикл по списку удаляемых
-				promises.push(shopModel.productItems.destroy({
-					where: { productId: product.get("id") },
-					transaction
-				}));
+				productItems.forEach(productItem => {
+					const itemTemplateId = productItem.get("itemTemplateId");
+					const index = Object.keys(itemTemplateIds).find(k => itemTemplateIds[k] == itemTemplateId);
 
-				if (itemTemplateIds) {
-					itemTemplateIds.forEach((itemTemplateId, i) => {
-						if (!itemTemplateId || boxItemIds[i] === undefined || boxItemCounts[i] === undefined) {
-							return;
-						}
-
-						if (boxItemIds[i] === "" && resolvedItems[itemTemplateId]) {
+					if (itemTemplateIds[index]) {
+						if (boxItemIds[index] != productItem.get("boxItemId")) {
 							promises.push(req.platform.createServiceItem(
 								req.session.passport.user.userSn || 0,
 								itemTemplateId,
@@ -812,46 +809,111 @@ module.exports.editAction = [
 								resolvedItems[itemTemplateId].get("toolTip"),
 								"1,1,1"
 							).then(boxItemId =>
-								shopModel.productItems.create({ // @todo заменить на upsert()
-									productId: product.get("id"),
-									itemTemplateId,
+								shopModel.productItems.update({
 									boxItemId,
-									boxItemCount: boxItemCounts[i]
+									boxItemCount: boxItemCounts[index] || 1
 								}, {
+									where: { id: productItem.get("id") },
 									transaction
 								})
 							));
 						} else {
-							promises.push(shopModel.productItems.create({ // @todo заменить на upsert()
-								productId: product.get("id"),
-								itemTemplateId,
-								boxItemId: boxItemIds[i] || null,
-								boxItemCount: boxItemCounts[i]
+							promises.push(shopModel.productItems.update({
+								boxItemId: boxItemIds[index] || null,
+								boxItemCount: boxItemCounts[index] || 1
 							}, {
+								where: { id: productItem.get("id") },
 								transaction
 							}));
 						}
-					});
-				}
+					} else {
+						if (productItem.get("boxItemId")) {
+							promises.push(req.platform.removeServiceItem(productItem.get("boxItemId")));
+						}
 
-				// @todo не удалять все строки, а крутить цикл по списку очищенных
-				promises.push(shopModel.productStrings.destroy({
-					where: { productId: product.get("id") },
-					transaction
-				}));
-
-				if (title || description) {
-					shopLocales.forEach(language =>
-						promises.push(shopModel.productStrings.create({ // @todo заменить на upsert()
-							productId: product.get("id"),
-							...title[language] ? { title: title[language] } : {},
-							...description[language] ? { description: description[language] } : {},
-							language
-						}, {
+						promises.push(shopModel.productItems.destroy({
+							where: { id: productItem.get("id") },
 							transaction
+						}));
+					}
+				});
+
+				if (itemTemplateIds) {
+					itemTemplateIds.forEach((itemTemplateId, index) =>
+						promises.push(shopModel.productItems.findOne({
+							where: {
+								productId: product.get("id"),
+								itemTemplateId
+							}
+						}).then(async productItem => {
+							if (productItem === null) {
+								if (!boxItemIds[index]) {
+									return req.platform.createServiceItem(
+										req.session.passport.user.userSn || 0,
+										itemTemplateId,
+										1,
+										moment().utc().format("YYYY-MM-DD HH:mm:ss"),
+										true,
+										resolvedItems[itemTemplateId].get("string"),
+										resolvedItems[itemTemplateId].get("toolTip"),
+										"1,1,1"
+									).then(boxItemId =>
+										shopModel.productItems.create({
+											productId: product.get("id"),
+											itemTemplateId,
+											boxItemId,
+											boxItemCount: boxItemCounts[index] || 1
+										}, {
+											transaction
+										})
+									);
+								} else {
+									return shopModel.productItems.create({
+										productId: product.get("id"),
+										itemTemplateId,
+										boxItemId: boxItemIds[index] || null,
+										boxItemCount: boxItemCounts[index] || 1
+									}, {
+										transaction
+									});
+								}
+							}
 						}))
 					);
 				}
+
+				productStrings.forEach(productString => {
+					const language = productString.get("language");
+
+					if (title[language] || description[language]) {
+						promises.push(shopModel.productStrings.update({
+							title: title[language] || null,
+							description: description[language] || null
+						}, {
+							where: { id: productString.get("id") },
+							transaction
+						}));
+					} else {
+						promises.push(shopModel.productStrings.destroy({
+							where: { id: productString.get("id") },
+							transaction
+						}));
+					}
+				});
+
+				shopLocales.forEach(language => {
+					if (title[language] || description[language]) {
+						promises.push(shopModel.productStrings.create({
+							productId: product.get("id"),
+							title: title[language] || null,
+							description: description[language] || null,
+							language
+						}, {
+							ignoreDuplicates: true,
+							transaction
+						}));
+					}
+				});
 
 				await Promise.all(promises);
 			});
@@ -898,12 +960,14 @@ module.exports.deleteAction = [
 				if (productItems !== null) {
 					for (const productItem of productItems) {
 						if (productItem.get("boxItemId")) {
-							promises.push(req.platform.removeServiceItem(productItem.get("boxItemId")).then(() =>
-								shopModel.productItems.destroy({
-									where: { id: productItem.get("id") },
-									transaction
-								})
-							));
+							if (productItem.get("boxItemId")) {
+								promises.push(req.platform.removeServiceItem(productItem.get("boxItemId")));
+							}
+
+							promises.push(shopModel.productItems.destroy({
+								where: { id: productItem.get("id") },
+								transaction
+							}));
 						} else {
 							promises.push(shopModel.productItems.destroy({
 								where: { id: productItem.get("id") },

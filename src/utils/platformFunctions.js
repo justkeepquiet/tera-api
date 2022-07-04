@@ -157,15 +157,15 @@ class PlatformFunctions extends PlatformConnection {
 				}),
 				OpMsg.Argument.create({
 					name: Buffer.from("receiverGUSID"),
-					value: Buffer.from(receiverGUSID.toString())
+					value: Buffer.from(receiverGUSID ? receiverGUSID.toString() : "")
 				}),
 				OpMsg.Argument.create({
 					name: Buffer.from("receiverCharacterSN"),
-					value: Buffer.from(receiverCharacterSN.toString())
+					value: Buffer.from(receiverCharacterSN ? receiverCharacterSN.toString() : "")
 				}),
 				OpMsg.Argument.create({
 					name: Buffer.from("receiverCharacterName"),
-					value: Buffer.from(receiverCharacterName.toString())
+					value: Buffer.from(receiverCharacterName ? receiverCharacterName.toString() : "")
 				}),
 				OpMsg.Argument.create({
 					name: Buffer.from("senderUserSN"),
@@ -205,7 +205,7 @@ class PlatformFunctions extends PlatformConnection {
 				}),
 				OpMsg.Argument.create({
 					name: Buffer.from("activateDurationAfterOpen"),
-					value: Buffer.from(usableTimeAfterOpen.toString())
+					value: Buffer.from(usableTimeAfterOpen ? usableTimeAfterOpen.toString() : "")
 				}),
 				OpMsg.Argument.create({
 					name: Buffer.from("visableFlagBeforeActivation"),

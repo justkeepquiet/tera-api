@@ -17,10 +17,12 @@ module.exports = (sequelize, DataTypes) =>
 			autoIncrement: true
 		},
 		productId: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER,
+			unique: "unique"
 		},
 		itemTemplateId: {
-			type: DataTypes.BIGINT
+			type: DataTypes.BIGINT,
+			unique: "unique"
 		},
 		boxItemId: {
 			type: DataTypes.INTEGER

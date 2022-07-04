@@ -13,16 +13,16 @@ module.exports = (sequelize, DataTypes) =>
 	sequelize.define("shop_product_strings", {
 		id: {
 			type: DataTypes.BIGINT,
-			unique: "id",
+			primaryKey: true,
 			autoIncrement: true
 		},
 		language: {
 			type: DataTypes.STRING(3),
-			primaryKey: true
+			unique: "unique"
 		},
 		productId: {
 			type: DataTypes.INTEGER,
-			primaryKey: true
+			unique: "unique"
 		},
 		title: {
 			type: DataTypes.STRING(1024)
