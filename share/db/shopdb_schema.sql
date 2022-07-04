@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS `shop_categories` (
   `active` tinyint(4) NOT NULL DEFAULT '1',
   `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `shop_category_strings` (
@@ -106,18 +106,19 @@ CREATE TABLE IF NOT EXISTS `shop_products` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `shop_product_items` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `productId` int(11) NOT NULL,
   `itemTemplateId` int(11) NOT NULL,
-  `boxItemId` int(11) NOT NULL,
-  `boxItemCount` int(11) NOT NULL,
+  `boxItemId` int(11) DEFAULT NULL,
+  `boxItemCount` int(11) NOT NULL DEFAULT '1',
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UNIQUE` (`productId`,`itemTemplateId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `shop_product_strings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `language` varchar(3) NOT NULL,
   `productId` int(11) NOT NULL,
   `title` varchar(1024) DEFAULT NULL,
