@@ -52,7 +52,7 @@ module.exports.add = [
 
 		helpers.getInitialBenefits().forEach((benefitDays, benefitId) => {
 			benefitIds.push(benefitId);
-			availableUntils.push(moment().add(benefitDays, "days").format("YYYY-MM-DDTHH:MM"));
+			availableUntils.push(moment().add(benefitDays, "days").format("YYYY-MM-DDTHH:mm"));
 		});
 
 		res.render("adminAccountsAdd", {
