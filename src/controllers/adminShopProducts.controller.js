@@ -272,7 +272,15 @@ module.exports.addAction = [
 				if (value && !data) {
 					return Promise.reject(`${i18n.__("A non-existent item has been added")}: ${value}`);
 				}
-			})),
+			}))
+			.custom((value, { req }) => {
+				const itemTemplateIds = req.body.itemTemplateIds.filter((e, i) =>
+					req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
+				);
+
+				return !itemTemplateIds.includes(value);
+			})
+			.withMessage(i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true })
 			.isInt({ min: 1 }).withMessage(i18n.__("Box item ID field has invalid value.")),
 		body("boxItemCounts.*")
@@ -646,7 +654,15 @@ module.exports.editAction = [
 				if (value && !data) {
 					return Promise.reject(`${i18n.__("A non-existent item has been added")}: ${value}`);
 				}
-			})),
+			}))
+			.custom((value, { req }) => {
+				const itemTemplateIds = req.body.itemTemplateIds.filter((e, i) =>
+					req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
+				);
+
+				return !itemTemplateIds.includes(value);
+			})
+			.withMessage(i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true })
 			.isInt({ min: 1 }).withMessage(i18n.__("Box item ID field has invalid value.")),
 		body("boxItemCounts.*")

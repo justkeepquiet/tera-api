@@ -32,7 +32,7 @@
 										<td><a href="/shop_products/edit?id=<%= log.get("productId") %>"><%= log.get("productId") %></a></td>
 										<td><%= log.get("boxId") || "-" %></td>
 										<td><%= log.get("price") %></td>
-										<td class="text-<%= log.get("status") == "completed" ? "success" : "danger" %>"><%= log.get("status") %></td>
+										<td class="text-<%= log.get("status") == "completed" ? "success" : "danger" %>"><%= __(log.get("status")) %></td>
 										<td><%= moment(log.get("updatedAt")).format("YYYY-MM-DD HH:mm:ss") %></td>
 									</tr>
 									<% }) %>

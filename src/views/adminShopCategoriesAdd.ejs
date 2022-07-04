@@ -30,7 +30,7 @@
 						<% shopLocales.forEach(shopLocale => { %>
 						<div class="form-group row">
 							<div class="col-sm-2 mt-2">
-								<label for="title[<%= shopLocale %>]" class="control-label">(<%= shopLocale %>) <%= __(shopLocale) %></label>
+								<label for="title[<%= shopLocale %>]" class="control-label"><%= __(shopLocale) %></label>
 							</div>
 							<div class="col-sm-10">
 								<input type="text" class="form-control boxed" name="title[<%= shopLocale %>]" value="<%= title[shopLocale] || "" %>">

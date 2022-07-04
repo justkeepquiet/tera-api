@@ -33,7 +33,7 @@
 									</div>
 									<div class="stat">
 										<div class="value"><%= server.get("usersTotal") %></div>
-										<div class="name">Registred Users</div>
+										<div class="name"><%= __("Registred Users") %></div>
 									</div>
 								</div>
 								<div class="col-6 col-md-4 stat-col">
@@ -42,7 +42,7 @@
 									</div>
 									<div class="stat">
 										<div class="value"><%= server.get("usersOnline") %></div>
-										<div class="name">Online Users</div>
+										<div class="name"><%= __("Online Users") %></div>
 									</div>
 									<div class="progress stat-progress">
 										<div class="progress-bar" <%- `style="width: ${Math.floor((server.get("usersOnline") / server.get("tresholdMedium")) * 100)}%;"` %>></div>
@@ -125,7 +125,7 @@
 											<td><%= log.get("serverId") %></td>
 											<td><a href="/shop_products/edit?id=<%= log.get("productId") %>"><%= log.get("productId") %></a></td>
 											<td><%= log.get("price") %></td>
-											<td class="text-<%= log.get("status") == "completed" ? "success" : "danger" %>"><%= log.get("status") %></td>
+											<td class="text-<%= log.get("status") == "completed" ? "success" : "danger" %>"><%= __(log.get("status")) %></td>
 										</tr>
 										<% }) %>
 										<% } %>
