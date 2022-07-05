@@ -45,7 +45,7 @@ const reportHandler = (model, view) =>
 				});
 			})
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}

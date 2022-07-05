@@ -43,7 +43,7 @@ module.exports.index = [
 				moment
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -153,7 +153,7 @@ module.exports.addAction = [
 		).then(() =>
 			res.redirect("/promocodes")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -206,7 +206,7 @@ module.exports.edit = [
 				});
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -296,7 +296,7 @@ module.exports.editAction = [
 				})
 			);
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -334,7 +334,7 @@ module.exports.deleteAction = [
 				res.redirect("/promocodes")
 			)
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}

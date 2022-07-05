@@ -11,14 +11,17 @@
 						<div class="card-title-block">
 							<h3 class="title"><%= __("Session Information") %></h3>
 						</div>
-						<section>
+						<section class="mb-2">
 							<%= __("User login ID") %>: <strong><%= passport.user.login %></strong>
 						</section>
-						<section>
+						<section class="mb-2">
 							<%= __("User login SN") %>: <strong><%= passport.user.userSn || __("No") %></strong>
 						</section>
-						<section>
+						<section class="mb-2">
 							<%= __("Authentication type") %>: <strong><%= passport.user.type === "steer" ? "STEER" : "QA Login" %></strong>
+						</section>
+						<section class="mb-2">
+							<%= __("Time zone") %>: <strong><%= moment().format("Z") %> (<%= moment.tz.guess() %>)</strong>
 						</section>
 					</div>
 				</div>

@@ -21,7 +21,7 @@ module.exports.index = [
 				servers
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -137,7 +137,7 @@ module.exports.addAction = [
 		}).then(() =>
 			res.redirect("/servers")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -175,7 +175,7 @@ module.exports.edit = [
 				isEnabled: data.get("isEnabled")
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -259,7 +259,7 @@ module.exports.editAction = [
 		}).then(() =>
 			res.redirect("/servers")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -282,7 +282,7 @@ module.exports.deleteAction = [
 		accountModel.serverInfo.destroy({ where: { serverId } }).then(() =>
 			res.redirect("/servers")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}

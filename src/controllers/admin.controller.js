@@ -60,7 +60,7 @@ module.exports.home = [
 				payLogs
 			});
 		} catch (err) {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
 	}
@@ -74,7 +74,7 @@ module.exports.profile = [
 	 * @type {import("express").RequestHandler}
 	 */
 	(req, res) => {
-		res.render("adminProfile", { layout: "adminLayout" });
+		res.render("adminProfile", { layout: "adminLayout", moment });
 	}
 ];
 
@@ -127,7 +127,7 @@ module.exports.loginAction = [
 			}
 
 			req.login(user, () =>
-				res.redirect("/home")
+				res.redirect(req.query.url || "/home")
 			);
 		})(req, res, next);
 	}

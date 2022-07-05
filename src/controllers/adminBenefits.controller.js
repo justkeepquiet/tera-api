@@ -43,7 +43,7 @@ module.exports.index = [
 				accountDBID
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -122,7 +122,7 @@ module.exports.addAction = [
 		}).then(() =>
 			res.redirect(`/benefits?accountDBID=${accountDBID}`)
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -159,7 +159,7 @@ module.exports.edit = [
 				availableUntil: moment(data.get("availableUntil"))
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -203,7 +203,7 @@ module.exports.editAction = [
 		}).then(() =>
 			res.redirect(`/benefits?accountDBID=${accountDBID}`)
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -226,7 +226,7 @@ module.exports.deleteAction = [
 		accountModel.benefits.destroy({ where: { benefitId, accountDBID } }).then(() =>
 			res.redirect(`/benefits?accountDBID=${accountDBID}`)
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}

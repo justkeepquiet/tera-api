@@ -55,7 +55,7 @@ module.exports.index = [
 				moment
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -87,7 +87,7 @@ module.exports.add = [
 				promocodes
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -157,7 +157,7 @@ module.exports.addAction = [
 				res.redirect(`/promocodes_activated?accountDBID=${accountDBID}`)
 			);
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -188,7 +188,7 @@ module.exports.deleteAction = [
 				res.redirect(`/promocodes_activated?accountDBID=${promocode.get("accountDBID")}`)
 			);
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}

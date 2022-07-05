@@ -40,7 +40,7 @@ module.exports.ServiceTest = [
 		accountModel.sequelize.authenticate().then(() =>
 			result(res, 0, { server_time: Date.now() / 1000 })
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			result(res, 1, { msg: "internal error" });
 		});
 	}
@@ -75,7 +75,7 @@ module.exports.GetServerPermission = [
 
 			result(res, 0, { permission });
 		})).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			result(res, 1, { msg: "internal error" });
 		});
 	}
@@ -96,7 +96,7 @@ module.exports.ServerDown = [
 		}, {
 			where: { serverId: server_id }
 		}).catch(err =>
-			logger.error(err.toString())
+			logger.error(err)
 		);
 
 		result(res, 0);
@@ -131,7 +131,7 @@ module.exports.GetUserInfo = [
 					charCountInfo = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
 				}
 			} catch (err) {
-				logger.error(err.toString());
+				logger.error(err);
 			}
 
 			try {
@@ -143,7 +143,7 @@ module.exports.GetUserInfo = [
 					benefit = helpers.getBenefitsArray(benefits, "benefitId", "availableUntil");
 				}
 			} catch (err) {
-				logger.error(err.toString());
+				logger.error(err);
 			}
 
 			result(res, 0, {
@@ -156,7 +156,7 @@ module.exports.GetUserInfo = [
 				benefit: benefit
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			result(res, 1, { msg: "internal error" });
 		});
 	}
@@ -200,14 +200,14 @@ module.exports.EnterGame = [
 						ip,
 						reportType: 1
 					}).catch(err => {
-						logger.error(err.toString());
+						logger.error(err);
 					});
 				}
 
 				result(res, 0);
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			result(res, 1, { msg: "internal error" });
 		});
 	}
@@ -240,7 +240,7 @@ module.exports.LeaveGame = [
 							playTime: play_time,
 							reportType: 2
 						}).catch(err => {
-							logger.error(err.toString());
+							logger.error(err);
 						});
 					}
 
@@ -262,7 +262,7 @@ module.exports.LeaveGame = [
 				result(res, 0)
 			);
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			result(res, 1, { msg: "internal error" });
 		});
 	}
@@ -319,14 +319,14 @@ module.exports.CreateChar = [
 						level,
 						reportType: 1
 					}).catch(err => {
-						logger.error(err.toString());
+						logger.error(err);
 					});
 				}
 
 				result(res, 0);
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			result(res, 1, { msg: "internal error" });
 		});
 	}
@@ -375,13 +375,13 @@ module.exports.ModifyChar = [
 					...fields,
 					reportType: 2
 				}).catch(err => {
-					logger.error(err.toString());
+					logger.error(err);
 				});
 			}
 
 			result(res, 0);
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			result(res, 1, { msg: "internal error" });
 		});
 	}
@@ -424,14 +424,14 @@ module.exports.DeleteChar = [
 						accountDBID: user_srl,
 						reportType: 3
 					}).catch(err => {
-						logger.error(err.toString());
+						logger.error(err);
 					});
 				}
 
 				result(res, 0);
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			result(res, 1, { msg: "internal error" });
 		});
 	}
@@ -458,13 +458,13 @@ module.exports.UseChronoScroll = [
 					serverId: server_id,
 					chronoId: chrono_id
 				}).catch(err => {
-					logger.error(err.toString());
+					logger.error(err);
 				});
 			}
 
 			result(res, 0);
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			result(res, 1, { msg: "internal error" });
 		});
 	}
@@ -498,7 +498,7 @@ module.exports.ReportCheater = [
 		}).then(() =>
 			result(res, 0)
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			result(res, 1, { msg: "internal error" });
 		});
 	}

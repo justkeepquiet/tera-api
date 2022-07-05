@@ -42,7 +42,7 @@ module.exports.GetServerListXml = [
 
 			res.type("application/xml").send(sls.renderXML());
 		}))).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.status(500).end("getting sls error");
 		});
 	}

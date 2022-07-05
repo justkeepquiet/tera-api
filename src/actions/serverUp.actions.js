@@ -17,7 +17,7 @@ class ServerUpActions {
 			}).then(() =>
 				logger.info(`ServerUpActions: Set isAvailable=1 for server ID: ${serverId}`)
 			).catch(err =>
-				logger.error(err.toString())
+				logger.error(err)
 			);
 		}
 	}

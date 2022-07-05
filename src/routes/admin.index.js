@@ -1,21 +1,19 @@
 "use strict";
 
 const uuid = require("uuid").v4;
-const express = require("express");
 const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const logger = require("../utils/logger");
 const SteerFunctions = require("../utils/steerFunctions");
+const PlatformFunctions = require("../utils/platformFunctions");
 
 /**
 * @typedef {import("express").Express} Express
 */
 
 const steerEnabled = /^true$/i.test(process.env.ADMIN_PANEL_STEER_ENABLE);
-
-const PlatformFunctions = require("../utils/platformFunctions");
 
 const platform = new PlatformFunctions(
 	process.env.ADMIN_PANEL_HUB_GW_HOST,
@@ -31,7 +29,7 @@ const steer = new SteerFunctions(
 
 if (steerEnabled) {
 	steer.connect().catch(err =>
-		logger.error(err.toString())
+		logger.error(err)
 	);
 }
 
@@ -98,7 +96,6 @@ module.exports = app => {
 	app.use(passport.initialize());
 	app.use(passport.session());
 
-	app.use("/static/images/tera-icons", express.static("data/tera-icons"));
 	app.use("/", require("./admin/admin.routes"));
 
 	app.use((req, res) =>

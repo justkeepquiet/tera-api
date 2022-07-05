@@ -33,7 +33,7 @@ module.exports.index = [
 				serverId
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -161,7 +161,7 @@ module.exports.addAction = [
 				);
 			})
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -199,7 +199,7 @@ module.exports.edit = [
 				privilege: data.get("privilege")
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -271,7 +271,7 @@ module.exports.editAction = [
 		}).then(() =>
 			res.redirect("/accounts")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -317,7 +317,7 @@ module.exports.deleteAction = [
 				res.redirect("/accounts")
 			)
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -361,7 +361,7 @@ module.exports.characters = [
 				});
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}

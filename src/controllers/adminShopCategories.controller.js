@@ -43,7 +43,7 @@ module.exports.index = [
 				categories
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -126,7 +126,7 @@ module.exports.addAction = [
 		).then(() =>
 			res.redirect("/shop_categories")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -175,7 +175,7 @@ module.exports.edit = [
 				});
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -254,7 +254,7 @@ module.exports.editAction = [
 				})
 			);
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -288,7 +288,7 @@ module.exports.deleteAction = [
 				res.redirect("/shop_categories")
 			)
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}

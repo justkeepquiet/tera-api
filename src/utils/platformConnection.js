@@ -4,6 +4,7 @@ const net = require("net");
 const PromiseSocket = require("promise-socket").PromiseSocket;
 const struct = require("python-struct");
 const OpMsg = require("./protobuf/opMsg").op.OpMsg;
+const PlatformError = require("./platformError");
 
 class PlatformConnection {
 	constructor(platformAddr, platformPort, params) {
@@ -109,6 +110,10 @@ class PlatformConnection {
 			socket.write(sendData).then(() =>
 				socket.read().then(data => {
 					socket.destroy();
+
+					if (data === undefined) {
+						return Promise.reject(new PlatformError("Platform Error: no data to read (receiver down?)", 4));
+					}
 
 					const responseData = data.slice(sizeSize + idSize);
 					const unserializedData = OpMsg.decode(responseData);

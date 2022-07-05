@@ -1,6 +1,7 @@
 "use strict";
 
 const http = require("http");
+const uuid = require("uuid").v4;
 const logger = require("./logger");
 
 module.exports.isEnabled = () =>
@@ -54,9 +55,9 @@ function httpRequest(method, url, body = null) {
 	}
 
 	return new Promise((resolve, reject) => {
-		const id = Date.now() % 10000;
+		const id = uuid();
 
-		logger.debug(`FCGI Request[${id}]: ${options.method} ${options.path} ${body || ""}`);
+		logger.debug(`FCGI Request (${id}): ${options.method} ${options.path} ${body || ""}`);
 
 		const clientRequest = http.request(options, incomingMessage => {
 			const response = {
@@ -78,13 +79,13 @@ function httpRequest(method, url, body = null) {
 					} catch (_) {}
 				}
 
-				logger.debug(`FCGI Response[${id}]: ${JSON.stringify(response.body)}`);
+				logger.debug(`FCGI Response (${id}): ${JSON.stringify(response.body)}`);
 				resolve(response);
 			});
 		});
 
 		clientRequest.on("error", error => {
-			logger.error(`FCGI Error[${id}]: ${error}`);
+			logger.error(`FCGI Error (${id}): ${error}`);
 			reject(error);
 		});
 

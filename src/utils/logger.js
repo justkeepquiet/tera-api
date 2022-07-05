@@ -2,10 +2,12 @@
 
 const fs = require("fs");
 const path = require("path");
+const util = require("util");
 const winston = require("winston");
 const moment = require("moment-timezone");
 
 const logger = winston.createLogger({ level: process.env.LOG_LEVEL || "info" });
+const colorizer = winston.format.colorize();
 const logTimeFormat = "YYYY-MM-DD HH:mm:ss.SSS";
 
 let logDirectory = process.env.LOG_WRITE_DIRECTORY ? process.env.LOG_WRITE_DIRECTORY : "./logs";
@@ -16,10 +18,17 @@ if (!path.isAbsolute(logDirectory)) {
 
 logger.add(new winston.transports.Console({
 	format: winston.format.combine(
-		winston.format.colorize({ level: true }),
+		{
+			transform: (info, opts) => {
+				info.message = util.format(info.message, ...info[Symbol.for("splat")] || []);
+				return info;
+			}
+		},
 		winston.format.timestamp({ format: logTimeFormat }),
 		winston.format.printf(info =>
-			`[${info.timestamp}] ${info.level}: ${info.message}`
+			colorizer.colorize(
+				info.level, `[${info.timestamp}] ${info.level}: ${info.message}`
+			)
 		)
 	)
 }));
@@ -45,4 +54,12 @@ if (/^true$/i.test(process.env.LOG_WRITE)) {
 	}));
 }
 
-module.exports = logger;
+Object.keys(winston.config.npm.levels).forEach(level =>
+	module.exports[level] = (...args) => logger[level].apply(logger,
+		Object.values(args).map(a => (
+			a.stack !== undefined ? `${a.toString()} ${a.stack}` : a
+		))
+	)
+);
+
+module.exports.stream = logger.stream;

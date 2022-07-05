@@ -21,7 +21,7 @@ module.exports.index = [
 				strings
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -118,7 +118,7 @@ module.exports.addAction = [
 		}).then(() =>
 			res.redirect("/server_strings")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -154,7 +154,7 @@ module.exports.edit = [
 				popup: data.get("popup")
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -229,7 +229,7 @@ module.exports.editAction = [
 		}).then(() =>
 			res.redirect("/server_strings")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -252,7 +252,7 @@ module.exports.deleteAction = [
 		accountModel.serverStrings.destroy({ where: { language } }).then(() =>
 			res.redirect("/server_strings")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}

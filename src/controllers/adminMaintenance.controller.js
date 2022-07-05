@@ -23,7 +23,7 @@ module.exports.index = [
 				moment
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -83,7 +83,7 @@ module.exports.addAction = [
 		}).then(() =>
 			res.redirect("/maintenance")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -117,7 +117,7 @@ module.exports.edit = [
 				id
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -167,7 +167,7 @@ module.exports.editAction = [
 		}).then(() =>
 			res.redirect("/maintenance")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -190,7 +190,7 @@ module.exports.deleteAction = [
 		accountModel.maintenance.destroy({ where: { id } }).then(() =>
 			res.redirect("/maintenance")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}

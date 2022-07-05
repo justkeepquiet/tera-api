@@ -31,7 +31,7 @@ module.exports.index = [
 				accountDBID
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -116,7 +116,7 @@ module.exports.addAction = [
 		}).then(() =>
 			res.redirect("/shop_accounts")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -151,7 +151,7 @@ module.exports.edit = [
 				active: data.get("active")
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -197,7 +197,7 @@ module.exports.editAction = [
 		}).then(() =>
 			res.redirect("/shop_accounts")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -220,7 +220,7 @@ module.exports.deleteAction = [
 		shopModel.accounts.destroy({ where: { accountDBID } }).then(() =>
 			res.redirect("/shop_accounts")
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}

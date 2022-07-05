@@ -68,7 +68,7 @@ module.exports.authSessionHandler = (req, res, next) => {
 			res.__account = account;
 			next();
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.send();
 		});
 	} catch (err) {

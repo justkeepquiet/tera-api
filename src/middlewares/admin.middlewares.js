@@ -42,7 +42,7 @@ module.exports.accessFunctionHandler = () =>
 
 			next();
 		} else {
-			res.redirect(`/login?msg=${encodeURI(i18n.__("The session has expired."))}`);
+			res.redirect(`/login?msg=${encodeURI(i18n.__("The session has expired."))}&url=${req.url}`);
 		}
 	}
 ;

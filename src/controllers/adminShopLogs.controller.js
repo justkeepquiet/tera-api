@@ -43,7 +43,7 @@ module.exports.fund = [
 				accountDBID
 			})
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}
@@ -88,7 +88,7 @@ module.exports.pay = [
 				});
 			})
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}

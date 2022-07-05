@@ -34,7 +34,7 @@ module.exports.RequestAPIServerStatusAvailable = [
 		}).then(() =>
 			res.json({ Return: true })
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.json({ Return: false });
 		});
 	}
@@ -59,7 +59,7 @@ module.exports.RequestAuthkey = [
 				Tokken: account.get("authKey")
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			result(res, 1, "internal error");
 		});
 	}
@@ -90,7 +90,7 @@ module.exports.GameAuthenticationLogin = [
 
 			result(res, 0, "success");
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			result(res, 1, "internal error");
 		});
 	}

@@ -172,7 +172,7 @@ module.exports.index = [
 				products: productsMap
 			});
 		} catch (err) {
-			logger.error(err.toString());
+			logger.error(err);
 			res.send();
 		}
 	}
@@ -232,7 +232,7 @@ module.exports.add = [
 				validate: 1
 			});
 		} catch (err) {
-			logger.error(err.toString());
+			logger.error(err);
 			res.send();
 		}
 	}
@@ -458,7 +458,7 @@ module.exports.addAction = [
 
 			res.redirect(`/shop_products?categoryId=${fromCategoryId}`);
 		} catch (err) {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
 	}
@@ -612,7 +612,7 @@ module.exports.edit = [
 				validate: 0
 			});
 		} catch (err) {
-			logger.error(err.toString());
+			logger.error(err);
 			res.send();
 		}
 	}
@@ -936,7 +936,7 @@ module.exports.editAction = [
 
 			res.redirect(`/shop_products?categoryId=${fromCategoryId}`);
 		} catch (err) {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
 	}
@@ -998,7 +998,7 @@ module.exports.deleteAction = [
 
 			res.redirect(`/shop_products?categoryId=${fromCategoryId}`);
 		} catch (err) {
-			logger.error(err.toString());
+			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
 	}

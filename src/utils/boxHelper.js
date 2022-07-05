@@ -22,7 +22,7 @@ module.exports.makeBox = (context, logId, serverId, userId, characterId = 0) =>
 		}
 
 		fcgiHttpHelper.get(["box_noti", serverId, userId, characterId]).catch(err =>
-			logger.error(err.toString())
+			logger.error(err)
 		);
 
 		return Promise.resolve(response.body);

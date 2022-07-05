@@ -36,7 +36,7 @@ module.exports.MaintenanceStatus = [
 				resultJson(res, 0, "success");
 			}
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			resultJson(res, 1, "internal error");
 		});
 	}
@@ -135,7 +135,7 @@ module.exports.LoginAction = [
 						characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
 					}
 				} catch (err) {
-					logger.error(err.toString());
+					logger.error(err);
 				}
 
 				resultJson(res, 0, "success", {
@@ -147,11 +147,11 @@ module.exports.LoginAction = [
 					AuthKey: authKey
 				});
 			}).catch(err => {
-				logger.error(err.toString());
+				logger.error(err);
 				resultJson(res, 50811, "failure update auth token");
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			resultJson(res, 1, "internal error");
 		});
 	}
@@ -226,7 +226,7 @@ module.exports.SignupAction = [
 					);
 				})
 			).catch(err => {
-				logger.error(err.toString());
+				logger.error(err);
 				resultJson(res, 1, "internal error");
 			});
 		};

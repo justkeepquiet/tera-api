@@ -47,6 +47,7 @@ portalApi.bind(
 const adminPanel = new ExpressServer("Admin Panel", false);
 
 adminPanel.setStatic("/static", "src/static/admin");
+adminPanel.setStatic("/static/images/tera-icons", "data/tera-icons");
 adminPanel.setLogging();
 adminPanel.setRouter(require("./routes/admin.index"));
 

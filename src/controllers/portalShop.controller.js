@@ -35,7 +35,7 @@ module.exports.Auth = [
 			res.cookie("token", token, { maxAge: 3600 * 1000 });
 			res.redirect("ShopMain");
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.send();
 		});
 	}
@@ -88,7 +88,7 @@ module.exports.PartialMenuHtml = [
 
 			res.render("partials/shopMenu", { categories, active });
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.send();
 		});
 	}
@@ -229,7 +229,7 @@ module.exports.PartialCatalogHtml = [
 				res.render("partials/shopCatalog", { products: productsMap, search: search || "" });
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.send();
 		});
 	}
@@ -383,7 +383,7 @@ module.exports.PartialProductHtml = [
 				res.render("partials/shopProduct", { product: productObj, items, conversions, search });
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.send();
 		});
 	}
@@ -417,7 +417,7 @@ module.exports.PartialWelcomeHtml = [
 			res.render("partials/shopWelcome", { moment, server, benefits });
 		} catch (err) {
 			console.log(err);
-			logger.error(err.toString());
+			logger.error(err);
 			res.send();
 		}
 	}
@@ -457,7 +457,7 @@ module.exports.PartialPromoCodeHtml = [
 		}).then(promoCodesAcrivated => {
 			res.render("partials/shopPromoCode", { moment, promoCodesAcrivated });
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			res.send();
 		});
 	}
@@ -490,7 +490,7 @@ module.exports.GetAccountInfo = [
 					shopAccount.get("balance") : 0
 			})
 		).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			resultJson(res, 1, "internal error");
 		});
 	}
@@ -611,7 +611,7 @@ module.exports.PurchaseAction = [
 
 			resultJson(res, 0);
 		} catch (err) {
-			logger.error(err.toString());
+			logger.error(err);
 			resultJson(res, 1, "internal error");
 		}
 	}
@@ -665,7 +665,7 @@ module.exports.PromoCodeAction = [
 				);
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			resultJson(res, 1, { msg: "internal error" });
 		});
 	}

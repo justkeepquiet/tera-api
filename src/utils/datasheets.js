@@ -18,7 +18,7 @@ locales.forEach(locale => {
 			}
 		})
 	).catch(err =>
-		logger.error(err.toString())
+		logger.error(err)
 	);
 });
 

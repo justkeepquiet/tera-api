@@ -50,7 +50,7 @@ module.exports.GetAccountInfo = [
 					characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
 				}
 			} catch (err) {
-				logger.error(err.toString());
+				logger.error(err);
 			}
 
 			result(res, 0, "success", {
@@ -61,7 +61,7 @@ module.exports.GetAccountInfo = [
 				UserName: account.get("userName")
 			});
 		}).catch(err => {
-			logger.error(err.toString());
+			logger.error(err);
 			result(res, 1, "internal error");
 		});
 	}
