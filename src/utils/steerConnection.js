@@ -68,6 +68,7 @@ class SteerConnection {
 
 		this.socket = new PromiseSocket(new net.Socket());
 
+		this.readTimeout = 5000;
 		this.connected = false;
 		this.registred = false;
 		this.biasCount = 0;
@@ -76,8 +77,10 @@ class SteerConnection {
 		this.steerAddr = steerAddr;
 		this.steerPort = steerPort;
 		this.params = params;
+		this.readTimer = null;
 
 		this.socket.socket.on("error", err => {
+
 			if (this.params.logger?.error) {
 				this.params.logger.error(`Steer Error: ${err.toString()}`);
 			}
@@ -88,6 +91,8 @@ class SteerConnection {
 
 				this.reconnect();
 			}
+
+			clearTimeout(this.readTimer);
 		});
 	}
 
@@ -147,7 +152,7 @@ class SteerConnection {
 		});
 
 		return this.sendAndRecv(opMsg).then(data => {
-			if (this.getErrorCode(data.resultCode) === this.steerErrorCode.success) {
+			if (data.resultCode && this.getErrorCode(data.resultCode) === this.steerErrorCode.success) {
 				if (this.params.logger?.info) {
 					this.params.logger.info(`Steer Registred: category ${this.serviceId}, number ${this.uniqueServerId}`);
 				}
@@ -179,8 +184,21 @@ class SteerConnection {
 			serializedData
 		]);
 
+		clearTimeout(this.readTimer);
+
+		this.readTimer = setTimeout(() => {
+			this.socket.end();
+			this.destroy();
+		}, this.readTimeout);
+
 		return this.socket.write(sendData).then(() =>
 			this.socket.read().then(data => {
+				clearTimeout(this.readTimer);
+
+				if (data === undefined || data.length === 0) {
+					return Promise.reject(new SteerError("Steer Error: Receive failed (receiver down?)", 4));
+				}
+
 				const responseData = data.slice(prefixLength);
 				const unserializedData = OpMsg.decode(responseData);
 
@@ -190,6 +208,8 @@ class SteerConnection {
 
 				return Promise.resolve(unserializedData);
 			})
+		).catch(err =>
+			Promise.reject(new SteerError(`Steer Error: Send failed: ${err}`, 4))
 		);
 	}
 

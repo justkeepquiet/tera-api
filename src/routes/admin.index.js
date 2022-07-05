@@ -58,9 +58,20 @@ module.exports = app => {
 							functions
 						})
 					)
-				).catch(err =>
-					done(null, false, `err_${err.resultCode()}`)
-				);
+				).catch(err => {
+					if (err.resultCode) {
+						if (err.resultCode() < 100) {
+							logger.error(err);
+						} else {
+							logger.warn(err);
+						}
+
+						done(null, false, `err_${err.resultCode()}`);
+					} else {
+						logger.error(err);
+						done(null, false, "err_1");
+					}
+				});
 			}
 
 			if (login === process.env.ADMIN_PANEL_QA_LOGIN &&

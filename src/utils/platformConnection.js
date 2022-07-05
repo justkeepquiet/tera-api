@@ -71,6 +71,7 @@ class PlatformConnection {
 			invalidstate: 16
 		};
 
+		this.connectTimeout = 5000;
 		this.platformAddr = platformAddr;
 		this.platformPort = platformPort;
 		this.params = params;
@@ -82,6 +83,8 @@ class PlatformConnection {
 		}
 
 		const socket = new PromiseSocket(new net.Socket());
+
+		socket.setTimeout(this.connectTimeout);
 
 		socket.socket.on("error", err => {
 			if (this.params.logger?.error) {
@@ -111,8 +114,8 @@ class PlatformConnection {
 				socket.read().then(data => {
 					socket.destroy();
 
-					if (data === undefined) {
-						return Promise.reject(new PlatformError("Platform Error: no data to read (receiver down?)", 4));
+					if (data === undefined || data.length === 0) {
+						return Promise.reject(new PlatformError("Platform Error: Receive failed (receiver down?)", 4));
 					}
 
 					const responseData = data.slice(sizeSize + idSize);
@@ -125,6 +128,8 @@ class PlatformConnection {
 					return Promise.resolve(unserializedData);
 				})
 			)
+		).catch(err =>
+			Promise.reject(new PlatformError(`Platform Error: Send failed: ${err}`, 4))
 		);
 	}
 
