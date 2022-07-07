@@ -72,7 +72,9 @@ module.exports = modules => {
 
 	modules.app.use(session({
 		genid: () => uuid(),
-		store: new FileStore(),
+		store: new FileStore({
+			logFn: modules.logger.debug
+		}),
 		secret: process.env.ADMIN_PANEL_SECRET,
 		resave: false,
 		saveUninitialized: true
