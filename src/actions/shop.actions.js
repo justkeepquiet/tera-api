@@ -1,32 +1,38 @@
 "use strict";
 
-const shopModel = require("../models/shop.model");
+/**
+ * @typedef {import("../app").modules} modules
+ */
 
 class Shop {
-	constructor(userId, serverId, params = {}) {
+	/**
+	 * @param {modules} modules
+	 */
+	constructor(modules, userId, serverId, params = {}) {
+		this.modules = modules;
 		this.userId = userId;
 		this.serverId = serverId;
 		this.params = params;
 	}
 
 	fund(amount) {
-		return shopModel.accounts.findOne({
+		return this.modules.shopModel.accounts.findOne({
 			where: { accountDBID: this.userId }
 		}).then(account => {
 			if (account !== null) {
-				return shopModel.accounts.increment({
+				return this.modules.shopModel.accounts.increment({
 					balance: amount
 				}, {
 					where: { accountDBID: this.userId }
 				});
 			}
 
-			return shopModel.accounts.create({
+			return this.modules.shopModel.accounts.create({
 				accountDBID: this.userId,
 				balance: amount
 			});
 		}).then(() =>
-			shopModel.fundLogs.create({
+			this.modules.shopModel.fundLogs.create({
 				accountDBID: this.userId,
 				amount: amount,
 				description: this.params.report

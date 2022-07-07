@@ -63,11 +63,11 @@ module.exports.getBenefitsArray = (benefits, field1, field2) =>
 /**
 * @param {Request} request
 */
-module.exports.validationResultLog = request => {
+module.exports.validationResultLog = (request, customLogger) => {
 	const result = validationResult(request);
 
 	if (!result.isEmpty()) {
-		logger.warn("Validation failed: ".concat(result.array().map(e => `${e.param}="${e.msg}"`).join(", ")));
+		(customLogger || logger).warn("Validation failed: ".concat(result.array().map(e => `${e.param}="${e.msg}"`).join(", ")));
 	}
 
 	return result;

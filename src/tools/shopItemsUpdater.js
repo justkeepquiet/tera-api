@@ -1,5 +1,9 @@
 "use strict";
 
+/**
+ * @typedef {import("../models/shop.model").shopModel} model
+ */
+
 require("dotenv").config();
 
 process.env.LOG_LEVEL = "info";
@@ -8,7 +12,8 @@ process.env.LOG_WRITE = "false";
 const fs = require("fs");
 const path = require("path");
 const xmljs = require("xml-js");
-const shopModel = require("../models/shop.model");
+const logger = require("../utils/logger");
+const shopModel = require("../models/shop.model")({ logger });
 
 const language = process.argv[2];
 const storageDir = path.join(__dirname, "..", "..", "share", "shopitems", language);
@@ -19,7 +24,7 @@ const strSheetElements = [];
 const dataElements = new Map();
 const conversionElements = [];
 
-console.log("Loading StrSheet files...");
+logger.info("Loading StrSheet files...");
 
 if (fs.existsSync(strSheetDirPath)) {
 	const strSheetFiles = fs.readdirSync(strSheetDirPath, { withFileTypes: true });
@@ -35,15 +40,15 @@ if (fs.existsSync(strSheetDirPath)) {
 					}
 				});
 
-				console.log("---> Loaded file", file.name, "with", data.elements.length, "elements");
+				logger.info("---> Loaded file", file.name, "with", data.elements.length, "elements");
 			}
 		}
 	});
 } else {
-	console.error("StrSheet directory not found.");
+	logger.error("StrSheet directory not found.");
 }
 
-console.log("Loading data files...");
+logger.info("Loading data files...");
 
 if (fs.existsSync(dataDirPath)) {
 	const strSheetFiles = fs.readdirSync(dataDirPath, { withFileTypes: true });
@@ -55,15 +60,15 @@ if (fs.existsSync(dataDirPath)) {
 			if (data) {
 				data.elements.forEach(element => dataElements.set(element.attributes.id, element.attributes));
 
-				console.log("---> Loaded file", file.name, "with", data.elements.length, "elements");
+				logger.info("---> Loaded file", file.name, "with", data.elements.length, "elements");
 			}
 		}
 	});
 } else {
-	console.error("Data directory not found.");
+	logger.error("Data directory not found.");
 }
 
-console.log("Loading conversion files...");
+logger.info("Loading conversion files...");
 
 if (fs.existsSync(conversionDirPath)) {
 	const strSheetFiles = fs.readdirSync(conversionDirPath, { withFileTypes: true });
@@ -89,57 +94,64 @@ if (fs.existsSync(conversionDirPath)) {
 					}
 				});
 
-				console.log("---> Loaded file", file.name, "with", data.elements.length, "elements");
+				logger.info("---> Loaded file", file.name, "with", data.elements.length, "elements");
 			}
 		}
 	});
 } else {
-	console.error("ConversionDirPath directory not found.");
+	logger.error("ConversionDirPath directory not found.");
 }
 
-shopModel.itemTemplates.sequelize.authenticate().then(() => {
-	console.log("Adding strSheet elements...");
-	const strSheetTotal = strSheetElements.length;
+shopModel.then(
+	/**
+	 * @param {model} model
+	 */
+	model => {
+		model.itemTemplates.sequelize.authenticate().then(() => {
+			logger.info("Adding strSheet elements...");
+			const strSheetTotal = strSheetElements.length;
 
-	strSheetElements.forEach((itemStrings, index) => {
-		shopModel.itemStrings.upsert({
-			language,
-			itemTemplateId: itemStrings.id,
-			string: itemStrings.string.toString(),
-			toolTip: itemStrings.toolTip?.toString() || ""
-		}).then(() =>
-			console.log(index, "/", strSheetTotal, "Added:", itemStrings.id)
-		);
-	});
+			strSheetElements.forEach((itemStrings, index) => {
+				model.itemStrings.upsert({
+					language,
+					itemTemplateId: itemStrings.id,
+					string: itemStrings.string.toString(),
+					toolTip: itemStrings.toolTip?.toString() || ""
+				}).then(() =>
+					logger.info(index, "/", strSheetTotal, "Added:", itemStrings.id)
+				);
+			});
 
-	console.log("Adding data elements...");
-	const dataTotal = dataElements.size;
+			logger.info("Adding data elements...");
+			const dataTotal = dataElements.size;
 
-	dataElements.forEach((itemTemplate, index) =>
-		shopModel.itemTemplates.upsert({
-			itemTemplateId: itemTemplate.id,
-			icon: itemTemplate.icon.split(".").at(-1).toLowerCase(),
-			rareGrade: Number(itemTemplate.rareGrade),
-			requiredLevel: itemTemplate.requiredLevel || null,
-			requiredClass: itemTemplate.requiredClass?.toLowerCase() || null,
-			requiredGender: itemTemplate.requiredGender?.toLowerCase() || null,
-			requiredRace: itemTemplate.requiredRace?.toLowerCase() || null,
-			tradable: Number(itemTemplate.tradable === "true"),
-			warehouseStorable: Number(itemTemplate.warehouseStorable === "true")
-		}).then(() =>
-			console.log(index, "/", dataTotal, "Added:", itemTemplate.id)
-		)
-	);
+			dataElements.forEach((itemTemplate, index) =>
+				model.itemTemplates.upsert({
+					itemTemplateId: itemTemplate.id,
+					icon: itemTemplate.icon.split(".").at(-1).toLowerCase(),
+					rareGrade: Number(itemTemplate.rareGrade),
+					requiredLevel: itemTemplate.requiredLevel || null,
+					requiredClass: itemTemplate.requiredClass?.toLowerCase() || null,
+					requiredGender: itemTemplate.requiredGender?.toLowerCase() || null,
+					requiredRace: itemTemplate.requiredRace?.toLowerCase() || null,
+					tradable: Number(itemTemplate.tradable === "true"),
+					warehouseStorable: Number(itemTemplate.warehouseStorable === "true")
+				}).then(() =>
+					logger.info(index, "/", dataTotal, "Added:", itemTemplate.id)
+				)
+			);
 
-	console.log("Adding conversion elements...");
-	const conversionTotal = conversionElements.length;
+			logger.info("Adding conversion elements...");
+			const conversionTotal = conversionElements.length;
 
-	conversionElements.forEach((conversion, index) => {
-		shopModel.itemConversions.upsert(conversion).then(() =>
-			console.log(index, "/", conversionTotal, "Added:", conversion.itemTemplateId, conversion.fixedItemTemplateId)
-		);
-	});
-});
+			conversionElements.forEach((conversion, index) => {
+				model.itemConversions.upsert(conversion).then(() =>
+					logger.info(index, "/", conversionTotal, "Added:", conversion.itemTemplateId, conversion.fixedItemTemplateId)
+				);
+			});
+		});
+	}
+);
 
 function readXml(file) {
 	return xmljs.xml2js(fs.readFileSync(file, { encoding: "utf8" }), { ignoreComment: true }).elements[0];

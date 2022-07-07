@@ -1,23 +1,25 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const crypto = require("crypto");
 const uuid = require("uuid");
 const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
-const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
-const accountModel = require("../models/account.model");
-const { recaptcha, i18nHandler, validationHandler, resultJson } = require("../middlewares/portalLauncher.middlewares");
 
-if (!process.env.API_PORTAL_CLIENT_DEFAULT_REGION) {
-	logger.error("Invalid configuration parameter: API_PORTAL_CLIENT_DEFAULT_REGION");
-	process.exit();
-}
+const { recaptcha, validationHandler, resultJson } = require("../middlewares/portalLauncher.middlewares");
 
-module.exports.MaintenanceStatus = [
+/**
+ * @param {modules} modules
+ */
+module.exports.MaintenanceStatus = ({ logger, accountModel }) => [
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		accountModel.maintenance.findOne({
@@ -42,10 +44,12 @@ module.exports.MaintenanceStatus = [
 	}
 ];
 
-module.exports.MainHtml = [
-	i18nHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.MainHtml = () => [
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const regions = {};
@@ -68,10 +72,12 @@ module.exports.MainHtml = [
 	}
 ];
 
-module.exports.LoginFormHtml = [
-	i18nHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.LoginFormHtml = () => [
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		res.render("launcherLoginForm", {
@@ -80,10 +86,12 @@ module.exports.LoginFormHtml = [
 	}
 ];
 
-module.exports.SignupFormHtml = [
-	i18nHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.SignupFormHtml = () => [
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		res.render("launcherSignupForm", {
@@ -92,11 +100,14 @@ module.exports.SignupFormHtml = [
 	}
 ];
 
-module.exports.LoginAction = [
+/**
+ * @param {modules} modules
+ */
+module.exports.LoginAction = ({ logger, accountModel }) => [
 	[body("login").notEmpty(), body("password").notEmpty()],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { login, password } = req.body;
@@ -157,7 +168,10 @@ module.exports.LoginAction = [
 	}
 ];
 
-module.exports.SignupAction = [
+/**
+ * @param {modules} modules
+ */
+module.exports.SignupAction = ({ logger, accountModel }) => [
 	[
 		body("login").trim()
 			.isLength({ min: 3, max: 13 }).withMessage("$1")
@@ -177,10 +191,10 @@ module.exports.SignupAction = [
 			.isAlphanumeric().withMessage("$3")
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
 			return resultJson(res, 2, errors.array()[0].msg);
@@ -189,7 +203,7 @@ module.exports.SignupAction = [
 		next();
 	},
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const handler = async () => {

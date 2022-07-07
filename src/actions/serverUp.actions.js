@@ -1,10 +1,19 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ */
+
 const isPortReachable = require("../utils/isPortReachable");
-const logger = require("../utils/logger");
-const accountModel = require("../models/account.model");
 
 class ServerUpActions {
+	/**
+	 * @param {modules} modules
+	 */
+	constructor(modules) {
+		this.modules = modules;
+	}
+
 	async set(serverId, loginIp, loginPort) {
 		const portStatus = await isPortReachable(loginPort, {
 			host: loginIp,
@@ -12,12 +21,12 @@ class ServerUpActions {
 		});
 
 		if (portStatus === true) {
-			accountModel.serverInfo.update({ isAvailable: 1 }, {
+			this.modules.accountModel.serverInfo.update({ isAvailable: 1 }, {
 				where: { serverId }
 			}).then(() =>
-				logger.info(`ServerUpActions: Set isAvailable=1 for server ID: ${serverId}`)
+				this.modules.logger.info(`ServerUpActions: Set isAvailable=1 for server ID: ${serverId}`)
 			).catch(err =>
-				logger.error(err)
+				this.modules.logger.error(err)
 			);
 		}
 	}

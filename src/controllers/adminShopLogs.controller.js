@@ -1,19 +1,25 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const expressLayouts = require("express-ejs-layouts");
 const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
-const logger = require("../utils/logger");
-const accountModel = require("../models/account.model");
-const shopModel = require("../models/shop.model");
-const { i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-module.exports.fund = [
-	i18nHandler,
-	accessFunctionHandler(),
+const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
+
+/**
+ * @param {modules} modules
+ */
+module.exports.fund = ({ logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		let { from, to } = req.query;
@@ -26,8 +32,8 @@ module.exports.fund = [
 			where: {
 				...accountDBID ? { accountDBID } : {},
 				createdAt: {
-					[Op.gt]: from.toDate(),
-					[Op.lt]: to.toDate()
+					[Op.gt]: from.format("YYYY-MM-DD HH:mm:ss"),
+					[Op.lt]: to.format("YYYY-MM-DD HH:mm:ss")
 				}
 			},
 			order: [
@@ -49,12 +55,15 @@ module.exports.fund = [
 	}
 ];
 
-module.exports.pay = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.pay = ({ logger, accountModel, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		let { from, to } = req.query;
@@ -67,8 +76,8 @@ module.exports.pay = [
 			where: {
 				...(accountDBID ? { accountDBID } : {}),
 				createdAt: {
-					[Op.gt]: from.toDate(),
-					[Op.lt]: to.toDate()
+					[Op.gt]: from.format("YYYY-MM-DD HH:mm:ss"),
+					[Op.lt]: to.format("YYYY-MM-DD HH:mm:ss")
 				}
 			},
 			order: [

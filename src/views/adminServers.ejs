@@ -13,7 +13,7 @@
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-								<table class="table table-hover data-table-nosort">
+								<table class="table table-hover data-table-nosort mt-5">
 									<thead>
 										<tr>
 											<th><%= __("ID") %></th>
@@ -38,7 +38,7 @@
 											<td><%= server.get("language") %></td>
 											<td><%= server.get("isPvE") ? "PvE" : "PvP" %></td>
 											<td class="text-<%= server.get("isEnabled") ? "success" : "danger" %>"><%= server.get("isEnabled") ? __("Yes") : __("No") %></td>
-											<td><%= server.get("isCrowdness") ? "Yes" : "No" %></td>
+											<td><%= server.get("isCrowdness") ? __("Yes") : __("No") %></td>
 											<td class="text-<%= server.get("isAvailable") ? "success" : "danger" %>"><%= server.get("isAvailable") ? __("Yes") : __("No") %></td>
 											<td><%= server.get("usersOnline") %></td>
 											<td><%= server.get("usersTotal") %></td>

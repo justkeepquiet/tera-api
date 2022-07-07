@@ -1,18 +1,24 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
-const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
-const accountModel = require("../models/account.model");
-const { i18n, i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-module.exports.index = [
-	i18nHandler,
-	accessFunctionHandler(),
+const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
+
+/**
+ * @param {modules} modules
+ */
+module.exports.index = ({ logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		accountModel.serverStrings.findAll().then(strings => {
@@ -27,12 +33,14 @@ module.exports.index = [
 	}
 ];
 
-module.exports.add = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.add = () => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		res.render("adminServerStringsAdd", {
@@ -52,9 +60,11 @@ module.exports.add = [
 	}
 ];
 
-module.exports.addAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.addAction = ({ i18n, logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("language").trim().toLowerCase()
@@ -80,12 +90,12 @@ module.exports.addAction = [
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Popup field must be between 1 and 2048 characters."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { language, categoryPvE, categoryPvP, serverOffline,
 			serverLow, serverMedium, serverHigh, crowdNo, crowdYes, popup } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
 			return res.render("adminServerStringsAdd", {
@@ -124,12 +134,14 @@ module.exports.addAction = [
 	}
 ];
 
-module.exports.edit = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.edit = ({ logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { language } = req.query;
@@ -160,9 +172,11 @@ module.exports.edit = [
 	}
 ];
 
-module.exports.editAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.editAction = ({ i18n, logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("categoryPvE").trim()
@@ -185,13 +199,13 @@ module.exports.editAction = [
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Popup field must be between 1 and 2048 characters."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { language } = req.query;
 		const { categoryPvE, categoryPvP, serverOffline,
 			serverLow, serverMedium, serverHigh, crowdNo, crowdYes, popup } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		if (!language) {
 			return res.redirect("/server_strings");
@@ -235,12 +249,14 @@ module.exports.editAction = [
 	}
 ];
 
-module.exports.deleteAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.deleteAction = ({ logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { language } = req.query;

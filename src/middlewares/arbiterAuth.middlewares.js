@@ -1,23 +1,10 @@
 "use strict";
-
 /**
  * @typedef {import("express").RequestHandler} RequestHandler
  * @typedef {import("express").Response} Response
  */
 
-const Recaptcha = require("express-recaptcha").RecaptchaV3;
 const helpers = require("../utils/helpers");
-
-let recaptcha = null;
-
-if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
-	recaptcha = new Recaptcha(
-		process.env.API_PORTAL_RECAPTCHA_SITE_KEY,
-		process.env.API_PORTAL_RECAPTCHA_SECRET_KEY, {
-			callback: "bindFormAction"
-		}
-	);
-}
 
 /**
  * @param {Response} res
@@ -39,5 +26,4 @@ module.exports.validationHandler = logger =>
 	}
 ;
 
-module.exports.recaptcha = recaptcha;
 module.exports.resultJson = resultJson;

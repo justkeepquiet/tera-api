@@ -1,23 +1,29 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 const jwt = require("jsonwebtoken");
 const { query, body } = require("express-validator");
-const logger = require("../utils/logger");
 const fcgiHttpHelper = require("../utils/fcgiHttpHelper");
 const boxHelper = require("../utils/boxHelper");
-const accountModel = require("../models/account.model");
-const shopModel = require("../models/shop.model");
 const PromoCodeActions = require("../actions/promoCode.actions");
-const { i18n, i18nHandler, validationHandler, authSessionHandler, resultJson } = require("../middlewares/portalShop.middlewares");
 
-module.exports.Auth = [
-	i18nHandler,
+const { validationHandler, authSessionHandler, shopStatusHandler, resultJson } = require("../middlewares/portalShop.middlewares");
+
+/**
+ * @param {modules} modules
+ */
+module.exports.Auth = ({ logger, accountModel }) => [
+	shopStatusHandler,
 	[query("authKey").notEmpty()],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { authKey } = req.query;
@@ -41,24 +47,41 @@ module.exports.Auth = [
 	}
 ];
 
-module.exports.MainHtml = [
-	i18nHandler,
-	validationHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.DisabledHtml = () => [
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.send("TERA Shop is currently disabled.");
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.MainHtml = () => [
+	shopStatusHandler,
+	/**
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		res.render("shopMain");
 	}
 ];
 
-module.exports.PartialMenuHtml = [
-	i18nHandler,
-	authSessionHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.PartialMenuHtml = ({ i18n, logger, accountModel, shopModel }) => [
+	shopStatusHandler,
+	authSessionHandler(logger, accountModel),
 	[query("active").isNumeric().optional()],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { active } = req.query;
@@ -94,14 +117,19 @@ module.exports.PartialMenuHtml = [
 	}
 ];
 
-module.exports.PartialCatalogHtml = [
-	i18nHandler,
-	authSessionHandler,
-	[body("category").optional().isNumeric()],
-	[body("search").optional().trim().isLength({ max: 128 })],
-	validationHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.PartialCatalogHtml = ({ i18n, logger, accountModel, shopModel }) => [
+	shopStatusHandler,
+	authSessionHandler(logger, accountModel),
+	[
+		body("category").optional().isNumeric(),
+		body("search").optional().trim().isLength({ max: 128 })
+	],
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { category, search } = req.body;
@@ -235,14 +263,19 @@ module.exports.PartialCatalogHtml = [
 	}
 ];
 
-module.exports.PartialProductHtml = [
-	i18nHandler,
-	authSessionHandler,
-	[body("id").isNumeric()],
-	[body("search").optional()],
-	validationHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.PartialProductHtml = ({ i18n, logger, accountModel, shopModel }) => [
+	shopStatusHandler,
+	authSessionHandler(logger, accountModel),
+	[
+		body("id").isNumeric(),
+		body("search").optional()
+	],
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { id, search } = req.body;
@@ -389,11 +422,14 @@ module.exports.PartialProductHtml = [
 	}
 ];
 
-module.exports.PartialWelcomeHtml = [
-	i18nHandler,
-	authSessionHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.PartialWelcomeHtml = ({ logger, accountModel }) => [
+	shopStatusHandler,
+	authSessionHandler(logger, accountModel),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		try {
@@ -423,11 +459,14 @@ module.exports.PartialWelcomeHtml = [
 	}
 ];
 
-module.exports.PartialPromoCodeHtml = [
-	i18nHandler,
-	authSessionHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.PartialPromoCodeHtml = ({ i18n, logger, accountModel, shopModel }) => [
+	shopStatusHandler,
+	authSessionHandler(logger, accountModel),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		shopModel.promoCodeActivated.belongsTo(shopModel.promoCodes, { foreignKey: "promoCodeId" });
@@ -463,21 +502,26 @@ module.exports.PartialPromoCodeHtml = [
 	}
 ];
 
-module.exports.PartialErrorHtml = [
-	i18nHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.PartialErrorHtml = () => [
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		res.render("partials/shopError");
 	}
 ];
 
-module.exports.GetAccountInfo = [
-	i18nHandler,
-	authSessionHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.GetAccountInfo = ({ logger, accountModel, shopModel }) => [
+	shopStatusHandler,
+	authSessionHandler(logger, accountModel),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		shopModel.accounts.findOne({
@@ -496,13 +540,16 @@ module.exports.GetAccountInfo = [
 	}
 ];
 
-module.exports.PurchaseAction = [
-	i18nHandler,
-	authSessionHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.PurchaseAction = ({ i18n, logger, accountModel, shopModel }) => [
+	shopStatusHandler,
+	authSessionHandler(logger, accountModel),
 	[body("productId").notEmpty().isNumeric()],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		const { productId } = req.body;
@@ -617,30 +664,33 @@ module.exports.PurchaseAction = [
 	}
 ];
 
-module.exports.PromoCodeAction = [
-	i18nHandler,
-	authSessionHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.PromoCodeAction = modules => [
+	shopStatusHandler,
+	authSessionHandler(modules.logger, modules.accountModel),
 	[body("promoCode").trim().notEmpty()],
-	validationHandler,
+	validationHandler(modules.logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { promoCode } = req.body;
 
-		return shopModel.promoCodes.findOne({
+		return modules.shopModel.promoCodes.findOne({
 			where: {
 				promoCode: promoCode,
 				active: 1,
-				validAfter: { [Op.lt]: shopModel.sequelize.fn("NOW") },
-				validBefore: { [Op.gt]: shopModel.sequelize.fn("NOW") }
+				validAfter: { [Op.lt]: modules.shopModel.sequelize.fn("NOW") },
+				validBefore: { [Op.gt]: modules.shopModel.sequelize.fn("NOW") }
 			}
 		}).then(promocode => {
 			if (promocode === null) {
 				return resultJson(res, 1000, { msg: "invalid promocode" });
 			}
 
-			return shopModel.promoCodeActivated.findOne({
+			return modules.shopModel.promoCodeActivated.findOne({
 				where: {
 					accountDBID: res.__account.get("accountDBID"),
 					promoCodeId: promocode.get("promoCodeId")
@@ -651,12 +701,13 @@ module.exports.PromoCodeAction = [
 				}
 
 				const actions = new PromoCodeActions(
+					modules,
 					res.__account.get("lastLoginServer"),
 					res.__account.get("accountDBID")
 				);
 
 				return actions.execute(promocode.get("function"), promoCode).then(() =>
-					shopModel.promoCodeActivated.create({
+					modules.shopModel.promoCodeActivated.create({
 						promoCodeId: promocode.get("promoCodeId"),
 						accountDBID: res.__account.get("accountDBID")
 					})
@@ -665,7 +716,7 @@ module.exports.PromoCodeAction = [
 				);
 			});
 		}).catch(err => {
-			logger.error(err);
+			modules.logger.error(err);
 			resultJson(res, 1, { msg: "internal error" });
 		});
 	}

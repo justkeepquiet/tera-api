@@ -2,10 +2,10 @@
 
 const http = require("http");
 const uuid = require("uuid").v4;
-const logger = require("./logger");
+const logger = require("./logger").createLogger("FCGI helper");
 
 module.exports.isEnabled = () =>
-	/^true$/i.test(process.env.API_PORTAL_FCGI_GW_WEBAPI_ENABLE) && !!process.env.API_PORTAL_FCGI_GW_WEBAPI_URL
+	/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE) && !!process.env.FCGI_GW_WEBAPI_URL
 ;
 
 module.exports.get = urlParts => {
@@ -13,7 +13,7 @@ module.exports.get = urlParts => {
 		return Promise.resolve();
 	}
 
-	return httpRequest("get", [process.env.API_PORTAL_FCGI_GW_WEBAPI_URL, ...urlParts].join("/"));
+	return httpRequest("get", [process.env.FCGI_GW_WEBAPI_URL, ...urlParts].join("/"));
 };
 
 module.exports.post = (urlParts, body) => {
@@ -21,7 +21,7 @@ module.exports.post = (urlParts, body) => {
 		return Promise.resolve();
 	}
 
-	return httpRequest("post", [process.env.API_PORTAL_FCGI_GW_WEBAPI_URL, ...urlParts].join("/"), JSON.stringify(body));
+	return httpRequest("post", [process.env.FCGI_GW_WEBAPI_URL, ...urlParts].join("/"), JSON.stringify(body));
 };
 
 function httpRequest(method, url, body = null) {
@@ -57,7 +57,7 @@ function httpRequest(method, url, body = null) {
 	return new Promise((resolve, reject) => {
 		const id = uuid();
 
-		logger.debug(`FCGI Request (${id}): ${options.method} ${options.path} ${body || ""}`);
+		logger.debug(`Request (${id}): ${options.method} ${options.path} ${body || ""}`);
 
 		const clientRequest = http.request(options, incomingMessage => {
 			const response = {
@@ -79,13 +79,13 @@ function httpRequest(method, url, body = null) {
 					} catch (_) {}
 				}
 
-				logger.debug(`FCGI Response (${id}): ${JSON.stringify(response.body)}`);
+				logger.debug(`Response (${id}): ${JSON.stringify(response.body)}`);
 				resolve(response);
 			});
 		});
 
 		clientRequest.on("error", error => {
-			logger.error(`FCGI Error (${id}): ${error}`);
+			logger.error(`Error (${id}): ${error}`);
 			reject(error);
 		});
 

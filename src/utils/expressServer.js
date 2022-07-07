@@ -1,17 +1,24 @@
 "use strict";
 
+/**
+ * @typedef {express.Express} app
+ */
+
 const express = require("express");
 const path = require("path");
 const morgan = require("morgan");
 const morganBody = require("morgan-body");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const logger = require("./logger");
 
 class ExpressServer {
-	constructor(displayName, disableCache = true) {
+	constructor(modules, params) {
 		this.app = express();
-		this.displayName = displayName;
+
+		this.logger = params.logger || console;
+		this.disableCache = !!params.disableCache;
+
+		this.modules = { ...modules, app: this.app, logger: this.logger };
 
 		if (/^true$/i.test(process.env.LOG_IP_ADDRESSES_FORWARDED_FOR)) {
 			this.app.enable("trust proxy");
@@ -28,7 +35,7 @@ class ExpressServer {
 			next();
 		});
 
-		if (disableCache) {
+		if (this.disableCache) {
 			this.app.use((req, res, next) => {
 				res.set("Cache-Control", "no-store");
 				next();
@@ -47,7 +54,7 @@ class ExpressServer {
 				logReqDateTime: false,
 				logReqUserAgent: false,
 				stream: {
-					write: text => logger.debug(`${this.displayName}: ${text.trim()}`)
+					write: text => this.logger.debug(text.trim())
 				}
 			});
 		}
@@ -55,15 +62,15 @@ class ExpressServer {
 
 	setLogging() {
 		if (/^true$/i.test(process.env.LOG_API_REQUESTS)) {
-			let logFormat = `${this.displayName}: :method :url :status - :response-time ms`;
+			let logFormat = ":method :url :status - :response-time ms";
 
 			if (/^true$/i.test(process.env.LOG_IP_ADDRESSES)) {
-				logFormat = `${this.displayName}: :remote-addr :method :url :status - :response-time ms`;
+				logFormat = ":remote-addr :method :url :status - :response-time ms";
 			}
 
 			this.app.use(morgan(logFormat, {
 				stream: {
-					write: text => logger.info(text.trim())
+					write: text => this.logger.info(text.trim())
 				}
 			}));
 		}
@@ -74,7 +81,7 @@ class ExpressServer {
 	}
 
 	setRouter(router) {
-		router(this.app);
+		require(router)(this.modules);
 	}
 
 	bind(host, port) {
@@ -82,11 +89,14 @@ class ExpressServer {
 			res.status(404).send(`Invalid endpoint: ${req.url}`)
 		);
 
-		this.app.listen(port, host, () =>
-			logger.info(`${this.displayName} is listening at: ${!host ? "*" : host}:${port}`)
-		).on("error", err => {
-			logger.error(`${this.displayName} has error: ${err.message}`);
-			process.exit();
+		return new Promise((resolve, reject) => {
+			this.app.listen(port, host, () => {
+				this.logger.info(`Listening at: ${!host ? "*" : host}:${port}`);
+				resolve();
+			}).on("error", err => {
+				this.logger.error(`Error: ${err.message}`);
+				reject();
+			});
 		});
 	}
 }

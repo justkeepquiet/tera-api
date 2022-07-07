@@ -1,36 +1,44 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ */
+
 const moment = require("moment-timezone");
 const fcgiHttpHelper = require("../utils/fcgiHttpHelper");
-const accountModel = require("../models/account.model");
 
 class Benefit {
-	constructor(userId, serverId, params = {}) {
+	/**
+	 * @param {modules} modules
+	 */
+	constructor(modules, userId, serverId, params = {}) {
+		this.modules = modules;
 		this.userId = userId;
 		this.serverId = serverId;
 		this.params = params;
 	}
 
 	addBenefit(benefitId, days) {
-		return accountModel.benefits.findOne({
-			attributes: ["availableUntil", [accountModel.characters.sequelize.fn("NOW"), "dateNow"]],
+		return this.modules.accountModel.benefits.findOne({
+			attributes: ["availableUntil", [this.modules.accountModel.characters.sequelize.fn("NOW"), "dateNow"]],
 			where: { accountDBID: this.userId, benefitId }
 		}).then(benefit => {
 			let promise = null;
 
 			if (benefit === null) {
-				promise = accountModel.benefits.create({
+				promise = this.modules.accountModel.benefits.create({
 					accountDBID: this.userId,
 					benefitId,
-					availableUntil: accountModel.sequelize.fn("ADDDATE", accountModel.sequelize.fn("NOW"), days)
+					availableUntil: this.modules.accountModel.sequelize.fn("ADDDATE",
+						this.modules.accountModel.sequelize.fn("NOW"), days)
 				});
 			} else {
 				const currentDate = moment(benefit.get("dateNow")).isAfter(benefit.get("availableUntil")) ?
-					accountModel.sequelize.fn("NOW") :
-					accountModel.sequelize.col("availableUntil");
+					this.modules.accountModel.sequelize.fn("NOW") :
+					this.modules.accountModel.sequelize.col("availableUntil");
 
-				promise = accountModel.benefits.update({
-					availableUntil: accountModel.sequelize.fn("ADDDATE", currentDate, days)
+				promise = this.modules.accountModel.benefits.update({
+					availableUntil: this.modules.accountModel.sequelize.fn("ADDDATE", currentDate, days)
 				}, {
 					where: { accountDBID: this.userId, benefitId }
 				});

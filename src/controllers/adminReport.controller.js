@@ -1,16 +1,19 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
-const logger = require("../utils/logger");
-const accountModel = require("../models/account.model");
-const reportModel = require("../models/report.model");
-const { i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-const reportHandler = (model, view) =>
+const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
+
+const reportHandler = (logger, accountModel, model, view) =>
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	*/
 	(req, res) => {
 		let { from, to } = req.query;
@@ -24,8 +27,8 @@ const reportHandler = (model, view) =>
 				...serverId ? { serverId } : {},
 				...accountDBID ? { accountDBID } : {},
 				reportTime: {
-					[Op.gt]: from.toDate(),
-					[Op.lt]: to.toDate()
+					[Op.gt]: from.format("YYYY-MM-DD HH:mm:ss"),
+					[Op.lt]: to.format("YYYY-MM-DD HH:mm:ss")
 				}
 			},
 			order: [
@@ -51,30 +54,38 @@ const reportHandler = (model, view) =>
 	}
 ;
 
-module.exports.activity = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.activity = ({ logger, accountModel, reportModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(reportModel.activity, "adminReportActivity")
+	reportHandler(logger, accountModel, reportModel.activity, "adminReportActivity")
 ];
 
-module.exports.characters = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.characters = ({ logger, accountModel, reportModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(reportModel.characters, "adminReportCharacters")
+	reportHandler(logger, accountModel, reportModel.characters, "adminReportCharacters")
 ];
 
-module.exports.cheats = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.cheats = ({ logger, accountModel, reportModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(reportModel.cheats, "adminReportCheats")
+	reportHandler(logger, accountModel, reportModel.cheats, "adminReportCheats")
 ];
 
-module.exports.chronoscrolls = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.chronoscrolls = ({ logger, accountModel, reportModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(reportModel.chronoScrolls, "adminReportChronoScrolls")
+	reportHandler(logger, accountModel, reportModel.chronoScrolls, "adminReportChronoScrolls")
 ];

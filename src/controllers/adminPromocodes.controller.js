@@ -1,24 +1,30 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
 const I18n = require("i18n").I18n;
 const moment = require("moment-timezone");
-const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
-const shopModel = require("../models/shop.model");
-const { i18n, i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
+const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
 const shopLocales = (new I18n({ directory: path.resolve(__dirname, "../locales/shop") })).getLocales();
 const promocodeFunctions = Object.keys(require("../../config/promoCode"));
 
-module.exports.index = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.index = ({ i18n, logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		shopModel.promoCodes.belongsTo(shopModel.promoCodeStrings, { foreignKey: "promoCodeId" });
@@ -49,12 +55,15 @@ module.exports.index = [
 	}
 ];
 
-module.exports.add = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.add = () => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		res.render("adminPromocodesAdd", {
@@ -72,9 +81,12 @@ module.exports.add = [
 	}
 ];
 
-module.exports.addAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.addAction = ({ i18n, logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	[
 		body("promoCode")
@@ -101,11 +113,11 @@ module.exports.addAction = [
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Description must be between 1 and 2048 characters."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { promoCode, aFunction, validAfter, validBefore, active, description } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
 			return res.render("adminPromocodesAdd", {
@@ -126,8 +138,8 @@ module.exports.addAction = [
 			shopModel.promoCodes.create({
 				promoCode,
 				function: aFunction,
-				validAfter: moment(validAfter).toDate(),
-				validBefore: moment(validBefore).toDate(),
+				validAfter: moment(validAfter).format("YYYY-MM-DD HH:mm:ss"),
+				validBefore: moment(validBefore).format("YYYY-MM-DD HH:mm:ss"),
 				active: active == "on"
 			}, {
 				transaction
@@ -159,12 +171,15 @@ module.exports.addAction = [
 	}
 ];
 
-module.exports.edit = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.edit = ({ logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { promoCodeId } = req.query;
@@ -212,9 +227,12 @@ module.exports.edit = [
 	}
 ],
 
-module.exports.editAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.editAction = ({ i18n, logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	[
 		body("aFunction")
@@ -230,12 +248,12 @@ module.exports.editAction = [
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Description field must be between 1 and 2048 characters."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { promoCodeId } = req.query;
 		const { aFunction, validAfter, validBefore, active, description } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		if (!promoCodeId) {
 			return res.redirect("/promocodes");
@@ -267,8 +285,8 @@ module.exports.editAction = [
 			return shopModel.sequelize.transaction(transaction =>
 				shopModel.promoCodes.update({
 					function: aFunction,
-					validAfter: moment(validAfter).toDate(),
-					validBefore: moment(validBefore).toDate(),
+					validAfter: moment(validAfter).format("YYYY-MM-DD HH:mm:ss"),
+					validBefore: moment(validBefore).format("YYYY-MM-DD HH:mm:ss"),
 					active: active == "on"
 				}, {
 					where: { promoCodeId },
@@ -302,12 +320,15 @@ module.exports.editAction = [
 	}
 ];
 
-module.exports.deleteAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.deleteAction = ({ logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { promoCodeId } = req.query;

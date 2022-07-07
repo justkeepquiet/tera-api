@@ -1,20 +1,26 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
-const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
-const shopModel = require("../models/shop.model");
-const accountModel = require("../models/account.model");
-const { i18n, i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-module.exports.index = [
-	i18nHandler,
-	accessFunctionHandler(),
+const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
+
+/**
+ * @param {modules} modules
+ */
+module.exports.index = ({ logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { promoCodeId, accountDBID } = req.query;
@@ -61,10 +67,12 @@ module.exports.index = [
 	}
 ];
 
-
-module.exports.add = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.add = ({ i18n, logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	[
 		query("promoCodeId").trim().optional()
@@ -73,7 +81,7 @@ module.exports.add = [
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { promoCodeId, accountDBID } = req.query;
@@ -93,9 +101,12 @@ module.exports.add = [
 	}
 ];
 
-module.exports.addAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.addAction = ({ i18n, logger, accountModel, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	[
 		body("promoCodeId").trim()
@@ -132,11 +143,11 @@ module.exports.addAction = [
 			}))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { promoCodeId, accountDBID } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		shopModel.promoCodes.findAll().then(promocodes => {
 			if (!errors.isEmpty()) {
@@ -163,12 +174,15 @@ module.exports.addAction = [
 	}
 ];
 
-module.exports.deleteAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.deleteAction = ({ logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { id } = req.query;

@@ -66,8 +66,7 @@ class SteerConnection {
 			invalidstate: 16
 		};
 
-		this.socket = new PromiseSocket(new net.Socket());
-
+		this.socket = null;
 		this.readTimeout = 5000;
 		this.connected = false;
 		this.registred = false;
@@ -78,22 +77,6 @@ class SteerConnection {
 		this.steerPort = steerPort;
 		this.params = params;
 		this.readTimer = null;
-
-		this.socket.socket.on("error", err => {
-
-			if (this.params.logger?.error) {
-				this.params.logger.error(`Steer Error: ${err.toString()}`);
-			}
-
-			if (err.code === "ECONNRESET") {
-				this.connected = false;
-				this.registred = false;
-
-				this.reconnect();
-			}
-
-			clearTimeout(this.readTimer);
-		});
 	}
 
 	get isConnected() {
@@ -105,13 +88,30 @@ class SteerConnection {
 	}
 
 	connect() {
-		clearInterval(this.reconnectInterval);
+		this.destroy();
+
+		this.socket = new PromiseSocket(new net.Socket());
 		this.reconnectInterval = setInterval(() => this.reconnect(), 10000);
+
+		this.socket.socket.on("error", err => {
+			if (this.params.logger?.error) {
+				this.params.logger.error(err.toString());
+			}
+
+			if (err.code === "ECONNRESET" || err.code === "EISCONN") {
+				this.connected = false;
+				this.registred = false;
+
+				this.reconnect();
+			}
+
+			clearTimeout(this.readTimer);
+		});
 
 		return this.socket.connect(this.steerPort, this.steerAddr).then(() => {
 			this.connected = true;
 			return this.checkRegistered();
-		});
+		}).catch(() => {});
 	}
 
 	reconnect() {
@@ -124,7 +124,11 @@ class SteerConnection {
 		this.connected = false;
 		this.registred = false;
 
-		return this.socket.destroy();
+		clearInterval(this.reconnectInterval);
+
+		if (this.socket) {
+			this.socket.destroy();
+		}
 	}
 
 	checkRegistered() {
@@ -154,7 +158,7 @@ class SteerConnection {
 		return this.sendAndRecv(opMsg).then(data => {
 			if (data.resultCode && this.getErrorCode(data.resultCode) === this.steerErrorCode.success) {
 				if (this.params.logger?.info) {
-					this.params.logger.info(`Steer Registred: category ${this.serviceId}, number ${this.uniqueServerId}`);
+					this.params.logger.info(`Registred: category ${this.serviceId}, number ${this.uniqueServerId}`);
 				}
 
 				this.registred = true;
@@ -162,17 +166,21 @@ class SteerConnection {
 				this.biasCount++;
 
 				if (this.biasCount > 10000) {
-					return Promise.reject(new SteerError("Steer Error: can't register server", 2));
+					return Promise.reject(new SteerError("Can't register server", 2));
 				}
 
 				this.connect();
+			}
+		}).catch(err => {
+			if (this.params.logger?.error) {
+				this.params.logger.error(err.toString());
 			}
 		});
 	}
 
 	sendAndRecv(opMsg) {
 		if (this.params.logger?.debug) {
-			this.params.logger.debug(`Steer Send: ${JSON.stringify(opMsg)}`);
+			this.params.logger.debug(`Send: ${JSON.stringify(opMsg)}`);
 		}
 
 		const structFormat = ">HII";
@@ -196,20 +204,20 @@ class SteerConnection {
 				clearTimeout(this.readTimer);
 
 				if (data === undefined || data.length === 0) {
-					return Promise.reject(new SteerError("Steer Error: Receive failed (receiver down?)", 4));
+					return Promise.reject(new SteerError("Receive failed (receiver down?)", 4));
 				}
 
 				const responseData = data.slice(prefixLength);
 				const unserializedData = OpMsg.decode(responseData);
 
 				if (this.params.logger?.debug) {
-					this.params.logger.debug(`Steer Recv: ${JSON.stringify(unserializedData)}`);
+					this.params.logger.debug(`Recv: ${JSON.stringify(unserializedData)}`);
 				}
 
 				return Promise.resolve(unserializedData);
 			})
 		).catch(err =>
-			Promise.reject(new SteerError(`Steer Error: Send failed: ${err}`, 4))
+			Promise.reject(new SteerError(`Send failed: ${err}`, 4))
 		);
 	}
 

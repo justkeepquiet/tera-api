@@ -1,26 +1,28 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const crypto = require("crypto");
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
 const Op = require("sequelize").Op;
-const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
-const datasheets = require("../utils/datasheets");
-const accountModel = require("../models/account.model");
-const shopModel = require("../models/shop.model");
-const { i18n, i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-const accountBenefits = datasheets.accountBenefits[i18n.getLocale()] || new Map();
+const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 const encryptPasswords = /^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWORDS);
 
-module.exports.index = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.index = ({ logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { serverId } = req.query;
@@ -39,16 +41,20 @@ module.exports.index = [
 	}
 ];
 
-module.exports.add = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.add = ({ i18n, datasheets }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const benefitIds = [];
 		const availableUntils = [];
+
+		const accountBenefits = datasheets.accountBenefits[i18n.getLocale()] || new Map();
 
 		helpers.getInitialBenefits().forEach((benefitDays, benefitId) => {
 			benefitIds.push(benefitId);
@@ -71,9 +77,11 @@ module.exports.add = [
 	}
 ];
 
-module.exports.addAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.addAction = ({ i18n, logger, accountModel, datasheets }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("userName").trim()
@@ -101,12 +109,14 @@ module.exports.addAction = [
 			.isISO8601().withMessage("Available field until must contain a valid date.")
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { userName, passWord, email, permission, privilege, benefitIds, availableUntils } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 		let passwordString = passWord;
+
+		const accountBenefits = datasheets.accountBenefits[i18n.getLocale()] || new Map();
 
 		if (encryptPasswords) {
 			passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + passWord).digest("hex");
@@ -149,7 +159,7 @@ module.exports.addAction = [
 						promises.push(accountModel.benefits.create({
 							accountDBID: account.get("accountDBID"),
 							benefitId,
-							availableUntil: moment(availableUntils[i]).toDate()
+							availableUntil: moment(availableUntils[i]).format("YYYY-MM-DD HH:mm:ss")
 						}, {
 							transaction
 						}));
@@ -167,12 +177,14 @@ module.exports.addAction = [
 	}
 ];
 
-module.exports.edit = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.edit = ({ logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;
@@ -205,9 +217,11 @@ module.exports.edit = [
 	}
 ];
 
-module.exports.editAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.editAction = ({ i18n, logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("userName").trim()
@@ -232,12 +246,12 @@ module.exports.editAction = [
 			.isNumeric().withMessage(i18n.__("Privilege field must contain a valid number."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;
 		const { userName, passWord, email, permission, privilege, benefitIds, availableUntils } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		if (!accountDBID) {
 			return res.redirect("/accounts");
@@ -277,12 +291,14 @@ module.exports.editAction = [
 	}
 ];
 
-module.exports.deleteAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.deleteAction = ({ logger, accountModel, shopModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;
@@ -323,12 +339,14 @@ module.exports.deleteAction = [
 	}
 ];
 
-module.exports.characters = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.characters = ({ logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { serverId, accountDBID } = req.query;

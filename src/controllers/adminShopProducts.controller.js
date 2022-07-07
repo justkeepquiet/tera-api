@@ -1,23 +1,29 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
 const moment = require("moment-timezone");
 const I18n = require("i18n").I18n;
-const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
-const shopModel = require("../models/shop.model");
-const { i18n, i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
+const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
 const shopLocales = (new I18n({ directory: path.resolve(__dirname, "../locales/shop") })).getLocales();
 
-module.exports.index = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.index = ({ i18n, logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		const { categoryId } = req.query;
@@ -178,12 +184,15 @@ module.exports.index = [
 	}
 ];
 
-module.exports.add = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.add = ({ i18n, logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		const { categoryId, fromCategoryId } = req.query;
@@ -238,9 +247,12 @@ module.exports.add = [
 	}
 ];
 
-module.exports.addAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.addAction = ({ i18n, logger, platform, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	[
 		body("price").trim()
@@ -298,14 +310,14 @@ module.exports.addAction = [
 			.isLength({ max: 2048 }).withMessage(i18n.__("Description must be between 1 and 2048 characters."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		const { fromCategoryId } = req.query;
 		const { categoryId, validate, validAfter, validBefore, active, price,
 			title, description, icon, rareGrade,
 			itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		try {
 			shopModel.categories.belongsTo(shopModel.categoryStrings, { foreignKey: "id" });
@@ -397,8 +409,8 @@ module.exports.addAction = [
 					price,
 					icon,
 					rareGrade: rareGrade === "" ? null : rareGrade,
-					validAfter: moment(validAfter).toDate(),
-					validBefore: moment(validBefore).toDate()
+					validAfter: moment(validAfter).format("YYYY-MM-DD HH:mm:ss"),
+					validBefore: moment(validBefore).format("YYYY-MM-DD HH:mm:ss")
 				}, {
 					transaction
 				});
@@ -408,7 +420,7 @@ module.exports.addAction = [
 				if (itemTemplateIds) {
 					itemTemplateIds.forEach((itemTemplateId, index) => {
 						if (boxItemIds[index] === "" && resolvedItems[itemTemplateId]) {
-							promises.push(req.platform.createServiceItem(
+							promises.push(platform.createServiceItem(
 								req.session.passport.user.userSn || 0,
 								itemTemplateId,
 								1,
@@ -464,12 +476,15 @@ module.exports.addAction = [
 	}
 ];
 
-module.exports.edit = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.edit = ({ i18n, logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		const { id, fromCategoryId } = req.query;
@@ -618,9 +633,12 @@ module.exports.edit = [
 	}
 ];
 
-module.exports.editAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.editAction = ({ i18n, logger, platform, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	[
 		body("price").trim()
@@ -680,14 +698,14 @@ module.exports.editAction = [
 			.isLength({ max: 2048 }).withMessage(i18n.__("Description must be between 1 and 2048 characters."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		const { id, fromCategoryId } = req.query;
 		const { validate, categoryId, validAfter, validBefore, active, price, sort,
 			title, description, icon, rareGrade,
 			itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		try {
 			if (!id) {
@@ -801,8 +819,8 @@ module.exports.editAction = [
 						sort,
 						icon,
 						rareGrade: rareGrade === "" ? null : rareGrade,
-						validAfter: moment(validAfter).toDate(),
-						validBefore: moment(validBefore).toDate()
+						validAfter: moment(validAfter).format("YYYY-MM-DD HH:mm:ss"),
+						validBefore: moment(validBefore).format("YYYY-MM-DD HH:mm:ss")
 					}, {
 						where: { id: product.get("id") },
 						transaction
@@ -815,7 +833,7 @@ module.exports.editAction = [
 
 					if (itemTemplateIds[index]) {
 						if (boxItemIds[index] != productItem.get("boxItemId")) {
-							promises.push(req.platform.createServiceItem(
+							promises.push(platform.createServiceItem(
 								req.session.passport.user.userSn || 0,
 								itemTemplateId,
 								1,
@@ -844,7 +862,7 @@ module.exports.editAction = [
 						}
 					} else {
 						if (productItem.get("boxItemId")) {
-							promises.push(req.platform.removeServiceItem(productItem.get("boxItemId")));
+							promises.push(platform.removeServiceItem(productItem.get("boxItemId")));
 						}
 
 						promises.push(shopModel.productItems.destroy({
@@ -864,7 +882,7 @@ module.exports.editAction = [
 						}).then(async productItem => {
 							if (productItem === null) {
 								if (!boxItemIds[index]) {
-									return req.platform.createServiceItem(
+									return platform.createServiceItem(
 										req.session.passport.user.userSn || 0,
 										itemTemplateId,
 										1,
@@ -942,12 +960,15 @@ module.exports.editAction = [
 	}
 ];
 
-module.exports.deleteAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.deleteAction = ({ logger, platform, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		const { id, fromCategoryId } = req.query;
@@ -977,7 +998,7 @@ module.exports.deleteAction = [
 					for (const productItem of productItems) {
 						if (productItem.get("boxItemId")) {
 							if (productItem.get("boxItemId")) {
-								promises.push(req.platform.removeServiceItem(productItem.get("boxItemId")));
+								promises.push(platform.removeServiceItem(productItem.get("boxItemId")));
 							}
 
 							promises.push(shopModel.productItems.destroy({

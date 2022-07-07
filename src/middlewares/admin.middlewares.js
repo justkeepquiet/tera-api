@@ -1,50 +1,36 @@
 "use strict";
 
-const path = require("path");
-const I18n = require("i18n").I18n;
-const helpers = require("../utils/helpers");
-const logger = require("../utils/logger");
-
-if (!process.env.ADMIN_PANEL_LOCALE) {
-	logger.error("Invalid configuration parameter: ADMIN_PANEL_LOCALE");
-	process.exit();
-}
-
-const i18n = new I18n({
-	directory: path.resolve(__dirname, "../locales/admin"),
-	defaultLocale: process.env.ADMIN_PANEL_LOCALE
-});
+/**
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
 
 /**
- * @type {import("express").RequestHandler}
+ * @type {RequestHandler}
  */
-module.exports.i18nHandler = (req, res, next) => {
-	res.locals.__ = i18n.__;
-	res.locals.locale = i18n.getLocale();
+module.exports.accessFunctionHandler = (req, res, next) => {
+	if (req.isAuthenticated()) {
+		res.locals.passport = req.session.passport;
 
-	return next();
+		if (req.session.passport.user.type === "steer" &&
+			!Object.values(req.session.passport.user.functions).includes(req.path)
+		) {
+			const msg = `${encodeURI(res.locals.__("Function access denied"))}: ${req.path}`;
+			return res.redirect(`/logout?msg=${msg}`);
+		}
+
+		next();
+	} else {
+		res.redirect(`/login?msg=${encodeURI(res.locals.__("The session has expired."))}&url=${req.url}`);
+	}
 };
 
-module.exports.accessFunctionHandler = () =>
-	/**
-	 * @type {import("express").RequestHandler}
-	 */
-	(req, res, next) => {
-		if (req.isAuthenticated()) {
-			res.locals.passport = req.session.passport;
-
-			if (req.session.passport.user.type === "steer" &&
-				!Object.values(req.session.passport.user.functions).includes(req.path)
-			) {
-				const msg = `${encodeURI(i18n.__("Function access denied"))}: ${req.path}`;
-				return res.redirect(`/logout?msg=${msg}`);
-			}
-
-			next();
-		} else {
-			res.redirect(`/login?msg=${encodeURI(i18n.__("The session has expired."))}&url=${req.url}`);
-		}
+/**
+ * @type {RequestHandler}
+ */
+module.exports.shopStatusHandler = (req, res, next) => {
+	if (!/^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE)) {
+		return res.redirect("/");
 	}
-;
 
-module.exports.i18n = i18n;
+	next();
+};

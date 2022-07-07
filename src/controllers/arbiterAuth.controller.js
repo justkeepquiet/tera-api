@@ -1,32 +1,21 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const body = require("express-validator").body;
-const logger = require("../utils/logger");
-const helpers = require("../utils/helpers");
-const accountModel = require("../models/account.model");
+
+const { validationHandler, resultJson } = require("../middlewares/arbiterAuth.middlewares");
 
 /**
- * @type {import("express").RequestHandler}
+ * endpoint: /systemApi/RequestAPIServerStatusAvailable
+ * @param {modules} modules
  */
-const validationHandler = (req, res, next) => {
-	if (!helpers.validationResultLog(req).isEmpty()) {
-		return result(res, 2, "invalid parameter");
-	}
-
-	next();
-};
-
-/**
- * @param {import("express").Response} res
- */
-const result = (res, code, message, params = {}) => res.json({
-	Return: code === 0, ReturnCode: code, Msg: message, ...params
-});
-
-// endpoint: /systemApi/RequestAPIServerStatusAvailable
-module.exports.RequestAPIServerStatusAvailable = [
+module.exports.RequestAPIServerStatusAvailable = ({ logger, accountModel }) => [
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		accountModel.serverInfo.update({ isAvailable: 0, usersOnline: 0 }, {
@@ -40,58 +29,64 @@ module.exports.RequestAPIServerStatusAvailable = [
 	}
 ];
 
-// endpoint: /authApi/RequestAuthkey
-module.exports.RequestAuthkey = [
+/**
+ * endpoint: /authApi/RequestAuthkey
+ * @param {modules} modules
+ */
+module.exports.RequestAuthkey = ({ logger, accountModel }) => [
 	[body("clientIP").notEmpty(), body("userNo").isNumeric()],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { clientIP, userNo } = req.body;
 
 		accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
 			if (account === null) {
-				return result(res, 50000, "account not exist");
+				return resultJson(res, 50000, "account not exist");
 			}
 
-			result(res, 0, "success", {
+			resultJson(res, 0, "success", {
 				Tokken: account.get("authKey")
 			});
 		}).catch(err => {
 			logger.error(err);
-			result(res, 1, "internal error");
+			resultJson(res, 1, "internal error");
 		});
 	}
 ];
 
-// endpoint: /authApi/GameAuthenticationLogin
-module.exports.GameAuthenticationLogin = [
+/**
+ * endpoint: /authApi/GameAuthenticationLogin
+ * @param {modules} modules
+ */
+module.exports.GameAuthenticationLogin = ({ logger, accountModel }) => [
 	[body("authKey").notEmpty(), body("userNo").isNumeric()],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { authKey, clientIP, userNo } = req.body;
 
 		accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
 			if (account === null) {
-				return result(res, 50000, "account not exist");
+				return resultJson(res, 50000, "account not exist");
 			}
 
 			if (account.get("permission") == 1) { // @todo
-				return result(res, 50010, "account banned");
+				return resultJson(res, 50010, "account banned");
 			}
 
 			if (account.get("authKey") !== authKey) {
-				return result(res, 50011, "authkey mismatch");
+				return resultJson(res, 50011, "authkey mismatch");
 			}
 
-			result(res, 0, "success");
+			resultJson(res, 0, "success");
 		}).catch(err => {
 			logger.error(err);
-			result(res, 1, "internal error");
+			resultJson(res, 1, "internal error");
 		});
 	}
 ];

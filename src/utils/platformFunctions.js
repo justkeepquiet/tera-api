@@ -45,7 +45,7 @@ class PlatformFunctions extends PlatformConnection {
 
 				return Promise.resolve(resultSets);
 			} else {
-				return Promise.reject(new PlatformError(`Platform Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(new PlatformError(`Error: ${resultCode}`, data.resultCode));
 			}
 		});
 	}
@@ -102,7 +102,7 @@ class PlatformFunctions extends PlatformConnection {
 			if (resultCode === this.platformErrorCode.success) {
 				return Promise.resolve(Buffer.from(data.resultScalar).toString());
 			} else {
-				return Promise.reject(new PlatformError(`Platform Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(new PlatformError(`Error: ${resultCode}`, data.resultCode));
 			}
 		});
 	}
@@ -129,7 +129,7 @@ class PlatformFunctions extends PlatformConnection {
 			if (resultCode === this.platformErrorCode.success) {
 				return Promise.resolve();
 			} else {
-				return Promise.reject(new PlatformError(`Platform Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(new PlatformError(`Error: ${resultCode}`, data.resultCode));
 			}
 		});
 	}
@@ -232,7 +232,7 @@ class PlatformFunctions extends PlatformConnection {
 			if (resultCode === this.platformErrorCode.success) {
 				return Promise.resolve(data.resultScalar);
 			} else {
-				return Promise.reject(new PlatformError(`Platform Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(new PlatformError(`Error: ${resultCode}`, data.resultCode));
 			}
 		});
 	}

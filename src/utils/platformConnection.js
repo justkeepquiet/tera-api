@@ -79,7 +79,7 @@ class PlatformConnection {
 
 	sendAndRecv(opMsg, msgId = 1) {
 		if (this.params.logger?.debug) {
-			this.params.logger.debug(`Platform Send: ${JSON.stringify(opMsg)}`);
+			this.params.logger.debug(`Send: ${JSON.stringify(opMsg)}`);
 		}
 
 		const socket = new PromiseSocket(new net.Socket());
@@ -88,7 +88,7 @@ class PlatformConnection {
 
 		socket.socket.on("error", err => {
 			if (this.params.logger?.error) {
-				this.params.logger.error(`Platform Error: ${err.toString()}`);
+				this.params.logger.error(err.toString());
 			}
 		});
 
@@ -115,21 +115,21 @@ class PlatformConnection {
 					socket.destroy();
 
 					if (data === undefined || data.length === 0) {
-						return Promise.reject(new PlatformError("Platform Error: Receive failed (receiver down?)", 4));
+						return Promise.reject(new PlatformError("Receive failed (receiver down?)", 4));
 					}
 
 					const responseData = data.slice(sizeSize + idSize);
 					const unserializedData = OpMsg.decode(responseData);
 
 					if (this.params.logger?.debug) {
-						this.params.logger.debug(`Platform Recv: ${JSON.stringify(unserializedData)}`);
+						this.params.logger.debug(`Recv: ${JSON.stringify(unserializedData)}`);
 					}
 
 					return Promise.resolve(unserializedData);
 				})
 			)
 		).catch(err =>
-			Promise.reject(new PlatformError(`Platform Error: Send failed: ${err}`, 4))
+			Promise.reject(new PlatformError(`Send failed: ${err}`, 4))
 		);
 	}
 

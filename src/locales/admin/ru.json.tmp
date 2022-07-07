@@ -139,8 +139,6 @@
 	"Previous": "Назад",
 	"activate to sort column ascending": "активировать для сортировки столбца по возрастанию",
 	"activate to sort column descending": "активировать для сортировки столбца по убыванию",
-	"Please enter login": "Пожалуйста, введите логин",
-	"Please enter password": "Пожалуйста, введите пароль",
 	"Your Profile": "Ваш профиль",
 	"Session Information": "Информация о сеансе",
 	"Permitted Functions": "Разрешенные функции",
@@ -151,7 +149,7 @@
 	"Time zone": "Временная зона",
 	"Login ID": "ID пользователя",
 	"Password": "Пароль",
-	"Save account information": "Сохранить учетные данные",
+	"Remember me": "Запомнить",
 	"Login": "Войти",
 	"Show full report": "Показать весь отчет",
 	"Show full log": "Показать весь журнал",
@@ -165,7 +163,7 @@
 	"Add Server Maintenance Plan": "Добавление плана обслуживания сервера",
 	"Back to list": "Назад в список",
 	"Add": "Добавить",
-	"Edit Server Maintenance Plan": "Редактирование плана обслуживания сервера",
+	"Edit Server Maintenance Plan": "Edit Server Maintenance Plan",
 	"Save": "Сохранить",
 	"Server List (SLS)": "Список серверов (SLS)",
 	"Add new server": "Добавить новый сервер",
@@ -362,5 +360,7 @@
 	"Registred Users": "Зарегистрировано",
 	"Online Users": "Он-лайн",
 	"completed": "завершено",
-	"deposit": "начато"
+	"deposit": "начато",
+	"Please enter login": "Please enter login",
+	"Please enter password": "Please enter password"
 }

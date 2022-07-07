@@ -1,18 +1,24 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
-const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
-const accountModel = require("../models/account.model");
-const { i18n, i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-module.exports.index = [
-	i18nHandler,
-	accessFunctionHandler(),
+const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
+
+/**
+ * @param {modules} modules
+ */
+module.exports.index = ({ logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		accountModel.serverInfo.findAll().then(servers => {
@@ -27,12 +33,14 @@ module.exports.index = [
 	}
 ];
 
-module.exports.add = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.add = ({ i18n }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		res.render("adminServersAdd", {
@@ -54,13 +62,15 @@ module.exports.add = [
 	}
 ];
 
-module.exports.addAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.addAction = ({ i18n, logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("serverId")
-			.isInt({ min: 0 }).withMessage("Server ID field must contain the value as a number.")
+			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain the value as a number."))
 			.custom((value, { req }) => accountModel.serverInfo.findOne({
 				where: {
 					serverId: req.body.serverId
@@ -95,12 +105,12 @@ module.exports.addAction = [
 			.isIn(["on"]).withMessage(i18n.__("Is enabled field has invalid value."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { serverId, loginIp, loginPort, language, nameString, descrString,
 			tresholdLow, tresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
 			return res.render("adminServersAdd", {
@@ -143,12 +153,14 @@ module.exports.addAction = [
 	}
 ];
 
-module.exports.edit = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.edit = ({ logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { serverId } = req.query;
@@ -181,9 +193,11 @@ module.exports.edit = [
 	}
 ];
 
-module.exports.editAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.editAction = ({ i18n, logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("loginIp").trim()
@@ -211,13 +225,13 @@ module.exports.editAction = [
 			.isIn(["on"]).withMessage(i18n.__("Is enabled field has invalid value."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { serverId } = req.query;
 		const { loginIp, loginPort, language, nameString, descrString,
 			tresholdLow, tresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		if (!serverId) {
 			return res.redirect("/servers");
@@ -265,12 +279,14 @@ module.exports.editAction = [
 	}
 ];
 
-module.exports.deleteAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.deleteAction = ({ logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { serverId } = req.query;

@@ -69,28 +69,6 @@ $(function() {
 	}, 1000);
 });
 
-// LoginForm validation
-$(function() {
-	if (!$("#login-form").length) {
-		return false;
-	}
-
-	var loginValidationSettings = {
-		rules: {
-			login: "required",
-			password: "required"
-		},
-		messages: {
-			login: "Please enter login",
-			password: "Please enter password"
-		}
-	};
-
-	$.extend(loginValidationSettings, config.validations);
-
-	$("#login-form").validate(loginValidationSettings);
-});
-
 /** *********************************************
 *		Animation Settings
 ***********************************************/

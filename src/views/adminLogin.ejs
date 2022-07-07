@@ -8,6 +8,7 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<link rel="stylesheet" href="/static/css/vendor.css">
 		<link rel="stylesheet" href="/static/css/app.css">
+		<link rel="shortcut icon" type="image/x-icon" href="/static/images/favicon.ico" />
 	</head>
 	<body>
 		<div class="auth">
@@ -23,13 +24,18 @@
 						<form id="login-form" action="" method="POST" novalidate="">
 							<div class="form-group">
 								<label for="login"><%= __("Login ID") %></label>
-								<input type="text" class="form-control boxed" name="login" id="login" value="imsadmin" required>
+								<input type="text" class="form-control boxed" name="login" id="login" value="<%= login %>" required>
 							</div>
 							<div class="form-group">
 								<label for="password"><%= __("Password") %></label>
-								<input type="password" class="form-control boxed" name="password" id="password" value="" required>
+								<input type="password" class="form-control boxed" name="password" id="password" value="<%= password %>" required>
 							</div>
-							<div class="row form-group"></div>
+							<div class="form-group">
+								<label for="remember">
+									<input class="checkbox" id="remember" name="remember" type="checkbox" <%= login ? "checked" : "" %>>
+									<span><%= __("Save account information") %></span>
+								</label>
+							</div>
 							<div class="form-group">
 								<button type="submit" class="btn btn-block btn-primary"><%= __("Login") %></button>
 							</div>
@@ -40,5 +46,26 @@
 		</div>
 		<script src="/static/js/vendor.js"></script>
 		<script src="/static/js/app.js"></script>
+		<script>
+			$(function() {
+				if (!$("#login-form").length) {
+					return false;
+				}
+
+				var loginValidationSettings = {
+					rules: {
+						login: "required",
+						password: "required"
+					},
+					messages: {
+						login: "<%= __('Please enter login') %>",
+						password: "<%= __('Please enter password') %>"
+					}
+				};
+
+				$.extend(loginValidationSettings, config.validations);
+				$("#login-form").validate(loginValidationSettings);
+			});
+		</script>
 	</body>
 </html>

@@ -1,31 +1,34 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
+const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const passport = require("passport");
-const logger = require("../utils/logger");
-const accountModel = require("../models/account.model");
-const reportModel = require("../models/report.model");
-const shopModel = require("../models/shop.model");
 
-const { i18n, i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-module.exports.home = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.home = ({ logger, accountModel, reportModel, shopModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		const isSteer = req.session.passport.user.type === "steer";
 
 		try {
-			const servers = !isSteer || Object.values(req.session.passport.user.functions).includes("/servers") ?
-				await accountModel.serverInfo.findAll({
-					where: { isEnabled: 1 }
-				}) : [];
+			const servers = await accountModel.serverInfo.findAll({
+				where: { isEnabled: 1 }
+			});
 
 			const activityReport = !isSteer || Object.values(req.session.passport.user.functions).includes("/report_activity") ?
 				await reportModel.activity.findAll({
@@ -33,7 +36,7 @@ module.exports.home = [
 					order: [
 						["reportTime", "DESC"]
 					]
-				}) : [];
+				}) : null;
 
 			const cheatsReport = !isSteer || Object.values(req.session.passport.user.functions).includes("/report_cheats") ?
 				await reportModel.cheats.findAll({
@@ -41,15 +44,16 @@ module.exports.home = [
 					order: [
 						["reportTime", "DESC"]
 					]
-				}) : [];
+				}) : null;
 
-			const payLogs = !isSteer || Object.values(req.session.passport.user.functions).includes("/shop_pay_logs") ?
+			const payLogs = !isSteer ||
+				Object.values(req.session.passport.user.functions).includes("/shop_pay_logs") && /^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE) ?
 				await shopModel.payLogs.findAll({
 					offset: 0, limit: 8,
 					order: [
 						["createdAt", "DESC"]
 					]
-				}) : [];
+				}) : null;
 
 			res.render("adminHome", {
 				layout: "adminLayout",
@@ -66,24 +70,28 @@ module.exports.home = [
 	}
 ];
 
-module.exports.profile = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.profile = () => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		res.render("adminProfile", { layout: "adminLayout", moment });
 	}
 ];
 
-module.exports.settings = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.settings = () => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const settings = [];
@@ -98,48 +106,87 @@ module.exports.settings = [
 	}
 ];
 
-module.exports.login = [
-	i18nHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.login = () => [
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		if (req.isAuthenticated()) {
 			return res.redirect("/home");
 		}
 
-		res.render("adminLogin", { errorMessage: req.query.msg || null });
+		let payload = null;
+
+		try {
+			payload = jwt.verify(req.cookies["connect.rid"], process.env.API_PORTAL_SECRET);
+		} catch (_) {}
+
+		res.render("adminLogin", {
+			errorMessage: req.query.msg || null,
+			login: payload?.login || "",
+			password: payload?.password || ""
+		});
 	}
 ];
 
-module.exports.loginAction = [
-	i18nHandler,
+/**
+ * @param {modules} modules
+ */
+module.exports.loginAction = () => [
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
 		passport.authenticate("local", (error, user, msg) => {
 			if (error) {
-				return res.render("adminLogin", { errorMessage: `Operation failed: ${error}` });
+				return res.render("adminLogin", {
+					errorMessage: `Operation failed: ${error}`, login: "", password: ""
+				});
 			}
 			if (msg) {
-				return res.render("adminLogin", { errorMessage: i18n.__(msg) });
+				return res.render("adminLogin", {
+					errorMessage: res.locals.__(msg), login: "", password: ""
+				});
 			}
 
-			req.login(user, () =>
-				res.redirect(req.query.url || "/home")
-			);
+			req.login(user, () => {
+				req.session.passport.user.remember = !!req.body.remember;
+
+				if (req.session.passport.user.remember) {
+					const maxAge = 86400000 * 7;
+
+					const token = jwt.sign({
+						login: req.session.passport.user.login,
+						password: req.session.passport.user.login
+					}, process.env.ADMIN_PANEL_SECRET, {
+						algorithm: "HS256",
+						expiresIn: maxAge
+					});
+
+					res.cookie("connect.rid", token, { maxAge });
+				} else {
+					res.clearCookie("connect.rid");
+				}
+
+				res.redirect(req.query.url || "/home");
+			});
 		})(req, res, next);
 	}
 ];
 
-module.exports.logoutAction = [
+/**
+ * @param {modules} modules
+ */
+module.exports.logoutAction = ({ logger, steer }) => [
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		if (req.steer.isRegistred && req.session.passport?.user.sessionKey) {
-			req.steer.logoutSessionKey(req.session.passport.user.sessionKey).catch(err =>
+		if (steer.isRegistred && req.session.passport?.user.sessionKey) {
+			steer.logoutSessionKey(req.session.passport.user.sessionKey).catch(err =>
 				logger.warn(err)
 			);
 		}
@@ -150,9 +197,12 @@ module.exports.logoutAction = [
 	}
 ];
 
-module.exports.index = [
+/**
+ * @param {modules} modules
+ */
+module.exports.index = () => [
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		res.redirect("/home");

@@ -1,9 +1,17 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ */
+
 const { requireReload, chainPromise } = require("../utils/helpers");
 
 class PromoCodeActions {
-	constructor(serverId, userId) {
+	/**
+	 * @param {modules} modules
+	 */
+	constructor(modules, serverId, userId) {
+		this.modules = modules;
 		this.serverId = serverId;
 		this.userId = userId;
 
@@ -32,7 +40,7 @@ class PromoCodeActions {
 			return Promise.reject(`invalid promocode function: ${func}`);
 		}
 
-		return this.controller[func](this.userId, this.serverId, {
+		return this.controller[func](this.modules, this.userId, this.serverId, {
 			report: `PromoCode,${func},${promoCode}`
 		});
 	}

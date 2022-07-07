@@ -1,42 +1,19 @@
 "use strict";
 
+/**
+* @typedef {import("../app").modules} modules
+*/
+
 const uuid = require("uuid").v4;
 const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
-const logger = require("../utils/logger");
-const SteerFunctions = require("../utils/steerFunctions");
-const PlatformFunctions = require("../utils/platformFunctions");
 
 /**
-* @typedef {import("express").Express} Express
+* @param {modules} modules
 */
-
-const steerEnabled = /^true$/i.test(process.env.ADMIN_PANEL_STEER_ENABLE);
-
-const platform = new PlatformFunctions(
-	process.env.ADMIN_PANEL_HUB_GW_HOST,
-	process.env.ADMIN_PANEL_HUB_GW_PORT,
-	19, { logger }
-);
-
-const steer = new SteerFunctions(
-	process.env.ADMIN_PANEL_STEER_HOST,
-	process.env.ADMIN_PANEL_STEER_PORT,
-	19, "WebIMSTool", { logger }
-);
-
-if (steerEnabled) {
-	steer.connect().catch(err =>
-		logger.error(err)
-	);
-}
-
-/**
-* @param {Express} app
-*/
-module.exports = app => {
+module.exports = modules => {
 	passport.serializeUser((user, done) => {
 		done(null, user);
 	});
@@ -47,9 +24,9 @@ module.exports = app => {
 
 	passport.use(new LocalStrategy({ usernameField: "login" },
 		(login, password, done) => {
-			if (steerEnabled) {
-				return steer.checkLoginGetSessionKey(login, password, "127.0.0.1").then(({ sessionKey, userSn }) =>
-					steer.getFunctionList(sessionKey).then(functions =>
+			if (/^true$/i.test(process.env.STEER_ENABLE)) {
+				return modules.steer.checkLoginGetSessionKey(login, password, "127.0.0.1").then(({ sessionKey, userSn }) =>
+					modules.steer.getFunctionList(sessionKey).then(functions =>
 						done(null, {
 							type: "steer",
 							login,
@@ -61,20 +38,20 @@ module.exports = app => {
 				).catch(err => {
 					if (err.resultCode) {
 						if (err.resultCode() < 100) {
-							logger.error(err);
+							modules.logger.error(err);
 						} else {
-							logger.warn(err);
+							modules.logger.warn(err);
 						}
 
 						done(null, false, `err_${err.resultCode()}`);
 					} else {
-						logger.error(err);
+						modules.logger.error(err);
 						done(null, false, "err_1");
 					}
 				});
 			}
 
-			if (login === process.env.ADMIN_PANEL_QA_LOGIN &&
+			if (login === process.env.ADMIN_PANEL_QA_USER &&
 				password === process.env.ADMIN_PANEL_QA_PASSWORD
 			) {
 				done(null, {
@@ -88,15 +65,12 @@ module.exports = app => {
 		}
 	));
 
-	app.use((req, res, next) => {
-		req.steer = steer;
-		req.platform = platform;
+	modules.app.use((req, res, next) => {
 		res.locals.__quickMenu = require("../../config/admin").quickMenu;
-
 		next();
 	});
 
-	app.use(session({
+	modules.app.use(session({
 		genid: () => uuid(),
 		store: new FileStore(),
 		secret: process.env.ADMIN_PANEL_SECRET,
@@ -104,12 +78,12 @@ module.exports = app => {
 		saveUninitialized: true
 	}));
 
-	app.use(passport.initialize());
-	app.use(passport.session());
+	modules.app.use(passport.initialize());
+	modules.app.use(passport.session());
 
-	app.use("/", require("./admin/admin.routes"));
+	modules.app.use("/", require("./admin/admin.routes")(modules));
 
-	app.use((req, res) =>
+	modules.app.use((req, res) =>
 		res.redirect("/")
 	);
 };

@@ -1,9 +1,17 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ */
+
 const { requireReload, chainPromise } = require("../utils/helpers");
 
 class ChronoScrollActions {
-	constructor(serverId, userId) {
+	/**
+	 * @param {modules} modules
+	 */
+	constructor(modules, serverId, userId) {
+		this.modules = modules;
 		this.serverId = serverId;
 		this.userId = userId;
 
@@ -32,7 +40,7 @@ class ChronoScrollActions {
 			return Promise.reject(`invalid chronoId: ${chronoId}`);
 		}
 
-		return this.controller[chronoId](this.userId, this.serverId, {
+		return this.controller[chronoId](this.modules, this.userId, this.serverId, {
 			report: `ChronoScroll,${chronoId}`
 		});
 	}

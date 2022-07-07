@@ -1,40 +1,30 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const body = require("express-validator").body;
-const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
-const accountModel = require("../models/account.model");
+
+const { validationHandler, resultJson } = require("../middlewares/portalLauncher.middlewares");
 
 /**
- * @type {import("express").RequestHandler}
+ * @param {modules} modules
  */
-const validationHandler = (req, res, next) => {
-	if (!helpers.validationResultLog(req).isEmpty()) {
-		return result(res, 2, "invalid parameter");
-	}
-
-	next();
-};
-
-/**
- * @param {import("express").Response} res
- */
-const result = (res, code, message, params = {}) => res.json({
-	Return: code === 0, ReturnCode: code, Msg: message, ...params
-});
-
-module.exports.GetAccountInfo = [
+module.exports.GetAccountInfo = ({ logger, accountModel }) => [
 	[body("id").isNumeric()],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { id } = req.body;
 
 		accountModel.info.findOne({ where: { accountDBID: id } }).then(async account => {
 			if (account === null) {
-				return result(res, 50000, "account not exist");
+				return resultJson(res, 50000, "account not exist");
 			}
 
 			let characterCount = "0";
@@ -53,7 +43,7 @@ module.exports.GetAccountInfo = [
 				logger.error(err);
 			}
 
-			result(res, 0, "success", {
+			resultJson(res, 0, "success", {
 				CharacterCount: characterCount,
 				Permission: account.get("permission"),
 				Privilege: account.get("privilege"),
@@ -62,7 +52,7 @@ module.exports.GetAccountInfo = [
 			});
 		}).catch(err => {
 			logger.error(err);
-			result(res, 1, "internal error");
+			resultJson(res, 1, "internal error");
 		});
 	}
 ];

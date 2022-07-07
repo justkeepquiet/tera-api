@@ -1,51 +1,61 @@
 "use strict";
 
+/**
+ * @typedef {object} reportModel
+ * @property {import("sequelize").Sequelize} sequelize
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} activity
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} characters
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} cheats
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} chronoScrolls
+ */
+
 const { Sequelize, DataTypes } = require("sequelize");
-const logger = require("../utils/logger");
 
-if (!process.env.DB_REPORT_HOST) {
-	logger.error("Invalid configuration parameter: DB_REPORT_HOST");
-	process.exit();
-}
-
-if (!process.env.DB_REPORT_DATABASE) {
-	logger.error("Invalid configuration parameter: DB_REPORT_DATABASE");
-	process.exit();
-}
-
-if (!process.env.DB_REPORT_USERNAME) {
-	logger.error("Invalid configuration parameter: DB_REPORT_USERNAME");
-	process.exit();
-}
-
-const sequelize = new Sequelize(
-	process.env.DB_REPORT_DATABASE,
-	process.env.DB_REPORT_USERNAME,
-	process.env.DB_REPORT_PASSWORD,
-	{
-		logging: msg => logger.debug(`Report database: ${msg}`),
-		dialect: "mysql",
-		host: process.env.DB_REPORT_HOST,
-		port: process.env.DB_REPORT_PORT || 3306,
-		define: {
-			timestamps: false,
-			freezeTableName: true
-		}
+module.exports = ({ logger }) => new Promise((resolve, reject) => {
+	if (!process.env.DB_REPORT_HOST) {
+		return reject("Invalid configuration parameter: DB_REPORT_HOST");
 	}
-);
 
-sequelize.authenticate().then(() =>
-	logger.info("Report database connected.")
-).catch(err => {
-	logger.error("Report database connection error:", err);
-	process.exit();
+	if (!process.env.DB_REPORT_DATABASE) {
+		return reject("Invalid configuration parameter: DB_REPORT_DATABASE");
+	}
+
+	if (!process.env.DB_REPORT_USERNAME) {
+		return reject("Invalid configuration parameter: DB_REPORT_USERNAME");
+	}
+
+	const sequelize = new Sequelize(
+		process.env.DB_REPORT_DATABASE,
+		process.env.DB_REPORT_USERNAME,
+		process.env.DB_REPORT_PASSWORD,
+		{
+			logging: msg => logger.debug(msg),
+			dialect: "mysql",
+			host: process.env.DB_REPORT_HOST,
+			port: process.env.DB_REPORT_PORT || 3306,
+			define: {
+				timestamps: false,
+				freezeTableName: true
+			}
+		}
+	);
+
+	sequelize.authenticate().then(() => {
+		logger.info("Connected.");
+
+		/**
+		 * @type {reportModel}
+		 */
+		const models = {
+			activity: require("./report/reportActivity.model")(sequelize, DataTypes),
+			characters: require("./report/reportCharacters.model")(sequelize, DataTypes),
+			cheats: require("./report/reportCheats.model")(sequelize, DataTypes),
+			chronoScrolls: require("./report/reportChronoScrolls.model")(sequelize, DataTypes)
+		};
+
+		resolve({ ...models, sequelize });
+	}).catch(err => {
+		logger.error("Connection error:", err);
+		reject();
+	});
 });
-
-const models = {
-	activity: require("./report/reportActivity.model")(sequelize, DataTypes),
-	characters: require("./report/reportCharacters.model")(sequelize, DataTypes),
-	cheats: require("./report/reportCheats.model")(sequelize, DataTypes),
-	chronoScrolls: require("./report/reportChronoScrolls.model")(sequelize, DataTypes)
-};
-
-module.exports = { ...models, sequelize };

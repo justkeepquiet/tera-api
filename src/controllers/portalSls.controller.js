@@ -1,24 +1,30 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const Op = require("sequelize").Op;
-const logger = require("../utils/logger");
 const SlsBuilder = require("../utils/slsBuilder");
 const ServerUpActions = require("../actions/serverUp.actions");
-const accountModel = require("../models/account.model");
 
-module.exports.GetServerListXml = [
+/**
+ * @param {modules} modules
+ */
+module.exports.GetServerListXml = modules => [
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		accountModel.maintenance.findOne({
+		modules.accountModel.maintenance.findOne({
 			where: {
-				startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
-				endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+				startTime: { [Op.lt]: modules.accountModel.sequelize.fn("NOW") },
+				endTime: { [Op.gt]: modules.accountModel.sequelize.fn("NOW") }
 			}
-		}).then(maintenance => accountModel.serverStrings.findOne({
+		}).then(maintenance => modules.accountModel.serverStrings.findOne({
 			where: { language: req.query.lang || "en" }
-		}).then(strings => accountModel.serverInfo.findAll({
+		}).then(strings => modules.accountModel.serverInfo.findAll({
 			where: { isEnabled: 1 }
 		}).then(servers => {
 			if (strings === null || servers === null) {
@@ -26,7 +32,7 @@ module.exports.GetServerListXml = [
 			}
 
 			const sls = new SlsBuilder();
-			const serverUp = new ServerUpActions();
+			const serverUp = new ServerUpActions(modules);
 
 			servers.forEach(server => {
 				if (/^true$/i.test(process.env.SLS_AUTO_SET_AVAILABLE) && !server.get("isAvailable")) {
@@ -42,7 +48,7 @@ module.exports.GetServerListXml = [
 
 			res.type("application/xml").send(sls.renderXML());
 		}))).catch(err => {
-			logger.error(err);
+			modules.logger.error(err);
 			res.status(500).end("getting sls error");
 		});
 	}

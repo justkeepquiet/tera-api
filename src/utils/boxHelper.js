@@ -1,7 +1,7 @@
 "use strict";
 
 const moment = require("moment-timezone");
-const logger = require("./logger");
+const logger = require("./logger").createLogger("Box helper");
 const fcgiHttpHelper = require("./fcgiHttpHelper");
 
 module.exports.makeBox = (context, logId, serverId, userId, characterId = 0) =>

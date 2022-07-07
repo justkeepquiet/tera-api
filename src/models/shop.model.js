@@ -1,22 +1,37 @@
 "use strict";
 
-const { Sequelize, DataTypes } = require("sequelize");
-const logger = require("../utils/logger");
+/**
+ * @typedef {object} shopModel
+ * @property {import("sequelize").Sequelize} sequelize
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} accounts
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} categories
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} categoryStrings
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} products
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} productStrings
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} productItems
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} itemTemplates
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} itemConversions
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} itemStrings
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} promoCodes
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} promoCodeStrings
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} promoCodeActivated
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} fundLogs
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} payLogs
+ */
 
-if (/^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE)) {
+const { Sequelize, DataTypes } = require("sequelize");
+
+module.exports = ({ logger }) => new Promise((resolve, reject) => {
 	if (!process.env.DB_SHOP_HOST) {
-		logger.error("Invalid configuration parameter: DB_SHOP_HOST");
-		process.exit();
+		return reject("Invalid configuration parameter: DB_SHOP_HOST");
 	}
 
 	if (!process.env.DB_SHOP_DATABASE) {
-		logger.error("Invalid configuration parameter: DB_SHOP_DATABASE");
-		process.exit();
+		return reject("Invalid configuration parameter: DB_SHOP_DATABASE");
 	}
 
 	if (!process.env.DB_SHOP_USERNAME) {
-		logger.error("Invalid configuration parameter: DB_SHOP_USERNAME");
-		process.exit();
+		return reject("Invalid configuration parameter: DB_SHOP_USERNAME");
 	}
 
 	const sequelize = new Sequelize(
@@ -24,7 +39,7 @@ if (/^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE)) {
 		process.env.DB_SHOP_USERNAME,
 		process.env.DB_SHOP_PASSWORD,
 		{
-			logging: msg => logger.debug(`Shop database: ${msg}`),
+			logging: msg => logger.debug(msg),
 			dialect: "mysql",
 			host: process.env.DB_SHOP_HOST,
 			port: process.env.DB_SHOP_PORT || 3306,
@@ -41,29 +56,32 @@ if (/^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE)) {
 		}
 	);
 
-	sequelize.authenticate().then(() =>
-		logger.info("Shop database connected.")
-	).catch(err => {
-		logger.error("Shop database connection error:", err);
-		process.exit();
+	sequelize.authenticate().then(() => {
+		logger.info("Connected.");
+
+		/**
+		 * @type {shopModel}
+		 */
+		const models = {
+			accounts: require("./shop/shopAccounts.model")(sequelize, DataTypes),
+			categories: require("./shop/shopCategories.model")(sequelize, DataTypes),
+			categoryStrings: require("./shop/shopCategoryStrings.model")(sequelize, DataTypes),
+			products: require("./shop/shopProducts.model")(sequelize, DataTypes),
+			productStrings: require("./shop/shopProductStrings.model")(sequelize, DataTypes),
+			productItems: require("./shop/shopProductItems.model")(sequelize, DataTypes),
+			itemTemplates: require("./shop/shopItemTemplates.model")(sequelize, DataTypes),
+			itemConversions: require("./shop/shopItemConversions.model")(sequelize, DataTypes),
+			itemStrings: require("./shop/shopItemStrings.model")(sequelize, DataTypes),
+			promoCodes: require("./shop/shopPromoCodes.model")(sequelize, DataTypes),
+			promoCodeStrings: require("./shop/shopPromoCodeStrings.model")(sequelize, DataTypes),
+			promoCodeActivated: require("./shop/shopPromoCodeActivated.model")(sequelize, DataTypes),
+			fundLogs: require("./shop/shopFundLogs.model")(sequelize, DataTypes),
+			payLogs: require("./shop/shopPayLogs.model")(sequelize, DataTypes)
+		};
+
+		resolve({ ...models, sequelize });
+	}).catch(err => {
+		logger.error("Connection error:", err);
+		reject();
 	});
-
-	const models = {
-		accounts: require("./shop/shopAccounts.model")(sequelize, DataTypes),
-		categories: require("./shop/shopCategories.model")(sequelize, DataTypes),
-		categoryStrings: require("./shop/shopCategoryStrings.model")(sequelize, DataTypes),
-		products: require("./shop/shopProducts.model")(sequelize, DataTypes),
-		productStrings: require("./shop/shopProductStrings.model")(sequelize, DataTypes),
-		productItems: require("./shop/shopProductItems.model")(sequelize, DataTypes),
-		itemTemplates: require("./shop/shopItemTemplates.model")(sequelize, DataTypes),
-		itemConversions: require("./shop/shopItemConversions.model")(sequelize, DataTypes),
-		itemStrings: require("./shop/shopItemStrings.model")(sequelize, DataTypes),
-		promoCodes: require("./shop/shopPromoCodes.model")(sequelize, DataTypes),
-		promoCodeStrings: require("./shop/shopPromoCodeStrings.model")(sequelize, DataTypes),
-		promoCodeActivated: require("./shop/shopPromoCodeActivated.model")(sequelize, DataTypes),
-		fundLogs: require("./shop/shopFundLogs.model")(sequelize, DataTypes),
-		payLogs: require("./shop/shopPayLogs.model")(sequelize, DataTypes)
-	};
-
-	module.exports = { ...models, sequelize };
-}
+});

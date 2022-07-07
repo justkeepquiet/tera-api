@@ -3,7 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const xmljs = require("xml-js");
-const logger = require("./logger");
+const logger = require("./logger").createLogger("Datasheet Helper");
 
 module.exports.loadXml = (datasheet, language) => {
 	const direcory = path.join(__dirname, "..", "..", "data", "datasheets", language, datasheet);
@@ -11,7 +11,7 @@ module.exports.loadXml = (datasheet, language) => {
 	return fs.promises.readdir(direcory, { withFileTypes: true }).then(filenames => {
 		const promises = [];
 
-		filenames.forEach(file => {
+		filenames.forEach((file, index) => {
 			if (path.extname(file.name) !== ".xml") {
 				return;
 			}
@@ -25,9 +25,9 @@ module.exports.loadXml = (datasheet, language) => {
 						data.elements.forEach(element =>
 							elements.push(element.attributes)
 						);
-
-						logger.info(`Datasheet XML loaded: [${language}] ${file.name}, elements count: ${data.elements.length}`);
 					}
+
+					logger.debug(`Loaded: [${language}] ${filenames.length - index}/${filenames.length}: ${file.name} (${data.elements.length})`);
 
 					return Promise.resolve(elements);
 				})

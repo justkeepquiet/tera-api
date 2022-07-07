@@ -1,10 +1,10 @@
 "use strict";
 
-const xmlbuilder = require("xmlbuilder");
-
 /**
 * @typedef {import("sequelize").Model} Model
 */
+
+const xmlbuilder = require("xmlbuilder");
 
 class SlsBuilder {
 	constructor() {

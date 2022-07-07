@@ -1,13 +1,17 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const body = require("express-validator").body;
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
-const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
-const accountModel = require("../models/account.model");
-const reportModel = require("../models/report.model");
 const ChronoScrollActions = require("../actions/chronoScroll.actions");
+
+const { validationHandler, resultJson } = require("../middlewares/arbiterApi.middlewares");
 
 const reportActivity = /^true$/i.test(process.env.API_ARBITER_REPORT_ACTIVITY);
 const reportCharacters = /^true$/i.test(process.env.API_ARBITER_REPORT_CHARACTERS);
@@ -15,42 +19,30 @@ const reportChronoScrolls = /^true$/i.test(process.env.API_ARBITER_REPORT_CHRONO
 const reportCheats = /^true$/i.test(process.env.API_ARBITER_REPORT_CHEATS);
 
 /**
- * @type {import("express").RequestHandler}
+ * @param {modules} modules
  */
-const validationHandler = (req, res, next) => {
-	if (!helpers.validationResultLog(req).isEmpty()) {
-		return result(res, 2, { msg: "invalid parameter" });
-	}
-
-	next();
-};
-
-/**
- * @param {import("express").Response} res
- */
-const result = (res, code, params = {}) => res.json({
-	result_code: code, ...params
-});
-
-module.exports.ServiceTest = [
+module.exports.ServiceTest = ({ logger, accountModel }) => [
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		accountModel.sequelize.authenticate().then(() =>
-			result(res, 0, { server_time: Date.now() / 1000 })
+			resultJson(res, 0, { server_time: Date.now() / 1000 })
 		).catch(err => {
 			logger.error(err);
-			result(res, 1, { msg: "internal error" });
+			resultJson(res, 1, { msg: "internal error" });
 		});
 	}
 ];
 
-module.exports.GetServerPermission = [
+/**
+ * @param {modules} modules
+ */
+module.exports.GetServerPermission = ({ logger, accountModel }) => [
 	[body("server_id").isNumeric()],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { server_id } = req.body;
@@ -73,19 +65,22 @@ module.exports.GetServerPermission = [
 				permission = 0x00000100;
 			}
 
-			result(res, 0, { permission });
+			resultJson(res, 0, { permission });
 		})).catch(err => {
 			logger.error(err);
-			result(res, 1, { msg: "internal error" });
+			resultJson(res, 1, { msg: "internal error" });
 		});
 	}
 ];
 
-module.exports.ServerDown = [
+/**
+ * @param {modules} modules
+ */
+module.exports.ServerDown = ({ logger, accountModel }) => [
 	[body("server_id").isNumeric()],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { server_id } = req.body;
@@ -99,22 +94,25 @@ module.exports.ServerDown = [
 			logger.error(err)
 		);
 
-		result(res, 0);
+		resultJson(res, 0);
 	}
 ];
 
-module.exports.GetUserInfo = [
+/**
+ * @param {modules} modules
+ */
+module.exports.GetUserInfo = ({ logger, accountModel }) => [
 	[body("user_srl").isNumeric()],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { ip, server_id, user_srl } = req.body;
 
 		accountModel.info.findOne({ where: { accountDBID: user_srl } }).then(async account => {
 			if (account === null) {
-				return result(res, 50000, { msg: "account not exist" });
+				return resultJson(res, 50000, { msg: "account not exist" });
 			}
 
 			let charCountInfo = "0";
@@ -146,7 +144,7 @@ module.exports.GetUserInfo = [
 				logger.error(err);
 			}
 
-			result(res, 0, {
+			resultJson(res, 0, {
 				privilege: account.get("privilege"),
 				permission: account.get("permission"),
 				last_connected_server: account.get("lastLoginServer"),
@@ -157,20 +155,23 @@ module.exports.GetUserInfo = [
 			});
 		}).catch(err => {
 			logger.error(err);
-			result(res, 1, { msg: "internal error" });
+			resultJson(res, 1, { msg: "internal error" });
 		});
 	}
 ];
 
-module.exports.EnterGame = [
+/**
+ * @param {modules} modules
+ */
+module.exports.EnterGame = ({ logger, accountModel, reportModel }) => [
 	[
 		body("ip").isIP(),
 		body("server_id").isNumeric(),
 		body("user_srl").isNumeric()
 	],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { ip, server_id, user_srl } = req.body;
@@ -204,23 +205,26 @@ module.exports.EnterGame = [
 					});
 				}
 
-				result(res, 0);
+				resultJson(res, 0);
 			});
 		}).catch(err => {
 			logger.error(err);
-			result(res, 1, { msg: "internal error" });
+			resultJson(res, 1, { msg: "internal error" });
 		});
 	}
 ];
 
-module.exports.LeaveGame = [
+/**
+ * @param {modules} modules
+ */
+module.exports.LeaveGame = ({ logger, accountModel, reportModel }) => [
 	[
 		body("play_time").isNumeric(),
 		body("user_srl").isNumeric()
 	],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { play_time, user_srl } = req.body;
@@ -259,16 +263,19 @@ module.exports.LeaveGame = [
 			];
 
 			return Promise.all(promises).then(() =>
-				result(res, 0)
+				resultJson(res, 0)
 			);
 		}).catch(err => {
 			logger.error(err);
-			result(res, 1, { msg: "internal error" });
+			resultJson(res, 1, { msg: "internal error" });
 		});
 	}
 ];
 
-module.exports.CreateChar = [
+/**
+ * @param {modules} modules
+ */
+module.exports.CreateChar = ({ logger, accountModel, reportModel }) => [
 	[
 		body("server_id").isNumeric(),
 		body("user_srl").isNumeric(),
@@ -279,9 +286,9 @@ module.exports.CreateChar = [
 		body("race_id").isNumeric(),
 		body("char_name").notEmpty()
 	],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { char_name, char_srl, class_id, gender_id, level, race_id, server_id, user_srl } = req.body;
@@ -323,16 +330,19 @@ module.exports.CreateChar = [
 					});
 				}
 
-				result(res, 0);
+				resultJson(res, 0);
 			});
 		}).catch(err => {
 			logger.error(err);
-			result(res, 1, { msg: "internal error" });
+			resultJson(res, 1, { msg: "internal error" });
 		});
 	}
 ];
 
-module.exports.ModifyChar = [
+/**
+ * @param {modules} modules
+ */
+module.exports.ModifyChar = ({ logger, accountModel, reportModel }) => [
 	[
 		body("char_srl").isNumeric(),
 		body("server_id").isNumeric(),
@@ -342,9 +352,9 @@ module.exports.ModifyChar = [
 		body("level").optional().isNumeric(),
 		body("race_id").optional().isNumeric()
 	],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { char_name, char_srl, class_id, gender_id, level, race_id, server_id, user_srl } = req.body;
@@ -357,7 +367,7 @@ module.exports.ModifyChar = [
 		if (level !== undefined) fields.level = level;
 
 		if (Object.keys(fields).length === 0) {
-			return result(res, 0);
+			return resultJson(res, 0);
 		}
 
 		accountModel.characters.update(fields, {
@@ -379,23 +389,26 @@ module.exports.ModifyChar = [
 				});
 			}
 
-			result(res, 0);
+			resultJson(res, 0);
 		}).catch(err => {
 			logger.error(err);
-			result(res, 1, { msg: "internal error" });
+			resultJson(res, 1, { msg: "internal error" });
 		});
 	}
 ];
 
-module.exports.DeleteChar = [
+/**
+ * @param {modules} modules
+ */
+module.exports.DeleteChar = ({ logger, accountModel, reportModel }) => [
 	[
 		body("char_srl").isNumeric(),
 		body("server_id").isNumeric(),
 		body("user_srl").isNumeric()
 	],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { char_srl, server_id, user_srl } = req.body;
@@ -428,49 +441,56 @@ module.exports.DeleteChar = [
 					});
 				}
 
-				result(res, 0);
+				resultJson(res, 0);
 			});
 		}).catch(err => {
 			logger.error(err);
-			result(res, 1, { msg: "internal error" });
+			resultJson(res, 1, { msg: "internal error" });
 		});
 	}
 ];
 
-module.exports.UseChronoScroll = [
+/**
+ * @param {modules} modules
+ */
+module.exports.UseChronoScroll = modules => [
 	[
 		body("server_id").isNumeric(),
 		body("chrono_id").isNumeric(),
 		body("user_srl").isNumeric()
 	],
-	validationHandler,
+	validationHandler(modules.logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { server_id, chrono_id, user_srl } = req.body;
-		const actions = new ChronoScrollActions(server_id, user_srl);
+
+		const actions = new ChronoScrollActions(modules, server_id, user_srl);
 
 		actions.execute(chrono_id).then(() => {
 			if (reportChronoScrolls) {
-				reportModel.chronoScrolls.create({
+				modules.reportModel.chronoScrolls.create({
 					accountDBID: user_srl,
 					serverId: server_id,
 					chronoId: chrono_id
 				}).catch(err => {
-					logger.error(err);
+					modules.logger.error(err);
 				});
 			}
 
-			result(res, 0);
+			resultJson(res, 0);
 		}).catch(err => {
-			logger.error(err);
-			result(res, 1, { msg: "internal error" });
+			modules.logger.error(err);
+			resultJson(res, 1, { msg: "internal error" });
 		});
 	}
 ];
 
-module.exports.ReportCheater = [
+/**
+ * @param {modules} modules
+ */
+module.exports.ReportCheater = ({ logger, reportModel }) => [
 	[
 		body("cheat_info").isNumeric(),
 		body("ip").isIP(),
@@ -478,15 +498,15 @@ module.exports.ReportCheater = [
 		body("type").isNumeric(),
 		body("usr_srl").isNumeric()
 	],
-	validationHandler,
+	validationHandler(logger),
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { cheat_info, ip, svr_id, type, usr_srl } = req.body;
 
 		if (!reportCheats) {
-			return result(res, 0);
+			return resultJson(res, 0);
 		}
 
 		reportModel.cheats.create({
@@ -496,10 +516,10 @@ module.exports.ReportCheater = [
 			type: type,
 			cheatInfo: cheat_info
 		}).then(() =>
-			result(res, 0)
+			resultJson(res, 0)
 		).catch(err => {
 			logger.error(err);
-			result(res, 1, { msg: "internal error" });
+			resultJson(res, 1, { msg: "internal error" });
 		});
 	}
 ];

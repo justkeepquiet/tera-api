@@ -9,7 +9,7 @@
 							<div class="title-block">
 								<h4 class="title"><%= __("Servers Stats") %></h4>
 							</div>
-							<% if (activityReport.length === 0) { %>
+							<% if (servers === null || servers.length === 0) { %>
 							<div class="row stats-col">
 								<div class="col-12 col-md-4 stat-col">
 									<%= __("No data available in table") %>
@@ -52,8 +52,9 @@
 							<% }) %>
 							<% } %>
 						</div>
-					</div><!--/stats-->
-				</section>
+					</div>
+				</section><!--/stats-->
+				<% if (activityReport !== null) { %>
 				<section class="section">
 					<div class="card">
 						<div class="card-block">
@@ -92,10 +93,12 @@
 								</table>
 							</div>
 						</div>
-					</div><!--/report-->
-				</section>
+					</div>
+				</section><!--/report-->
+				<% } %>
 			</div> <!--/col-->
 			<div class="col-md-6">
+				<% if (payLogs !== null) { %>
 				<section class="section">
 					<div class="card">
 						<div class="card-block">
@@ -133,15 +136,16 @@
 								</table>
 							</div>
 						</div>
-					</div><!--/report-->
-				</section>
+					</div>
+				</section><!--/report-->
+				<% } %>
 			</div> <!--/col-->
-
 		</div> <!--/row-->
 	</section>
 	<section class="section">
 		<div class="row">
 			<div class="col-md-12">
+				<% if (cheatsReport !== null) { %>
 				<section class="section">
 					<div class="card">
 						<div class="card-block">
@@ -177,10 +181,10 @@
 								</table>
 							</div>
 						</div>
-					</div><!--/report-->
-				</section>
+					</div>
+				</section><!--/report-->
+				<% } %>
 			</div>
 		</div>
-
 	</section>
 </article>

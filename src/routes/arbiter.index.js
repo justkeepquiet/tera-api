@@ -1,14 +1,14 @@
 "use strict";
 
 /**
-* @typedef {import("express").Express} Express
+* @typedef {import("../app").modules} modules
 */
 
 /**
-* @param {Express} app
+* @param {modules} modules
 */
-module.exports = app => {
-	app.use("/systemApi", require("./arbiter/systemApi.routes"));
-	app.use("/authApi", require("./arbiter/authApi.routes"));
-	app.use("/api", require("./arbiter/api.routes"));
+module.exports = modules => {
+	modules.app.use("/systemApi", require("./arbiter/systemApi.routes")(modules));
+	modules.app.use("/authApi", require("./arbiter/authApi.routes")(modules));
+	modules.app.use("/api", require("./arbiter/api.routes")(modules));
 };

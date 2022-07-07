@@ -1,22 +1,28 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
 const I18n = require("i18n").I18n;
-const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
-const shopModel = require("../models/shop.model");
-const { i18n, i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
+const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
 const shopLocales = (new I18n({ directory: path.resolve(__dirname, "../locales/shop") })).getLocales();
 
-module.exports.index = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.index = ({ i18n, logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		shopModel.categories.belongsTo(shopModel.categoryStrings, { foreignKey: "id" });
@@ -49,12 +55,15 @@ module.exports.index = [
 	}
 ];
 
-module.exports.add = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.add = () => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		res.render("adminShopCategoriesAdd", {
@@ -68,9 +77,12 @@ module.exports.add = [
 	}
 ];
 
-module.exports.addAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.addAction = ({ i18n, logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	[
 		body("sort").trim()
@@ -81,11 +93,11 @@ module.exports.addAction = [
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Title field must be between 1 and 1024 characters."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { sort, active, title } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
 			return res.render("adminShopCategoriesAdd", {
@@ -132,12 +144,15 @@ module.exports.addAction = [
 	}
 ];
 
-module.exports.edit = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.edit = ({ logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { id } = req.query;
@@ -181,9 +196,12 @@ module.exports.edit = [
 	}
 ],
 
-module.exports.editAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.editAction = ({ i18n, logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	[
 		body("sort").trim()
@@ -194,12 +212,12 @@ module.exports.editAction = [
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Title field must be between 1 and 1024 characters."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { id } = req.query;
 		const { sort, active, title } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		if (!id) {
 			return res.redirect("/shop_categories");
@@ -260,12 +278,15 @@ module.exports.editAction = [
 	}
 ];
 
-module.exports.deleteAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.deleteAction = ({ logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { id } = req.query;

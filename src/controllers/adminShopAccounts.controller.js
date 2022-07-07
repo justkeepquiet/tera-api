@@ -1,20 +1,26 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
-const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
-const accountModel = require("../models/account.model");
-const shopModel = require("../models/shop.model");
-const { i18n, i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-module.exports.index = [
-	i18nHandler,
-	accessFunctionHandler(),
+const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
+
+/**
+ * @param {modules} modules
+ */
+module.exports.index = ({ logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;
@@ -37,16 +43,19 @@ module.exports.index = [
 	}
 ];
 
-module.exports.add = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.add = ({ i18n }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	[
 		query("accountDBID").trim().optional()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;
@@ -62,9 +71,12 @@ module.exports.add = [
 	}
 ];
 
-module.exports.addAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.addAction = ({ i18n, logger, accountModel, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	[
 		body("accountDBID").trim()
@@ -93,11 +105,11 @@ module.exports.addAction = [
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID, balance, active } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
 			return res.render("adminShopAccountsAdd", {
@@ -122,12 +134,15 @@ module.exports.addAction = [
 	}
 ];
 
-module.exports.edit = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.edit = ({ logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;
@@ -157,9 +172,12 @@ module.exports.edit = [
 	}
 ];
 
-module.exports.editAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.editAction = ({ i18n, logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	[
 		body("balance").trim()
@@ -168,12 +186,12 @@ module.exports.editAction = [
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;
 		const { balance, active } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		if (!accountDBID) {
 			return res.redirect("/shop_accounts");
@@ -203,12 +221,15 @@ module.exports.editAction = [
 	}
 ];
 
-module.exports.deleteAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.deleteAction = ({ logger, shopModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;

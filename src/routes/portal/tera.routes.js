@@ -1,32 +1,45 @@
 "use strict";
 
+/**
+* @typedef {import("../../app").modules} modules
+*/
+
+const path = require("path");
+const I18n = require("i18n").I18n;
 const express = require("express");
+
 const portalSlsController = require("../../controllers/portalSls.controller");
 const portalAccountController = require("../../controllers/portalAccount.controller");
 const portalLauncherController = require("../../controllers/portalLauncher.controller");
-const portalShopController = require("../../controllers/portalShop.controller");
 
-module.exports = express.Router()
-	// Interfaces
-	.get("/ServerList", ...portalSlsController.GetServerListXml)
-	.post("/GetAccountInfoByUserNo", ...portalAccountController.GetAccountInfo)
-	// Launcher
-	.get("/LauncherMaintenanceStatus", ...portalLauncherController.MaintenanceStatus)
-	.get("/LauncherMain", ...portalLauncherController.MainHtml)
-	.get("/LauncherLoginForm", ...portalLauncherController.LoginFormHtml)
-	.get("/LauncherSignupForm", ...portalLauncherController.SignupFormHtml)
-	.post("/LauncherLoginAction", ...portalLauncherController.LoginAction)
-	.post("/LauncherSignupAction", ...portalLauncherController.SignupAction)
-	// Shop
-	.get("/ShopAuth", ...portalShopController.Auth)
-	.get("/ShopMain", ...portalShopController.MainHtml)
-	.get("/ShopPartialError", ...portalShopController.PartialErrorHtml)
-	.get("/ShopPartialPromoCode", ...portalShopController.PartialPromoCodeHtml)
-	.get("/ShopPartialMenu", ...portalShopController.PartialMenuHtml)
-	.get("/ShopPartialWelcome", ...portalShopController.PartialWelcomeHtml)
-	.post("/ShopPartialCatalog", ...portalShopController.PartialCatalogHtml)
-	.post("/ShopPartialProduct", ...portalShopController.PartialProductHtml)
-	.post("/ShopGetAccountInfo", ...portalShopController.GetAccountInfo)
-	.post("/ShopPurchaseAction", ...portalShopController.PurchaseAction)
-	.post("/ShopPromoCodeAction", ...portalShopController.PromoCodeAction)
-;
+/**
+* @param {modules} modules
+*/
+module.exports = modules => {
+	const i18n = new I18n({
+		directory: path.resolve(__dirname, "../../locales/launcher"),
+		defaultLocale: process.env.API_PORTAL_LOCALE
+	});
+
+	const mod = { ...modules, i18n };
+
+	modules.app.use((req, res, next) => {
+		res.locals.__ = i18n.__;
+		res.locals.locale = i18n.getLocale();
+
+		return next();
+	});
+
+	return express.Router()
+		// Interfaces
+		.get("/ServerList", portalSlsController.GetServerListXml(mod))
+		.post("/GetAccountInfoByUserNo", portalAccountController.GetAccountInfo(mod))
+		// Launcher
+		.get("/LauncherMaintenanceStatus", portalLauncherController.MaintenanceStatus(mod))
+		.get("/LauncherMain", portalLauncherController.MainHtml(mod))
+		.get("/LauncherLoginForm", portalLauncherController.LoginFormHtml(mod))
+		.get("/LauncherSignupForm", portalLauncherController.SignupFormHtml(mod))
+		.post("/LauncherLoginAction", portalLauncherController.LoginAction(mod))
+		.post("/LauncherSignupAction", portalLauncherController.SignupAction(mod))
+	;
+};

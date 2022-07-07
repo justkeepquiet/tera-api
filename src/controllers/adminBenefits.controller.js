@@ -1,25 +1,29 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
-const logger = require("../utils/logger");
 const helpers = require("../utils/helpers");
-const datasheets = require("../utils/datasheets");
-const accountModel = require("../models/account.model");
-const { i18n, i18nHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-const accountBenefits = datasheets.accountBenefits[i18n.getLocale()] || new Map();
+const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-module.exports.index = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.index = ({ i18n, logger, accountModel, datasheets }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;
+		const accountBenefits = datasheets.accountBenefits[i18n.getLocale()] || new Map();
 
 		if (!accountDBID) {
 			return res.render("adminBenefits", {
@@ -49,19 +53,22 @@ module.exports.index = [
 	}
 ];
 
-module.exports.add = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.add = ({ i18n, datasheets }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	[
 		query("accountDBID").trim().optional()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;
+		const accountBenefits = datasheets.accountBenefits[i18n.getLocale()] || new Map();
 
 		res.render("adminBenefitsAdd", {
 			layout: "adminLayout",
@@ -75,9 +82,11 @@ module.exports.add = [
 	}
 ];
 
-module.exports.addAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.addAction = ({ i18n, logger, accountModel, datasheets }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("accountDBID").trim()
@@ -97,11 +106,13 @@ module.exports.addAction = [
 			.isISO8601().withMessage("Available until field must contain a valid date.")
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID, benefitId, availableUntil } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
+
+		const accountBenefits = datasheets.accountBenefits[i18n.getLocale()] || new Map();
 
 		if (!errors.isEmpty()) {
 			return res.render("adminBenefitsAdd", {
@@ -118,7 +129,7 @@ module.exports.addAction = [
 		accountModel.benefits.create({
 			accountDBID,
 			benefitId,
-			availableUntil: moment(availableUntil).toDate()
+			availableUntil: moment(availableUntil).format("YYYY-MM-DD HH:mm:ss")
 		}).then(() =>
 			res.redirect(`/benefits?accountDBID=${accountDBID}`)
 		).catch(err => {
@@ -128,15 +139,18 @@ module.exports.addAction = [
 	}
 ];
 
-module.exports.edit = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.edit = ({ i18n, logger, accountModel, datasheets }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID, benefitId } = req.query;
+		const accountBenefits = datasheets.accountBenefits[i18n.getLocale()] || new Map();
 
 		if (!accountDBID || !benefitId) {
 			return res.redirect("/benefits");
@@ -165,21 +179,23 @@ module.exports.edit = [
 	}
 ];
 
-module.exports.editAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.editAction = ({ logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("availableUntil").trim()
 			.isISO8601().withMessage("Available until field must contain a valid date.")
 	],
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID, benefitId } = req.query;
 		const { availableUntil } = req.body;
-		const errors = helpers.validationResultLog(req);
+		const errors = helpers.validationResultLog(req, logger);
 
 		if (!accountDBID || !benefitId) {
 			return res.redirect("/benefits");
@@ -209,12 +225,14 @@ module.exports.editAction = [
 	}
 ];
 
-module.exports.deleteAction = [
-	i18nHandler,
-	accessFunctionHandler(),
+/**
+ * @param {modules} modules
+ */
+module.exports.deleteAction = ({ logger, accountModel }) => [
+	accessFunctionHandler,
 	expressLayouts,
 	/**
-	 * @type {import("express").RequestHandler}
+	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { accountDBID, benefitId } = req.query;

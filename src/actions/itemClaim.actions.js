@@ -1,9 +1,17 @@
 "use strict";
 
+/**
+ * @typedef {import("../app").modules} modules
+ */
+
 const boxHelper = require("../utils/boxHelper");
 
 class ItemClaim {
-	constructor(userId, serverId, params = {}) {
+	/**
+	 * @param {modules} modules
+	 */
+	constructor(modules, userId, serverId, params = {}) {
+		this.modules = modules;
 		this.userId = userId;
 		this.serverId = serverId;
 		this.params = params;
