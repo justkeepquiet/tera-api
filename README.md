@@ -1,18 +1,12 @@
 # tera-api
 
-API and In-game Shop implementation for the TERA Online retail server (patch 92/100) on Node.js. The API consists of two independent servers running on different ports (for the needs of the [Launcher](https://github.com/justkeepquiet/tera-launcher)/Shop and separately for the needs of the Arbiter server). Built-in admin panel for full control of all functionality and viewing logs. There is also full integration with the Box Server and Steer Server (for setting permissions).
+API and In-game Shop implementation for the TERA Online retail server (patch 92/100) on Node.js. The API consists of three independent servers (Arbiter API, Portal API and Admin Panel) running on different ports.
 
-## Components
+The Arbiter API intended for processing internal requests from the Arbiter Server, such as checking a token, receiving events about the character's behavior, etc. This API must be binded only on a local IP address and must not be accessed by external users!
 
-### Arbiter API
+The Portal API is a web server intended for the [Launcher](https://github.com/justkeepquiet/tera-launcher)/Shop. This API must be available from the outside (proxied by Nginx or binded on external IP) for use by server users: registration, authorization, login, update routines etc. Also, this API allows to process static elements (directory **public**).
 
-It is intended for processing internal requests from the Arbiter Server, such as checking a token, receiving events about the character's behavior, etc.
-This API must be binded only on a local IP address and must not be accessed by external users!
-
-### Portal API
-
-This API is a web server intended for the Launcher (portal). This API must be available from the outside (proxied by Nginx or binded on external IP) for use by server users: registration, authorization, login, update routines etc.
-Also, this API allows to process static elements (directory **public**).
+Built-in admin panel for full control of all functionality and viewing logs. There is also full integration with the Box Server and Steer Server (for setting permissions).
 
 ## Requirements
 
