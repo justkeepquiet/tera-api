@@ -38,7 +38,7 @@
 									</tr>
 								</thead>
 								<tbody>
-									<% accounts.forEach(account => { %>
+									<%_ accounts.forEach(account => { _%>
 									<tr>
 										<td><%= account.get("accountDBID") %></td>
 										<td><%= account.get("balance") %></td>
@@ -49,7 +49,7 @@
 											<a class="btn btn-secondary btn-sm" href="/shop_accounts/delete?accountDBID=<%= account.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 										</td>
 									</tr>
-									<% }) %>
+									<%_ }) _%>
 								</tbody>
 							</table>
 							</div>

@@ -11,7 +11,7 @@
 			<div class="col form">
 				<div class="card card-block">
 					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) %>
+						<%- include("partials/adminFormErrors", { errors }) -%>
 						<div class="form-group">
 							<label class="control-label" for="userName"><%= __("Name") %></label>
 							<input type="text" class="form-control boxed" name="userName" value="<%= userName %>">
@@ -53,9 +53,6 @@
 									<button type="button" class="btn btn-secondary" id="privilege-gm"><i class="fa fa-shield"></i> <%= __("Set GM") %></button>
 								</label>
 								<label>
-									<button type="button" class="btn btn-secondary" id="privilege-qa"><i class="fa fa-wrench"></i> <%= __("Set QA") %></button>
-								</label>
-								<label>
 									<button type="button" class="btn btn-secondary" id="privilege-reset"><i class="fa fa-refresh"></i> <%= __("Reset") %></button>
 								</label>
 							</div>
@@ -80,9 +77,6 @@
 		});
 		$("#privilege-gm").click(function() {
 			$("input[name='privilege']").val("33");
-		});
-		$("#privilege-qa").click(function() {
-			$("input[name='privilege']").val("<%= process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE %>");
 		});
 		$("#privilege-reset").click(function() {
 			$("input[name='privilege']").val("0");

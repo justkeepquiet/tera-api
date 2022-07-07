@@ -1,4 +1,4 @@
-<%
+<%_
 const genderId = [
 	__("Male"),
 	__("Female")
@@ -27,7 +27,7 @@ const classId = [
 	__("Ninja"),
 	__("Valkyrie")
 ];
-%>
+_%>
 <%- contentFor("content") %>
 <article class="content">
 	<div class="title-block">
@@ -42,21 +42,21 @@ const classId = [
 			<div class="form-group">
 				<label for="serverId"><%= __("Server ID") %></label>
 				<select class="form-control boxed" name="serverId">
-				<% servers.forEach(s => { %>
+				<%_ servers.forEach(s => { _%>
 					<option value="<%= s.get("serverId") %>" <%= s.get("serverId") == serverId ? "selected" : "" %>><%= s.get("serverId") %></option>
-				<% }) %>
+				<%_ }) _%>
 				</select>
 			</div>
 			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
 		</form>
 	</section>
-	<% if (characters === null) { %>
+	<%_ if (characters === null) { _%>
 	<section class="section">
 		<div class="alert alert-info">
 			<%= __("Please enter account ID and select the server.") %>
 		</div>
 	</section>
-	<% } else { %>
+	<%_ } else { _%>
 	<section class="section">
 		<div class="row">
 			<div class="col-md-12">
@@ -77,7 +77,7 @@ const classId = [
 									</tr>
 								</thead>
 								<tbody>
-									<% characters.forEach(character => { %>
+									<%_ characters.forEach(character => { _%>
 									<tr>
 										<td><%= character.get("characterId") %></td>
 										<td><%= character.get("name") || "-" %></td>
@@ -88,7 +88,7 @@ const classId = [
 										<td><%= character.get("accountDBID") %></td>
 										<td><%= character.get("serverId") %></td>
 									</tr>
-									<% }) %>
+									<%_ }) _%>
 								</tbody>
 							</table>
 						</section>
@@ -97,5 +97,5 @@ const classId = [
 			</div>
 		</div>
 	</section>
-	<% } %>
+	<%_ } _%>
 </article>

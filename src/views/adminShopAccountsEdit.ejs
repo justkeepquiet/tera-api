@@ -11,7 +11,7 @@
 			<div class="col form">
 				<div class="card card-block">
 					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) %>
+						<%- include("partials/adminFormErrors", { errors }) -%>
 						<div class="form-group">
 							<label class="control-label" for="balance"><%= __("Balance") %></label>
 							<input type="number" class="form-control boxed" name="balance" value="<%= balance %>">

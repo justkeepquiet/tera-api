@@ -3,7 +3,7 @@
 	<div class="title-block">
 		<h1 class="title"><%= __("Shop Pay Logs") %></h1>
 	</div>
-	<%- include("partials/adminReportForm", { servers, from, to, serverId, accountDBID }) %>
+	<%- include("partials/adminReportForm", { servers, from, to, serverId, accountDBID }) -%>
 	<section class="section">
 		<div class="row">
 			<div class="col-md-12">
@@ -24,7 +24,7 @@
 									</tr>
 								</thead>
 								<tbody>
-									<% logs.forEach(log => { %>
+									<%_ logs.forEach(log => { _%>
 									<tr>
 										<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= log.get("accountDBID") %></td>
@@ -35,7 +35,7 @@
 										<td class="text-<%= log.get("status") == "completed" ? "success" : "danger" %>"><%= __(log.get("status")) %></td>
 										<td><%= moment(log.get("updatedAt")).format("YYYY-MM-DD HH:mm:ss") %></td>
 									</tr>
-									<% }) %>
+									<%_ }) _%>
 								</tbody>
 							</table>
 						</section>

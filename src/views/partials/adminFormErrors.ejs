@@ -1,9 +1,9 @@
-<% if (errors && errors.length > 0) { %>
+<%_ if (errors && errors.length > 0) { _%>
 <div class="alert alert-danger">
 	<ul class="mb-0">
-	<% errors.forEach(error => { %>
+	<%_ errors.forEach(error => { _%>
 		<li><%= error.msg %></li>
-	<% }) %>
+	<%_ }) _%>
 	</ul>
 </div>
-<% } %>
+<%_ } _%>

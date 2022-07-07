@@ -11,7 +11,7 @@
 			<div class="col form">
 				<div class="card card-block">
 					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) %>
+						<%- include("partials/adminFormErrors", { errors }) -%>
 						<div class="form-group">
 							<label class="control-label" for="accountDBID"><%= __("Account ID") %></label>
 							<input type="number" class="form-control boxed" name="accountDBID" value="<%= accountDBID %>">
@@ -20,9 +20,9 @@
 							<div class="col-sm-6">
 								<label class="control-label" for="benefitId"><%= __("Benefit ID") %></label>
 								<select class="form-control boxed" name="benefitId">
-								<% accountBenefits.forEach((string, id) => { %>
+								<%_ accountBenefits.forEach((string, id) => { _%>
 									<option value="<%= id %>" <%= benefitId == id ? 'selected' : "" %>>(<%= id %>) <%= string %></option>
-								<% }) %>
+								<%_ }) _%>
 								</select>
 							</div>
 							<div class="col-sm-6">

@@ -36,14 +36,14 @@
 									</tr>
 								</thead>
 								<tbody>
-									<% logs.forEach(log => { %>
+									<%_ logs.forEach(log => { _%>
 									<tr>
 										<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= log.get("accountDBID") %></td>
 										<td><%= log.get("amount") %></td>
 										<td><%= log.get("description") %></td>
 									</tr>
-									<% }) %>
+									<%_ }) _%>
 								</tbody>
 							</table>
 						</section>

@@ -1,8 +1,8 @@
 <div class="main">
-<% if (products.size == 0) { %>
+<%_ if (products.size == 0) { _%>
 	<div class="alert alert-error fade in"><%= __("No products were found matching your request. Try looking for something else.") %></div>
-<% } else { %>
-<% products.forEach((product, id) => { %>
+<%_ } else { _%>
+<%_ products.forEach((product, id) => { _%>
 	<div class="row well well-small">
 		<div class="btn-info item-icon-block">
 			<a class="buy" data-id="<%= id %>" href="#">
@@ -24,8 +24,8 @@
 			<a class="btn btn-large btn-info buy" href="#" data-id="<%= id %>"><%= __("Buy") %></a>
 		</div>
 	</div>
-<% }) %>
-<% } %>
+<%_ }) _%>
+<%_ } _%>
 </div>
 <script type="text/javascript">
 	$(function() {

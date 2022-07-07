@@ -24,9 +24,7 @@ const boxContext = {
 	// List of items in the box
 	// You can only use the IDs of Service Items configured in the Box Web panel
 	items: [
-		{ item_id: 1, item_count: 1 },
-		{ item_id: 2, item_count: 1 },
-		{ item_id: 3, item_count: 1 }
+		{ item_id: 1, item_count: 1 }
 	]
 };
 
@@ -125,8 +123,7 @@ module.exports = {
 	183457: [[Benefit, { addBenefit: [benefitId, 5] }]],
 
 	// Elite Status Voucher (60-day)
-	183461: [[Benefit, { addBenefit: [benefitId, 60] }], [ItemClaim, { makeBox: [boxContext] }]
-	],
+	183461: [[Benefit, { addBenefit: [benefitId, 60] }], [ItemClaim, { makeBox: [boxContext] }]],
 
 	// Elite Status Voucher (7-day)
 	183458: [[Benefit, { addBenefit: [benefitId, 7] }], [ItemClaim, { makeBox: [boxContext] }]],

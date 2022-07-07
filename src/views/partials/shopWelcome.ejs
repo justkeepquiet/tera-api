@@ -1,19 +1,21 @@
-<% const founder = ["334", "434", "534"].filter(b => Object.keys(benefits).includes(b)) %>
-<% const premium = ["333", "433", "533", "500", "520", "701"].filter(b => Object.keys(benefits).includes(b)) %>
-<% const pcClub = ["800", "801", "802", "803", "1000"].filter(b => Object.keys(benefits).includes(b)) %>
+<%_
+const founder = ["334", "434", "534"].filter(b => Object.keys(benefits).includes(b));
+const premium = ["333", "433", "533", "500", "520", "701"].filter(b => Object.keys(benefits).includes(b));
+const pcClub = ["800", "801", "802", "803", "1000"].filter(b => Object.keys(benefits).includes(b));
+_%>
 <div class="main hero-unit white-text">
 	<h2><%= __("Welcome!") %></h2><hr>
 	<%= __("You are playing on the server") %>: <b><%= server.get("nameString") %></b><br>
-	<% if (premium.length) { %>
+	<%_ if (premium.length) { _%>
 	<%- __("Premium status account") %>: <b><%= __("Yes") %></b> (<b><%= moment(benefits[premium[0]]).diff(moment(), "days")  %></b> <%= __("days left") %>)<br>
-	<% } else { %>
+	<%_ } else { _%>
 	<%- __("Premium status account") %>: <b><%= __("No") %></b><br>
-	<% } %>
-	<% if (pcClub.length) { %>
+	<%_ } _%>
+	<%_ if (pcClub.length) { _%>
 	<%- __("PC Club account") %>: <b><%= __("Yes") %></b> (<b><%= moment(benefits[pcClub[0]]).diff(moment(), "days")  %></b> <%= __("days left") %>)<br>
-	<% } else { %>
+	<%_ } else { _%>
 	<%- __("PC Club account") %>: <b><%= __("No") %></b><br>
-	<% } %>
+	<%_ } _%>
 	<%- __("Founder account") %>: <b><%= founder.length ? __("Yes") : __("No") %></b>
 </div>
 <div id="myCarousel" class="carousel slide">

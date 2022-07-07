@@ -17,11 +17,11 @@
 		</fieldset>
 	</form>
 </div>
-<% if (promoCodesAcrivated.length > 0) { %>
+<%_ if (promoCodesAcrivated.length > 0) { _%>
 <div class="main hero-unit white-text">
 	<h2><%= __("Activated promo codes") %></h2>
 	<table class="table promocode-list" style="margin-bottom: 0;">
-		<% promoCodesAcrivated.forEach(promoCodeAcrivated => { %>
+		<%_ promoCodesAcrivated.forEach(promoCodeAcrivated => { _%>
 		<tr>
 			<td style="width: 1%; white-space: nowrap; text-align: center;">
 				<span class="promocode"><%= promoCodeAcrivated.get("promoCode") %></span><br>
@@ -31,10 +31,10 @@
 				<%= promoCodeAcrivated.get("description") || "Activated promocode." %>
 			</td>
 		</tr>
-		<% }) %>
+		<%_ }) _%>
 	</table>
 </div>
-<% } %>
+<%_ } _%>
 <script type="text/javascript">
 	$(function() {
 		$('#promocode_activate').click(function() {

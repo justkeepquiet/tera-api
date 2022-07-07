@@ -19,13 +19,13 @@
 	<section class="section">
 		<a class="btn btn-warning" title="" href="/promocodes_activated/add?promoCodeId=<%= promoCodeId %>&amp;accountDBID=<%= accountDBID %>"><%= __("Activate promocode") %></a>
 	</section>
-	<% if (promocodes === null) { %>
+	<%_ if (promocodes === null) { _%>
 	<section class="section">
 		<div class="alert alert-info">
 			<%= __("Please enter account ID or promocode ID.") %>
 		</div>
 	</section>
-	<% } else { %>
+	<%_ } else { _%>
 	<section class="section">
 		<div class="row">
 			<div class="col-md-12">
@@ -45,7 +45,7 @@
 										</tr>
 									</thead>
 									<tbody>
-										<% promocodes.forEach(activated => { %>
+										<%_ promocodes.forEach(activated => { _%>
 										<tr>
 											<td><%= activated.get("id") %></td>
 											<td><%= activated.get("promoCodeId") %></td>
@@ -56,7 +56,7 @@
 												<a class="btn btn-secondary btn-sm" href="/promocodes_activated/delete?id=<%= activated.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 											</td>
 										</tr>
-										<% }) %>
+										<%_ }) _%>
 									</tbody>
 								</table>
 							</div>
@@ -66,5 +66,5 @@
 			</div>
 		</div>
 	</section>
-	<% } %>
+	<%_ } _%>
 </article>

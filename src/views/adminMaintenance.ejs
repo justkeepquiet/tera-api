@@ -24,7 +24,7 @@
 										</tr>
 									</thead>
 									<tbody>
-										<% maintenances.forEach(maintenance => { %>
+										<%_ maintenances.forEach(maintenance => { _%>
 										<tr>
 											<td><%= maintenance.get("id") %></td>
 											<td><%= moment(maintenance.get("startTime")).format("YYYY-MM-DD HH:mm") %></td>
@@ -35,7 +35,7 @@
 												<a class="btn btn-secondary btn-sm" href="/maintenance/delete?id=<%= maintenance.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 											</td>
 										</tr>
-										<% }) %>
+										<%_ }) _%>
 									</tbody>
 								</table>
 							</div>

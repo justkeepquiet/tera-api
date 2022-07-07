@@ -1,6 +1,6 @@
-<%
+<%_
 const addInfoShow = icon || rareGrade !== null || Object.values(title).join("") || Object.values(description).join("");
-%>
+_%>
 <%- contentFor("content") %>
 <article class="content">
 	<div class="title-block">
@@ -14,7 +14,7 @@ const addInfoShow = icon || rareGrade !== null || Object.values(title).join("") 
 			<div class="col form">
 				<div class="card card-block">
 					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) %>
+						<%- include("partials/adminFormErrors", { errors }) -%>
 						<div class="title-block">
 							<h3 class="title"><%= __("Product Information") %></h3>
 						</div>
@@ -26,9 +26,9 @@ const addInfoShow = icon || rareGrade !== null || Object.values(title).join("") 
 							<div class="col-sm-6">
 								<label class="control-label" for="userName"><%= __("Category ID") %></label>
 								<select class="form-control boxed" name="categoryId">
-								<% categories.forEach(category => { %>
+								<%_ categories.forEach(category => { _%>
 									<option value="<%= category.get("id") %>" <%= categoryId == category.get("id") ? 'selected' : "" %>>(<%= category.get("id") %>) <%= category.get("title") %></option>
-								<% }) %>
+								<%_ }) _%>
 								</select>
 							</div>
 						</div>
@@ -58,14 +58,14 @@ const addInfoShow = icon || rareGrade !== null || Object.values(title).join("") 
 							<h3 class="title"><%= __("Product Items") %></h3>
 						</div>
 						<div id="items">
-							<% itemTemplateIds.forEach((itemTemplateId, i) => { %>
+							<%_ itemTemplateIds.forEach((itemTemplateId, i) => { _%>
 							<div class="form-group row">
 								<div class="col-sm-6">
 									<label class="control-label" for="itemTemplateIds[]">
 										<%= __("Item template ID") %>
 										<a class="btn btn-secondary btn-sm remove-item" title="" href="#"><i class="fa fa-minus"></i></a>
 									</label>
-									<% if (resolvedItems[itemTemplateId]) { %>
+									<%_ if (resolvedItems[itemTemplateId]) { _%>
 									<div class="row">
 										<div class="col-sm-12">
 											<div class="form-control boxed" style="overflow: hidden;">
@@ -78,9 +78,9 @@ const addInfoShow = icon || rareGrade !== null || Object.values(title).join("") 
 										</div>
 									</div>
 									<input type="hidden" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
-									<% } else { %>
+									<%_ } else { _%>
 									<input type="number" class="form-control boxed" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
-									<% } %>
+									<%_ } _%>
 								</div>
 								<div class="col-sm-2">
 									<label class="control-label" for="boxItemCounts[]"><%= __("Count") %></label>
@@ -91,7 +91,7 @@ const addInfoShow = icon || rareGrade !== null || Object.values(title).join("") 
 									<input type="number" class="form-control boxed mt-2" name="boxItemIds[]" value="<%= boxItemIds[i] %>" placeholder="<%= __("optional") %>">
 								</div>
 							</div>
-							<% }) %>
+							<%_ }) _%>
 						</div>
 						<div class="form-group">
 							<button type="button" class="btn btn-secondary" id="add-item"><i class="fa fa-plus"></i> <%= __("Add item") %></button>
@@ -124,7 +124,7 @@ const addInfoShow = icon || rareGrade !== null || Object.values(title).join("") 
 							</div>
 							<div class="form-group">
 								<label class="control-label"><%= __("Title") %></label>
-								<% shopLocales.forEach(shopLocale => { %>
+								<%_ shopLocales.forEach(shopLocale => { _%>
 								<div class="form-group row">
 									<div class="col-sm-2 mt-2">
 										<label for="title[<%= shopLocale %>]" class="control-label"><small><%= __(shopLocale) %></small></label>
@@ -133,11 +133,11 @@ const addInfoShow = icon || rareGrade !== null || Object.values(title).join("") 
 										<input type="text" class="form-control boxed" name="title[<%= shopLocale %>]" value="<%= title[shopLocale] || "" %>" placeholder="<%= __("optional") %>">
 									</div>
 								</div>
-								<% }) %>
+								<%_ }) _%>
 							</div>
 							<div class="form-group">
 								<label class="control-label"><%= __("Description") %></label>
-								<% shopLocales.forEach(shopLocale => { %>
+								<%_ shopLocales.forEach(shopLocale => { _%>
 								<div class="form-group row">
 									<div class="col-sm-2 mt-2">
 										<label for="description[<%= shopLocale %>]" class="control-label"><small><%= __(shopLocale) %></small></label>
@@ -146,7 +146,7 @@ const addInfoShow = icon || rareGrade !== null || Object.values(title).join("") 
 										<input type="text" class="form-control boxed" name="description[<%= shopLocale %>]" value="<%= description[shopLocale] || "" %>" placeholder="<%= __("optional") %>">
 									</div>
 								</div>
-								<% }) %>
+								<%_ }) _%>
 							</div>
 							<div class="form-group row"></div>
 							<div class="form-group alert alert-secondary">

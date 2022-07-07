@@ -11,7 +11,7 @@
 			<div class="col form">
 				<div class="card card-block">
 					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) %>
+						<%- include("partials/adminFormErrors", { errors }) -%>
 						<div class="title-block">
 							<h3 class="title"><%= __("Account Information") %></h3>
 						</div>
@@ -62,7 +62,7 @@
 							<h3 class="title"><%= __("Account Benefits") %></h3>
 						</div>
 						<div id="benefits">
-							<% benefitIds.forEach((benefitId, i) => { if (benefitId) { %>
+							<%_ benefitIds.forEach((benefitId, i) => { if (benefitId) { _%>
 							<div class="form-group row">
 								<div class="col-sm-6">
 									<label class="control-label" for="benefitIds[]">
@@ -71,9 +71,9 @@
 									</label>
 									<select class="form-control boxed" name="benefitIds[]">
 										<option value="">- <%= __("None") %> -</option>
-									<% accountBenefits.forEach((string, id) => { %>
+									<%_ accountBenefits.forEach((string, id) => { _%>
 										<option value="<%= id %>" <%= benefitId == id ? 'selected' : "" %>>(<%= id %>) <%= string %></option>
-									<% }) %>
+									<%_ }) _%>
 									</select>
 								</div>
 								<div class="col-sm-6">
@@ -81,7 +81,7 @@
 									<input type="datetime-local" class="form-control boxed mt-2" name="availableUntils[]" value="<%= availableUntils[i] %>">
 								</div>
 							</div>
-							<% } }) %>
+							<%_ } }) _%>
 						</div>
 						<div class="form-group">
 							<button type="button" class="btn btn-secondary" id="add-benefit"><i class="fa fa-plus"></i> <%= __("Add benefit") %></button>

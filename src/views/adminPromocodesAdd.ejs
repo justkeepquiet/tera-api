@@ -11,7 +11,7 @@
 			<div class="col form">
 				<div class="card card-block">
 					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) %>
+						<%- include("partials/adminFormErrors", { errors }) -%>
 						<div class="title-block">
 							<h3 class="title"><%= __("Promocode Information") %></h3>
 						</div>
@@ -23,9 +23,9 @@
 							<div class="col-sm-6">
 								<label class="control-label" for="aFunction"><%= __("Assigned function") %></label>
 								<select class="form-control boxed" name="aFunction">
-								<% promocodeFunctions.forEach(promocodeFunction => { %>
+								<%_ promocodeFunctions.forEach(promocodeFunction => { _%>
 									<option value="<%= promocodeFunction %>" <%= promocodeFunction == aFunction ? 'selected' : "" %>><%= promocodeFunction %></option>
-								<% }) %>
+								<%_ }) _%>
 								</select>
 							</div>
 						</div>
@@ -48,7 +48,7 @@
 						<div class="title-block">
 							<h3 class="title"><%= __("Promocode Description") %></h3>
 						</div>
-						<% shopLocales.forEach(shopLocale => { %>
+						<%_ shopLocales.forEach(shopLocale => { _%>
 						<div class="form-group row">
 							<div class="col-sm-2 mt-2">
 								<label for="description[<%= shopLocale %>]" class="control-label"><%= __(shopLocale) %></label>
@@ -57,7 +57,7 @@
 								<input type="text" class="form-control boxed" name="description[<%= shopLocale %>]" value="<%= description[shopLocale] || "" %>">
 							</div>
 						</div>
-						<% }) %>
+						<%_ }) _%>
 						<div class="form-group row"></div>
 						<div class="form-group">
 							<button type="submit" class="btn btn-primary"><%= __("Add") %></button>

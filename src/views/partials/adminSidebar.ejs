@@ -87,19 +87,20 @@
 		</div>
 		<nav class="menu">
 			<ul class="sidebar-menu metismenu" id="sidebar-menu">
-				<% menu.forEach(root => { %>
-					<% if (root.elements && root.elements.length > 0) { %>
-						<li class="<%= root.elements.find(e => e.page === page) ? "active open" : "" %>">
-						<a href=""><i class="fa <%= root.icon %>"></i> <%= root.name %> <i class="fa arrow"></i></a>
-						<ul class="sidebar-nav">
-						<% root.elements.forEach(element => { %>
-							<li class="<%= element.page === page ? "active" : "" %>"><a href="<%= element.page %>"><%= element.name %></a></li>
-						<% }) %>
-						</ul></li>
-					<% } else { %>
-						<li class="<%= root.page === page ? "active" : "" %>"><a href="<%= root.page %>"><i class="fa <%= root.icon %>"></i> <%= root.name %></a></li>
-					<% } %>
-				<% }) %>
+				<%_ menu.forEach(root => { _%>
+				<%_ if (root.elements && root.elements.length > 0) { _%>
+				<li class="<%= root.elements.find(e => e.page === page) ? "active open" : "" %>">
+					<a href=""><i class="fa <%= root.icon %>"></i> <%= root.name %> <i class="fa arrow"></i></a>
+					<ul class="sidebar-nav">
+					<%_ root.elements.forEach(element => { _%>
+						<li class="<%= element.page === page ? "active" : "" %>"><a href="<%= element.page %>"><%= element.name %></a></li>
+					<%_ }) _%>
+					</ul>
+				</li>
+				<%_ } else { _%>
+				<li class="<%= root.page === page ? "active" : "" %>"><a href="<%= root.page %>"><i class="fa <%= root.icon %>"></i> <%= root.name %></a></li>
+				<%_ } _%>
+				<%_ }) _%>
 			</ul>
 		</nav>
 	</div>

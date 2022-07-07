@@ -1,10 +1,10 @@
 <div class="well sidebar-nav">
 	<ul class="nav nav-list">
-	<% categories.forEach(category => { %>
+	<%_ categories.forEach(category => { _%>
 		<li class="<%= category.id == active ? "active" : "" %>">
 			<a href="#" data-id="<%= category.get("id") %>" class="menu_Link"><%= category.get("title") %></a>
 		</li>
-	<% }) %> 
+	<%_ }) _%>
 	</ul>
 </div><!--/.well -->
 <script type="text/javascript">

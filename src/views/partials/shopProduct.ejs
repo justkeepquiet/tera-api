@@ -14,33 +14,33 @@
 			</div>
 		</div>
 		<hr>
-		<% if (product.tradable) { %>
+		<%_ if (product.tradable) { _%>
 		<%= __("Can be trade with other players.") %><br>
-		<% } %>
-		<% if (!product.warehouseStorable) { %>
+		<%_ } _%>
+		<%_ if (!product.warehouseStorable) { _%>
 		<%= __("Can't put it in the warehouse.") %><br>
-		<% } %>
-		<% if (product.requiredGender === "female") { %>
+		<%_ } _%>
+		<%_ if (product.requiredGender === "female") { _%>
 		<%= __("For female characters only.") %><br>
-		<% } %>
-		<% if (product.requiredGender === "male") { %>
+		<%_ } _%>
+		<%_ if (product.requiredGender === "male") { _%>
 		<%= __("For male characters only.") %><br>
-		<% } %>
-		<% if (product.requiredRace.length > 0) { %>
+		<%_ } _%>
+		<%_ if (product.requiredRace.length > 0) { _%>
 		<%= __("For races") %>: <%= product.requiredRace.map(race => __(race)).join(", ") %><br>
-		<% } %>
-		<% if (product.requiredClass.length > 0) { %>
+		<%_ } _%>
+		<%_ if (product.requiredClass.length > 0) { _%>
 		<%= __("For classes") %>: <%= product.requiredClass.map(rclass => __(rclass)).join(", ") %><br>
-		<% } %>
-		<%if (product.requiredLevel > 1) { %>
+		<%_ } _%>
+		<%_ if (product.requiredLevel > 1) { _%>
 		<%= __("Minimum character level") %>: <%= product.requiredLevel %>.<br>
-		<% } %>
-		<% if (product.thumbnail) { %>
+		<%_ } _%>
+		<%_ if (product.thumbnail) { _%>
 		<br><a href="#" class="thumbnail" style="max-width: 280px;"><img src="/public/shop/images/screenshots/<%= product.thumbnail %>.jpg" alt="screenshot" style="max-height: 175px;"></a>
-		<% } %>
-		<% if (items.length > 0) { %>
+		<%_ } _%>
+		<%_ if (items.length > 0) { _%>
 		<br><table class="table" style="margin-bottom: 0;">
-			<% items.forEach(item => { %>
+			<%_ items.forEach(item => { _%>
 			<tr>
 				<td style="width: 30px;">
 					<div class="item-icon-block2">
@@ -52,13 +52,13 @@
 					<span class="item_grade_<%= item.get("rareGrade") %>"><%- item.get("string") %></span> &ndash; <%- item.get("boxItemCount") %> <%= __("pc.") %>
 				</td>
 			</tr>
-			<% }) %>
+			<%_ }) _%>
 		</table>
-		<% } %>
-		<% if (conversions.length > 0) { %>
+		<%_ } _%>
+		<%_ if (conversions.length > 0) { _%>
 		<hr><%= __("Possible items") %>:<br>
 		<br><table class="table" style="margin-bottom: 0;">
-			<% conversions.forEach(conversion => { %>
+			<%_ conversions.forEach(conversion => { _%>
 			<tr>
 				<td style="width: 30px;">
 					<div class="item-icon-block2">
@@ -70,9 +70,9 @@
 					<span class="item_grade_<%= conversion.get("rareGrade") %>"><%- conversion.get("string") %></span>
 				</td>
 			</tr>
-			<% }) %>
+			<%_ }) _%>
 		</table>
-		<% } %>
+		<%_ } _%>
 		<hr>
 		<div class="row buy-info white-text">
 			<div class="span9 buy-block-left">
@@ -98,15 +98,15 @@
 		</div>
 	</div>
 </div>
-<% if (search) { %>
+<%_ if (search) { _%>
 <script type="text/javascript">
 	var backParams = { search: "<%= search %>" };
 </script>
-<% } else { %>
+<%_ } else { _%>
 <script type="text/javascript">
 	var backParams = { category: "<%= product.categoryId %>" };
 </script>
-<% } %>
+<%_ } _%>
 <script type="text/javascript">
 	$(function() {
 		function purchaseProduct(productId) {

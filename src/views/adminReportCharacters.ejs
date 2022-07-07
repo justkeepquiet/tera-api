@@ -1,4 +1,4 @@
-<%
+<%_
 const reportType = {
 	1: __("Create"),
 	2: __("Edit"),
@@ -32,13 +32,13 @@ const classId = [
 	__("Ninja"),
 	__("Valkyrie")
 ];
-%>
+_%>
 <%- contentFor("content") %>
 <article class="content">
 	<div class="title-block">
 		<h1 class="title"><%= __("Characters Report") %></h1>
 	</div>
-	<%- include("partials/adminReportForm", { servers, from, to, serverId, accountDBID }) %>
+	<%- include("partials/adminReportForm", { servers, from, to, serverId, accountDBID }) -%>
 	<section class="section">
 		<div class="row">
 			<div class="col-md-12">
@@ -61,7 +61,7 @@ const classId = [
 									</tr>
 								</thead>
 								<tbody>
-									<% reports.forEach(report => { %>
+									<%_ reports.forEach(report => { _%>
 									<tr>
 										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= reportType[report.get("reportType")] %></td>
@@ -74,7 +74,7 @@ const classId = [
 										<td><%= report.get("accountDBID") %></td>
 										<td><%= report.get("serverId") %></td>
 									</tr>
-									<% }) %>
+									<%_ }) _%>
 								</tbody>
 							</table>
 						</section>

@@ -27,7 +27,7 @@
 				</div>
 			</div>
 		</div>
-		<% if (passport.user.type === "steer") { %>
+		<%_ if (passport.user.type === "steer") { _%>
 		<div class="row sameheight-container">
 			<div class="col-md-6">
 				<div class="card sameheight-item">
@@ -44,12 +44,12 @@
 									</tr>
 								</thead>
 								<tbody>
-									<% Object.keys(passport.user.functions).forEach(id => { %>
+									<%_ Object.keys(passport.user.functions).forEach(id => { _%>
 									<tr>
 										<td><%= id %></td>
 										<td><%= passport.user.functions[id] %></td>
 									</tr>
-									<% }) %>
+									<%_ }) _%>
 								</tbody>
 							</table>
 						</section>
@@ -57,6 +57,6 @@
 				</div>
 			</div>
 		</div>
-		<% } %>
+		<%_ } _%>
 	</section>
 </article>

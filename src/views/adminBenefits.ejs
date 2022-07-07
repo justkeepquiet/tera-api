@@ -15,13 +15,13 @@
 	<section class="section">
 		<a class="btn btn-success" title="" href="/benefits/add?accountDBID=<%= accountDBID %>"><%= __("Add new benefit") %></a>
 	</section>
-	<% if (benefits === null) { %>
+	<%_ if (benefits === null) { _%>
 	<section class="section">
 		<div class="alert alert-info">
 			<%= __("Please enter account ID.") %>
 		</div>
 	</section>
-	<% } else { %>
+	<%_ } else { _%>
 	<section class="section">
 		<div class="row">
 			<div class="col-md-12">
@@ -40,7 +40,7 @@
 										</tr>
 									</thead>
 									<tbody>
-										<% benefits.forEach(benefit => { %>
+										<%_ benefits.forEach(benefit => { _%>
 										<tr>
 											<td><%= benefit.get("accountDBID") %></td>
 											<td><%= benefit.get("benefitId") %></td>
@@ -51,7 +51,7 @@
 												<a class="btn btn-secondary btn-sm" href="/benefits/delete?benefitId=<%= benefit.get("benefitId") %>&amp;accountDBID=<%= benefit.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 											</td>
 										</tr>
-										<% }) %>
+										<%_ }) _%>
 									</tbody>
 								</table>
 							</div>
@@ -61,5 +61,5 @@
 			</div>
 		</div>
 	</section>
-	<% } %>
+	<%_ } _%>
 </article>

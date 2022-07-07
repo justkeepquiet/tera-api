@@ -9,14 +9,14 @@
 							<div class="title-block">
 								<h4 class="title"><%= __("Servers Stats") %></h4>
 							</div>
-							<% if (servers === null || servers.length === 0) { %>
+							<%_ if (servers === null || servers.length === 0) { _%>
 							<div class="row stats-col">
 								<div class="col-12 col-md-4 stat-col">
 									<%= __("No data available in table") %>
 								</div>
 							</div>
-							<% } else {%>
-							<% servers.forEach(server => { %>
+							<%_ } else { _%>
+							<%_ servers.forEach(server => { _%>
 							<div class="row stats-col">
 								<div class="col-6 col-md-4 stat-col">
 									<div class="stat-icon">
@@ -49,12 +49,12 @@
 									</div>
 								</div>
 							</div>
-							<% }) %>
-							<% } %>
+							<%_ }) _%>
+							<%_ } _%>
 						</div>
 					</div>
 				</section><!--/stats-->
-				<% if (activityReport !== null) { %>
+				<%_ if (activityReport !== null) { _%>
 				<section class="section">
 					<div class="card">
 						<div class="card-block">
@@ -73,10 +73,10 @@
 										</tr>
 									</thead>
 									<tbody>
-										<% if (activityReport.length === 0) { %>
+										<%_ if (activityReport.length === 0) { _%>
 										<tr><td colspan="5" class="text-center"><%= __("No data available in table") %></td></tr>
-										<% } else {%>
-										<% activityReport.forEach(report => { %>
+										<%_ } else { _%>
+										<%_ activityReport.forEach(report => { _%>
 										<tr>
 											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= report.get("reportType") == 2 ?
@@ -87,18 +87,18 @@
 											<td><%= report.get("accountDBID") %></td>
 											<td><%= report.get("serverId") %></td>
 										</tr>
-										<% }) %>
-										<% } %>
+										<%_ }) _%>
+										<%_ } _%>
 									</tbody>
 								</table>
 							</div>
 						</div>
 					</div>
 				</section><!--/report-->
-				<% } %>
+				<%_ } _%>
 			</div> <!--/col-->
 			<div class="col-md-6">
-				<% if (payLogs !== null) { %>
+				<%_ if (payLogs !== null) { _%>
 				<section class="section">
 					<div class="card">
 						<div class="card-block">
@@ -118,10 +118,10 @@
 										</tr>
 									</thead>
 									<tbody>
-										<% if (payLogs.length === 0) { %>
+										<%_ if (payLogs.length === 0) { _%>
 										<tr><td colspan="6" class="text-center"><%= __("No data available in table") %></td></tr>
-										<% } else {%>
-										<% payLogs.forEach(log => { %>
+										<%_ } else { _%>
+										<%_ payLogs.forEach(log => { _%>
 										<tr>
 											<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= log.get("accountDBID") %></td>
@@ -130,22 +130,22 @@
 											<td><%= log.get("price") %></td>
 											<td class="text-<%= log.get("status") == "completed" ? "success" : "danger" %>"><%= __(log.get("status")) %></td>
 										</tr>
-										<% }) %>
-										<% } %>
+										<%_ }) _%>
+										<%_ } _%>
 									</tbody>
 								</table>
 							</div>
 						</div>
 					</div>
 				</section><!--/report-->
-				<% } %>
+				<%_ } _%>
 			</div> <!--/col-->
 		</div> <!--/row-->
 	</section>
 	<section class="section">
 		<div class="row">
 			<div class="col-md-12">
-				<% if (cheatsReport !== null) { %>
+				<%_ if (cheatsReport !== null) { _%>
 				<section class="section">
 					<div class="card">
 						<div class="card-block">
@@ -164,10 +164,10 @@
 										</tr>
 									</thead>
 									<tbody>
-										<% if (cheatsReport.length === 0) { %>
+										<%_ if (cheatsReport.length === 0) { _%>
 										<tr><td colspan="5" class="text-center"><%= __("No data available in table") %></td></tr>
-										<% } else {%>
-										<% cheatsReport.forEach(report => { %>
+										<%_ } else { _%>
+										<%_ cheatsReport.forEach(report => { _%>
 										<tr>
 											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= report.get("ip") %></td>
@@ -175,15 +175,15 @@
 											<td><%= report.get("accountDBID") %></td>
 											<td><%= report.get("serverId") %></td>
 										</tr>
-										<% }) %>
-										<% } %>
+										<%_ }) _%>
+										<%_ } _%>
 									</tbody>
 								</table>
 							</div>
 						</div>
 					</div>
 				</section><!--/report-->
-				<% } %>
+				<%_ } _%>
 			</div>
 		</div>
 	</section>

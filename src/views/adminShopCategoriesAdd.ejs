@@ -11,7 +11,7 @@
 			<div class="col form">
 				<div class="card card-block">
 					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) %>
+						<%- include("partials/adminFormErrors", { errors }) -%>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="sort"><%= __("Sort") %></label>
@@ -27,7 +27,7 @@
 						<div class="title-block">
 							<h3 class="title"><%= __("Category Title") %></h3>
 						</div>
-						<% shopLocales.forEach(shopLocale => { %>
+						<%_ shopLocales.forEach(shopLocale => { _%>
 						<div class="form-group row">
 							<div class="col-sm-2 mt-2">
 								<label for="title[<%= shopLocale %>]" class="control-label"><%= __(shopLocale) %></label>
@@ -36,7 +36,7 @@
 								<input type="text" class="form-control boxed" name="title[<%= shopLocale %>]" value="<%= title[shopLocale] || "" %>">
 							</div>
 						</div>
-						<% }) %>
+						<%_ }) _%>
 						<div class="form-group row"></div>
 						<div class="form-group">
 							<button type="submit" class="btn btn-primary"><%= __("Add") %></button>

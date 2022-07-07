@@ -9,9 +9,9 @@
 				<label for="categoryId"><%= __("Category ID") %></label>
 				<select class="form-control boxed" name="categoryId">
 					<option value="">- <%= __("All") %> -</option>
-				<% categories.forEach(category => { %>
+				<%_ categories.forEach(category => { _%>
 					<option value="<%= category.get("id") %>" <%= categoryId == category.get("id") ? 'selected' : "" %>>(<%= category.get("id") %>) <%= category.get("title") %></option>
-				<% }) %>
+				<%_ }) _%>
 				</select>
 			</div>
 			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
@@ -42,7 +42,7 @@
 										</tr>
 									</thead>
 									<tbody>
-										<% products.forEach((product, id) => { %>
+										<%_ products.forEach((product, id) => { _%>
 										<tr>
 											<td><%= product.sort %></td>
 											<td><%= id %></td>
@@ -62,7 +62,7 @@
 												<a class="btn btn-secondary btn-sm" href="/shop_products/delete?id=<%= id %>&amp;categoryId=<%= product.categoryId %>&amp;fromCategoryId=<%= categoryId %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 											</td>
 										</tr>
-										<% }) %>
+										<%_ }) _%>
 									</tbody>
 								</table>
 							</div>

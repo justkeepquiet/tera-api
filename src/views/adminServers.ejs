@@ -30,7 +30,7 @@
 										</tr>
 									</thead>
 									<tbody>
-										<% servers.forEach(server => { %>
+										<%_ servers.forEach(server => { _%>
 										<tr>
 											<td><%= server.get("serverId") %></td>
 											<td><a href="/servers/edit?serverId=<%= server.get("serverId") %>"><%= server.get("nameString") %></a></td>
@@ -47,7 +47,7 @@
 												<a class="btn btn-secondary btn-sm" href="/servers/delete?serverId=<%= server.get("serverId") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 											</td>
 										</tr>
-										<% }) %>
+										<%_ }) _%>
 									</tbody>
 								</table>
 							</div>

@@ -18,9 +18,9 @@
 						<h1 class="auth-title">TERA API Admin Panel</h1>
 					</header>
 					<div class="auth-content">
-						<% if (errorMessage) { %>
+						<%_ if (errorMessage) { _%>
 						<div class="alert alert-danger text-center" id="error-message"><%= errorMessage%></div>
-						<% } %>
+						<%_ } _%>
 						<form id="login-form" action="" method="POST" novalidate="">
 							<div class="form-group">
 								<label for="login"><%= __("Login ID") %></label>
@@ -51,7 +51,6 @@
 				if (!$("#login-form").length) {
 					return false;
 				}
-
 				var loginValidationSettings = {
 					rules: {
 						login: "required",
@@ -62,7 +61,6 @@
 						password: "<%= __('Please enter password') %>"
 					}
 				};
-
 				$.extend(loginValidationSettings, config.validations);
 				$("#login-form").validate(loginValidationSettings);
 			});
