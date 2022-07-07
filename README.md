@@ -2,16 +2,7 @@
 
 API and In-game Shop implementation for the TERA Online retail server (patch 92/100) on Node.js. The API consists of two independent servers running on different ports (for the needs of the [Launcher](https://github.com/justkeepquiet/tera-launcher)/Shop and separately for the needs of the Arbiter server). Built-in admin panel for full control of all functionality and viewing logs. There is also full integration with the Box Server and Steer Server (for setting permissions).
 
-## Requirements
-
-* [Node.js](https://nodejs.org/en/) v18.1.0
-* [MySQL Server](https://dev.mysql.com/downloads/mysql/5.7.html) v5.7.38
-* [TERA Retail Server](https://forum.ragezone.com/f797/) patch 92.03, 92.04 or 100.02
-* [Steer Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
-* [Box Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
-* [FCGI GW and FCGI Web API](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
-
-## API Components
+## Components
 
 ### Arbiter API
 
@@ -23,9 +14,14 @@ This API must be binded only on a local IP address and must not be accessed by e
 This API is a web server intended for the Launcher (portal). This API must be available from the outside (proxied by Nginx or binded on external IP) for use by server users: registration, authorization, login, update routines etc.
 Also, this API allows to process static elements (directory **public**).
 
-### Admin Panel
+## Requirements
 
-By default, the admin panel is available on all IP addresses on port 85. You can change this in the **.env** settings. To enter the admin panel, use login **apiadmin** and password **password**. These credentials should be used **only for tests**, and in production you need to set up integration with the Steer Server.
+* [Node.js](https://nodejs.org/en/) v18.1.0
+* [MySQL Server](https://dev.mysql.com/downloads/mysql/5.7.html) v5.7.38
+* [TERA Retail Server](https://forum.ragezone.com/f797/) patch 92.03, 92.04 or 100.02
+* [Steer Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
+* [Box Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
+* [FCGI GW and FCGI Web API](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
 
 ## Deployment
 
@@ -42,6 +38,10 @@ By default, the admin panel is available on all IP addresses on port 85. You can
 9. Execute the `node src/app` command, or run the file **tera-api.bat** to start TERA API servers.
 
 If you don't plan to use [tera-client-packer](https://github.com/justkeepquiet/tera-client-packer) to automatically update the client through the launcher, set parameter `API_PORTAL_CLIENT_PATCH_NO_CHECK` to `true` in your **.env** config file.
+
+### Admin Panel
+
+By default, the admin panel is available on all IP addresses on port 85, like [http://127.0.0.1:85](http://127.0.0.1:85/). You can change this in the **.env** settings. To enter the admin panel, use login **apiadmin** and password **password**. These credentials should be used **only for tests**, and in production you need to set up integration with the Steer Server.
 
 ### Integration with Steer Server
 
