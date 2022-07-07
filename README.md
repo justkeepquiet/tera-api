@@ -41,7 +41,7 @@ If you don't plan to use [tera-client-packer](https://github.com/justkeepquiet/t
 
 ### Admin Panel
 
-By default, the admin panel is available on all IP addresses on port 85, like [http://127.0.0.1:85](http://127.0.0.1:85/). You can change this in the **.env** settings. To enter the admin panel, use login **apiadmin** and password **password**. These credentials should be used **only for tests**, and in production you need to set up integration with the Steer Server.
+By default, the admin panel is available on all IP addresses on port 85, like [http://127.0.0.1:85](http://127.0.0.1:85/). You can change this in the **.env** settings. To enter the admin panel, use login `apiadmin` and password `password`. These credentials should be used **only for tests**, and in production you need to set up integration with the Steer Server.
 
 ### Integration with Steer Server
 
@@ -67,3 +67,5 @@ The Steer Server allows you to flexibly manage permissions to certain sections o
 5. Remove or comment the line like this `<Shop url="..." />`.
 6. Open your **.env** and set the `API_PORTAL_SHOP_ENABLE` parameter to `true`.
 7. For Item Claim to work, you also need to set parameter `FCGI_GW_WEBAPI_ENABLE` to `true` and configure parameter `FCGI_GW_WEBAPI_URL`.
+
+Setting up the products of the Shop is carried out through the TERA API Admin Panel. The creation of a Service Item in the Box System occurs automatically when a product is added (using the Platform Hub Gateway). Sending goods to the player is carried out through the FCGI Gateway Web API.
