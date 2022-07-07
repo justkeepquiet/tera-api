@@ -6,7 +6,7 @@ API and In-game Shop implementation for the TERA Online retail server (patch 92/
 
 * [Node.js](https://nodejs.org/en/) v18.1.0
 * [MySQL Server](https://dev.mysql.com/downloads/mysql/5.7.html) v5.7.38
-* TERA Retail Server patch 92.03, 92.04 or 100.02
+* [TERA Retail Server](https://forum.ragezone.com/f797/) patch 92.03, 92.04 or 100.02
 * [Steer Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
 * [Box Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
 * [FCGI GW and FCGI Web API](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
@@ -21,11 +21,11 @@ This API must be binded only on a local IP address and must not be accessed by e
 ### Portal API
 
 This API is a web server intended for the Launcher (portal). This API must be available from the outside (proxied by Nginx or binded on external IP) for use by server users: registration, authorization, login, update routines etc.
-Also, this API allows to process static elements (directory `public`).
+Also, this API allows to process static elements (directory **public**).
 
 ### Admin Panel
 
-By default, the admin panel is available on all IP addresses on port 85. You can change this in the **.env** settings. To enter the admin panel, use login **apiadmin** and password **password**. These credentials should be used **only for tests**, and in production you need to set up integration with the Steer server.
+By default, the admin panel is available on all IP addresses on port 85. You can change this in the **.env** settings. To enter the admin panel, use login **apiadmin** and password **password**. These credentials should be used **only for tests**, and in production you need to set up integration with the Steer Server.
 
 ## Deployment
 
@@ -45,16 +45,16 @@ If you don't plan to use [tera-client-packer](https://github.com/justkeepquiet/t
 
 ### Integration with Steer Server
 
-1. [Install and configure](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) the Steer Server and Box Server.
+1. [Install and configure](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) the Steer Server.
 2. Open Steer Web admin panel.
 3. Go to **Import/export** section and select **Import**.
 4. Select the file [ExportSteerData_steeradmin_API.sef](share/steer) and confirm import.
 5. Go to **Manage user** section and select **Add user**.
 6. Create new user named like **imsadmin**.
-7. Go to **Authority connect** section ans delect **Connexct user - user group**.
+7. Go to **Authority connect** section ans delect **Connect user - user group**.
 8. Select your user on left and click **Add user group connection** on right section.
 9. In new window select group **API_AdminPanel_Admin** and click add.
-10. Open your .env file and set `STEER_ENABLE` parameter to `true`.
+10. Open your **.env** file and set `STEER_ENABLE` parameter to `true`.
 
 The Steer Server allows you to flexibly manage permissions to certain sections of the TERA API Admin Panel. For example, you can create a new user and connect it to user group **API_AdminPanel_Shop**. Users in this group will only have access to Shop management functions. You can also create your own function group.
 
