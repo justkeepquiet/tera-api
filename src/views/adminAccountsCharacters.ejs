@@ -43,7 +43,7 @@ _%>
 				<label for="serverId"><%= __("Server ID") %></label>
 				<select class="form-control boxed" name="serverId">
 				<%_ servers.forEach(s => { _%>
-					<option value="<%= s.get("serverId") %>" <%= s.get("serverId") == serverId ? "selected" : "" %>><%= s.get("serverId") %></option>
+					<option value="<%= s.get("serverId") %>" <%= s.get("serverId") == serverId ? "selected" : "" %>>(<%= s.get("serverId") %>) <%= s.get("nameString") %></option>
 				<%_ }) _%>
 				</select>
 			</div>

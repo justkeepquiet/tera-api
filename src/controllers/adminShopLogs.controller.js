@@ -75,6 +75,7 @@ module.exports.pay = ({ logger, accountModel, shopModel }) => [
 		shopModel.payLogs.findAll({
 			where: {
 				...(accountDBID ? { accountDBID } : {}),
+				...(serverId ? { serverId } : {}),
 				createdAt: {
 					[Op.gt]: from.format("YYYY-MM-DD HH:mm:ss"),
 					[Op.lt]: to.format("YYYY-MM-DD HH:mm:ss")
