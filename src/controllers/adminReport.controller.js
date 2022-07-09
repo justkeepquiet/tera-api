@@ -11,7 +11,7 @@ const Op = require("sequelize").Op;
 
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-const reportHandler = (logger, accountModel, model, view) =>
+const reportHandler = (logger, accountModel, model, view, viewData = {}) =>
 	/**
 	 * @type {RequestHandler}
 	*/
@@ -44,7 +44,8 @@ const reportHandler = (logger, accountModel, model, view) =>
 					from,
 					to,
 					serverId,
-					accountDBID
+					accountDBID,
+					...viewData
 				});
 			})
 		).catch(err => {
@@ -75,10 +76,10 @@ module.exports.characters = ({ logger, accountModel, reportModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.cheats = ({ logger, accountModel, reportModel }) => [
+module.exports.cheats = ({ logger, datasheets, accountModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(logger, accountModel, reportModel.cheats, "adminReportCheats")
+	reportHandler(logger, accountModel, reportModel.cheats, "adminReportCheats", { datasheets })
 ];
 
 /**

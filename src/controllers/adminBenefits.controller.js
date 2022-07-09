@@ -23,7 +23,7 @@ module.exports.index = ({ i18n, logger, accountModel, datasheets }) => [
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;
-		const accountBenefits = datasheets.accountBenefits[i18n.getLocale()] || new Map();
+		const accountBenefits = datasheets.StrSheet_AccountBenefit[i18n.getLocale()] || new Map();
 
 		if (!accountDBID) {
 			return res.render("adminBenefits", {
@@ -68,7 +68,7 @@ module.exports.add = ({ i18n, datasheets }) => [
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;
-		const accountBenefits = datasheets.accountBenefits[i18n.getLocale()] || new Map();
+		const accountBenefits = datasheets.StrSheet_AccountBenefit[i18n.getLocale()] || new Map();
 
 		res.render("adminBenefitsAdd", {
 			layout: "adminLayout",
@@ -112,7 +112,7 @@ module.exports.addAction = ({ i18n, logger, accountModel, datasheets }) => [
 		const { accountDBID, benefitId, availableUntil } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
-		const accountBenefits = datasheets.accountBenefits[i18n.getLocale()] || new Map();
+		const accountBenefits = datasheets.StrSheet_AccountBenefit[i18n.getLocale()] || new Map();
 
 		if (!errors.isEmpty()) {
 			return res.render("adminBenefitsAdd", {
@@ -150,7 +150,7 @@ module.exports.edit = ({ i18n, logger, accountModel, datasheets }) => [
 	 */
 	(req, res) => {
 		const { accountDBID, benefitId } = req.query;
-		const accountBenefits = datasheets.accountBenefits[i18n.getLocale()] || new Map();
+		const accountBenefits = datasheets.StrSheet_AccountBenefit[i18n.getLocale()] || new Map();
 
 		if (!accountDBID || !benefitId) {
 			return res.redirect("/benefits");

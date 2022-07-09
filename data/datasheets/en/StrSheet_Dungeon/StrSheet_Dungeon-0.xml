@@ -1,0 +1,266 @@
+<StrSheet_Dungeon xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://vezel.dev/novadrop/dc/StrSheet_Dungeon StrSheet_Dungeon.xsd" xmlns="https://vezel.dev/novadrop/dc/StrSheet_Dungeon">
+    <String id="9998" string="Test Room" />
+    <String id="9999" string="Blast from the Past" />
+    <String id="8999" string="Velik's Sanctuary" />
+    <String id="9001" string="Samael's Residence" />
+    <String id="9002" string="Fountain of Shara" />
+    <String id="9003" string="Fyrmount Abyss" />
+    <String id="9005" string="Jester's Villa" />
+    <String id="9006" string="Genuine Throne of Nightmares" />
+    <String id="9007" string="Hidden Shrine" />
+    <String id="9008" string="Malachai's Lab" />
+    <String id="9010" string="Kaiator Command Center" />
+    <String id="9011" string="Muhrak's Workshop" />
+    <String id="9012" string="Three Towers Spires" />
+    <String id="9013" string="Cyasma Spire" />
+    <String id="9014" string="Khanovar Gauntlet" />
+    <String id="9016" string="Island of Dawn Clifftops" />
+    <String id="9017" string="Lighthouse of the Sun" />
+    <String id="9018" string="Argon Catacombs" />
+    <String id="9019" string="Sanctum Mysterium Forecourt" />
+    <String id="9020" string="Cultist's Armory" />
+    <String id="9021" string="Hidden Tunnel" />
+    <String id="9022" string="Vault of Glory" />
+    <String id="9023" string="Kutmaschuk's Hideout" />
+    <String id="9024" string="Fane of Kaprima" />
+    <String id="9025" string="Balder's Temple" />
+    <String id="9028" string="Malachai's Lab" />
+    <String id="9031" string="Akasha's Trial" />
+    <String id="9032" string="Baracos' Trial" />
+    <String id="9033" string="Krakatox's Trial" />
+    <String id="9036" string="Karascha's Lair" />
+    <String id="9037" string="Tainted Gorge Bridge" />
+    <String id="9038" string="Mysterious Jungle" />
+    <String id="9039" string="Caravan Ambush Site" />
+    <String id="9040" string="Velika Plaza" />
+    <String id="9041" string="Velika Eastern Gate" />
+    <String id="9042" string="Velika Headquarters" />
+    <String id="9046" string="Accursed Oasis" />
+    <String id="9050" string="Rift's Edge (Hard)" />
+    <String id="9750" string="Rift's Edge" />
+    <String id="9061" string="Ruin of the Giants" />
+    <String id="9062" string="Jester's Villa" />
+    <String id="9063" string="Raven Altar" />
+    <String id="9064" string="Molten Chamber" />
+    <String id="9065" string="Twilight Valley " />
+    <String id="9071" string="Necromancer Tomb" />
+    <String id="9072" string="Golden Labyrinth" />
+    <String id="9073" string="Ebon Tower" />
+    <String id="9074" string="Sanctum of Resurrection" />
+    <String id="9075" string="Kelsaik's Nest" />
+    <String id="9076" string="Labyrinth of Terror" />
+    <String id="9077" string="Batu Desert" />
+    <String id="9078" string="Suryati's Peak" />
+    <String id="9079" string="Saravash's Ascent" />
+    <String id="9080" string="Sigil Adstringo" />
+    <String id="9081" string="Training Grounds" />
+    <String id="9082" string="Temple of Temerity" />
+    <String id="9083" string="Breaching Grounds" />
+    <String id="9087" string="Bastion of Lok" />
+    <String id="9088" string="Sinestral Manor" />
+    <String id="9089" string="Cultists' Refuge" />
+    <String id="9090" string="Woodland Path" />
+    <String id="9091" string="Altar of Vadoma" />
+    <String id="9092" string="Dagon's Chantry" />
+    <String id="9093" string="Akasha's Hideout" />
+    <String id="9094" string="Saleron's Sky Garden" />
+    <String id="9096" string="Sirjuka Gallery" />
+    <String id="9724" string="Fane of Kaprima (Hard)" />
+    <String id="9725" string="Balder's Temple (Hard)" />
+    <String id="9793" string="Akasha's Hideout (Hard)" />
+    <String id="9773" string="Ebon Tower (Hard)" />
+    <String id="9775" string="Kelsaik's Nest (Hard)" />
+    <String id="9776" string="Labyrinth of Terror (Hard)" />
+    <String id="9801" string="Nexus Traverse" />
+    <String id="9802" string="Nexus Traverse" />
+    <String id="9803" string="Nexus Traverse" />
+    <String id="9026" string="Argon Corpus" />
+    <String id="9726" string="Argon Corpus (Hard)" />
+    <String id="9027" string="Manaya's Core (Hard)" />
+    <String id="9727" string="Manaya's Core" />
+    <String id="9095" string="Crucible of Flame" />
+    <String id="9795" string="Crucible of Fame" />
+    <String id="9045" string="Bluefirst Mountain" />
+    <String id="9047" string="Harvest Festival Hall" />
+    <String id="9126" string="Pit of Petrax" />
+    <String id="9975" string="Kelsaik's Raid (20-Person)" />
+    <String id="9911" string="Kelsaik's Raid (10-Person)" />
+    <String id="9051" string="Squalid Temple" />
+    <String id="9052" string="Banquet of Blood" />
+    <String id="9711" string="The Abscess (Hard)" />
+    <String id="9611" string="The Abscess (Hard)" />
+    <String id="9777" string="Channelworks (3-Person)" />
+    <String id="9766" string="Shattered Fleet" />
+    <String id="9043" string="Wonderholme (Hard) (10-Person)" />
+    <String id="9643" string="Wonderholme (10-Person)" />
+    <String id="9743" string="Wonderholme (10-Person)" />
+    <String id="9053" string="Kezzel's Gorge (5-Person)" />
+    <String id="9511" string="The Abscess" />
+    <String id="9811" string="The Abscess (5-Person)" />
+    <String id="9810" string="Lakan's Prison" />
+    <String id="9813" string="Ghillieglade (Solo)" />
+    <String id="9821" string="Dakuryon's Sanctum" />
+    <String id="9822" string="Archdeva Listening Post" />
+    <String id="9814" string="The Vault of Oriyn" />
+    <String id="9818" string="Energia Celo" />
+    <String id="9827" string="Stepstone Isle" />
+    <String id="9828" string="Shadetree" />
+    <String id="9829" string="Tiaran the Sorrow Tree" />
+    <String id="9833" string="Wyrmgorge" />
+    <String id="9887" string="Bastion of Lok (Solo)" />
+    <String id="9888" string="Sinestral Manor (Solo)" />
+    <String id="9889" string="Cultists' Refuge (Solo)" />
+    <String id="9871" string="Necromancer Tomb (Solo)" />
+    <String id="9872" string="Golden Labyrinth (Solo)" />
+    <String id="9894" string="Saleron's Sky Garden (Solo)" />
+    <String id="9876" string="Labyrinth of Terror (Solo)" />
+    <String id="9873" string="Ebon Tower (Solo)" />
+    <String id="9879" string="Saravash's Ascent (Solo)" />
+    <String id="9820" string="Resistance Secret Camp" />
+    <String id="9880" string="Sigil Adstringo (Solo)" />
+    <String id="9824" string="Fane of Kaprima (Solo)" />
+    <String id="9825" string="Balder's Temple (Solo)" />
+    <String id="9151" string="Noctenium Research Grounds" />
+    <String id="9808" string="Sabex Armory" />
+    <String id="9809" string="Macellarius Catacombs" />
+    <String id="9054" string="Bathysmal Rise (Hard)" />
+    <String id="9754" string="Bathysmal Rise" />
+    <String id="9055" string="Ravenous Gorge (3-Person)" />
+    <String id="9823" string="Sky Cruiser Intrepid" />
+    <String id="9826" string="Vaelsiar Chambers" />
+    <String id="9916" string="Sky Cruiser Endeavor (Hard)" />
+    <String id="9716" string="Sky Cruiser Endeavor" />
+    <String id="9885" string="Dreadspire" />
+    <String id="9886" string="Dreadspire: Upper Levels" />
+    <String id="9713" string="Ghillieglade" />
+    <String id="9714" string="Velik's Sanctuary" />
+    <String id="9804" string="Kelsaik's Nest_For Japan Tournaments" />
+    <String id="9979" string="Saravash's Ascent" />
+    <String id="9057" string="Akeron's Inferno (Hard)" />
+    <String id="9757" string="Akeron's Inferno" />
+    <String id="9029" string="Vault of Kaprima" />
+    <String id="9056" string="Timescape (Hard)" />
+    <String id="9756" string="Timescape" />
+    <String id="9060" string="Kalivan's Dreadnaught (Hard)" />
+    <String id="9760" string="Kalivan's Dreadnaught" />
+    <String id="9860" string="Kalivan's Challenge" />
+    <String id="9059" string="Forsaken Island" />
+    <String id="9759" string="Forsaken Island (Hard)" />
+    <String id="9830" string="Celestial Arena" />
+    <String id="9067" string="Demokron Factory (Hard)" />
+    <String id="9767" string="Demokron Factory" />
+    <String id="3050" string="Lost Sky Garden" />
+    <String id="9769" string="Lilith's Keep" />
+    <String id="9969" string="Lilith's Keep (Hard)" />
+    <String id="9068" string="Shadow Sanguinary (Hard)" />
+    <String id="9768" string="Shadow Sanguinary" />
+    <String id="9070" string="Manglemire" />
+    <String id="9069" string="Echoes of Aranea" />
+    <String id="9970" string="Ruinous Manor (Hard)" />
+    <String id="9770" string="Ruinous Manor" />
+    <String id="9950" string="Harrowhold" />
+    <String id="9710" string="Broken Prison" />
+    <String id="9780" string="Velik's Hold (5-Person)" />
+    <String id="9980" string="Velik's Hold (Hard)" />
+    <String id="9981" string="Velik's Sanctuary (Hard)" />
+    <String id="9781" string="Velik's Sanctuary" />
+    <String id="9681" string="Velik's Dream" />
+    <String id="9066" string="Demon's Wheel" />
+    <String id="9794" string="Thaumetal Refinery" />
+    <String id="9994" string="Thaumetal Refinery (Hard)" />
+    <String id="9735" string="RK-9 Kennel" />
+    <String id="9935" string="RK-9 Kennel (Hard)" />
+    <String id="9505" string="Ruined Velika Banquet" />
+    <String id="9506" string="Velika Banquet" />
+    <String id="9507" string="Dragon's Landing" />
+    <String id="9508" string="Soulscape" />
+    <String id="9509" string="Velika Banquet Redux" />
+    <String id="9739" string="Red Refuge" />
+    <String id="9939" string="Red Refuge (Hard)" />
+    <String id="9920" string="Antaroth's Abyss (Hard)" />
+    <String id="9720" string="Antaroth's Abyss" />
+    <String id="9034" string="Dreadspire" />
+    <String id="9783" string="Dark Reach Citadel" />
+    <String id="9983" string="Dark Reach Citadel (Hard)" />
+    <String id="9782" string="Grotto of Lost Souls" />
+    <String id="9982" string="Grotto of Lost Souls (Hard)" />
+    <String id="9044" string="Bahaar's Sanctum" />
+    <String id="3012" string="Training Ground" />
+    <String id="3016" string="Lilith's Trial" />
+    <String id="3018" string="Dark Reach Citadel (7-person)" />
+    <String id="3019" string="Grotto of Lost Souls (7-person)" />
+    <String id="3017" string="Antaroth's Abyss (7-person)" />
+    <String id="3001" string="Bastion of Lok (Solo)" />
+    <String id="3002" string="Sinestral Manor (Solo)" />
+    <String id="3003" string="Cultists' Refuge (Solo)" />
+    <String id="3004" string="Necromancer Tomb (Solo)" />
+    <String id="3005" string="Golden Labyrinth (Solo)" />
+    <String id="3006" string="Akasha's Hideout (Solo)" />
+    <String id="3007" string="Saleron's Sky Garden (Solo)" />
+    <String id="3008" string="Labyrinth of Terror (Solo)" />
+    <String id="3009" string="Ebon Tower (Solo)" />
+    <String id="3010" string="Kelsaik's Nest (Solo)" />
+    <String id="3011" string="Manaya's Core (Solo)" />
+    <String id="9503" string="Federation Commander Residence" />
+    <String id="3101" string="Gossamer Vault" />
+    <String id="3201" string="Gossamer Vault (Hard)" />
+    <String id="3020" string="Sea of Honor" />
+    <String id="3024" string="Azart Hatchery" />
+    <String id="3025" string="Azart Hatchery (Hard)" />
+    <String id="3023" string="Akalath Quarantine" />
+    <String id="3026" string="Corrupted Skynest" />
+    <String id="2000" string="Exodor Archipelago" />
+    <String id="2100" string="Akalath Quarantine" />
+    <String id="2101" string="Larvae Hatchery" />
+    <String id="2102" string="Cliffside Prison" />
+    <String id="2103" string="Black Core Engine Room" />
+    <String id="3126" string="Corrupted Skynest (Hard) Entrance" />
+    <String id="3027" string="Forbidden Arena [Hagufna]" />
+    <String id="2105" string="Kalligar's Arena (Solo)" />
+    <String id="3102" string="Draakon Arena" />
+    <String id="3103" string="Forbidden Arena [Undying Warlord]" />
+    <String id="3202" string="Draakon Arena (Hard)" />
+    <String id="3203" string="Forbidden Arena [Nightmare Undying Warlord]" />
+    <String id="3104" string="Catalepticon" />
+    <String id="3204" string="Catalepticon (Hard)" />
+    <String id="3105" string="Fusion Laboratory" />
+    <String id="3205" string="Cursed Fusion Laboratory" />
+    <String id="3028" string="Grotto of Lost Souls (Hard) (Guide)" />
+    <String id="3030" string="Commander’s Residence" />
+    <String id="3029" string="Antaroth's Abyss (Hard) (Guide)" />
+    <String id="3031" string="Outer Core District" />
+    <String id="3034" string="Rampaging RK-9 Kennel" />
+    <String id="3032" string="Akalath Quarantine (Guide)" />
+    <String id="3033" string="Gossamer Vault (Hard) (Guide)" />
+    <String id="3035" string="Velik’s Sanctum" />
+    <String id="3036" string="Sky Cruiser (Hard)" />
+    <String id="3037" string="Bahaar's Sanctum (Guide)" />
+    <String id="2501" string="Campaign Stage 1" />
+    <String id="2502" string="Campaign Stage 2" />
+    <String id="2503" string="Campaign Stage 3 - Nightmare of Trellum Consurgo" />
+    <String id="2504" string="Campaign Stage 4 - Black Core Engine Room" />
+    <String id="2530" string="Hero Training Ground" />
+    <String id="3039" string="Hub" />
+    <String id="2106" string="Catalepticon (Solo)" />
+    <String id="3040" string="Lumikan's Trial" />
+    <String id="3106" string="Killing Grounds" />
+    <String id="3107" string="Desolarus Testing Grounds" />
+    <String id="3206" string="Crimson Killing Grounds" />
+    <String id="3041" string="Damned Citadel" />
+    <String id="3042" string="Gardan's Trial" />
+    <String id="3043" string="Harnovog's Trial" />
+    <String id="3044" string="Stormed Citadel" />
+    <String id="3046" string="Rogash's Trial" />
+    <String id="3045" string="Dakuryon Depot" />
+    <String id="3047" string="Hall of the Argon Queen (Hard)" />
+    <String id="3048" string="Secret Training Camp" />
+    <String id="3055" string="Hall of the Argon Queen (Hard, Solo)" />
+    <String id="3108" string="Cursed Antaroth's Abyss" />
+    <String id="3049" string="Velik's Sanctuary (Shandra's New Story Dungeon)" />
+    <String id="3052" string="Dakuryon Depot (Shandra's New Story Dungeon)" />
+    <String id="3209" string="Chaos Ice Throne" />
+    <String id="3109" string="Ice Throne" />
+    <String id="3056" string="Ice Throne (Solo)" />
+    <String id="3053" string="Velik's Sanctuary (Class Change)" />
+    <String id="3054" string="Velik's Dream (Class Change)" />
+</StrSheet_Dungeon>

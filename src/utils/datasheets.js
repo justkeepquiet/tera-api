@@ -2,35 +2,60 @@
 
 /**
  * @typedef {object} datasheets
- * @property {new () => Map<any, any>} accountBenefits
+ * @property {Map<any, any>[]} StrSheet_AccountBenefit
+ * @property {Map<any, any>[]} StrSheet_Dungeon
+ * @property {[][]} StrSheet_Creature
  */
 
-const fs = require("fs");
-const path = require("path");
-const datasheetHelper = require("./datasheetHelper");
+const DatasheetLoader = require("./datasheetLoader");
 
-const locales = fs.readdirSync(path.join(__dirname, "..", "..", "data", "datasheets"));
+module.exports = ({ logger }) => {
+	const loader = new DatasheetLoader(logger);
 
-module.exports = ({ logger }) => new Promise(resolve => {
-	const accountBenefits = {};
-	const promises = [];
+	// StrSheet_AccountBenefit
+	loader.add("StrSheet_AccountBenefit", data => {
+		const result = new Map();
 
-	logger.info("Loading datasheets...");
+		data.forEach(element => {
+			if (element.attributes.id < 1999) {
+				result.set(Number(element.attributes.id), element.attributes.string);
+			}
+		});
 
-	locales.forEach(locale => {
-		accountBenefits[locale] = new Map();
-
-		promises.push(datasheetHelper.loadXml("StrSheet_AccountBenefit", locale).then(data => {
-			data.forEach(entry => {
-				if (entry.id < 1999) {
-					accountBenefits[locale].set(Number(entry.id), entry.string);
-				}
-			});
-
-			logger.info(`Loaded: ${locale}:StrSheet_AccountBenefit, elements count: ${data.length}`);
-		}));
+		return { result, length: data.length };
 	});
 
-	return Promise.all(promises)
-		.then(() => resolve({ accountBenefits }));
-});
+	// StrSheet_Dungeon
+	loader.add("StrSheet_Dungeon", data => {
+		const result = new Map();
+
+		data.forEach(element =>
+			result.set(Number(element.attributes.id), element.attributes.string)
+		);
+
+		return { result, length: data.length };
+	});
+
+	// StrSheet_Creature
+	loader.add("StrSheet_Creature", data => {
+		let length = 0;
+		const result = [];
+
+		data.forEach(huntingZone => {
+			if (!huntingZone.elements) return;
+
+			length += huntingZone.elements.length;
+			huntingZone.elements.forEach(string => {
+				if (!huntingZone.attributes) return;
+
+				result.push({
+					huntingZoneId: huntingZone.attributes.id, ...string.attributes
+				});
+			});
+		});
+
+		return { result, length };
+	});
+
+	return loader.final();
+};

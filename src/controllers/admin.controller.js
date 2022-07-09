@@ -16,7 +16,7 @@ const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 /**
  * @param {modules} modules
  */
-module.exports.home = ({ logger, accountModel, reportModel, shopModel }) => [
+module.exports.home = ({ logger, datasheets, accountModel, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -59,6 +59,7 @@ module.exports.home = ({ logger, accountModel, reportModel, shopModel }) => [
 				layout: "adminLayout",
 				moment,
 				servers,
+				datasheets,
 				activityReport,
 				cheatsReport,
 				payLogs

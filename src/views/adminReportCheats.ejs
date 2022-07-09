@@ -14,19 +14,33 @@
 								<thead>
 									<tr>
 										<th><%= __("Report time") %></th>
-										<th><%= __("Client IP") %></th>
-										<th><%= __("Cheat info") %></th>
 										<th><%= __("Account ID") %></th>
+										<th><%= __("Name") %></th>
+										<th><%= __("Skill") %></th>
+										<th><%= __("Location") %></th>
+										<th><%= __("Client IP") %></th>
 										<th><%= __("Server ID") %></th>
 									</tr>
 								</thead>
 								<tbody>
-									<%_ reports.forEach(report => { _%>
+									<%_ reports.forEach(report => {
+										const [account, name, a, b, skill, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
+
+										const dungeon = datasheets.StrSheet_Dungeon[locale].get(Number(huntingZoneId));
+										const creature = datasheets.StrSheet_Creature[locale].find(
+											c => c.huntingZoneId == huntingZoneId && c.templateId == templateId
+										);
+									_%>
 									<tr>
-										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm:ss") %></td>
-										<td><%= report.get("ip") %></td>
-										<td><%= report.get("cheatInfo") %></td>
+										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm") %></td>
 										<td><%= report.get("accountDBID") %></td>
+										<td><%= name %></td>
+										<td><%= skill %> <%= a %>/<%= b %></td>
+										<td>(<%= huntingZoneId %>) <%= dungeon || huntingZoneId %><br>
+											(<%= templateId %>) <%= creature.name || templateId %><br>
+											<%= x %>, <%= y %>, <%= z %>
+										</td>
+										<td><%= report.get("ip") %></td>
 										<td><%= report.get("serverId") %></td>
 									</tr>
 									<%_ }) _%>
