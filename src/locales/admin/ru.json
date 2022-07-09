@@ -288,7 +288,8 @@
 	"Skill": "Скилл",
 	"Location": "Локация",
 	"Chronoscrolls Report": "Отчет о VIP-предметах",
-	"Chrono ID": "ID апредмета",
+	"Chrono ID": "ID предмета",
+	"Info": "Информация",
 	"Shop Accounts": "Аккаунты магазина",
 	"Accounts are created automatically when funds are deposited to the user's Shop balance.": "Аккаунты создаются автоматически при зачислении средств на баланс магазина пользователя.",
 	"If additional information is not set, the information for the product will be taken from the first item added.": "Если дополнительная информация не задана, информация о товаре будет взята из первого добавленного товара.",
@@ -364,5 +365,7 @@
 	"Registred Users": "Зарегистрировано",
 	"Online Users": "Он-лайн",
 	"completed": "завершено",
-	"deposit": "начато"
+	"deposit": "начато",
+	"PromoCode": "Промокод",
+	"ChronoScroll": "VIP-предмет"
 }

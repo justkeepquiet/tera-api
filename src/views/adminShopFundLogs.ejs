@@ -32,16 +32,22 @@
 										<th><%= __("Log time") %></th>
 										<th><%= __("Account ID") %></th>
 										<th><%= __("Amount") %></th>
-										<th><%= __("Operation description") %></th>
+										<th><%= __("Type") %></th>
+										<th><%= __("Value") %></th>
+										<th><%= __("Info") %></th>
 									</tr>
 								</thead>
 								<tbody>
-									<%_ logs.forEach(log => { _%>
+									<%_ logs.forEach(log => {
+										const [type, value, info] = log.get("description").split(",");
+									_%>
 									<tr>
 										<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= log.get("accountDBID") %></td>
 										<td><%= log.get("amount") %></td>
-										<td><%= log.get("description") %></td>
+										<td><%= __(type) || "-" %></td>
+										<td><%= value || "-" %></td>
+										<td><%= info || "-" %></td>
 									</tr>
 									<%_ }) _%>
 								</tbody>

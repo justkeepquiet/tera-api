@@ -13,9 +13,9 @@ Built-in admin panel for full control of all functionality and viewing logs. The
 * [Node.js](https://nodejs.org/en/) v18.1.0
 * [MySQL Server](https://dev.mysql.com/downloads/mysql/5.7.html) v5.7.38
 * [TERA Retail Server](https://forum.ragezone.com/f797/) patch 92.03, 92.04 or 100.02
-* [Steer Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
-* [Box Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
-* [FCGI GW and FCGI Web API](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
+* [Steer Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) (for admin extended auth)
+* [Box Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) (for Item Claim)
+* [FCGI GW and FCGI Web API](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) (for TERA Shop)
 
 ## Deployment
 
@@ -56,7 +56,7 @@ The Steer Server allows you to flexibly manage permissions to certain sections o
 
 1. [Install and configure](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) the Steer Server, Box Server, FCGI GW and FCGI Web API.
 2. Go to your TERA Server **arb_gw** directory and open config **config_arb_gw.txt**.
-3. Modify the patamerer `web_shop_url` value as `http://YOUR_API_URL/tera/ShopAuth?authKey=%s`, where `YOUR_API_URL` specify your TERA API endpoint URL address.
+3. Modify the patamerer `web_shop_url` value as `http://YOUR_API_HOST/tera/ShopAuth?authKey=%s`, where `YOUR_API_HOST` specify your TERA API host.
 4. Go to your TERA Server **Bin** directory and open **DeploymentConfig.xml**.
 5. Remove or comment the line like this `<Shop url="..." />`.
 6. Open your **.env** and set the `API_PORTAL_SHOP_ENABLE` parameter to `true`.

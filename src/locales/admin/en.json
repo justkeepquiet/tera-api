@@ -289,6 +289,7 @@
 	"Location": "Location",
 	"Chronoscrolls Report": "Chronoscrolls Report",
 	"Chrono ID": "Chrono ID",
+	"Info": "Info",
 	"Shop Accounts": "Shop Accounts",
 	"Accounts are created automatically when funds are deposited to the user's Shop balance.": "Accounts are created automatically when funds are deposited to the user's Shop balance.",
 	"If additional information is not set, the information for the product will be taken from the first item added.": "If additional information is not set, the information for the product will be taken from the first item added.",
@@ -364,5 +365,7 @@
 	"Registred Users": "Registred Users",
 	"Online Users": "Online Users",
 	"completed": "completed",
-	"deposit": "deposit"
+	"deposit": "deposit",
+	"PromoCode": "Promocode",
+	"ChronoScroll": "Chronoscroll"
 }
