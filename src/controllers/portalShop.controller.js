@@ -9,6 +9,7 @@ const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 const jwt = require("jsonwebtoken");
 const { query, body } = require("express-validator");
+const helpers = require("../utils/helpers");
 const fcgiHttpHelper = require("../utils/fcgiHttpHelper");
 const boxHelper = require("../utils/boxHelper");
 const PromoCodeActions = require("../actions/promoCode.actions");
@@ -161,6 +162,15 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, accountModel, shopModel }) 
 			}],
 			attributes: {
 				include: [
+					[
+						shopModel.sequelize.literal(`(
+							SELECT COUNT(*)
+							FROM shop_product_items AS shop_product_item
+							WHERE
+								shop_product_item.productId = shop_products.id
+						)`),
+						"itemsCount"
+					],
 					[shopModel.productStrings.sequelize.col("title"), "title"],
 					[shopModel.productStrings.sequelize.col("description"), "description"]
 				]
@@ -186,6 +196,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, accountModel, shopModel }) 
 					description: product.get("description"),
 					icon: product.get("icon"),
 					rareGrade: product.get("rareGrade"),
+					itemsCount: product.get("itemsCount"),
 					itemCount: null
 				});
 
@@ -254,7 +265,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, accountModel, shopModel }) 
 					}
 				}
 
-				res.render("partials/shopCatalog", { products: productsMap, search: search || "" });
+				res.render("partials/shopCatalog", { helpers, products: productsMap, search: search || "" });
 			});
 		}).catch(err => {
 			logger.error(err);
@@ -278,7 +289,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, accountModel, shopModel }) 
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		const { id, search } = req.body;
+		const { id, search, scroll } = req.body;
 
 		shopModel.products.belongsTo(shopModel.productStrings, { foreignKey: "id" });
 		shopModel.products.hasOne(shopModel.productStrings, { foreignKey: "productId" });
@@ -413,7 +424,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, accountModel, shopModel }) 
 				productObj.tradable = firstItem.get("tradable");
 				productObj.warehouseStorable = firstItem.get("warehouseStorable");
 
-				res.render("partials/shopProduct", { product: productObj, items, conversions, search });
+				res.render("partials/shopProduct", { helpers, product: productObj, items, conversions, search, scroll });
 			});
 		}).catch(err => {
 			logger.error(err);

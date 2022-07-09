@@ -7,7 +7,7 @@
 			</div>
 			<div class="text-block text-light" style="width: 520px;">
 				<h5 class="item_grade_<%= product.rareGrade %>"><%- product.title %></h5>
-				<small><%- product.description %></small>
+				<small><%- helpers.formatStrsheet(product.description) %></small>
 			</div>
 			<div class="text-right text-light">
 				<a href="#" class="btn btn2" id="back"><i class="fal fa-angle-double-left"></i> <%= __("Back") %>&nbsp;</a>
@@ -100,11 +100,11 @@
 </div>
 <%_ if (search) { _%>
 <script type="text/javascript">
-	var backParams = { search: "<%= search %>" };
+	var backParams = { search: "<%= search %>", scroll: "<%= scrollTop %>" };
 </script>
 <%_ } else { _%>
 <script type="text/javascript">
-	var backParams = { category: "<%= product.categoryId %>" };
+	var backParams = { category: "<%= product.categoryId %>", scrollTop: "<%= scroll %>" };
 </script>
 <%_ } _%>
 <script type="text/javascript">

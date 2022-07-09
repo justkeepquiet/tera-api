@@ -72,3 +72,11 @@ module.exports.validationResultLog = (request, customLogger) => {
 
 	return result;
 };
+
+module.exports.formatStrsheet = string =>
+	string.replace(/\$BR/g, "<br>")
+		.replace(/\$H_W_GOOD/g, "<span style=\"color: #00ff00\">")
+		.replace(/\$H_W_BAD/g, "<span style=\"color: #ff0000\">")
+		.replace(/\$COLOR_END/g, "</span>")
+		.replace(/\$value(\d{0,})/g, "X")
+;

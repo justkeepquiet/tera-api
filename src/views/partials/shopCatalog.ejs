@@ -16,9 +16,9 @@
 		<div class="text-block text-light">
 			<h5>
 				<a class="item_grade_<%= product.rareGrade %> buy" href="#" data-id="<%= id %>" title=""><%- product.title %></a>
-				<%= product.itemCount > 1 ? product.itemCount + " " + __("pc.") : "" %>
+				<%= product.itemCount > 1 && product.itemsCount === 1 ? product.itemCount + " " + __("pc.") : "" %>
 			</h5>
-			<small><%- product.description %></small>
+			<small><%- helpers.formatStrsheet(product.description) %></small>
 		</div>
 		<div class="buy-block text-center">
 			<a class="btn btn-large btn-info buy" href="#" data-id="<%= id %>"><%= __("Buy") %></a>
@@ -30,7 +30,11 @@
 <script type="text/javascript">
 	$(function() {
 		$('.buy').click(function() {
-			loadContent("Product", { id: $(this).data("id"), search: "<%= search %>" });
+			loadContent("Product", {
+				id: $(this).data("id"),
+				search: "<%= search %>",
+				scroll: $("#content").scrollTop()
+			});
 		});
 	});
 </script>
