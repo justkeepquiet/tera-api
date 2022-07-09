@@ -27,7 +27,22 @@ module.exports.index = ({ logger, accountModel }) => [
 	(req, res) => {
 		const { serverId } = req.query;
 
-		accountModel.info.findAll().then(accounts => {
+		accountModel.info.belongsTo(accountModel.bans, { foreignKey: "accountDBID" });
+		accountModel.info.hasOne(accountModel.bans, { foreignKey: "accountDBID" });
+
+		accountModel.info.findAll({
+			include: [{
+				model: accountModel.bans,
+				required: false,
+				attributes: []
+			}],
+			attributes: {
+				include: [
+					[accountModel.info.sequelize.col("startTime"), "bannedStartTime"],
+					[accountModel.info.sequelize.col("endTime"), "bannedEndTime"]
+				]
+			}
+		}).then(accounts => {
 			res.render("adminAccounts", {
 				layout: "adminLayout",
 				accounts,

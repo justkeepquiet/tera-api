@@ -4,6 +4,7 @@
  * @typedef {object} accountModel
  * @property {import("sequelize").Sequelize} sequelize
  * @property {import("sequelize").ModelCtor<Model<any, any>>} info
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} bans
  * @property {import("sequelize").ModelCtor<Model<any, any>>} characters
  * @property {import("sequelize").ModelCtor<Model<any, any>>} benefits
  * @property {import("sequelize").ModelCtor<Model<any, any>>} maintenance
@@ -51,6 +52,7 @@ module.exports = ({ logger }) => new Promise((resolve, reject) => {
 		const models = {
 			// Account
 			info: require("./account/accountInfo.model")(sequelize, DataTypes),
+			bans: require("./account/accountBans.model")(sequelize, DataTypes),
 			characters: require("./account/accountCharacters.model")(sequelize, DataTypes),
 			benefits: require("./account/accountBenefits.model")(sequelize, DataTypes),
 			maintenance: require("./account/serverMaintenance.model")(sequelize, DataTypes),

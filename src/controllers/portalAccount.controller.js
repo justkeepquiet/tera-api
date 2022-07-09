@@ -6,6 +6,7 @@
  */
 
 const body = require("express-validator").body;
+const Op = require("sequelize").Op;
 const helpers = require("../utils/helpers");
 
 const { validationHandler, resultJson } = require("../middlewares/portalLauncher.middlewares");
@@ -22,7 +23,26 @@ module.exports.GetAccountInfo = ({ logger, accountModel }) => [
 	(req, res) => {
 		const { id } = req.body;
 
-		accountModel.info.findOne({ where: { accountDBID: id } }).then(async account => {
+		accountModel.info.belongsTo(accountModel.bans, { foreignKey: "accountDBID" });
+		accountModel.info.hasOne(accountModel.bans, { foreignKey: "accountDBID" });
+
+		accountModel.info.findOne({
+			where: { accountDBID: id },
+			include: [{
+				model: accountModel.bans,
+				where: {
+					startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
+					endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+				},
+				required: false,
+				attributes: []
+			}],
+			attributes: {
+				include: [
+					[accountModel.info.sequelize.col("startTime"), "banned"]
+				]
+			}
+		}).then(async account => {
 			if (account === null) {
 				return resultJson(res, 50000, "account not exist");
 			}
@@ -48,7 +68,8 @@ module.exports.GetAccountInfo = ({ logger, accountModel }) => [
 				Permission: account.get("permission"),
 				Privilege: account.get("privilege"),
 				UserNo: account.get("accountDBID"),
-				UserName: account.get("userName")
+				UserName: account.get("userName"),
+				Banned: !!account.get("banned")
 			});
 		}).catch(err => {
 			logger.error(err);

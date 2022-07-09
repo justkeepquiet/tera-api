@@ -94,6 +94,7 @@
 	"No items have been added to the product.": "No items have been added to the product.",
 	"A non-existent item has been added": "A non-existent item has been added",
 	"Added item already exists.": "Added item already exists.",
+	"Account ID field contains already banned account ID.": "Account ID field contains already banned account ID.",
 	"Profile": "Profile",
 	"Logout": "Logout",
 	"Dashboard": "Dashboard",
@@ -367,5 +368,9 @@
 	"completed": "completed",
 	"deposit": "deposit",
 	"PromoCode": "Promocode",
-	"ChronoScroll": "Chronoscroll"
+	"ChronoScroll": "Chronoscroll",
+	"Bans": "Bans",
+	"Account Bans": "Account Bans",
+	"Edit Ban Account": "Edit Ban Account",
+	"Ban Account": "Ban Account"
 }

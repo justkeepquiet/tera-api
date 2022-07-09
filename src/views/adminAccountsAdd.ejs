@@ -40,9 +40,6 @@
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label>
-									<button type="button" class="btn btn-secondary" id="permission-ban"><i class="fa fa-ban"></i> <%= __("Ban account") %></button>
-								</label>
-								<label>
 									<button type="button" class="btn btn-secondary" id="permission-reset"><i class="fa fa-refresh"></i> <%= __("Reset") %></button>
 								</label>
 							</div>
@@ -99,9 +96,6 @@
 <%- contentFor("scripts") %>
 <script>
 	$(function() {
-		$("#permission-ban").click(function() {
-			$("input[name='permission']").val("1");
-		});
 		$("#permission-reset").click(function() {
 			$("input[name='permission']").val("0");
 		});

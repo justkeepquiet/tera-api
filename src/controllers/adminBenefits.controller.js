@@ -56,12 +56,21 @@ module.exports.index = ({ i18n, logger, accountModel, datasheets }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ i18n, datasheets }) => [
+module.exports.add = ({ i18n, accountModel, datasheets }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("accountDBID").trim().optional()
+		body("accountDBID").trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
+			.custom((value, { req }) => accountModel.info.findOne({
+				where: {
+					accountDBID: req.body.accountDBID
+				}
+			}).then(data => {
+				if (req.body.accountDBID && data === null) {
+					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
+				}
+			}))
 	],
 	/**
 	 * @type {RequestHandler}

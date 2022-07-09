@@ -6,6 +6,7 @@
  */
 
 const body = require("express-validator").body;
+const Op = require("sequelize").Op;
 
 const { validationHandler, resultJson } = require("../middlewares/arbiterAuth.middlewares");
 
@@ -70,12 +71,31 @@ module.exports.GameAuthenticationLogin = ({ logger, accountModel }) => [
 	(req, res) => {
 		const { authKey, clientIP, userNo } = req.body;
 
-		accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
+		accountModel.info.belongsTo(accountModel.bans, { foreignKey: "accountDBID" });
+		accountModel.info.hasOne(accountModel.bans, { foreignKey: "accountDBID" });
+
+		accountModel.info.findOne({
+			where: { accountDBID: userNo },
+			include: [{
+				model: accountModel.bans,
+				where: {
+					startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
+					endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+				},
+				required: false,
+				attributes: []
+			}],
+			attributes: {
+				include: [
+					[accountModel.info.sequelize.col("startTime"), "banned"]
+				]
+			}
+		}).then(account => {
 			if (account === null) {
 				return resultJson(res, 50000, "account not exist");
 			}
 
-			if (account.get("permission") == 1) { // @todo
+			if (account.get("banned")) {
 				return resultJson(res, 50010, "account banned");
 			}
 
@@ -84,6 +104,7 @@ module.exports.GameAuthenticationLogin = ({ logger, accountModel }) => [
 			}
 
 			resultJson(res, 0, "success");
+
 		}).catch(err => {
 			logger.error(err);
 			resultJson(res, 1, "internal error");

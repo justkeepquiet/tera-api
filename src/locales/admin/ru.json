@@ -94,6 +94,7 @@
 	"No items have been added to the product.": "Ни одного предмета не добавлено.",
 	"A non-existent item has been added": "Добавлен несуществующий предмет",
 	"Added item already exists.": "Добавленный предмет уже существует.",
+	"Account ID field contains already banned account ID.": "Поле 'ID аккаунта' содержит ID уже забаненого аккаунта.",
 	"Profile": "Профиль",
 	"Logout": "Выйти",
 	"Dashboard": "Информация",
@@ -226,7 +227,7 @@
 	"Available until": "Доступно до",
 	"Add benefit": "Добавить преимущество",
 	"Edit Account": "Редактирование аккаунта",
-	"Ban account": "Забанить",
+	"Ban account": "Забанить аккаунт",
 	"Reset": "Сбросить",
 	"Set GM": "Дать GM",
 	"Set QA": "Дать QA",
@@ -367,5 +368,9 @@
 	"completed": "завершено",
 	"deposit": "начато",
 	"PromoCode": "Промокод",
-	"ChronoScroll": "VIP-предмет"
+	"ChronoScroll": "VIP-предмет",
+	"Bans": "Баны",
+	"Account Bans": "Баны аккаунтов",
+	"Edit Ban Account": "Редактировать бан аккаунта",
+	"Ban Account": "Забанить аккаунт"
 }

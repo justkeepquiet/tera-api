@@ -1,10 +1,10 @@
 <%- contentFor("content") %>
 <article class="content">
 	<div class="title-block">
-		<h1 class="title"><%= __("Server Maintenance") %></h1>
+		<h1 class="title"><%= __("Account Bans") %></h1>
 	</div>
 	<section class="section">
-		<a class="btn btn-success" title="" href="/maintenance/add"><%= __("Add new maintenance plan") %></a>
+		<a class="btn btn-success" title="" href="/bans/add"><%= __("Ban account") %></a>
 	</section>
 	<section class="section">
 		<div class="row">
@@ -16,7 +16,7 @@
 								<table class="table table-hover data-table-nosort mt-5">
 									<thead>
 										<tr>
-											<th><%= __("ID") %></th>
+											<th><%= __("Account ID") %></th>
 											<th><%= __("Start time") %></th>
 											<th><%= __("End time") %></th>
 											<th><%= __("Active") %></th>
@@ -25,18 +25,18 @@
 										</tr>
 									</thead>
 									<tbody>
-										<%_ maintenances.forEach(maintenance => {
-											const active = moment(maintenance.get("startTime")) < moment() && moment(maintenance.get("endTime")) > moment();
+										<%_ bans.forEach(ban => { 
+											const active = moment(ban.get("startTime")) < moment() && moment(ban.get("endTime")) > moment();
 										_%>
 										<tr>
-											<td><%= maintenance.get("id") %></td>
-											<td><%= moment(maintenance.get("startTime")).format("YYYY-MM-DD HH:mm") %></td>
-											<td><%= moment(maintenance.get("endTime")).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= ban.get("accountDBID") %></td>
+											<td><%= moment(ban.get("startTime")).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= moment(ban.get("endTime")).format("YYYY-MM-DD HH:mm") %></td>
 											<td class="text-<%= active ? "success" : "danger" %>"><%= active ? __("Yes") : __("No") %></td>
-											<td><%= maintenance.get("description") %></td>
+											<td><%= ban.get("description") %></td>
 											<td class="text-right">
-												<a class="btn btn-secondary btn-sm" href="/maintenance/edit?id=<%= maintenance.get("id") %>"><i class="fa fa-pencil"></i></a>
-												<a class="btn btn-secondary btn-sm" href="/maintenance/delete?id=<%= maintenance.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
+												<a class="btn btn-secondary btn-sm" href="/bans/edit?accountDBID=<%= ban.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
+												<a class="btn btn-secondary btn-sm" href="/bans/delete?accountDBID=<%= ban.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 											</td>
 										</tr>
 										<%_ }) _%>

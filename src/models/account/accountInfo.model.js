@@ -31,7 +31,7 @@ module.exports = (sequelize, DataTypes) =>
 			primaryKey: true
 		},
 		registerTime: {
-			type: DataTypes.TIME
+			type: DataTypes.DATE
 		},
 		lastLoginTime: {
 			type: DataTypes.INTEGER

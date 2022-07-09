@@ -8,6 +8,17 @@
 CREATE DATABASE IF NOT EXISTS `accountdb` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `accountdb`;
 
+CREATE TABLE IF NOT EXISTS `account_bans` (
+  `accountDBID` bigint(20) NOT NULL,
+  `startTime` timestamp NULL DEFAULT NULL,
+  `endTime` timestamp NULL DEFAULT NULL,
+  `description` text,
+  PRIMARY KEY (`accountDBID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*!40000 ALTER TABLE `account_bans` DISABLE KEYS */;
+/*!40000 ALTER TABLE `account_bans` ENABLE KEYS */;
+
 CREATE TABLE IF NOT EXISTS `account_benefits` (
   `accountDBID` bigint(20) NOT NULL,
   `benefitId` int(11) NOT NULL,

@@ -13,6 +13,7 @@ const adminServersController = require("../../controllers/adminServers.controlle
 const adminServerStringsController = require("../../controllers/adminServerStrings.controller");
 const adminMaintenanceController = require("../../controllers/adminMaintenance.controller");
 const adminAccountsController = require("../../controllers/adminAccounts.controller");
+const adminBansController = require("../../controllers/adminBans.controller");
 const adminBenefitsController = require("../../controllers/adminBenefits.controller");
 const adminReportController = require("../../controllers/adminReport.controller");
 const adminShopAccountsController = require("../../controllers/adminShopAccounts.controller");
@@ -66,6 +67,13 @@ module.exports = modules => {
 		.get("/benefits/edit", adminBenefitsController.edit(mod))
 		.post("/benefits/edit", adminBenefitsController.editAction(mod))
 		.get("/benefits/delete", adminBenefitsController.deleteAction(mod))
+		// Account Bans
+		.get("/bans", adminBansController.index(mod))
+		.get("/bans/add", adminBansController.add(mod))
+		.post("/bans/add", adminBansController.addAction(mod))
+		.get("/bans/edit", adminBansController.edit(mod))
+		.post("/bans/edit", adminBansController.editAction(mod))
+		.get("/bans/delete", adminBansController.deleteAction(mod))
 		// Servers List (SLS(mod))
 		.get("/servers", adminServersController.index(mod))
 		.get("/servers/add", adminServersController.add(mod))

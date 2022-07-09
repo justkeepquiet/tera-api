@@ -10,11 +10,10 @@
 * @param {DataTypes} DataTypes
 */
 module.exports = (sequelize, DataTypes) =>
-	sequelize.define("server_maintenance", {
-		id: {
-			type: DataTypes.INTEGER(11),
-			primaryKey: true,
-			autoIncrement: true
+	sequelize.define("account_bans", {
+		accountDBID: {
+			type: DataTypes.BIGINT,
+			primaryKey: true
 		},
 		startTime: {
 			type: DataTypes.DATE
