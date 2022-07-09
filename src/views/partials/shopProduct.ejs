@@ -92,7 +92,8 @@
 				</div>
 				<span id="buy_nocoins" style="display: none"><%= __("You don't have enough coins to buy.") %></span>
 				<span id="buy_success" style="display: none"><%= __("You have success purchased an item.") %><br>
-					<br><%= __("Debited") %>: <strong><%= product.price %></strong> <i class="fas fa-coins"></i></span></span>
+					<br><%= __("Debited") %>: <span class="gold"><strong><%= product.price %></strong> <i class="fas fa-coins"></i></span>
+				</span>
 				<span id="buy_error" style="display: none"><%= __("An error occurred while purchasing the product") %>:</span>
 			</div>
 		</div>

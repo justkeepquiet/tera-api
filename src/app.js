@@ -96,8 +96,7 @@ moduleLoader.final().then(modules => {
 		}
 
 		const es = new ExpressServer(modules, {
-			logger: createLogger("Portal API"),
-			disableCache: true
+			logger: createLogger("Portal API")
 		});
 
 		if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
