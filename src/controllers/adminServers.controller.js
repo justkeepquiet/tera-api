@@ -8,26 +8,43 @@
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
 const helpers = require("../utils/helpers");
+const ServerUpActions = require("../actions/serverUp.actions");
 
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, accountModel }) => [
+module.exports.index = modules => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		accountModel.serverInfo.findAll().then(servers => {
-			res.render("adminServers", {
-				layout: "adminLayout",
-				servers
+		const serverUp = new ServerUpActions(modules);
+
+		modules.accountModel.serverInfo.findAll().then(servers => {
+			const promises = [];
+
+			servers.forEach(server => {
+				if (/^true$/i.test(process.env.SLS_AUTO_SET_AVAILABLE) && !server.get("isAvailable")) {
+					promises.push(serverUp.set(
+						server.get("serverId"),
+						server.get("loginIp"),
+						server.get("loginPort")
+					));
+				}
 			});
+
+			Promise.all(promises).then(() =>
+				res.render("adminServers", {
+					layout: "adminLayout",
+					servers
+				})
+			);
 		}).catch(err => {
-			logger.error(err);
+			modules.logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
 	}

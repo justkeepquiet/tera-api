@@ -9,15 +9,21 @@ class FcgiFunctions extends FcgiConnection {
 	}
 
 	stat() {
-		return this.post(["stat.json"]);
+		return this.post(["stat.json"]).then(response =>
+			Promise.resolve(response.body)
+		);
 	}
 
 	ping(serverId) {
-		return this.post(["ping.json", serverId]);
+		return this.post(["ping.json", serverId]).then(response =>
+			Promise.resolve(response.body)
+		);
 	}
 
 	query(userId) {
-		return this.post(["query.json", userId]);
+		return this.post(["query.json", userId]).then(response =>
+			Promise.resolve(response.body)
+		);
 	}
 
 	kick(serverId, userId, kickCode) {
@@ -30,7 +36,12 @@ class FcgiFunctions extends FcgiConnection {
 	}
 
 	msg(serverId, msg, userId = null) {
-		return this.get(["msg", serverId, userId || "all", msg]);
+		return this.get(["msg", serverId, userId || "all", msg]).then(response =>
+			(response.body !== 0 ?
+				Promise.reject(response.body) :
+				Promise.resolve(response.body)
+			)
+		);
 	}
 
 	addBenefit(serverId, userId, benefitId, totalDays) {

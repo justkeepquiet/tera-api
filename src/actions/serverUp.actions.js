@@ -15,19 +15,46 @@ class ServerUpActions {
 	}
 
 	async set(serverId, loginIp, loginPort) {
-		const portStatus = await isPortReachable(loginPort, {
-			host: loginIp,
-			timeout: 5000
-		});
+		this.modules.logger.debug(`ServerUpActions: Running, server ${serverId}`);
 
-		if (portStatus === true) {
-			this.modules.accountModel.serverInfo.update({ isAvailable: 1 }, {
-				where: { serverId }
-			}).then(() =>
-				this.modules.logger.info(`ServerUpActions: Set isAvailable=1 for server ID: ${serverId}`)
-			).catch(err =>
-				this.modules.logger.error(err)
-			);
+		let status = null;
+		let method = null;
+
+		if (/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
+			method = "FCGI.stat";
+
+			try {
+				const stat = await this.modules.fcgi.stat();
+
+				if (stat.servers) {
+					status = stat.servers[serverId] !== undefined;
+				}
+			} catch (err) {
+				this.modules.logger.warn(err);
+			}
+		}
+
+		if (status !== true) {
+			method = "isPortReachable";
+
+			status = await isPortReachable(loginPort, {
+				host: loginIp,
+				timeout: 5000
+			});
+		}
+
+		this.modules.logger.debug(`ServerUpActions: Result, server ${serverId}, method ${method}`);
+
+		if (status === true) {
+			try {
+				await this.modules.accountModel.serverInfo.update({ isAvailable: 1 }, {
+					where: { serverId }
+				});
+
+				this.modules.logger.info(`ServerUpActions: Set available, server ${serverId}, method ${method}`);
+			} catch (err) {
+				this.modules.logger.error(err);
+			}
 		}
 	}
 }
