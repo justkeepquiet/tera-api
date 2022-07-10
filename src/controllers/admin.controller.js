@@ -9,7 +9,6 @@ const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
-const passport = require("passport");
 
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
@@ -23,14 +22,14 @@ module.exports.home = ({ logger, datasheets, accountModel, reportModel, shopMode
 	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
-		const isSteer = req.session.passport.user.type === "steer";
+		const isSteer = req.user.type === "steer";
 
 		try {
 			const servers = await accountModel.serverInfo.findAll({
 				where: { isEnabled: 1 }
 			});
 
-			const activityReport = !isSteer || Object.values(req.session.passport.user.functions).includes("/report_activity") ?
+			const activityReport = !isSteer || Object.values(req.user.functions).includes("/report_activity") ?
 				await reportModel.activity.findAll({
 					offset: 0, limit: 6,
 					order: [
@@ -38,7 +37,7 @@ module.exports.home = ({ logger, datasheets, accountModel, reportModel, shopMode
 					]
 				}) : null;
 
-			const cheatsReport = !isSteer || Object.values(req.session.passport.user.functions).includes("/report_cheats") ?
+			const cheatsReport = !isSteer || Object.values(req.user.functions).includes("/report_cheats") ?
 				await reportModel.cheats.findAll({
 					offset: 0, limit: 6,
 					order: [
@@ -47,7 +46,7 @@ module.exports.home = ({ logger, datasheets, accountModel, reportModel, shopMode
 				}) : null;
 
 			const payLogs = !isSteer ||
-				Object.values(req.session.passport.user.functions).includes("/shop_pay_logs") && /^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE) ?
+				Object.values(req.user.functions).includes("/shop_pay_logs") && /^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE) ?
 				await shopModel.payLogs.findAll({
 					offset: 0, limit: 8,
 					order: [
@@ -136,7 +135,7 @@ module.exports.login = () => [
 /**
  * @param {modules} modules
  */
-module.exports.loginAction = () => [
+module.exports.loginAction = ({ passport }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -154,14 +153,14 @@ module.exports.loginAction = () => [
 			}
 
 			req.login(user, () => {
-				req.session.passport.user.remember = !!req.body.remember;
+				req.user.remember = !!req.body.remember;
 
-				if (req.session.passport.user.remember) {
+				if (req.user.remember) {
 					const maxAge = 86400000 * 7;
 
 					const token = jwt.sign({
-						login: req.session.passport.user.login,
-						password: req.session.passport.user.login
+						login: req.user.login,
+						password: req.user.login
 					}, process.env.ADMIN_PANEL_SECRET, {
 						algorithm: "HS256",
 						expiresIn: maxAge
@@ -186,8 +185,8 @@ module.exports.logoutAction = ({ logger, steer }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		if (steer.isRegistred && req.session.passport?.user.sessionKey) {
-			steer.logoutSessionKey(req.session.passport.user.sessionKey).catch(err =>
+		if (steer.isRegistred && req?.user.sessionKey) {
+			steer.logoutSessionKey(req.user.sessionKey).catch(err =>
 				logger.warn(err)
 			);
 		}

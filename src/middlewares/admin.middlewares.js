@@ -11,8 +11,8 @@ module.exports.accessFunctionHandler = (req, res, next) => {
 	if (req.isAuthenticated()) {
 		res.locals.passport = req.session.passport;
 
-		if (req.session.passport.user.type === "steer" &&
-			!Object.values(req.session.passport.user.functions).includes(req.path)
+		if (req.user.type === "steer" &&
+			!Object.values(req.user.functions).includes(req.path)
 		) {
 			const msg = `${encodeURI(res.locals.__("Function access denied"))}: ${req.path}`;
 			return res.redirect(`/logout?msg=${msg}`);

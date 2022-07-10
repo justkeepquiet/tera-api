@@ -421,7 +421,7 @@ module.exports.addAction = ({ i18n, logger, platform, shopModel }) => [
 					itemTemplateIds.forEach((itemTemplateId, index) => {
 						if (boxItemIds[index] === "" && resolvedItems[itemTemplateId]) {
 							promises.push(platform.createServiceItem(
-								req.session.passport.user.userSn || 0,
+								req.user.userSn || 0,
 								itemTemplateId,
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
@@ -834,7 +834,7 @@ module.exports.editAction = ({ i18n, logger, platform, shopModel }) => [
 					if (itemTemplateIds[index]) {
 						if (boxItemIds[index] != productItem.get("boxItemId")) {
 							promises.push(platform.createServiceItem(
-								req.session.passport.user.userSn || 0,
+								req.user.userSn || 0,
 								itemTemplateId,
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
@@ -883,7 +883,7 @@ module.exports.editAction = ({ i18n, logger, platform, shopModel }) => [
 							if (productItem === null) {
 								if (!boxItemIds[index]) {
 									return platform.createServiceItem(
-										req.session.passport.user.userSn || 0,
+										req.user.userSn || 0,
 										itemTemplateId,
 										1,
 										moment().utc().format("YYYY-MM-DD HH:mm:ss"),

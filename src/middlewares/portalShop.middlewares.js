@@ -28,32 +28,15 @@ module.exports.validationHandler = logger =>
 	}
 ;
 
-module.exports.authSessionHandler = (logger, accountModel) =>
+module.exports.authSessionHandler = () =>
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		try {
-			const payload = jwt.verify(req.cookies.token, process.env.API_PORTAL_SECRET);
-
-			accountModel.info.findOne({
-				where: {
-					accountDBID: payload.userNo
-				}
-			}).then(account => {
-				if (account === null) {
-					return res.send();
-				}
-
-				res.__account = account;
-				next();
-			}).catch(err => {
-				logger.error(err);
-				res.send();
-			});
-		} catch (err) {
-			logger.warn(err.toString());
-			return res.send();
+		if (req.isAuthenticated()) {
+			next();
+		} else {
+			res.send("Access Denied");
 		}
 	}
 ;

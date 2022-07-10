@@ -56,6 +56,9 @@ module.exports = (sequelize, DataTypes) =>
 		},
 		privilege: {
 			type: DataTypes.INTEGER
+		},
+		language: {
+			type: DataTypes.STRING(3)
 		}
 	})
 ;

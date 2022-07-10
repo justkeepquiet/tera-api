@@ -80,3 +80,19 @@ module.exports.formatStrsheet = string =>
 		.replace(/\$COLOR_END/g, "</span>")
 		.replace(/\$value(\d{0,})/g, "X")
 ;
+
+module.exports.regionToLanguage = region =>
+	({
+		CHN: "cn",
+		EUR: "en",
+		FRA: "fr",
+		GER: "de",
+		INT: "en",
+		JPN: "jp",
+		RUS: "ru",
+		SE: "se",
+		THA: "th",
+		TW: "tw",
+		USA: "en"
+	}[region.toUpperCase()] || "en")
+;

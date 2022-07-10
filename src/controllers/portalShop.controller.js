@@ -7,7 +7,6 @@
 
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
-const jwt = require("jsonwebtoken");
 const { query, body } = require("express-validator");
 const helpers = require("../utils/helpers");
 const PromoCodeActions = require("../actions/promoCode.actions");
@@ -17,32 +16,24 @@ const { validationHandler, authSessionHandler, shopStatusHandler, resultJson } =
 /**
  * @param {modules} modules
  */
-module.exports.Auth = ({ logger, accountModel }) => [
+module.exports.Auth = ({ passport }) => [
 	shopStatusHandler,
-	[query("authKey").notEmpty()],
-	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		const { authKey } = req.query;
+	(req, res, next) => {
+		// eslint-disable-next-line no-empty-function
+		// req.logout(() => {});
 
-		accountModel.info.findOne({ where: { authKey } }).then(account => {
-			if (account === null) {
-				return res.send();
+		passport.authenticate("custom", (error, user) => {
+			if (error) {
+				return res.send(error);
 			}
 
-			const token = jwt.sign({ userNo: account.get("accountDBID") }, process.env.API_PORTAL_SECRET, {
-				algorithm: "HS256",
-				expiresIn: 3600
+			req.login(user, () => {
+				res.redirect("ShopMain");
 			});
-
-			res.cookie("token", token, { maxAge: 3600 * 1000 });
-			res.redirect("ShopMain");
-		}).catch(err => {
-			logger.error(err);
-			res.send();
-		});
+		})(req, res, next);
 	}
 ];
 
@@ -67,6 +58,8 @@ module.exports.MainHtml = () => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
+		console.log(req.user);
+
 		res.render("shopMain");
 	}
 ];
@@ -76,7 +69,7 @@ module.exports.MainHtml = () => [
  */
 module.exports.PartialMenuHtml = ({ i18n, logger, accountModel, shopModel }) => [
 	shopStatusHandler,
-	authSessionHandler(logger, accountModel),
+	authSessionHandler(logger),
 	[query("active").isNumeric().optional()],
 	validationHandler(logger),
 	/**
@@ -121,7 +114,7 @@ module.exports.PartialMenuHtml = ({ i18n, logger, accountModel, shopModel }) => 
  */
 module.exports.PartialCatalogHtml = ({ i18n, logger, accountModel, shopModel }) => [
 	shopStatusHandler,
-	authSessionHandler(logger, accountModel),
+	authSessionHandler(logger),
 	[
 		body("category").optional().isNumeric(),
 		body("search").optional().trim().isLength({ max: 128 })
@@ -277,7 +270,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, accountModel, shopModel }) 
  */
 module.exports.PartialProductHtml = ({ i18n, logger, accountModel, shopModel }) => [
 	shopStatusHandler,
-	authSessionHandler(logger, accountModel),
+	authSessionHandler(logger),
 	[
 		body("id").isNumeric(),
 		body("search").optional()
@@ -436,18 +429,18 @@ module.exports.PartialProductHtml = ({ i18n, logger, accountModel, shopModel }) 
  */
 module.exports.PartialWelcomeHtml = ({ logger, accountModel }) => [
 	shopStatusHandler,
-	authSessionHandler(logger, accountModel),
+	authSessionHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		try {
 			const server = await accountModel.serverInfo.findOne({
-				where: { serverId: res.__account.get("lastLoginServer") }
+				where: { serverId: req.user.lastLoginServer }
 			});
 
 			const benefitsData = await accountModel.benefits.findAll({
-				where: { accountDBID: res.__account.get("accountDBID") }
+				where: { accountDBID: req.user.accountDBID }
 			});
 
 			if (server === null || benefitsData === null) {
@@ -473,7 +466,7 @@ module.exports.PartialWelcomeHtml = ({ logger, accountModel }) => [
  */
 module.exports.PartialPromoCodeHtml = ({ i18n, logger, accountModel, shopModel }) => [
 	shopStatusHandler,
-	authSessionHandler(logger, accountModel),
+	authSessionHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -482,7 +475,7 @@ module.exports.PartialPromoCodeHtml = ({ i18n, logger, accountModel, shopModel }
 		shopModel.promoCodes.hasOne(shopModel.promoCodeStrings, { foreignKey: "promoCodeId" });
 
 		return shopModel.promoCodeActivated.findAll({
-			where: { accountDBID: res.__account.get("accountDBID") },
+			where: { accountDBID: req.user.accountDBID },
 			include: [{
 				model: shopModel.promoCodes,
 				include: [{
@@ -528,17 +521,17 @@ module.exports.PartialErrorHtml = () => [
  */
 module.exports.GetAccountInfo = ({ logger, accountModel, shopModel }) => [
 	shopStatusHandler,
-	authSessionHandler(logger, accountModel),
+	authSessionHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		shopModel.accounts.findOne({
-			where: { accountDBID: res.__account.get("accountDBID") }
+			where: { accountDBID: req.user.accountDBID }
 		}).then(shopAccount =>
 			resultJson(res, 0, "success", {
-				userNo: res.__account.get("accountDBID"),
-				userName: res.__account.get("userName"),
+				userNo: req.user.accountDBID,
+				userName: req.user.userName,
 				shopBalance: shopAccount !== null ?
 					shopAccount.get("balance") : 0
 			})
@@ -554,7 +547,7 @@ module.exports.GetAccountInfo = ({ logger, accountModel, shopModel }) => [
  */
 module.exports.PurchaseAction = ({ i18n, logger, fcgi, accountModel, shopModel }) => [
 	shopStatusHandler,
-	authSessionHandler(logger, accountModel),
+	authSessionHandler(logger),
 	[body("productId").notEmpty().isNumeric()],
 	validationHandler(logger),
 	/**
@@ -571,7 +564,7 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, accountModel, shopModel }
 			/*
 			const payLog = await shopModel.payLogs.findOne({ // buying rate limits
 				where: {
-					accountDBID: res.__account.get("accountDBID"),
+					accountDBID: req.user.accountDBID"),
 					status: "completed",
 					updatedAt: { [Op.gt]: shopModel.sequelize.literal("NOW() - INTERVAL 5 second") }
 				}
@@ -616,7 +609,7 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, accountModel, shopModel }
 			}
 
 			const shopAccount = await shopModel.accounts.findOne({
-				where: { accountDBID: res.__account.get("accountDBID"), active: 1 }
+				where: { accountDBID: req.user.accountDBID, active: 1 }
 			});
 
 			if (shopAccount === null || shopAccount.get("balance") < shopProduct.get("price")) {
@@ -624,9 +617,9 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, accountModel, shopModel }
 			}
 
 			const logResult = await shopModel.payLogs.create({
-				accountDBID: res.__account.get("accountDBID"),
-				serverId: res.__account.get("lastLoginServer"),
-				ip: res.__account.get("lastLoginIP"),
+				accountDBID: req.user.accountDBID,
+				serverId: req.user.lastLoginServer,
+				ip: req.user.lastLoginIP,
 				productId: shopProduct.get("id"),
 				price: shopProduct.get("price"),
 				status: "deposit"
@@ -645,8 +638,8 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, accountModel, shopModel }
 				});
 
 				const boxResult = await fcgi.makeBox(
-					res.__account.get("lastLoginServer"),
-					res.__account.get("accountDBID"),
+					req.user.lastLoginServer,
+					req.user.accountDBID,
 					0,
 					logResult.get("id"),
 					{
@@ -702,7 +695,7 @@ module.exports.PromoCodeAction = modules => [
 
 			return modules.shopModel.promoCodeActivated.findOne({
 				where: {
-					accountDBID: res.__account.get("accountDBID"),
+					accountDBID: req.user.accountDBID,
 					promoCodeId: promocode.get("promoCodeId")
 				}
 			}).then(promocodeActivated => {
@@ -712,14 +705,14 @@ module.exports.PromoCodeAction = modules => [
 
 				const actions = new PromoCodeActions(
 					modules,
-					res.__account.get("lastLoginServer"),
-					res.__account.get("accountDBID")
+					req.user.lastLoginServer,
+					req.user.accountDBID
 				);
 
 				return actions.execute(promocode.get("function"), promoCode).then(() =>
 					modules.shopModel.promoCodeActivated.create({
 						promoCodeId: promocode.get("promoCodeId"),
-						accountDBID: res.__account.get("accountDBID")
+						accountDBID: req.user.accountDBID
 					})
 				).then(() =>
 					resultJson(res, 0, "success")

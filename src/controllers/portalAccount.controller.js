@@ -67,6 +67,7 @@ module.exports.GetAccountInfo = ({ logger, accountModel }) => [
 				CharacterCount: characterCount,
 				Permission: account.get("permission"),
 				Privilege: account.get("privilege"),
+				Language: account.get("language"),
 				UserNo: account.get("accountDBID"),
 				UserName: account.get("userName"),
 				Banned: !!account.get("banned")

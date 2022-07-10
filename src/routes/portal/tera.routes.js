@@ -21,14 +21,22 @@ module.exports = modules => {
 		defaultLocale: process.env.API_PORTAL_LOCALE
 	});
 
-	const mod = { ...modules, i18n };
-
 	modules.app.use((req, res, next) => {
+		/*
+		const locale = req?.user?.language || process.env.API_PORTAL_LOCALE;
+
+		if (i18n.getLocales().includes(locale)) {
+			i18n.setLocale(locale);
+		}
+		*/
+
 		res.locals.__ = i18n.__;
 		res.locals.locale = i18n.getLocale();
 
 		return next();
 	});
+
+	const mod = { ...modules, i18n };
 
 	return express.Router()
 		// Interfaces
