@@ -1,0 +1,60 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Online Users") %></h1>
+	</div>
+	<section class="section">
+		<form class="form-inline" action="" method="GET">
+			<div class="form-group">
+				<label for="serverId"><%= __("Server ID") %></label>
+				<select class="form-control boxed" name="serverId">
+					<option value=""><%= __("All") %></option>
+				<%_ servers.forEach(s => { _%>
+					<option value="<%= s.get("serverId") %>" <%= s.get("serverId") == serverId ? "selected" : "" %>>(<%= s.get("serverId") %>) <%= s.get("nameString") %></option>
+				<%_ }) _%>
+				</select>
+			</div>
+			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
+		</form>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-nosort mt-5">
+									<thead>
+										<tr>
+											<th><%= __("Server ID") %></th>
+											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
+											<th><%= __("Enter game") %></th>
+											<th><%= __("Client IP") %></th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<%_ online.forEach(account => { _%>
+										<tr>
+											<td><%= account.get("serverId") || "-" %></td>
+											<td><%= account.get("accountDBID") %></td>
+											<td><%= account.get("userName") %></a></td>
+											<td><%= moment(account.get("lastLoginTime")).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= account.get("lastLoginIP") %></td>
+											<td class="text-right">
+												<a class="btn btn-secondary btn-sm" href="/online/kick?accountDBID=<%= account.get("accountDBID") %>&amp;serverId=<%= account.get("serverId") %>&amp;fromServerId=<%= serverId %>"><i class="fa fa-ban"></i></a>
+											</td>
+										</tr>
+										<%_ }) _%>
+									</tbody>
+								</table>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

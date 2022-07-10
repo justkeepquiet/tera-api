@@ -12,6 +12,7 @@ const adminController = require("../../controllers/admin.controller");
 const adminServersController = require("../../controllers/adminServers.controller");
 const adminServerStringsController = require("../../controllers/adminServerStrings.controller");
 const adminMaintenanceController = require("../../controllers/adminMaintenance.controller");
+const adminOnlineController = require("../../controllers/adminOnline.controller");
 const adminAccountsController = require("../../controllers/adminAccounts.controller");
 const adminBansController = require("../../controllers/adminBans.controller");
 const adminBenefitsController = require("../../controllers/adminBenefits.controller");
@@ -60,6 +61,9 @@ module.exports = modules => {
 		.post("/accounts/edit", adminAccountsController.editAction(mod))
 		.get("/accounts/delete", adminAccountsController.deleteAction(mod))
 		.get("/characters", adminAccountsController.characters(mod))
+		// Online Users
+		.get("/online", adminOnlineController.index(mod))
+		.get("/online/kick", adminOnlineController.kickAction(mod))
 		// Account Benefits
 		.get("/benefits", adminBenefitsController.index(mod))
 		.get("/benefits/add", adminBenefitsController.add(mod))

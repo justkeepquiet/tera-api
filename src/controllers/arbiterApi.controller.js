@@ -85,12 +85,17 @@ module.exports.ServerDown = ({ logger, accountModel }) => [
 	(req, res) => {
 		const { server_id } = req.body;
 
-		accountModel.serverInfo.update({
-			isAvailable: 0,
-			usersOnline: 0
-		}, {
-			where: { serverId: server_id }
-		}).catch(err =>
+		Promise.all([
+			accountModel.serverInfo.update({
+				isAvailable: 0,
+				usersOnline: 0
+			}, {
+				where: { serverId: server_id }
+			}),
+			accountModel.online.destroy({
+				where: { serverId: server_id }
+			})
+		]).catch(err =>
 			logger.error(err)
 		);
 
@@ -190,6 +195,10 @@ module.exports.EnterGame = ({ logger, accountModel, reportModel }) => [
 				accountModel.serverInfo.increment({ usersOnline: 1 }, {
 					where: { serverId: server_id },
 					transaction
+				}),
+				accountModel.online.create({
+					accountDBID: user_srl,
+					serverId: server_id
 				})
 			];
 
@@ -259,6 +268,9 @@ module.exports.LeaveGame = ({ logger, accountModel, reportModel }) => [
 				}, {
 					where: { accountDBID: user_srl },
 					transaction
+				}),
+				accountModel.online.destroy({
+					where: { accountDBID: user_srl }
 				})
 			];
 

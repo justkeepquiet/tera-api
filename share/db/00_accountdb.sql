@@ -65,6 +65,16 @@ CREATE TABLE IF NOT EXISTS `account_info` (
 /*!40000 ALTER TABLE `account_info` DISABLE KEYS */;
 /*!40000 ALTER TABLE `account_info` ENABLE KEYS */;
 
+CREATE TABLE IF NOT EXISTS `account_online` (
+  `accountDBID` bigint(20) NOT NULL,
+  `serverId` int(11) NOT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`accountDBID`,`serverId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*!40000 ALTER TABLE `account_online` DISABLE KEYS */;
+/*!40000 ALTER TABLE `account_online` ENABLE KEYS */;
+
 CREATE TABLE IF NOT EXISTS `report_activity` (
   `accountDBID` bigint(20) DEFAULT NULL,
   `serverId` int(11) DEFAULT NULL,

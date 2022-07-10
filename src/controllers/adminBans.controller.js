@@ -39,7 +39,7 @@ module.exports.index = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ i18n, accountModel, datasheets }) => [
+module.exports.add = ({ i18n, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[

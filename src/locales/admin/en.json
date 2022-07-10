@@ -95,6 +95,7 @@
 	"A non-existent item has been added": "A non-existent item has been added",
 	"Added item already exists.": "Added item already exists.",
 	"Account ID field contains already banned account ID.": "Account ID field contains already banned account ID.",
+	"Server ID field must contain a valid number.": "Server ID field must contain a valid number.",
 	"Profile": "Profile",
 	"Logout": "Logout",
 	"Dashboard": "Dashboard",

@@ -95,6 +95,7 @@
 	"A non-existent item has been added": "Добавлен несуществующий предмет",
 	"Added item already exists.": "Добавленный предмет уже существует.",
 	"Account ID field contains already banned account ID.": "Поле 'ID аккаунта' содержит ID уже забаненого аккаунта.",
+	"Server ID field must contain a valid number.": "Поле 'ID сервера' должно содержать номерное значение.",
 	"Profile": "Профиль",
 	"Logout": "Выйти",
 	"Dashboard": "Информация",

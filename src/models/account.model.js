@@ -7,6 +7,7 @@
  * @property {import("sequelize").ModelCtor<Model<any, any>>} bans
  * @property {import("sequelize").ModelCtor<Model<any, any>>} characters
  * @property {import("sequelize").ModelCtor<Model<any, any>>} benefits
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} online
  * @property {import("sequelize").ModelCtor<Model<any, any>>} maintenance
  * @property {import("sequelize").ModelCtor<Model<any, any>>} serverInfo
  * @property {import("sequelize").ModelCtor<Model<any, any>>} serverStrings
@@ -55,6 +56,7 @@ module.exports = ({ logger }) => new Promise((resolve, reject) => {
 			bans: require("./account/accountBans.model")(sequelize, DataTypes),
 			characters: require("./account/accountCharacters.model")(sequelize, DataTypes),
 			benefits: require("./account/accountBenefits.model")(sequelize, DataTypes),
+			online: require("./account/accountOnline.model")(sequelize, DataTypes),
 			maintenance: require("./account/serverMaintenance.model")(sequelize, DataTypes),
 			// Server
 			serverInfo: require("./account/serverInfo.model")(sequelize, DataTypes),
