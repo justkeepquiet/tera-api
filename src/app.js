@@ -2,9 +2,9 @@
 
 /**
  * @typedef {object} modules
+ * @property {FcgiFunctions} fcgi
  * @property {PlatformFunctions} platform
  * @property {SteerFunctions} steer
- * @property {FcgiFunctions} fcgi
  * @property {import("./utils/logger").logger} logger
  * @property {import("./utils/expressServer").app} app
  * @property {import("./utils/datasheets").datasheets} datasheets
@@ -34,32 +34,21 @@ const cli = cliHelper(logger);
 
 moduleLoader.setAsync("logger", () => logger);
 
-moduleLoader.setPromise("platform", () => new Promise((resolve, reject) => {
-	isPortReachable(process.env.PLATFORM_HUB_GW_PORT, {
-		host: process.env.PLATFORM_HUB_GW_HOST,
-		timeout: 3000
-	}).then(status => {
-		const platform = new PlatformFunctions(
-			process.env.PLATFORM_HUB_GW_HOST,
-			process.env.PLATFORM_HUB_GW_PORT,
-			19, {
-				logger: createLogger("Platform")
-			}
-		);
+moduleLoader.setAsync("fcgi", () => new FcgiFunctions(
+	process.env.FCGI_GW_WEBAPI_URL, {
+		logger: createLogger("FCGI")
+	}
+));
 
-		if (status !== true) {
-			platform.params.logger.error(`Check: Failed: ${
-				process.env.PLATFORM_HUB_GW_HOST}:${process.env.PLATFORM_HUB_GW_PORT}`
-			);
-			return reject();
-		}
+moduleLoader.setAsync("platform", () => new PlatformFunctions(
+	process.env.PLATFORM_HUB_GW_HOST,
+	process.env.PLATFORM_HUB_GW_PORT,
+	19, {
+		logger: createLogger("Platform")
+	}
+));
 
-		platform.params.logger.info("Check: Success.");
-		resolve(platform);
-	});
-}));
-
-moduleLoader.setPromise("steer", () => new Promise((resolve, reject) => {
+moduleLoader.setPromise("steer", () => new Promise(resolve => {
 	const steer = new SteerFunctions(
 		process.env.STEER_HOST,
 		process.env.STEER_PORT,
@@ -75,31 +64,7 @@ moduleLoader.setPromise("steer", () => new Promise((resolve, reject) => {
 
 	return steer.connect().then(() =>
 		resolve(steer)
-	).catch(err => {
-		steer.params.logger.error(err.toString());
-		reject();
-	});
-}));
-
-moduleLoader.setPromise("fcgi", () => new Promise((resolve, reject) => {
-	const fcgi = new FcgiFunctions(
-		process.env.FCGI_GW_WEBAPI_URL, {
-			logger: createLogger("FCGI")
-		}
 	);
-
-	if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE) || !process.env.FCGI_GW_WEBAPI_URL) {
-		fcgi.params.logger.warn("Not configured.");
-		return resolve(fcgi);
-	}
-
-	return fcgi.stat().then(() => {
-		fcgi.params.logger.info("Stat request: Success.");
-		return resolve(fcgi);
-	}).catch(err => {
-		fcgi.params.logger.error(`Stat request: Failed: ${err}`);
-		reject();
-	});
 }));
 
 moduleLoader.setPromise("datasheets", datasheets, { logger: createLogger("Datasheets") });
