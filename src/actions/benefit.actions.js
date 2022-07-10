@@ -5,7 +5,6 @@
  */
 
 const moment = require("moment-timezone");
-const fcgiHttpHelper = require("../utils/fcgiHttpHelper");
 
 class Benefit {
 	/**
@@ -45,6 +44,10 @@ class Benefit {
 			}
 
 			return promise.then(() => {
+				if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
+					return Promise.resolve();
+				}
+
 				let totalDays = days;
 
 				if (benefit !== null) {
@@ -55,7 +58,7 @@ class Benefit {
 					);
 				}
 
-				return fcgiHttpHelper.get(["add_benefit", this.serverId, this.userId, benefitId, totalDays * 86400]);
+				return this.modules.fcgi.addBenefit(this.serverId, this.userId, benefitId, totalDays);
 			});
 		});
 	}

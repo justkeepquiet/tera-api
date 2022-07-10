@@ -48,9 +48,6 @@
 									<button type="button" class="btn btn-secondary" id="privilege-gm"><i class="fa fa-shield"></i> <%= __("Set GM") %></button>
 								</label>
 								<label>
-									<button type="button" class="btn btn-secondary" id="privilege-qa"><i class="fa fa-wrench"></i> <%= __("Set QA") %></button>
-								</label>
-								<label>
 									<button type="button" class="btn btn-secondary" id="privilege-reset"><i class="fa fa-refresh"></i> <%= __("Reset") %></button>
 								</label>
 							</div>
@@ -101,9 +98,6 @@
 		});
 		$("#privilege-gm").click(function() {
 			$("input[name='privilege']").val("33");
-		});
-		$("#privilege-qa").click(function() {
-			$("input[name='privilege']").val("<%= process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE %>");
 		});
 		$("#privilege-reset").click(function() {
 			$("input[name='privilege']").val("0");

@@ -4,8 +4,6 @@
  * @typedef {import("../app").modules} modules
  */
 
-const boxHelper = require("../utils/boxHelper");
-
 class ItemClaim {
 	/**
 	 * @param {modules} modules
@@ -17,8 +15,8 @@ class ItemClaim {
 		this.params = params;
 	}
 
-	makeBox(context, logId = 0) {
-		return boxHelper.makeBox(context, logId, this.serverId, this.userId);
+	makeBox(context, logId = 0, characterId = 0) {
+		return this.modules.fcgi.makeBox(this.serverId, this.userId, characterId, logId, context);
 	}
 }
 

@@ -10,8 +10,6 @@ const Op = require("sequelize").Op;
 const jwt = require("jsonwebtoken");
 const { query, body } = require("express-validator");
 const helpers = require("../utils/helpers");
-const fcgiHttpHelper = require("../utils/fcgiHttpHelper");
-const boxHelper = require("../utils/boxHelper");
 const PromoCodeActions = require("../actions/promoCode.actions");
 
 const { validationHandler, authSessionHandler, shopStatusHandler, resultJson } = require("../middlewares/portalShop.middlewares");
@@ -554,7 +552,7 @@ module.exports.GetAccountInfo = ({ logger, accountModel, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.PurchaseAction = ({ i18n, logger, accountModel, shopModel }) => [
+module.exports.PurchaseAction = ({ i18n, logger, fcgi, accountModel, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger, accountModel),
 	[body("productId").notEmpty().isNumeric()],
@@ -565,8 +563,8 @@ module.exports.PurchaseAction = ({ i18n, logger, accountModel, shopModel }) => [
 	async (req, res) => {
 		const { productId } = req.body;
 
-		if (!fcgiHttpHelper.isEnabled()) {
-			return resultJson(res, 2, "fcgi_gw api not configured");
+		if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
+			return resultJson(res, 2, "fcgi is not configured");
 		}
 
 		try {
@@ -646,17 +644,18 @@ module.exports.PurchaseAction = ({ i18n, logger, accountModel, shopModel }) => [
 					transaction
 				});
 
-				const boxResult = await boxHelper.makeBox(
+				const boxResult = await fcgi.makeBox(
+					res.__account.get("lastLoginServer"),
+					res.__account.get("accountDBID"),
+					0,
+					logResult.get("id"),
 					{
 						title: i18n.__("_box_title_"),
 						content: i18n.__("_box_content_"),
 						icon: "GiftBox02.bmp",
 						days: 3650,
 						items
-					},
-					logResult.get("id"),
-					res.__account.get("lastLoginServer"),
-					res.__account.get("accountDBID")
+					}
 				);
 
 				return await shopModel.payLogs.update({

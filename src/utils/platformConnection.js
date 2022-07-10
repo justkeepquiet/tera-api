@@ -1,6 +1,7 @@
 "use strict";
 
 const net = require("net");
+const uuid = require("uuid").v4;
 const PromiseSocket = require("promise-socket").PromiseSocket;
 const struct = require("python-struct");
 const OpMsg = require("./protobuf/opMsg").op.OpMsg;
@@ -78,14 +79,15 @@ class PlatformConnection {
 	}
 
 	sendAndRecv(opMsg, msgId = 1) {
+		const id = uuid();
+
 		if (this.params.logger?.debug) {
-			this.params.logger.debug(`Send: ${JSON.stringify(opMsg)}`);
+			this.params.logger.debug(`Send (${id}): ${JSON.stringify(opMsg)}`);
 		}
 
 		const socket = new PromiseSocket(new net.Socket());
 
 		socket.setTimeout(this.connectTimeout);
-
 		socket.socket.on("error", err => {
 			if (this.params.logger?.error) {
 				this.params.logger.error(err.toString());
@@ -122,7 +124,7 @@ class PlatformConnection {
 					const unserializedData = OpMsg.decode(responseData);
 
 					if (this.params.logger?.debug) {
-						this.params.logger.debug(`Recv: ${JSON.stringify(unserializedData)}`);
+						this.params.logger.debug(`Recv (${id}): ${JSON.stringify(unserializedData)}`);
 					}
 
 					return Promise.resolve(unserializedData);

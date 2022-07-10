@@ -4,6 +4,7 @@
  * @typedef {object} modules
  * @property {PlatformFunctions} platform
  * @property {SteerFunctions} steer
+ * @property {FcgiFunctions} fcgi
  * @property {import("./utils/logger").logger} logger
  * @property {import("./utils/expressServer").app} app
  * @property {import("./utils/datasheets").datasheets} datasheets
@@ -20,10 +21,12 @@ const createLogger = require("./utils/logger").createLogger;
 const ExpressServer = require("./utils/expressServer");
 const SteerFunctions = require("./utils/steerFunctions");
 const PlatformFunctions = require("./utils/platformFunctions");
+const fcgiFunctions = require("./utils/fcgiFunctions");
 const datasheets = require("./utils/datasheets");
 const accountModel = require("./models/account.model");
 const reportModel = require("./models/report.model");
 const shopModel = require("./models/shop.model");
+const FcgiFunctions = require("./utils/fcgiFunctions");
 
 const moduleLoader = new CoreLoader();
 const logger = createLogger("CL");
@@ -49,12 +52,34 @@ moduleLoader.setPromise("steer", () => new Promise(resolve => {
 	);
 
 	if (!/^true$/i.test(process.env.STEER_ENABLE)) {
+		steer.params.logger.warn("Not configured.");
+
 		return resolve(steer);
 	}
 
 	return steer.connect().then(() =>
 		resolve(steer)
 	);
+}));
+
+moduleLoader.setPromise("fcgi", () => new Promise(resolve => {
+	const fcgi = new FcgiFunctions(
+		process.env.FCGI_GW_WEBAPI_URL, {
+			logger: createLogger("FCGI")
+		}
+	);
+
+	if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE) || !process.env.FCGI_GW_WEBAPI_URL) {
+		fcgi.params.logger.warn("Not configured.");
+
+		return resolve(fcgi);
+	}
+
+	return fcgi.stat().then(() => {
+		fcgi.params.logger.info("Stat request: success");
+
+		return resolve(fcgi);
+	});
 }));
 
 moduleLoader.setPromise("datasheets", datasheets, { logger: createLogger("Datasheets") });

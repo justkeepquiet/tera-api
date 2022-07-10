@@ -8,7 +8,6 @@
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
-const fcgiHttpHelper = require("../utils/fcgiHttpHelper");
 const helpers = require("../utils/helpers");
 
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
@@ -76,7 +75,7 @@ module.exports.add = ({ i18n, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, accountModel }) => [
+module.exports.addAction = ({ i18n, logger, fcgi, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -133,7 +132,7 @@ module.exports.addAction = ({ i18n, logger, accountModel }) => [
 				description
 			}).then(() => {
 				if (account.get("lastLoginServer") && moment(startTime) < moment() && moment(endTime) > moment()) {
-					fcgiHttpHelper.get(["kick", account.get("lastLoginServer"), account.get("accountDBID"), 264]).catch(err =>
+					fcgi.kick(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err =>
 						logger.warn(err)
 					);
 				}
@@ -186,7 +185,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, accountModel }) => [
+module.exports.editAction = ({ i18n, logger, fcgi, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -229,7 +228,7 @@ module.exports.editAction = ({ i18n, logger, accountModel }) => [
 				where: { accountDBID }
 			}).then(() => {
 				if (account.get("lastLoginServer") && moment(startTime) < moment() && moment(endTime) > moment()) {
-					fcgiHttpHelper.get(["kick", account.get("lastLoginServer"), account.get("accountDBID"), 264]).catch(err =>
+					fcgi.kick(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err =>
 						logger.warn(err)
 					);
 				}

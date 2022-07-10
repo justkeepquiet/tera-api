@@ -9,7 +9,6 @@ const expressLayouts = require("express-ejs-layouts");
 const query = require("express-validator").query;
 const moment = require("moment-timezone");
 const helpers = require("../utils/helpers");
-const fcgiHttpHelper = require("../utils/fcgiHttpHelper");
 
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
@@ -65,7 +64,7 @@ module.exports.index = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.kickAction = ({ i18n, logger, accountModel }) => [
+module.exports.kickAction = ({ i18n, logger, fcgi, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -100,10 +99,10 @@ module.exports.kickAction = ({ i18n, logger, accountModel }) => [
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
-			res.redirect(`/online?serverId=${fromServerId}`);
+			return res.render("adminError", { layout: "adminLayout", err: errors.array()[0].msg });
 		}
 
-		fcgiHttpHelper.get(["kick", serverId, accountDBID, 33]).then(result => {
+		fcgi.kick(serverId, accountDBID, 33).then(result => {
 			if (result.body !== 0) {
 				return Promise.reject(result.body);
 			}
