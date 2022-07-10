@@ -21,12 +21,11 @@ const createLogger = require("./utils/logger").createLogger;
 const ExpressServer = require("./utils/expressServer");
 const SteerFunctions = require("./utils/steerFunctions");
 const PlatformFunctions = require("./utils/platformFunctions");
-const fcgiFunctions = require("./utils/fcgiFunctions");
+const FcgiFunctions = require("./utils/fcgiFunctions");
 const datasheets = require("./utils/datasheets");
 const accountModel = require("./models/account.model");
 const reportModel = require("./models/report.model");
 const shopModel = require("./models/shop.model");
-const FcgiFunctions = require("./utils/fcgiFunctions");
 
 const moduleLoader = new CoreLoader();
 const logger = createLogger("CL");
@@ -42,7 +41,7 @@ moduleLoader.setAsync("platform", () => new PlatformFunctions(
 	}
 ));
 
-moduleLoader.setPromise("steer", () => new Promise(resolve => {
+moduleLoader.setPromise("steer", () => new Promise((resolve, reject) => {
 	const steer = new SteerFunctions(
 		process.env.STEER_HOST,
 		process.env.STEER_PORT,
@@ -53,16 +52,18 @@ moduleLoader.setPromise("steer", () => new Promise(resolve => {
 
 	if (!/^true$/i.test(process.env.STEER_ENABLE)) {
 		steer.params.logger.warn("Not configured.");
-
 		return resolve(steer);
 	}
 
 	return steer.connect().then(() =>
 		resolve(steer)
-	);
+	).catch(err => {
+		steer.params.logger.error(err.toString());
+		reject();
+	});
 }));
 
-moduleLoader.setPromise("fcgi", () => new Promise(resolve => {
+moduleLoader.setPromise("fcgi", () => new Promise((resolve, reject) => {
 	const fcgi = new FcgiFunctions(
 		process.env.FCGI_GW_WEBAPI_URL, {
 			logger: createLogger("FCGI")
@@ -71,14 +72,15 @@ moduleLoader.setPromise("fcgi", () => new Promise(resolve => {
 
 	if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE) || !process.env.FCGI_GW_WEBAPI_URL) {
 		fcgi.params.logger.warn("Not configured.");
-
 		return resolve(fcgi);
 	}
 
 	return fcgi.stat().then(() => {
 		fcgi.params.logger.info("Stat request: success");
-
 		return resolve(fcgi);
+	}).catch(err => {
+		fcgi.params.logger.error(err.toString());
+		reject();
 	});
 }));
 

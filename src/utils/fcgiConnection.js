@@ -82,13 +82,9 @@ class FcgiConnection {
 				});
 			});
 
-			clientRequest.on("error", error => {
-				if (this.params.logger?.error) {
-					this.params.logger.error(`Error (${id}): ${error}`);
-				}
-
-				reject(error);
-			});
+			clientRequest.on("error", error =>
+				reject(error)
+			);
 
 			if (body) {
 				clientRequest.write(body);
