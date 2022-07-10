@@ -102,13 +102,9 @@ module.exports.kickAction = ({ i18n, logger, fcgi, accountModel }) => [
 			return res.render("adminError", { layout: "adminLayout", err: errors.array()[0].msg });
 		}
 
-		fcgi.kick(serverId, accountDBID, 33).then(result => {
-			if (result.body !== 0) {
-				return Promise.reject(result.body);
-			}
-
-			res.redirect(`/online?serverId=${fromServerId}`);
-		}).catch(err => {
+		fcgi.kick(serverId, accountDBID, 33).then(() =>
+			res.redirect(`/online?serverId=${fromServerId}`)
+		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
