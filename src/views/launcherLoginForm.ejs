@@ -46,8 +46,8 @@
 			q("#qaBox a, #qaBox fieldset").hide();
 			q("#qaBox").fadeOut("fast");
 		});
-		q("#qaRegion").on('change', function() {
-			parent.REGION = this.value;
+		q("#qaRegion").on("change", function() {
+			parent.REGION = localStorage.REGION = this.value;
 		});
 		q('#qaModeCheck').click(function (){
 			QA_MODE_NOCHECK = q(this).is(':checked');
@@ -78,7 +78,8 @@
 					localStorage.ACCOUNT_ID = ACCOUNT_ID;
 					localStorage.AUTH_KEY = AUTH_KEY;
 				} else {
-					localStorage.clear();
+					localStorage.ACCOUNT_ID = null;
+					localStorage.AUTH_KEY = null;
 				}
 
 				parent.Launcher.loginSuccess();
@@ -117,7 +118,8 @@
 	}
 
 	function logout() {
-		localStorage.clear();
+		localStorage.ACCOUNT_ID = null;
+		localStorage.AUTH_KEY = null;
 		parent.Launcher.showLoginIFrame();
 	}
 </script>

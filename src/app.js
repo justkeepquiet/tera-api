@@ -17,6 +17,7 @@ require("dotenv").config();
 
 const CoreLoader = require("./utils/coreLoader");
 const cliHelper = require("./utils/cliHelper");
+const isPortReachable = require("./utils/isPortReachable");
 const createLogger = require("./utils/logger").createLogger;
 const ExpressServer = require("./utils/expressServer");
 const SteerFunctions = require("./utils/steerFunctions");
@@ -33,13 +34,30 @@ const cli = cliHelper(logger);
 
 moduleLoader.setAsync("logger", () => logger);
 
-moduleLoader.setAsync("platform", () => new PlatformFunctions(
-	process.env.PLATFORM_HUB_GW_HOST,
-	process.env.PLATFORM_HUB_GW_PORT,
-	19, {
-		logger: createLogger("Platform")
-	}
-));
+moduleLoader.setPromise("platform", () => new Promise((resolve, reject) => {
+	isPortReachable(process.env.PLATFORM_HUB_GW_PORT, {
+		host: process.env.PLATFORM_HUB_GW_HOST,
+		timeout: 3000
+	}).then(status => {
+		const platform = new PlatformFunctions(
+			process.env.PLATFORM_HUB_GW_HOST,
+			process.env.PLATFORM_HUB_GW_PORT,
+			19, {
+				logger: createLogger("Platform")
+			}
+		);
+
+		if (status !== true) {
+			platform.params.logger.error(`Check: Failed: ${
+				process.env.PLATFORM_HUB_GW_HOST}:${process.env.PLATFORM_HUB_GW_PORT}`
+			);
+			return reject();
+		}
+
+		platform.params.logger.info("Check: Success.");
+		resolve(platform);
+	});
+}));
 
 moduleLoader.setPromise("steer", () => new Promise((resolve, reject) => {
 	const steer = new SteerFunctions(
@@ -76,10 +94,10 @@ moduleLoader.setPromise("fcgi", () => new Promise((resolve, reject) => {
 	}
 
 	return fcgi.stat().then(() => {
-		fcgi.params.logger.info("Stat request: success");
+		fcgi.params.logger.info("Stat request: Success.");
 		return resolve(fcgi);
 	}).catch(err => {
-		fcgi.params.logger.error(err.toString());
+		fcgi.params.logger.error(`Stat request: Failed: ${err}`);
 		reject();
 	});
 }));

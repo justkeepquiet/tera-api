@@ -13,7 +13,7 @@
 
 	var PATCH_NO_CHECK = /^true$/i.test("<%= patchNoCheck %>");
 	var PATCH_URL = "<%= patchUrl %>";
-	var REGION = "<%= region %>";
+	var REGION = localStorage.REGION ? localStorage.REGION : "<%= region %>";
 	var PATCH_INFO_STRINGS = {
 		"0": "<%= __('Preparing...') %>",
 		"1": "<%= __('Download') %>",
