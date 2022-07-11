@@ -98,6 +98,21 @@ class FcgiFunctions extends FcgiConnection {
 			)
 		);
 	}
+
+	countBox(serverId, userId, characterId = 0) {
+		return this.get(["count_box", userId, serverId, characterId]).then(response =>
+			Promise.resolve(response.body)
+		);
+	}
+
+	checkBox(externalKey) {
+		return this.get(["check_box.json", externalKey]).then(response =>
+			((response.body.message === undefined || response.body.message != "") ?
+				Promise.reject(new FcgiError(response.body.message || "Unknown", 1)) :
+				Promise.resolve(response.body)
+			)
+		);
+	}
 }
 
 module.exports = FcgiFunctions;
