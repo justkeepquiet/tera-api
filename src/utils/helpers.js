@@ -1,24 +1,97 @@
 "use strict";
 
+/**
+* @typedef {import("sequelize").Model} Model
+* @typedef {import("express").Request} Request
+* @typedef {import("winston").Logger} Logger
+*/
+
 const validationResult = require("express-validator").validationResult;
 const logger = require("../utils/logger");
 
 /**
-* @typedef {import("sequelize").Model} Model
-* @typedef {import("express").Request} Request
+* @param {string} path
+* @return {*}
 */
-
 module.exports.requireReload = path => {
 	delete require.cache[require.resolve(path)];
 	return require(path);
 };
 
+/**
+* @param {[]} functions
+* @param {Number} index
+* @return {Promise}
+*/
 module.exports.chainPromise = (functions, index = 0) => {
 	if (functions[index] !== undefined) {
 		return functions[index]().then(() => module.exports.chainPromise(functions, index + 1));
 	}
 };
 
+/**
+* @param {string} string
+* @return {string}
+*/
+module.exports.formatStrsheet = string =>
+	string.replace(/\$BR/g, "<br>")
+		.replace(/\$H_W_GOOD/g, "<span style=\"color: #2478ff\">")
+		.replace(/\$H_W_BAD/g, "<span style=\"color: #ff0000\">")
+		.replace(/\$COLOR_END/g, "</span>")
+		.replace(/\$value(\d{0,})/g, "X")
+;
+
+/**
+* @param {string} region
+* @return {Object[]}
+*/
+module.exports.regionToLanguage = region =>
+	({
+		CHN: "cn",
+		EUR: "en",
+		FRA: "fr",
+		GER: "de",
+		INT: "en",
+		JPN: "jp",
+		RUS: "ru",
+		SE: "se",
+		THA: "th",
+		TW: "tw",
+		USA: "en"
+	}[region.toUpperCase()] || "en")
+;
+
+/**
+* @return {Object[]}
+*/
+module.exports.getClientRegions = () => {
+	const regions = [];
+
+	Object.keys(process.env).forEach(key => {
+		const found = key.match(/API_PORTAL_CLIENT_REGIONS_([A-Z]+)$/);
+
+		if (found) {
+			regions.push({
+				region: found[1],
+				name: process.env[key],
+				locale: module.exports.regionToLanguage(found[1])
+			});
+		}
+	});
+
+	return regions;
+};
+
+/**
+* @return {Object[]}
+*/
+module.exports.getClientLocales = () =>
+	module.exports.getClientRegions().map(r => r.locale)
+;
+
+/**
+* @return {Map}
+*/
 module.exports.getInitialBenefits = () => {
 	const initialBenefits = new Map();
 
@@ -62,6 +135,7 @@ module.exports.getBenefitsArray = (benefits, field1, field2) =>
 
 /**
 * @param {Request} request
+* @param {Logger} customLogger
 */
 module.exports.validationResultLog = (request, customLogger) => {
 	const result = validationResult(request);
@@ -72,49 +146,3 @@ module.exports.validationResultLog = (request, customLogger) => {
 
 	return result;
 };
-
-module.exports.formatStrsheet = string =>
-	string.replace(/\$BR/g, "<br>")
-		.replace(/\$H_W_GOOD/g, "<span style=\"color: #2478ff\">")
-		.replace(/\$H_W_BAD/g, "<span style=\"color: #ff0000\">")
-		.replace(/\$COLOR_END/g, "</span>")
-		.replace(/\$value(\d{0,})/g, "X")
-;
-
-module.exports.regionToLanguage = region =>
-	({
-		CHN: "cn",
-		EUR: "en",
-		FRA: "fr",
-		GER: "de",
-		INT: "en",
-		JPN: "jp",
-		RUS: "ru",
-		SE: "se",
-		THA: "th",
-		TW: "tw",
-		USA: "en"
-	}[region.toUpperCase()] || "en")
-;
-
-module.exports.getClientRegions = () => {
-	const regions = [];
-
-	Object.keys(process.env).forEach(key => {
-		const found = key.match(/API_PORTAL_CLIENT_REGIONS_([A-Z]+)$/);
-
-		if (found) {
-			regions.push({
-				region: found[1],
-				name: process.env[key],
-				locale: module.exports.regionToLanguage(found[1])
-			});
-		}
-	});
-
-	return regions;
-};
-
-module.exports.getClientLocales = () =>
-	module.exports.getClientRegions().map(r => r.locale)
-;
