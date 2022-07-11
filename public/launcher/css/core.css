@@ -78,7 +78,8 @@ a {
 }
 .col {
 	float: left;
-	margin-left: 15px;
+	margin-top: -2px;
+	margin-left: 25px;
 	height: 75px;
 }
 .ico-wrap {
@@ -117,6 +118,7 @@ a {
 	background-position: -100px 0px;
 }
 .nav {
+	color: #ffffff !important;
 	margin-bottom: 10px;
 	font-size: 14px;
 }
@@ -124,15 +126,17 @@ a {
 	float: left;
 	margin-right: 6px;
 }
+.nav li span {
+	padding: .26em;
+	display: block;
+}
 .nav li a {
-	border-width: 1px;
-	border-color: #3b4367;
-	border-style: solid;
-	padding: .26em .56em;
+	color: #767c99;
+	padding: .26em;
 	display: block;
 }
 .nav li a:hover {
-	border-color: #ffffff;
+	color: #ffffff;
 }
 .notice {
 	width: 400px;

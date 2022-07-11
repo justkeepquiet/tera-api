@@ -55,9 +55,9 @@ function initErrorMsgArray() {
 	LAUNCHER_ERROR["x15"] = "A long time has not been entered and ended";		// 15	: 오랫동안 입력이 없어서 종료
 	LAUNCHER_ERROR["x16"] = "Through the connection end menu Normal end";		// 16	: 접속종료 메뉴를 통해서 정상종료
 	LAUNCHER_ERROR["x17"] = "Service temporarily unavailable";
-	LAUNCHER_ERROR["x32"] = "Connection to server lost";						// 32	: 웹운영툴로 직접 접속종료
-	LAUNCHER_ERROR["x33"] = "Connection to server lost";						// 33	: 웹운영툴로 강제 접속종료
-	LAUNCHER_ERROR["x34"] = "Connection to server lost";						// 34	: 인게임 운영툴로 접속종료
+	LAUNCHER_ERROR["x32"] = "Disconnected by administrator";					// 32	: 웹운영툴로 직접 접속종료
+	LAUNCHER_ERROR["x33"] = "Disconnected by administrator";					// 33	: 웹운영툴로 강제 접속종료
+	LAUNCHER_ERROR["x34"] = "Disconnected by administrator";					// 34	: 인게임 운영툴로 접속종료
 	LAUNCHER_ERROR["x257"] = "Member authentication failed";					// 257	: 인증 실패 : 인증키 불일치
 	LAUNCHER_ERROR["x258"] = "Billing error";									// 258	: billing fail
 	LAUNCHER_ERROR["x259"] = "Repeat login";									// 259	: 중복접속(기존접속)

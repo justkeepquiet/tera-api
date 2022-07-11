@@ -96,3 +96,25 @@ module.exports.regionToLanguage = region =>
 		USA: "en"
 	}[region.toUpperCase()] || "en")
 ;
+
+module.exports.getClientRegions = () => {
+	const regions = [];
+
+	Object.keys(process.env).forEach(key => {
+		const found = key.match(/API_PORTAL_CLIENT_REGIONS_([A-Z]+)$/);
+
+		if (found) {
+			regions.push({
+				region: found[1],
+				name: process.env[key],
+				locale: module.exports.regionToLanguage(found[1])
+			});
+		}
+	});
+
+	return regions;
+};
+
+module.exports.getClientLocales = () =>
+	module.exports.getClientRegions().map(r => r.locale)
+;

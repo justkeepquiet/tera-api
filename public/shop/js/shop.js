@@ -49,6 +49,9 @@ function loadContent(page, params = null) {
 		}
 		$("#content").html(result);
 		$("#search_input").val("");
+		$("#content").animate({
+			scrollTop: params && params.scrollTop ? params.scrollTop : 0
+		}, 0);
 	});
 }
 

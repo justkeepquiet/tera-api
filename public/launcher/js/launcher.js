@@ -1,6 +1,30 @@
 var host = "http://" + location.hostname + ((location.port && location.port != 80) ? ":" + location.port : ""); // Only HTTP is supported!
 var debug = DEBUG_STR;
 
+function urlParam(name) {
+	var results = new RegExp("[\\?&]" + name + "=([^&#]*)")
+		.exec(window.location.search);
+
+	return (results !== null) ? results[1] || 0 : false;
+}
+
+function regionToLanguage(region) {
+	var regions = {
+		CHN: "cn", EUR: "en",
+		FRA: "fr", GER: "de",
+		INT: "en", JPN: "jp",
+		RUS: "ru", SE: "se",
+		THA: "th", TW: "tw",
+		USA: "en"
+	};
+
+	if (typeof regions[region] !== "undefined") {
+		return regions[region];
+	} else {
+		return "en";
+	}
+}
+
 /**
  * Init
  */
@@ -34,9 +58,16 @@ function launcherSignupAction(login, email, password, token) {
 	});
 }
 
-function getAccountInfoByUserNo(accointId) {
-	return apiRequest("GetAccountInfoByUserNo", {
-		id: accointId
+function getAccountInfoByAuthKey(authKey) {
+	return apiRequest("GetAccountInfoByAuthKey", {
+		authKey: authKey
+	});
+}
+
+function setAccountInfoByAuthKey(authKey, language) {
+	return apiRequest("SetAccountInfoByAuthKey", {
+		authKey: authKey,
+		language: language
 	});
 }
 
@@ -75,6 +106,10 @@ var Launcher = {
 		$("#progressBar2").width(0);
 		$("#fileName").text("");
 		$("#totalText").text("");
+
+		if (localStorage.REGION && !urlParam("lang")) {
+			Launcher.setRegion(localStorage.REGION);
+		}
 	},
 
 	/*
@@ -188,7 +223,7 @@ var Launcher = {
 			}
 		}
 
-		if (loginIFrame.PERMISSION == 1) { // @todo
+		if (loginIFrame.BANNED) {
 			alert(accountBlockedString);
 			Launcher.disableLaunchButton("Error", "btn-wrong");
 			return;
@@ -223,6 +258,20 @@ var Launcher = {
 	abortPatch: function() {
 		Launcher.disableLaunchButton("Wait", "btn-wait");
 		Launcher.sendCommand("abort_p");
+	},
+
+	setRegion: function(region) {
+		var language = regionToLanguage(region);
+
+		if (language) {
+			location.replace("LauncherMain" + "?lang=" + language);
+
+			if (loginIFrame.AUTH_KEY) {
+				setAccountInfoByAuthKey(loginIFrame.AUTH_KEY, language);
+			}
+		}
+
+		REGION = region;
 	}
 };
 
@@ -247,23 +296,7 @@ function l2w_getLauncherInfoUrl() {
 }
 
 function l2w_getServerList() {
-	var lang = "en";
-
-	switch (REGION) {
-		case "CHN": lang = "cn"; break;
-		case "EUR": lang = "en"; break;
-		case "FRA": lang = "fr"; break;
-		case "GER": lang = "de"; break;
-		case "INT": lang = "en"; break;
-		case "JPN": lang = "jp"; break;
-		case "RUS": lang = "ru"; break;
-		case "SE": lang = "se"; break;
-		case "THA": lang = "th"; break;
-		case "TW": lang = "tw"; break;
-		case "USA": lang = "en"; break;
-	}
-
-	return host + "/tera/ServerList?lang=" + lang;
+	return host + "/tera/ServerList?lang=" + regionToLanguage(REGION);
 }
 
 function l2w_getOTP() {

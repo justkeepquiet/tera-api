@@ -25,13 +25,22 @@
 			parent.Launcher.showLoginIFrame();
 		}
 
+		if (localStorage.REGION && !parent.urlParam("lang")) {
+			parent.Launcher.setRegion(localStorage.REGION);
+		}
+
+		parent.$(".region").click(function() {
+			localStorage.REGION = $(this).data("region");
+			parent.Launcher.setRegion($(this).data("region"));
+		});
+
 		$("#userLoginForm").submit(function() {
 			authByLoginAndPassword($('#login').val(), $('#password').val(), $('#remember').is(':checked'));
 			return false;
 		});
 
 		$("#btnJoin").click(function() {
-			document.location.replace("LauncherSignupForm");
+			document.location.replace("LauncherSignupForm?lang=<%= locale %>");
 			parent.Launcher.sendCommand("size|320,530");
 		});
 	});
@@ -46,9 +55,12 @@
 			q("#qaBox a, #qaBox fieldset").hide();
 			q("#qaBox").fadeOut("fast");
 		});
+
 		q("#qaRegion").on("change", function() {
-			parent.REGION = localStorage.REGION = this.value;
+			parent.Launcher.setRegion(this.value);
+			localStorage.REGION = this.value;
 		});
+
 		q('#qaModeCheck').click(function (){
 			QA_MODE_NOCHECK = q(this).is(':checked');
 		});
@@ -92,7 +104,7 @@
 	}
 
 	function loginFromLocalStorage() {
-		var result = parent.getAccountInfoByUserNo(localStorage.ACCOUNT_ID);
+		var result = parent.getAccountInfoByAuthKey(localStorage.AUTH_KEY);
 
 		if (result) {
 			if (result.Return) {

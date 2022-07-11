@@ -14,20 +14,20 @@ const { validationHandler, resultJson } = require("../middlewares/portalLauncher
 /**
  * @param {modules} modules
  */
-module.exports.GetAccountInfo = ({ logger, accountModel }) => [
-	[body("id").isNumeric()],
+module.exports.GetAccountInfoByAuthKey = ({ logger, accountModel }) => [
+	[body("authKey").notEmpty()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		const { id } = req.body;
+		const { authKey } = req.body;
 
 		accountModel.info.belongsTo(accountModel.bans, { foreignKey: "accountDBID" });
 		accountModel.info.hasOne(accountModel.bans, { foreignKey: "accountDBID" });
 
 		accountModel.info.findOne({
-			where: { accountDBID: id },
+			where: { authKey },
 			include: [{
 				model: accountModel.bans,
 				where: {
@@ -72,6 +72,40 @@ module.exports.GetAccountInfo = ({ logger, accountModel }) => [
 				UserName: account.get("userName"),
 				Banned: !!account.get("banned")
 			});
+		}).catch(err => {
+			logger.error(err);
+			resultJson(res, 1, "internal error");
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.SetAccountInfoByAuthKey = ({ logger, accountModel }) => [
+	[
+		body("authKey").notEmpty(),
+		body("language").isIn(["cn", "en", "fr", "de", "jp", "ru", "se", "th", "tw"])
+	],
+	validationHandler(logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		const { authKey, language } = req.body;
+
+		accountModel.info.findOne({
+			where: { authKey }
+		}).then(account => {
+			if (account === null) {
+				return resultJson(res, 50000, "account not exist");
+			}
+
+			return accountModel.info.update({ language }, {
+				where: { accountDBID: account.get("accountDBID") }
+			}).then(() =>
+				resultJson(res, 0, "success")
+			);
 		}).catch(err => {
 			logger.error(err);
 			resultJson(res, 1, "internal error");

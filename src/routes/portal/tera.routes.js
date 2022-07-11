@@ -22,13 +22,11 @@ module.exports = modules => {
 	});
 
 	modules.app.use((req, res, next) => {
-		/*
-		const locale = req?.user?.language || process.env.API_PORTAL_LOCALE;
+		const locale = req.query.lang || process.env.API_PORTAL_LOCALE;
 
 		if (i18n.getLocales().includes(locale)) {
 			i18n.setLocale(locale);
 		}
-		*/
 
 		res.locals.__ = i18n.__;
 		res.locals.locale = i18n.getLocale();
@@ -41,7 +39,8 @@ module.exports = modules => {
 	return express.Router()
 		// Interfaces
 		.get("/ServerList", portalSlsController.GetServerListXml(mod))
-		.post("/GetAccountInfoByUserNo", portalAccountController.GetAccountInfo(mod))
+		.post("/GetAccountInfoByAuthKey", portalAccountController.GetAccountInfoByAuthKey(mod))
+		.post("/SetAccountInfoByAuthKey", portalAccountController.SetAccountInfoByAuthKey(mod))
 		// Launcher
 		.get("/LauncherMaintenanceStatus", portalLauncherController.MaintenanceStatus(mod))
 		.get("/LauncherMain", portalLauncherController.MainHtml(mod))

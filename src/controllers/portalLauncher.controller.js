@@ -47,27 +47,21 @@ module.exports.MaintenanceStatus = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.MainHtml = () => [
+module.exports.MainHtml = ({ i18n }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		const regions = {};
-
-		Object.keys(process.env).forEach(key => {
-			const found = key.match(/API_PORTAL_CLIENT_REGIONS_([A-Z]+)$/);
-
-			if (found) {
-				regions[found[1]] = process.env[key];
-			}
-		});
 
 		res.render("launcherMain", {
 			brandName: process.env.API_PORTAL_BRAND_NAME || "Tera Private Server",
 			patchNoCheck: process.env.API_PORTAL_CLIENT_PATCH_NO_CHECK,
 			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
 			region: process.env.API_PORTAL_CLIENT_DEFAULT_REGION,
-			regions
+			locale: i18n.getLocale(),
+			language: req.query.lang,
+			regions: helpers.getClientRegions(),
+			helpers
 		});
 	}
 ];
@@ -75,13 +69,14 @@ module.exports.MainHtml = () => [
 /**
  * @param {modules} modules
  */
-module.exports.LoginFormHtml = () => [
+module.exports.LoginFormHtml = ({ i18n }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		res.render("launcherLoginForm", {
-			qaPrivilege: process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE
+			qaPrivilege: process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE,
+			locale: i18n.getLocale()
 		});
 	}
 ];

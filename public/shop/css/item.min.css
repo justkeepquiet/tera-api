@@ -41,9 +41,9 @@
 }
 
 .item_grade_4, .icon_grade_4:hover {
-	color: #c63db6;
+	color: #c63db6 !important;
 }
 
 .item_grade_5, .icon_grade_5:hover {
-	color: orange;
+	color: orange !important;
 }

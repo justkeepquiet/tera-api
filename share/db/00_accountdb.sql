@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS `account_info` (
   `playCount` int(11) NOT NULL DEFAULT '0',
   `permission` int(11) NOT NULL DEFAULT '0',
   `privilege` int(11) NOT NULL DEFAULT '0',
+  `language` varchar(3) DEFAULT NULL,
   PRIMARY KEY (`accountDBID`,`userName`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 

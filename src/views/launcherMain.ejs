@@ -46,7 +46,17 @@
 		<div class="header">
 			<div class="logo"><img src="/public/launcher/images/logo.png"></div>
 			<!--/logo-->
-			<div class="col"></div>
+			<div class="col">
+				<ul class="nav" style="clear: both;">
+					<%_ regions.forEach(region => { _%>
+					<%_ if (region.locale == language) { _%>
+						<li><span><img src="/public/launcher/images/flags/<%= region.locale %>.png"> <%= region.name %></span></li>
+					<%_ } else { _%>
+						<li><a href="#" class="region" data-region="<%= region.region %>"><img src="/public/launcher/images/flags/<%= region.locale %>.png"> <%= region.name %></a></li>
+					<% } %>
+					<% }) %>
+				</ul>
+			</div>
 			<!--/col-->
 		</div>
 		<!--/header-->
@@ -59,8 +69,8 @@
 						<table>
 							<tr><td>Disable file check</td><td><input type="checkbox" id="qaModeCheck" checked></td></tr>
 							<tr><td>Client language</td><td><select id="qaRegion">
-							<% Object.keys(regions).forEach(key => { %>
-								<option value="<%= key %>"><%= __(regions[key]) %></option>
+								<%_ regions.forEach(region => { _%>
+								<option value="<%= region.region %>"><%= region.name %></option>
 							<% }) %>
 							</select></td></tr>
 						</table>
@@ -91,9 +101,9 @@
 				</div>
 				<!--/progress--> 
 				<div class="check">
-					<% if (!/^true$/i.test(patchNoCheck)) { %>
+					<%_ if (!/^true$/i.test(patchNoCheck)) { _%>
 					<button class="btn-check" onclick="if (confirm(startFileChekingString)) Launcher.filesCheck();">Repair</button>&nbsp;
-					<% } %>
+					<%_ } _%>
 				</div>
 				<!--/check-->
 				<div class="gamestart">
@@ -110,7 +120,7 @@
 	</div>
 	<!--/wrap-->
 	<div id="loginScreen" class="modalScreen">
-		<iframe src="/tera/LauncherLoginForm" id="loginIFrame" name="loginIFrame"></iframe>
+		<iframe src="/tera/LauncherLoginForm?lang=<%= locale %>" id="loginIFrame" name="loginIFrame"></iframe>
 	</div>
 </body>
 </html>
