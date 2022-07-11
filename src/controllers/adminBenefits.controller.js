@@ -7,7 +7,7 @@
 
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
-const { query, body } = require("express-validator");
+const body = require("express-validator").body;
 const helpers = require("../utils/helpers");
 
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");

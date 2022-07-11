@@ -5,29 +5,20 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-CREATE DATABASE IF NOT EXISTS `accountdb` /*!40100 DEFAULT CHARACTER SET utf8 */;
-USE `accountdb`;
-
 CREATE TABLE IF NOT EXISTS `account_bans` (
   `accountDBID` bigint(20) NOT NULL,
-  `startTime` timestamp NULL DEFAULT NULL,
-  `endTime` timestamp NULL DEFAULT NULL,
+  `startTime` datetime NOT NULL,
+  `endTime` datetime NOT NULL,
   `description` text,
   PRIMARY KEY (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*!40000 ALTER TABLE `account_bans` DISABLE KEYS */;
-/*!40000 ALTER TABLE `account_bans` ENABLE KEYS */;
-
 CREATE TABLE IF NOT EXISTS `account_benefits` (
   `accountDBID` bigint(20) NOT NULL,
   `benefitId` int(11) NOT NULL,
-  `availableUntil` timestamp NULL DEFAULT NULL,
+  `availableUntil` datetime NOT NULL,
   PRIMARY KEY (`accountDBID`,`benefitId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-/*!40000 ALTER TABLE `account_benefits` DISABLE KEYS */;
-/*!40000 ALTER TABLE `account_benefits` ENABLE KEYS */;
 
 CREATE TABLE IF NOT EXISTS `account_characters` (
   `characterId` int(11) NOT NULL,
@@ -40,9 +31,6 @@ CREATE TABLE IF NOT EXISTS `account_characters` (
   `level` int(11) DEFAULT NULL,
   PRIMARY KEY (`characterId`,`serverId`,`accountDBID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-/*!40000 ALTER TABLE `account_characters` DISABLE KEYS */;
-/*!40000 ALTER TABLE `account_characters` ENABLE KEYS */;
 
 CREATE TABLE IF NOT EXISTS `account_info` (
   `accountDBID` bigint(20) NOT NULL AUTO_INCREMENT,
@@ -63,18 +51,12 @@ CREATE TABLE IF NOT EXISTS `account_info` (
   PRIMARY KEY (`accountDBID`,`userName`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-/*!40000 ALTER TABLE `account_info` DISABLE KEYS */;
-/*!40000 ALTER TABLE `account_info` ENABLE KEYS */;
-
 CREATE TABLE IF NOT EXISTS `account_online` (
   `accountDBID` bigint(20) NOT NULL,
   `serverId` int(11) NOT NULL,
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`accountDBID`,`serverId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-/*!40000 ALTER TABLE `account_online` DISABLE KEYS */;
-/*!40000 ALTER TABLE `account_online` ENABLE KEYS */;
 
 CREATE TABLE IF NOT EXISTS `report_activity` (
   `accountDBID` bigint(20) DEFAULT NULL,
@@ -85,9 +67,6 @@ CREATE TABLE IF NOT EXISTS `report_activity` (
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   KEY `accountDBID` (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-/*!40000 ALTER TABLE `report_activity` DISABLE KEYS */;
-/*!40000 ALTER TABLE `report_activity` ENABLE KEYS */;
 
 CREATE TABLE IF NOT EXISTS `report_characters` (
   `accountDBID` bigint(20) NOT NULL,
@@ -103,9 +82,6 @@ CREATE TABLE IF NOT EXISTS `report_characters` (
   KEY `accountDBID` (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*!40000 ALTER TABLE `report_characters` DISABLE KEYS */;
-/*!40000 ALTER TABLE `report_characters` ENABLE KEYS */;
-
 CREATE TABLE IF NOT EXISTS `report_cheats` (
   `accountDBID` bigint(20) DEFAULT NULL,
   `serverId` int(11) DEFAULT NULL,
@@ -116,9 +92,6 @@ CREATE TABLE IF NOT EXISTS `report_cheats` (
   KEY `accountDBID` (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*!40000 ALTER TABLE `report_cheats` DISABLE KEYS */;
-/*!40000 ALTER TABLE `report_cheats` ENABLE KEYS */;
-
 CREATE TABLE IF NOT EXISTS `report_chronoscrolls` (
   `accountDBID` bigint(20) DEFAULT NULL,
   `serverId` int(11) DEFAULT NULL,
@@ -126,9 +99,6 @@ CREATE TABLE IF NOT EXISTS `report_chronoscrolls` (
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   KEY `accountDBID` (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-/*!40000 ALTER TABLE `report_chronoscrolls` DISABLE KEYS */;
-/*!40000 ALTER TABLE `report_chronoscrolls` ENABLE KEYS */;
 
 CREATE TABLE IF NOT EXISTS `server_info` (
   `serverId` int(11) NOT NULL,
@@ -148,19 +118,13 @@ CREATE TABLE IF NOT EXISTS `server_info` (
   PRIMARY KEY (`serverId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*!40000 ALTER TABLE `server_info` DISABLE KEYS */;
-/*!40000 ALTER TABLE `server_info` ENABLE KEYS */;
-
 CREATE TABLE IF NOT EXISTS `server_maintenance` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `startTime` timestamp NULL DEFAULT NULL,
-  `endTime` timestamp NULL DEFAULT NULL,
+  `startTime` datetime DEFAULT NULL,
+  `endTime` datetime DEFAULT NULL,
   `description` text,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-/*!40000 ALTER TABLE `server_maintenance` DISABLE KEYS */;
-/*!40000 ALTER TABLE `server_maintenance` ENABLE KEYS */;
 
 CREATE TABLE IF NOT EXISTS `server_strings` (
   `language` varchar(3) NOT NULL,
@@ -176,12 +140,10 @@ CREATE TABLE IF NOT EXISTS `server_strings` (
   PRIMARY KEY (`language`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-/*!40000 ALTER TABLE `server_strings` DISABLE KEYS */;
 INSERT INTO `server_strings` (`language`, `categoryPvE`, `categoryPvP`, `serverOffline`, `serverLow`, `serverMedium`, `serverHigh`, `crowdNo`, `crowdYes`, `popup`) VALUES
 	('en', 'PvE', 'PvP', 'Offline', 'Low', 'Medium', 'High', 'No', 'Yes', 'Unable to access the server at this time.'),
 	('ru', 'PvE', 'PvP', 'Отключен', 'Низко', 'Средне', 'Высоко', 'Нет', 'Да', 'В настоящее время невозможно войти на сервер.'),
 	('tw', 'PvE', 'PvP', '离线', '低的', '中间', '高的', '不', '是的', '此时无法访问服务器。');
-/*!40000 ALTER TABLE `server_strings` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;

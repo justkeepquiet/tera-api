@@ -25,8 +25,13 @@
 			parent.Launcher.showLoginIFrame();
 		}
 
-		if (localStorage.REGION && !parent.urlParam("lang")) {
-			parent.Launcher.setRegion(localStorage.REGION);
+		if (!parent.urlParam("lang")) {
+			var userLang = (navigator.language || navigator.userLanguage).split('-')[0];
+			if (localStorage.REGION) {
+				parent.Launcher.setRegion(localStorage.REGION);
+			} else {
+				parent.Launcher.setRegion(parent.REGIONS[userLang] || REGION);
+			}
 		}
 
 		parent.$(".region").click(function() {

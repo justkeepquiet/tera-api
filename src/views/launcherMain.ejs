@@ -14,6 +14,11 @@
 	var PATCH_NO_CHECK = /^true$/i.test("<%= patchNoCheck %>");
 	var PATCH_URL = "<%= patchUrl %>";
 	var REGION = localStorage.REGION ? localStorage.REGION : "<%= region %>";
+	var REGIONS = {
+		<%_ regions.forEach(element => { _%>
+			"<%= element.locale %>": "<%= element.region %>",
+		<%_ }) _%>
+	};
 	var PATCH_INFO_STRINGS = {
 		"0": "<%= __('Preparing...') %>",
 		"1": "<%= __('Download') %>",
@@ -47,10 +52,10 @@
 			<div class="logo"><img src="/public/launcher/images/logo.png"></div>
 			<!--/logo-->
 			<div class="col">
-				<%_ if (localeSelector) { _%>
+				<%_ if (localeSelector && regions.length > 1) { _%>
 				<ul class="nav" style="clear: both;">
 					<%_ regions.forEach(region => { _%>
-					<%_ if (region.locale == language) { _%>
+					<%_ if (region.locale == lang) { _%>
 						<li><span><img src="/public/launcher/images/flags/<%= region.locale %>.png"> <%= region.name %></span></li>
 					<%_ } else { _%>
 						<li><a href="#" class="region" data-region="<%= region.region %>"><img src="/public/launcher/images/flags/<%= region.locale %>.png"> <%= region.name %></a></li>

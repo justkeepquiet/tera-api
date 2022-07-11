@@ -59,7 +59,7 @@ module.exports.MainHtml = ({ i18n }) => [
 			region: process.env.API_PORTAL_CLIENT_DEFAULT_REGION,
 			localeSelector: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR),
 			locale: i18n.getLocale(),
-			language: req.query.lang,
+			lang: req.query.lang,
 			regions: helpers.getClientRegions(),
 			helpers
 		});
@@ -76,6 +76,7 @@ module.exports.LoginFormHtml = ({ i18n }) => [
 	(req, res) => {
 		res.render("launcherLoginForm", {
 			qaPrivilege: process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE,
+			lang: req.query.lang,
 			locale: i18n.getLocale()
 		});
 	}

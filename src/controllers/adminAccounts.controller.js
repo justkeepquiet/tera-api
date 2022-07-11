@@ -41,7 +41,10 @@ module.exports.index = ({ logger, accountModel }) => [
 					[accountModel.info.sequelize.col("startTime"), "bannedStartTime"],
 					[accountModel.info.sequelize.col("endTime"), "bannedEndTime"]
 				]
-			}
+			},
+			order: [
+				["accountDBID", "ASC"]
+			]
 		}).then(accounts => {
 			res.render("adminAccounts", {
 				layout: "adminLayout",
