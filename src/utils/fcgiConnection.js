@@ -2,6 +2,7 @@
 
 const http = require("http");
 const uuid = require("uuid").v4;
+const FcgiError = require("./fcgiError");
 
 class FcgiConnection {
 	constructor(fcgiUrl, params) {
@@ -19,7 +20,7 @@ class FcgiConnection {
 
 	request(method, url, body = null) {
 		if (!["get", "post"].includes(method)) {
-			throw new Error(`Invalid method: ${method}`);
+			throw new FcgiError(`Invalid method: ${method}`, 10001);
 		}
 
 		let urlObject = null;
@@ -27,11 +28,11 @@ class FcgiConnection {
 		try {
 			urlObject = new URL(url);
 		} catch (error) {
-			throw new Error(`Invalid url ${url}`);
+			throw new FcgiError(`Invalid url ${url}`, 10002);
 		}
 
 		if (body && method !== "post") {
-			throw new Error(`Invalid use of the body parameter while using the ${method.toUpperCase()} method.`);
+			throw new FcgiError(`Invalid use of the body parameter while using the ${method.toUpperCase()} method.`, 10003);
 		}
 
 		const options = {
@@ -83,7 +84,7 @@ class FcgiConnection {
 			});
 
 			clientRequest.on("error", error =>
-				reject(error)
+				reject(new FcgiError(error.toString(), error.code))
 			);
 
 			if (body) {

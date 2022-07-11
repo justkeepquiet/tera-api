@@ -132,9 +132,11 @@ module.exports.addAction = ({ i18n, logger, fcgi, accountModel }) => [
 				description
 			}).then(() => {
 				if (account.get("lastLoginServer") && moment(startTime) < moment() && moment(endTime) > moment()) {
-					fcgi.kick(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err =>
-						logger.warn(err)
-					);
+					fcgi.kick(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
+						if (err.resultCode() !== 2) {
+							logger.warn(err);
+						}
+					});
 				}
 
 				res.redirect("/bans");
@@ -228,9 +230,11 @@ module.exports.editAction = ({ i18n, logger, fcgi, accountModel }) => [
 				where: { accountDBID }
 			}).then(() => {
 				if (account.get("lastLoginServer") && moment(startTime) < moment() && moment(endTime) > moment()) {
-					fcgi.kick(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err =>
-						logger.warn(err)
-					);
+					fcgi.kick(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
+						if (err.resultCode() !== 2) {
+							logger.warn(err);
+						}
+					});
 				}
 
 				res.redirect("/bans");
