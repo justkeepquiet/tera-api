@@ -47,6 +47,7 @@
 			<div class="logo"><img src="/public/launcher/images/logo.png"></div>
 			<!--/logo-->
 			<div class="col">
+				<%_ if (localeSelector) { _%>
 				<ul class="nav" style="clear: both;">
 					<%_ regions.forEach(region => { _%>
 					<%_ if (region.locale == language) { _%>
@@ -56,6 +57,7 @@
 					<% } %>
 					<% }) %>
 				</ul>
+				<% } %>
 			</div>
 			<!--/col-->
 		</div>

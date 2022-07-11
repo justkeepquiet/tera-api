@@ -52,12 +52,12 @@ module.exports.MainHtml = ({ i18n }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-
 		res.render("launcherMain", {
 			brandName: process.env.API_PORTAL_BRAND_NAME || "Tera Private Server",
 			patchNoCheck: process.env.API_PORTAL_CLIENT_PATCH_NO_CHECK,
 			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
 			region: process.env.API_PORTAL_CLIENT_DEFAULT_REGION,
+			localeSelector: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR),
 			locale: i18n.getLocale(),
 			language: req.query.lang,
 			regions: helpers.getClientRegions(),
