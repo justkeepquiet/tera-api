@@ -12,13 +12,13 @@
 							<h3 class="title"><%= __("Session Information") %></h3>
 						</div>
 						<section class="mb-2">
-							<%= __("User login ID") %>: <strong><%= passport.user.login %></strong>
+							<%= __("User login ID") %>: <strong><%= user.login %></strong>
 						</section>
 						<section class="mb-2">
-							<%= __("User login SN") %>: <strong><%= passport.user.userSn || __("No") %></strong>
+							<%= __("User login SN") %>: <strong><%= user.userSn || __("No") %></strong>
 						</section>
 						<section class="mb-2">
-							<%= __("Authentication type") %>: <strong><%= passport.user.type === "steer" ? "STEER" : "QA Login" %></strong>
+							<%= __("Authentication type") %>: <strong><%= user.type === "steer" ? "STEER" : "QA Login" %></strong>
 						</section>
 						<section class="mb-2">
 							<%= __("Time zone") %>: <strong><%= moment().format("Z") %> (<%= moment.tz.guess() %>)</strong>
@@ -27,7 +27,7 @@
 				</div>
 			</div>
 		</div>
-		<%_ if (passport.user.type === "steer") { _%>
+		<%_ if (user.type === "steer") { _%>
 		<div class="row sameheight-container">
 			<div class="col-md-6">
 				<div class="card sameheight-item">
@@ -44,10 +44,10 @@
 									</tr>
 								</thead>
 								<tbody>
-									<%_ Object.keys(passport.user.functions).forEach(id => { _%>
+									<%_ Object.keys(user.functions).forEach(id => { _%>
 									<tr>
 										<td><%= id %></td>
-										<td><%= passport.user.functions[id] %></td>
+										<td><%= user.functions[id] %></td>
 									</tr>
 									<%_ }) _%>
 								</tbody>

@@ -96,13 +96,9 @@ class SteerFunctions extends SteerConnection {
 
 			if (resultCode === this.steerErrorCode.success) {
 				const resultedSessionLey = Buffer.from(data.sessionKey).toString();
-				const resultScalar = Buffer.from(data.resultScalar).toString();
 
 				if (resultedSessionLey === sessionKey) {
-					return Promise.resolve({
-						sessionKey: resultedSessionLey,
-						userSn: resultScalar
-					});
+					return Promise.resolve(resultedSessionLey);
 				} else {
 					return Promise.reject(resultCode);
 				}

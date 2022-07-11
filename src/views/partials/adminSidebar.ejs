@@ -3,7 +3,7 @@
 		const result = [];
 
 		items.forEach(item => {
-			if (item.page && passport.user.type === "steer" && !Object.values(passport.user.functions).includes(item.page)) {
+			if (item.page && user.type === "steer" && !Object.values(user.functions).includes(item.page)) {
 				return;
 			}
 

@@ -9,7 +9,7 @@
  */
 module.exports.accessFunctionHandler = (req, res, next) => {
 	if (req.isAuthenticated()) {
-		res.locals.passport = req.session.passport;
+		res.locals.user = req.user;
 
 		if (req.user.type === "steer" &&
 			!Object.values(req.user.functions).includes(req.path)

@@ -146,6 +146,7 @@ module.exports.loginAction = ({ passport }) => [
 					errorMessage: `Operation failed: ${error}`, login: "", password: ""
 				});
 			}
+
 			if (msg) {
 				return res.render("adminLogin", {
 					errorMessage: res.locals.__(msg), login: "", password: ""
