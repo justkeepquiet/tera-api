@@ -18,7 +18,7 @@
 		</form>
 	</section>
 	<section class="section">
-		<a class="btn btn-danger<%- isNaN(serverId) || serverId === "" ? " disabled" : "" %>" title="" href="/online/kick_all?serverId=<%= serverId %>&amp;fromServerId=<%= serverId %>"><%= __("Kick all online players") %></a>
+		<a class="btn btn-danger<%- isNaN(serverId) || serverId === "" || online.length == 0 ? " disabled" : "" %>" title="" href="/online/kick_all?serverId=<%= serverId %>&amp;fromServerId=<%= serverId %>"><%= __("Kick all online players") %></a>
 	</section>
 	<section class="section">
 		<div class="row">

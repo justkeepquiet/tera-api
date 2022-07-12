@@ -5,11 +5,9 @@
  * @typedef {import("express").RequestHandler} RequestHandler
  */
 
-const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
 const moment = require("moment-timezone");
-const I18n = require("i18n").I18n;
 const helpers = require("../utils/helpers");
 
 const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
