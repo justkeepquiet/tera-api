@@ -36,6 +36,12 @@ class FcgiFunctions extends FcgiConnection {
 		);
 	}
 
+	bulkKick(serverId, kickCode, filter = 0, filterMask = 0) {
+		return this.get(["bulkkick", serverId, filter, filterMask, kickCode]).then(response =>
+			Promise.resolve(response.body)
+		);
+	}
+
 	msg(serverId, msg, userId = null) {
 		return this.get(["msg", serverId, userId || "all", msg]).then(response =>
 			(response.body !== 0 ?

@@ -40,7 +40,9 @@ module.exports.index = ({ logger, accountModel }) => [
 				include: [
 					[accountModel.info.sequelize.col("userName"), "userName"],
 					[accountModel.info.sequelize.col("lastLoginTime"), "lastLoginTime"],
-					[accountModel.info.sequelize.col("lastLoginIP"), "lastLoginIP"]
+					[accountModel.info.sequelize.col("lastLoginIP"), "lastLoginIP"],
+					[accountModel.info.sequelize.col("permission"), "permission"],
+					[accountModel.info.sequelize.col("privilege"), "privilege"]
 				]
 			}
 		}).then(online =>
@@ -59,7 +61,6 @@ module.exports.index = ({ logger, accountModel }) => [
 		});
 	}
 ];
-
 
 /**
  * @param {modules} modules
@@ -103,6 +104,45 @@ module.exports.kickAction = ({ i18n, logger, fcgi, accountModel }) => [
 		}
 
 		fcgi.kick(serverId, accountDBID, 33).then(() =>
+			res.redirect(`/online?serverId=${fromServerId}`)
+		).catch(err => {
+			logger.error(err);
+			res.render("adminError", { layout: "adminLayout", err });
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.kickAllAction = ({ i18n, logger, fcgi, accountModel }) => [
+	accessFunctionHandler,
+	expressLayouts,
+	[
+		query("serverId").trim()
+			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain a valid number."))
+			.custom((value, { req }) => accountModel.serverInfo.findOne({
+				where: {
+					serverId: req.query.serverId
+				}
+			}).then(data => {
+				if (data === null) {
+					return Promise.reject(i18n.__("Server ID field contains not existing server ID."));
+				}
+			}))
+	],
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		const { serverId, fromServerId } = req.query;
+		const errors = helpers.validationResultLog(req, logger);
+
+		if (!errors.isEmpty()) {
+			return res.render("adminError", { layout: "adminLayout", err: errors.array()[0].msg });
+		}
+
+		fcgi.bulkKick(serverId, 33).then(() =>
 			res.redirect(`/online?serverId=${fromServerId}`)
 		).catch(err => {
 			logger.error(err);

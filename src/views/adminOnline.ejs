@@ -18,6 +18,9 @@
 		</form>
 	</section>
 	<section class="section">
+		<a class="btn btn-danger<%- isNaN(serverId) || serverId === "" ? " disabled" : "" %>" title="" href="/online/kick_all?serverId=<%= serverId %>&amp;fromServerId=<%= serverId %>"><%= __("Kick all online players") %></a>
+	</section>
+	<section class="section">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
@@ -40,7 +43,13 @@
 										<tr>
 											<td><%= moment(account.get("lastLoginTime")).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= account.get("serverId") || "-" %></td>
+											<%_ if (account.get("permission") >= 256) { _%>
+											<td class="text-primary"><%= account.get("accountDBID") %> <i class="fa fa-wrench"></i></td>
+											<%_ } else if (account.get("permission") >= 1) { _%>
+											<td class="text-success"><%= account.get("accountDBID") %> <i class="fa fa-level-up"></i></td>
+											<%_ } else { _%>
 											<td><%= account.get("accountDBID") %></td>
+											<%_ } _%>
 											<td><%= account.get("userName") %></a></td>
 											<td><%= account.get("lastLoginIP") %></td>
 											<td class="text-right">

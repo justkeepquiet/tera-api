@@ -139,6 +139,7 @@ module.exports = modules => {
 		// Online Users
 		.get("/online", adminOnlineController.index(mod))
 		.get("/online/kick", adminOnlineController.kickAction(mod))
+		.get("/online/kick_all", adminOnlineController.kickAllAction(mod))
 		// Account Benefits
 		.get("/benefits", adminBenefitsController.index(mod))
 		.get("/benefits/add", adminBenefitsController.add(mod))
