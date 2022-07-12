@@ -280,7 +280,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, accountModel, shopModel }) 
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		const { id, search, scroll } = req.body;
+		const { id, search, scroll, back } = req.body;
 
 		shopModel.products.belongsTo(shopModel.productStrings, { foreignKey: "id" });
 		shopModel.products.hasOne(shopModel.productStrings, { foreignKey: "productId" });
@@ -415,7 +415,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, accountModel, shopModel }) 
 				productObj.tradable = firstItem.get("tradable");
 				productObj.warehouseStorable = firstItem.get("warehouseStorable");
 
-				res.render("partials/shopProduct", { helpers, product: productObj, items, conversions, search, scroll });
+				res.render("partials/shopProduct", { helpers, product: productObj, items, conversions, search, scroll, back });
 			});
 		}).catch(err => {
 			logger.error(err);
@@ -452,7 +452,9 @@ module.exports.PartialWelcomeHtml = ({ logger, accountModel }) => [
 				benefits[benefitData.get("benefitId")] = benefitData.get("availableUntil");
 			}
 
-			res.render("partials/shopWelcome", { moment, server, benefits });
+			const carousel = helpers.requireReload("../../config/shop").welcomeCarousel;
+
+			res.render("partials/shopWelcome", { moment, server, benefits, carousel });
 		} catch (err) {
 			console.log(err);
 			logger.error(err);

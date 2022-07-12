@@ -10,7 +10,9 @@
 				<small><%- helpers.formatStrsheet(product.description) %></small>
 			</div>
 			<div class="text-right text-light">
+			<%_ if (back !== false) { _%>
 				<a href="#" class="btn btn2" id="back"><i class="fal fa-angle-double-left"></i> <%= __("Back") %>&nbsp;</a>
+			<%_ } _%>
 			</div>
 		</div>
 		<hr>
@@ -101,7 +103,7 @@
 </div>
 <%_ if (search) { _%>
 <script type="text/javascript">
-	var backParams = { search: "<%= search %>", scroll: "<%= scrollTop %>" };
+	var backParams = { search: "<%= search %>", scrollTop: "<%= scroll %>" };
 </script>
 <%_ } else { _%>
 <script type="text/javascript">

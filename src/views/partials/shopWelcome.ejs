@@ -20,24 +20,22 @@ _%>
 </div>
 <div id="myCarousel" class="carousel slide">
 	<div class="carousel-inner">
-		<div class="item active">
-			<img src="/public/shop/images/slide-01.jpg" alt="" class="img-rounded" style="width: 100%;">
+		<%_ carousel.forEach((item, i) => { _%>
+		<div class="item<%= i == 0 ? " active" : "" %>">
+			<a href="#" data-id="<%= item.productId %>" class="carousel-item"><img src="<%= item.slide %>" alt="" class="img-rounded" style="width: 100%;"></a>
 		</div>
-		<div class="item">
-			<img src="/public/shop/images/slide-02.jpg" alt="" class="img-rounded" style="width: 100%;">
-		</div>
-		<div class="item">
-			<img src="/public/shop/images/slide-03.jpg" alt="" class="img-rounded" style="width: 100%;">
-		</div>
-		<div class="item">
-			<img src="/public/shop/images/slide-04.jpg" alt="" class="img-rounded" style="width: 100%;">
-		</div>
+		<% }) %>
 	</div>
 	<a class="left carousel-control" href="#myCarousel" data-slide="prev">&lsaquo;</a>
 	<a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
 </div>
 <script type="text/javascript">
 	$(function() {
-		$('#myCarousel').carousel();
+		$("#myCarousel").carousel();
+		$("#myCarousel .carousel-item").click(function () {
+			if ($(this).data("id")) {
+				loadContent("Product", { id: $(this).data("id"), back: false });
+			}
+		});
 	});
 </script>
