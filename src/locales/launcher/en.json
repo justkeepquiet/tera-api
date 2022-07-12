@@ -25,5 +25,9 @@
 	"Enter login": "Enter login",
 	"Enter email": "Enter email",
 	"Enter password": "Enter password",
-	"Confirm password": "Confirm password"
+	"Confirm password": "Confirm password",
+	"QA Operations Menu": "QA Operations Menu",
+	"Disable file check": "Disable file check",
+	"Client language": "Client language",
+	"Hide block": "Hide block"
 }

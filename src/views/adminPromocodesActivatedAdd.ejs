@@ -1,7 +1,7 @@
 <%- contentFor("content") %>
 <article class="content">
 	<div class="title-block">
-		<h1 class="title"><%= __("Activate Promocode") %></h1>
+		<h1 class="title"><%= __("Activate Promo Code") %></h1>
 	</div>
 	<section class="section">
 		<a class="btn btn-secondary" title="" href="/promocodes_activated?accountDBID=<%= accountDBID %>"><i class="fa fa-chevron-left"></i> <%= __("Back to list") %></a>
@@ -17,7 +17,7 @@
 							<input type="number" class="form-control boxed" name="accountDBID" value="<%= accountDBID %>">
 						</div>
 						<div class="form-group">
-							<label class="control-label" for="promoCodeId"><%= __("Promocode ID") %></label>
+							<label class="control-label" for="promoCodeId"><%= __("Promo code ID") %></label>
 							<select class="form-control boxed" name="promoCodeId">
 							<%_ promocodes.forEach(promocode => { _%>
 								<option value="<%= promocode.get("promoCodeId") %>" <%= promoCodeId == promocode.get("promoCodeId") ? 'selected' : "" %>>(<%= promocode.get("promoCodeId") %>) <%= promocode.get("promoCode") %></option>

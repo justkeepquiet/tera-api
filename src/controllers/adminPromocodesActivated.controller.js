@@ -76,7 +76,7 @@ module.exports.add = ({ i18n, logger, shopModel }) => [
 	expressLayouts,
 	[
 		query("promoCodeId").trim().optional()
-			.isInt({ min: 0 }).withMessage(i18n.__("Promocode ID field must contain a valid number.")),
+			.isInt({ min: 0 }).withMessage(i18n.__("Promo code ID field must contain a valid number.")),
 		query("accountDBID").trim().optional()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 	],
@@ -110,14 +110,14 @@ module.exports.addAction = ({ i18n, logger, accountModel, shopModel }) => [
 	expressLayouts,
 	[
 		body("promoCodeId").trim()
-			.isInt({ min: 0 }).withMessage(i18n.__("Promocode ID field must contain a valid number."))
+			.isInt({ min: 0 }).withMessage(i18n.__("Promo code ID field must contain a valid number."))
 			.custom((value, { req }) => shopModel.promoCodes.findOne({
 				where: {
 					promoCodeId: req.body.promoCodeId
 				}
 			}).then(data => {
 				if (req.body.promoCodeId && data === null) {
-					return Promise.reject(i18n.__("Promocode ID field contains not existing promocode ID."));
+					return Promise.reject(i18n.__("Promo code ID field contains not existing promo code ID."));
 				}
 			})),
 		body("accountDBID").trim()
@@ -138,7 +138,7 @@ module.exports.addAction = ({ i18n, logger, accountModel, shopModel }) => [
 				}
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("This promocode has already been activated on the specified account ID."));
+					return Promise.reject(i18n.__("This promo code has already been activated on the specified account ID."));
 				}
 			}))
 	],

@@ -73,17 +73,17 @@
 				<h3><%= __("Welcome") %>, <span id="userName""></span>! <a href="#" class="btn-logout" onclick="loginIFrame.logout();"></a></h3>
 				<div id="qaBox" class="qa-box" style="display: none;">
 					<fieldset>
-						<legend>QA Operations Menu</legend>
+						<legend><%= __("QA Operations Menu") %></legend>
 						<table>
-							<tr><td>Disable file check</td><td><input type="checkbox" id="qaModeCheck" checked></td></tr>
-							<tr><td>Client language</td><td><select id="qaRegion">
+							<tr><td><%= __("Disable file check") %></td><td><input type="checkbox" id="qaModeCheck" checked></td></tr>
+							<tr><td><%= __("Client language") %></td><td><select id="qaRegion">
 								<%_ regions.forEach(region => { _%>
 								<option value="<%= region.region %>"><%= region.name %></option>
 							<% }) %>
 							</select></td></tr>
 						</table>
 					</fieldset>
-					<a href="#" id="qaHide" class="qa-hide">Hide block</a>
+					<a href="#" id="qaHide" class="qa-hide"><%= __("Hide block") %></a>
 				</div>
 			</div>
 			<!--/notice-->

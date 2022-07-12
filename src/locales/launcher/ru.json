@@ -25,5 +25,9 @@
 	"Enter login": "Логин",
 	"Enter email": "Email",
 	"Enter password": "Пароль",
-	"Confirm password": "Подтверждение"
+	"Confirm password": "Подтверждение",
+	"QA Operations Menu": "Меню тестирования",
+	"Disable file check": "Отключить проверку файлов",
+	"Client language": "Язык клиента",
+	"Hide block": "Скрыть блок"
 }

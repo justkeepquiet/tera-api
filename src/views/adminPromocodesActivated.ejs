@@ -1,7 +1,7 @@
 <%- contentFor("content") %>
 <article class="content">
 	<div class="title-block">
-		<h1 class="title"><%= __("Shop Activated Promocodes") %></h1>
+		<h1 class="title"><%= __("Shop Activated Promo Codes") %></h1>
 	</div>
 	<section class="section">
 		<form class="form-inline" action="" method="GET">
@@ -10,19 +10,19 @@
 				<input type="number" class="form-control boxed" name="accountDBID" value="<%= accountDBID %>">
 			</div>
 			<div class="form-group">
-				<label for="promoCodeId"><%= __("Promocode ID") %></label>
+				<label for="promoCodeId"><%= __("Promo code ID") %></label>
 				<input type="number" class="form-control boxed" name="promoCodeId" value="<%= promoCodeId %>">
 			</div>
 			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
 		</form>
 	</section>
 	<section class="section">
-		<a class="btn btn-warning" title="" href="/promocodes_activated/add?promoCodeId=<%= promoCodeId %>&amp;accountDBID=<%= accountDBID %>"><%= __("Activate promocode") %></a>
+		<a class="btn btn-warning" title="" href="/promocodes_activated/add?promoCodeId=<%= promoCodeId %>&amp;accountDBID=<%= accountDBID %>"><%= __("Activate promo code") %></a>
 	</section>
 	<%_ if (promocodes === null) { _%>
 	<section class="section">
 		<div class="alert alert-info">
-			<%= __("Please enter account ID or promocode ID.") %>
+			<%= __("Please enter account ID or promo code ID.") %>
 		</div>
 	</section>
 	<%_ } else { _%>
@@ -37,8 +37,8 @@
 									<thead>
 										<tr>
 											<th><%= __("Activation time") %></th>
-											<th><%= __("Promocode ID") %></th>
-											<th><%= __("Promocode") %></th>
+											<th><%= __("Promo code ID") %></th>
+											<th><%= __("Promo code") %></th>
 											<th><%= __("Account ID") %></th>
 											<th></th>
 										</tr>

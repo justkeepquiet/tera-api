@@ -13,7 +13,7 @@ const moment = require("moment-timezone");
 const helpers = require("../utils/helpers");
 
 const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
-const shopLocales = (new I18n({ directory: path.resolve(__dirname, "../locales/shop") })).getLocales();
+const shopLocales = require("../../config/admin").shopLocales;
 const promocodeFunctions = Object.keys(require("../../config/promoCode"));
 
 /**
@@ -90,14 +90,14 @@ module.exports.addAction = ({ i18n, logger, shopModel }) => [
 	expressLayouts,
 	[
 		body("promoCode")
-			.isLength({ min: 6, max: 16 }).withMessage("Promocode field must be between 6 and 16 characters.")
+			.isLength({ min: 6, max: 16 }).withMessage("Promo code field must be between 6 and 16 characters.")
 			.custom((value, { req }) => shopModel.promoCodes.findOne({
 				where: {
 					promoCode: req.body.promoCode
 				}
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("Promocode field contains an existing promocode."));
+					return Promise.reject(i18n.__("Promo code field contains an existing promo code."));
 				}
 			})),
 		body("aFunction")

@@ -13,7 +13,7 @@ const I18n = require("i18n").I18n;
 const helpers = require("../utils/helpers");
 
 const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
-const shopLocales = (new I18n({ directory: path.resolve(__dirname, "../locales/shop") })).getLocales();
+const shopLocales = require("../../config/admin").shopLocales;
 
 /**
  * @param {modules} modules
