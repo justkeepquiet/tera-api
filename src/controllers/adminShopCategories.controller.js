@@ -11,7 +11,7 @@ const body = require("express-validator").body;
 const I18n = require("i18n").I18n;
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 const shopLocales = require("../../config/admin").shopLocales;
 
 /**
@@ -80,7 +80,7 @@ module.exports.add = () => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, shopModel }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
@@ -95,7 +95,7 @@ module.exports.addAction = ({ i18n, logger, shopModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { sort, active, title } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
@@ -136,11 +136,18 @@ module.exports.addAction = ({ i18n, logger, shopModel }) => [
 				);
 			})
 		).then(() =>
-			res.redirect("/shop_categories")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/shop_categories");
 	}
 ];
 
@@ -199,7 +206,7 @@ module.exports.edit = ({ logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, shopModel }) => [
+module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
@@ -214,7 +221,7 @@ module.exports.editAction = ({ i18n, logger, shopModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { id } = req.query;
 		const { sort, active, title } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
@@ -267,7 +274,7 @@ module.exports.editAction = ({ i18n, logger, shopModel }) => [
 					}
 
 					return Promise.all(promises).then(() =>
-						res.redirect("/shop_categories")
+						next()
 					);
 				})
 			);
@@ -275,20 +282,27 @@ module.exports.editAction = ({ i18n, logger, shopModel }) => [
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/shop_categories");
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, shopModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { id } = req.query;
 
 		if (!id) {
@@ -306,11 +320,18 @@ module.exports.deleteAction = ({ logger, shopModel }) => [
 					transaction
 				})
 			]).then(() =>
-				res.redirect("/shop_categories")
+				next()
 			)
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/shop_categories");
 	}
 ];

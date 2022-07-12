@@ -10,7 +10,7 @@ const body = require("express-validator").body;
 const helpers = require("../utils/helpers");
 const ServerUpActions = require("../actions/serverUp.actions");
 
-const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -82,7 +82,7 @@ module.exports.add = ({ i18n }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, accountModel }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -124,7 +124,7 @@ module.exports.addAction = ({ i18n, logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { serverId, loginIp, loginPort, language, nameString, descrString,
 			tresholdLow, tresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
@@ -162,11 +162,18 @@ module.exports.addAction = ({ i18n, logger, accountModel }) => [
 			isAvailable: isAvailable == "on",
 			isEnabled: isEnabled == "on"
 		}).then(() =>
-			res.redirect("/servers")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/servers");
 	}
 ];
 
@@ -213,7 +220,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, accountModel }) => [
+module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -244,7 +251,7 @@ module.exports.editAction = ({ i18n, logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { serverId } = req.query;
 		const { loginIp, loginPort, language, nameString, descrString,
 			tresholdLow, tresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
@@ -288,24 +295,31 @@ module.exports.editAction = ({ i18n, logger, accountModel }) => [
 		}, {
 			where: { serverId }
 		}).then(() =>
-			res.redirect("/servers")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/servers");
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, accountModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { serverId } = req.query;
 
 		if (!serverId) {
@@ -313,10 +327,17 @@ module.exports.deleteAction = ({ logger, accountModel }) => [
 		}
 
 		accountModel.serverInfo.destroy({ where: { serverId } }).then(() =>
-			res.redirect("/servers")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/servers");
 	}
 ];

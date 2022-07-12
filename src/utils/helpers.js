@@ -146,3 +146,19 @@ module.exports.validationResultLog = (request, customLogger) => {
 
 	return result;
 };
+
+/**
+* @param {string[]} array
+* @return {string}
+*/
+module.exports.serializeRange = array =>
+	array.join("; ")
+;
+
+/**
+* @param {string} string
+* @return {string[]}
+*/
+module.exports.unserializeRange = string =>
+	string.split(";").map(e => e.trim() || null).filter(e => e !== null)
+;

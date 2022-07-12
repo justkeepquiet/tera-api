@@ -10,7 +10,7 @@ const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -104,7 +104,7 @@ module.exports.add = ({ i18n, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, accountModel, shopModel }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
@@ -145,7 +145,7 @@ module.exports.addAction = ({ i18n, logger, accountModel, shopModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { promoCodeId, accountDBID } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
@@ -165,26 +165,33 @@ module.exports.addAction = ({ i18n, logger, accountModel, shopModel }) => [
 				promoCodeId,
 				accountDBID
 			}).then(() =>
-				res.redirect(`/promocodes_activated?accountDBID=${accountDBID}`)
+				next()
 			);
 		}).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect(`/promocodes_activated?accountDBID=${req.body.accountDBID}`);
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, shopModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { id } = req.query;
 
 		if (!id) {
@@ -198,12 +205,21 @@ module.exports.deleteAction = ({ logger, shopModel }) => [
 				return res.redirect("/promocodes_activated");
 			}
 
+			req.accountDBID = promocode.get("accountDBID");
+
 			return shopModel.promoCodeActivated.destroy({ where: { id } }).then(() =>
-				res.redirect(`/promocodes_activated?accountDBID=${promocode.get("accountDBID")}`)
+				next()
 			);
 		}).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect(`/promocodes_activated?accountDBID=${req.accountDBID}`);
 	}
 ];

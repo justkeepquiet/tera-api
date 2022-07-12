@@ -14,6 +14,7 @@ const Passport = require("passport").Passport;
 const LocalStrategy = require("passport-local").Strategy;
 
 const adminController = require("../../controllers/admin.controller");
+const adminOperationsReportController = require("../../controllers/adminOperationsReport.controller");
 const adminServersController = require("../../controllers/adminServers.controller");
 const adminServerStringsController = require("../../controllers/adminServerStrings.controller");
 const adminMaintenanceController = require("../../controllers/adminMaintenance.controller");
@@ -128,6 +129,8 @@ module.exports = modules => {
 		.get("/home", adminController.home(mod))
 		.get("/profile", adminController.profile(mod))
 		.get("/settings", adminController.settings(mod))
+		.get("/operations_report", adminOperationsReportController.index(mod))
+		.get("/operations_report/view", adminOperationsReportController.view(mod))
 		// Account Management
 		.get("/accounts", adminAccountsController.index(mod))
 		.get("/accounts/add", adminAccountsController.add(mod))

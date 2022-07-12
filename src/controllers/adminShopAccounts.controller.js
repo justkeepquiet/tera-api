@@ -10,7 +10,7 @@ const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -74,7 +74,7 @@ module.exports.add = ({ i18n }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, accountModel, shopModel }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
@@ -107,7 +107,7 @@ module.exports.addAction = ({ i18n, logger, accountModel, shopModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { accountDBID, balance, active } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
@@ -126,11 +126,18 @@ module.exports.addAction = ({ i18n, logger, accountModel, shopModel }) => [
 			balance,
 			active: active == "on"
 		}).then(() =>
-			res.redirect("/shop_accounts")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/shop_accounts");
 	}
 ];
 
@@ -175,7 +182,7 @@ module.exports.edit = ({ logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, shopModel }) => [
+module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
@@ -188,7 +195,7 @@ module.exports.editAction = ({ i18n, logger, shopModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { accountDBID } = req.query;
 		const { balance, active } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
@@ -213,25 +220,32 @@ module.exports.editAction = ({ i18n, logger, shopModel }) => [
 		}, {
 			where: { accountDBID }
 		}).then(() =>
-			res.redirect("/shop_accounts")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/shop_accounts");
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, shopModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { accountDBID } = req.query;
 
 		if (!accountDBID) {
@@ -239,10 +253,17 @@ module.exports.deleteAction = ({ logger, shopModel }) => [
 		}
 
 		shopModel.accounts.destroy({ where: { accountDBID } }).then(() =>
-			res.redirect("/shop_accounts")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/shop_accounts");
 	}
 ];

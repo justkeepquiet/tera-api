@@ -8,9 +8,10 @@
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
+const validator = require("validator");
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -26,6 +27,7 @@ module.exports.index = ({ logger, accountModel }) => [
 			res.render("adminBans", {
 				layout: "adminLayout",
 				moment,
+				helpers,
 				bans
 			});
 		}).catch(err => {
@@ -67,6 +69,8 @@ module.exports.add = ({ i18n, accountModel }) => [
 			accountDBID,
 			startTime: moment(),
 			endTime: moment().add(30, "days"),
+			active: 1,
+			ip: "",
 			description: ""
 		});
 	}
@@ -75,7 +79,7 @@ module.exports.add = ({ i18n, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, fcgi, accountModel }) => [
+module.exports.addAction = ({ i18n, logger, fcgi, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -103,14 +107,22 @@ module.exports.addAction = ({ i18n, logger, fcgi, accountModel }) => [
 			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
 		body("endTime")
 			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
+		body("ip").trim().optional()
+			.custom(value => {
+				const ip = helpers.unserializeRange(value);
+				return ip.length === 0 || ip.length === ip.filter(e => validator.isIP(e)).length;
+			})
+			.withMessage(i18n.__("IP address field must contain a valid IP value.")),
+		body("active").optional()
+			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
 		body("description").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
 	],
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		const { accountDBID, startTime, endTime, description } = req.body;
+	(req, res, next) => {
+		const { accountDBID, startTime, endTime, active, ip, description } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
@@ -120,6 +132,8 @@ module.exports.addAction = ({ i18n, logger, fcgi, accountModel }) => [
 				accountDBID,
 				startTime: moment.tz(startTime, req.user.tz),
 				endTime: moment.tz(endTime, req.user.tz),
+				active,
+				ip,
 				description
 			});
 		}
@@ -129,6 +143,8 @@ module.exports.addAction = ({ i18n, logger, fcgi, accountModel }) => [
 				accountDBID: account.get("accountDBID"),
 				startTime: moment.tz(startTime, req.user.tz).toDate(),
 				endTime: moment.tz(endTime, req.user.tz).toDate(),
+				active: active == "on",
+				ip: JSON.stringify(helpers.unserializeRange(ip)),
 				description
 			}).then(() => {
 				if (account.get("lastLoginServer") && moment(startTime) < moment() && moment(endTime) > moment()) {
@@ -139,12 +155,19 @@ module.exports.addAction = ({ i18n, logger, fcgi, accountModel }) => [
 					});
 				}
 
-				res.redirect("/bans");
+				next();
 			})
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/bans");
 	}
 ];
 
@@ -175,7 +198,9 @@ module.exports.edit = ({ logger, accountModel }) => [
 				accountDBID: data.get("accountDBID"),
 				startTime: moment(data.get("startTime")),
 				endTime: moment(data.get("endTime")),
-				description: data.get("description")
+				description: data.get("description"),
+				active: data.get("active"),
+				ip: helpers.serializeRange(JSON.parse(data.get("ip") || "[]"))
 			});
 		}).catch(err => {
 			logger.error(err);
@@ -187,7 +212,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, fcgi, accountModel }) => [
+module.exports.editAction = ({ i18n, logger, fcgi, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -195,15 +220,23 @@ module.exports.editAction = ({ i18n, logger, fcgi, accountModel }) => [
 			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
 		body("endTime")
 			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
+		body("ip").trim().optional()
+			.custom(value => {
+				const ip = helpers.unserializeRange(value);
+				return ip.length === 0 || ip.length === ip.filter(e => validator.isIP(e)).length;
+			})
+			.withMessage(i18n.__("IP address field must contain a valid IP value.")),
+		body("active").optional()
+			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
 		body("description").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
 	],
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { accountDBID } = req.query;
-		const { startTime, endTime, description } = req.body;
+		const { startTime, endTime, active, ip, description } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!accountDBID) {
@@ -217,14 +250,17 @@ module.exports.editAction = ({ i18n, logger, fcgi, accountModel }) => [
 				accountDBID,
 				startTime: moment.tz(startTime, req.user.tz),
 				endTime: moment.tz(endTime, req.user.tz),
+				active,
+				ip,
 				description
 			});
 		}
-
 		accountModel.info.findOne({ where: { accountDBID } }).then(account =>
 			accountModel.bans.update({
 				startTime: moment.tz(startTime, req.user.tz).toDate(),
 				endTime: moment.tz(endTime, req.user.tz).toDate(),
+				active: active == "on",
+				ip: JSON.stringify(helpers.unserializeRange(ip)),
 				description
 			}, {
 				where: { accountDBID }
@@ -237,25 +273,32 @@ module.exports.editAction = ({ i18n, logger, fcgi, accountModel }) => [
 					});
 				}
 
-				res.redirect("/bans");
+				next();
 			})
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/bans");
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, accountModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { accountDBID } = req.query;
 
 		if (!accountDBID) {
@@ -263,10 +306,17 @@ module.exports.deleteAction = ({ logger, accountModel }) => [
 		}
 
 		accountModel.bans.destroy({ where: { accountDBID } }).then(() =>
-			res.redirect("/bans")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/bans");
 	}
 ];

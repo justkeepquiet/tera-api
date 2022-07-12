@@ -1,0 +1,146 @@
+<%_
+const strings = {
+	id: __("ID"),
+	accountDBID: __("Account ID"),
+	serverId: __("Server ID"),
+	benefitId: __("Benefit ID"),
+	categoryId: __("Category ID"),
+	promoCodeId: __("Promo code ID"),
+	validAfter: __("Valid from"),
+	validBefore: __("Valid to"),
+	startTime: __("Start time"),
+	endTime: __("End time"),
+	availableUntil: __("Available until"),
+	active: __("Active"),
+	sort: __("Sort"),
+	language: __("Language"),
+	ip: __("IP address"),
+	title: __("Title"),
+	description: __("Description"),
+	icon: __("Icon"),
+	price: __("Price"),
+	itemTemplateIds: __("Item template ID"),
+	boxItemCounts: __("Count"),
+	boxItemIds: __("Box item ID"),
+	rareGrade: __("Rare grade"),
+	userName: __("User name"),
+	passWord: __("Password"),
+	email: __("Email"),
+	permission: __("Permission"),
+	privilege: __("Privilege"),
+	loginIp: __("Login IP"),
+	loginPort: __("Login port"),
+	nameString: __("Name string"),
+	descrString: __("Description string"),
+	tresholdLow: __("Treshold low"),
+	tresholdMedium: __("Treshold medium"),
+	isCrowdness: __("Is crowdness"),
+	isAvailable: __("Is available"),
+	isEnabled: __("Is enabled"),
+	isPvE: __("Only PvE"),
+	categoryPvE: __("Category PvE"),
+	categoryPvP: __("Category PvP"),
+	serverOffline: __("Server offline"),
+	serverLow: __("Server low"),
+	serverMedium: __("Server medium"),
+	serverHigh: __("Server high"),
+	crowdNo: __("Crowdness no"),
+	crowdYes: __("Crowdness yes"),
+	popup: __("Popup"),
+};
+const [query, body] = JSON.parse(report.get("payload"));
+_%>
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("View Operations Report") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-secondary" title="" href="/operations_report?from=<%= from.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>&amp;to=<%= to.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>"><i class="fa fa-chevron-left"></i> <%= __("Back to list") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col form">
+				<div class="card card-block">
+					<div class="form-group row">
+						<div class="col-sm-6">
+							<label class="control-label" for="reportTime"><%= __("Report time") %></label>
+							<input type="datetime-local" class="form-control boxed" name="reportTime" value="<%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DDTHH:mm") %>" readonly>
+						</div>
+						<div class="col-sm-6">
+							<label class="control-label" for="userId"><%= __("User login ID") %></label>
+							<input type="text" class="form-control boxed" name="userId" value="<%= report.get("userId") %>" readonly>
+						</div>
+					</div>
+					<div class="form-group row">
+						<div class="col-sm-6">
+							<label class="control-label" for="reportTime"><%= __("Function") %></label>
+							<input type="text" class="form-control boxed" name="reportTime" value="<%= report.get("function") %>" readonly>
+						</div>
+						<div class="col-sm-6">
+							<label class="control-label" for="userId"><%= __("IP address") %></label>
+							<input type="text" class="form-control boxed" name="userId" value="<%= report.get("ip") %>" readonly>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col form">
+				<div class="card card-block">
+					<div class="title-block">
+						<h3 class="title"><%= __("Operation Parameters") %></h3>
+					</div>
+					<%_ Object.keys(query).forEach(key => { _%>
+					<%_ if (query[key] !== "" && !/^from.+/.test(key)) { _%>
+						<div class="form-group row">
+							<div class="col-sm-4 mt-2">
+								<label class="control-label"><%= strings[key] || key %></label>
+							</div>
+							<div class="col-sm-8">
+								<input type="text" class="form-control boxed" value="<%= query[key] %>" readonly>
+							</div>
+						</div>
+					<%_ } _%>
+					<%_ }) _%>
+					<%_ Object.keys(body).forEach(key => { _%>
+					<%_ if (key !== "validate") { _%>
+						<div class="form-group row">
+							<div class="col-sm-4 mt-2">
+								<label class="control-label"><%= strings[key] || key %></label>
+							</div>
+							<div class="col-sm-8">
+							<%_ if (body[key].constructor === Array) { _%>
+								<%_ body[key].forEach((v, k) => { _%>
+								<div class="form-group row">
+									<div class="col-sm-2 mt-2">
+										<label class="control-label">#<%= strings[k] || k %></label>
+									</div>
+									<div class="col-sm-10">
+										<input type="text" class="form-control boxed" value="<%= v %>" readonly>
+									</div>
+								</div>
+								<%_ }) _%>
+							<%_ } else if (body[key].constructor === Object) { _%>
+								<%_ Object.keys(body[key]).forEach(k => { _%>
+								<div class="form-group row">
+									<div class="col-sm-2 mt-2">
+										<label class="control-label"><%= strings[k] || k %></label>
+									</div>
+									<div class="col-sm-10">
+										<input type="text" class="form-control boxed" value="<%= body[key][k] %>" readonly>
+									</div>
+								</div>
+								<%_ }) _%>
+							<%_ } else { _%>
+								<input type="text" class="form-control boxed" value="<%= validator.isISO8601(body[key]) ? moment.tz(body[key], user.tz).format("YYYY-MM-DD HH:mm") : body[key] %>" readonly>
+							<%_ } _%>
+							</div>
+						</div>
+					<%_ } _%>
+					<%_ }) _%>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

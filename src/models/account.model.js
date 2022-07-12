@@ -3,6 +3,7 @@
 /**
  * @typedef {object} accountModel
  * @property {import("sequelize").Sequelize} sequelize
+ * @property {import("winston").Logger} logger
  * @property {import("sequelize").ModelCtor<Model<any, any>>} info
  * @property {import("sequelize").ModelCtor<Model<any, any>>} bans
  * @property {import("sequelize").ModelCtor<Model<any, any>>} characters
@@ -63,7 +64,7 @@ module.exports = ({ logger }) => new Promise((resolve, reject) => {
 			serverStrings: require("./account/serverStrings.model")(sequelize, DataTypes)
 		};
 
-		resolve({ ...models, sequelize });
+		resolve({ ...models, sequelize, logger });
 	}).catch(err => {
 		logger.error("Connection error:", err);
 		reject();

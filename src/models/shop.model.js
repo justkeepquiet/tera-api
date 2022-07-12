@@ -3,6 +3,7 @@
 /**
  * @typedef {object} shopModel
  * @property {import("sequelize").Sequelize} sequelize
+ * @property {import("winston").Logger} logger
  * @property {import("sequelize").ModelCtor<Model<any, any>>} accounts
  * @property {import("sequelize").ModelCtor<Model<any, any>>} categories
  * @property {import("sequelize").ModelCtor<Model<any, any>>} categoryStrings
@@ -15,8 +16,6 @@
  * @property {import("sequelize").ModelCtor<Model<any, any>>} promoCodes
  * @property {import("sequelize").ModelCtor<Model<any, any>>} promoCodeStrings
  * @property {import("sequelize").ModelCtor<Model<any, any>>} promoCodeActivated
- * @property {import("sequelize").ModelCtor<Model<any, any>>} fundLogs
- * @property {import("sequelize").ModelCtor<Model<any, any>>} payLogs
  */
 
 const { Sequelize, DataTypes } = require("sequelize");
@@ -74,12 +73,10 @@ module.exports = ({ logger }) => new Promise((resolve, reject) => {
 			itemStrings: require("./shop/shopItemStrings.model")(sequelize, DataTypes),
 			promoCodes: require("./shop/shopPromoCodes.model")(sequelize, DataTypes),
 			promoCodeStrings: require("./shop/shopPromoCodeStrings.model")(sequelize, DataTypes),
-			promoCodeActivated: require("./shop/shopPromoCodeActivated.model")(sequelize, DataTypes),
-			fundLogs: require("./shop/shopFundLogs.model")(sequelize, DataTypes),
-			payLogs: require("./shop/shopPayLogs.model")(sequelize, DataTypes)
+			promoCodeActivated: require("./shop/shopPromoCodeActivated.model")(sequelize, DataTypes)
 		};
 
-		resolve({ ...models, sequelize });
+		resolve({ ...models, sequelize, logger });
 	}).catch(err => {
 		logger.error("Connection error:", err);
 		reject();

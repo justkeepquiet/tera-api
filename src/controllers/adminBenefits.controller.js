@@ -10,7 +10,7 @@ const moment = require("moment-timezone");
 const body = require("express-validator").body;
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -94,7 +94,7 @@ module.exports.add = ({ i18n, accountModel, datasheets }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, accountModel, datasheets }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, accountModel, datasheets }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -117,7 +117,7 @@ module.exports.addAction = ({ i18n, logger, accountModel, datasheets }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { accountDBID, benefitId, availableUntil } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
@@ -140,11 +140,18 @@ module.exports.addAction = ({ i18n, logger, accountModel, datasheets }) => [
 			benefitId,
 			availableUntil: moment.tz(availableUntil, req.user.tz).toDate()
 		}).then(() =>
-			res.redirect(`/benefits?accountDBID=${accountDBID}`)
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect(`/benefits?accountDBID=${req.body.accountDBID || ""}`);
 	}
 ];
 
@@ -191,7 +198,7 @@ module.exports.edit = ({ i18n, logger, accountModel, datasheets }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ logger, accountModel }) => [
+module.exports.editAction = ({ logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -201,7 +208,7 @@ module.exports.editAction = ({ logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { accountDBID, benefitId } = req.query;
 		const { availableUntil } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
@@ -226,24 +233,31 @@ module.exports.editAction = ({ logger, accountModel }) => [
 		}, {
 			where: { benefitId, accountDBID }
 		}).then(() =>
-			res.redirect(`/benefits?accountDBID=${accountDBID}`)
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect(`/benefits?accountDBID=${req.query.accountDBID || ""}`);
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, accountModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { accountDBID, benefitId } = req.query;
 
 		if (!accountDBID || !benefitId) {
@@ -251,10 +265,17 @@ module.exports.deleteAction = ({ logger, accountModel }) => [
 		}
 
 		accountModel.benefits.destroy({ where: { benefitId, accountDBID } }).then(() =>
-			res.redirect(`/benefits?accountDBID=${accountDBID}`)
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect(`/benefits?accountDBID=${req.query.accountDBID || ""}`);
 	}
 ];

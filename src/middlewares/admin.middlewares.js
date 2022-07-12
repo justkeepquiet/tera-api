@@ -2,6 +2,7 @@
 
 /**
  * @typedef {import("express").RequestHandler} RequestHandler
+ * @typedef {import("../models/report.model").reportModel} reportModel
  */
 
 /**
@@ -34,3 +35,27 @@ module.exports.shopStatusHandler = (req, res, next) => {
 
 	next();
 };
+
+/**
+ * @param {reportModel} reportModel
+ */
+module.exports.writeOperationReport = (reportModel, params = {}) =>
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
+		reportModel.adminOp.create({
+			userSn: req?.user?.userSn,
+			userId: req?.user?.login,
+			userType: req?.user?.type,
+			ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
+			function: req.path,
+			payload: JSON.stringify([req.query, req.body]),
+			reportType: params.reportType || 1
+		}).catch(err => {
+			reportModel.logger.error(err);
+		});
+
+		next();
+	}
+;

@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.INTEGER
 		},
 		reportTime: {
-			type: DataTypes.TIME
+			type: DataTypes.DATE
 		}
 	})
 ;

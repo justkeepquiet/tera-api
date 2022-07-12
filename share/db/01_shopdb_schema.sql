@@ -33,15 +33,6 @@ CREATE TABLE IF NOT EXISTS `shop_category_strings` (
   UNIQUE KEY `id` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `shop_fund_logs` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `accountDBID` bigint(20) NOT NULL,
-  `amount` int(11) NOT NULL,
-  `description` varchar(255) DEFAULT NULL,
-  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `shop_item_conversions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `itemTemplateId` bigint(20) NOT NULL,
@@ -74,20 +65,6 @@ CREATE TABLE IF NOT EXISTS `shop_item_templates` (
   `warehouseStorable` tinyint(4) DEFAULT NULL,
   `tradable` tinyint(4) DEFAULT NULL,
   PRIMARY KEY (`itemTemplateId`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE IF NOT EXISTS `shop_pay_logs` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `accountDBID` bigint(20) DEFAULT NULL,
-  `serverId` int(11) NOT NULL,
-  `ip` varchar(64) NOT NULL,
-  `boxId` bigint(20) DEFAULT NULL,
-  `productId` varchar(255) NOT NULL,
-  `price` int(11) NOT NULL,
-  `status` varchar(16) NOT NULL,
-  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `shop_products` (

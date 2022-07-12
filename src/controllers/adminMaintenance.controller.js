@@ -10,8 +10,7 @@ const moment = require("moment-timezone");
 const body = require("express-validator").body;
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
-const { utc } = require("moment-timezone");
+const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -59,7 +58,7 @@ module.exports.add = () => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, accountModel }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -73,7 +72,7 @@ module.exports.addAction = ({ i18n, logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { startTime, endTime, description } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
@@ -92,11 +91,18 @@ module.exports.addAction = ({ i18n, logger, accountModel }) => [
 			endTime: moment.tz(endTime, req.user.tz).toDate(),
 			description
 		}).then(() =>
-			res.redirect("/maintenance")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/maintenance");
 	}
 ];
 
@@ -139,7 +145,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, accountModel }) => [
+module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -153,7 +159,7 @@ module.exports.editAction = ({ i18n, logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { id } = req.query;
 		const { startTime, endTime, description } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
@@ -180,24 +186,31 @@ module.exports.editAction = ({ i18n, logger, accountModel }) => [
 		}, {
 			where: { id }
 		}).then(() =>
-			res.redirect("/maintenance")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/maintenance");
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, accountModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { id } = req.query;
 
 		if (!id) {
@@ -205,10 +218,17 @@ module.exports.deleteAction = ({ logger, accountModel }) => [
 		}
 
 		accountModel.maintenance.destroy({ where: { id } }).then(() =>
-			res.redirect("/maintenance")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/maintenance");
 	}
 ];

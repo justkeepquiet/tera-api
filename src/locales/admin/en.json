@@ -96,6 +96,7 @@
 	"Added item already exists.": "Added item already exists.",
 	"Account ID field contains already banned account ID.": "Account ID field contains already banned account ID.",
 	"Server ID field must contain a valid number.": "Server ID field must contain a valid number.",
+	"IP address field must contain a valid IP value.": "IP address field must contain a valid IP value.",
 	"Profile": "Profile",
 	"Logout": "Logout",
 	"Dashboard": "Dashboard",
@@ -378,5 +379,12 @@
 	"Account Bans": "Account Bans",
 	"Edit Ban Account": "Edit Ban Account",
 	"Ban Account": "Ban Account",
-	"Kick all online players": "Kick all online players"
+	"Kick all online players": "Kick all online players",
+	"Operations Report": "Operations Report",
+	"Admin Operations Report": "Admin Operations Report",
+	"Function": "Function",
+	"IP address": "IP address",
+	"View Operations Report": "View Operations Report",
+	"Parameters": "Parameters",
+	"Operation Parameters": "Operation Parameters"
 }

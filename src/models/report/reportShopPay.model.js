@@ -10,25 +10,37 @@
 * @param {DataTypes} DataTypes
 */
 module.exports = (sequelize, DataTypes) =>
-	sequelize.define("report_cheats", {
-		accountDBID: {
+	sequelize.define("report_shop_pay", {
+		id: {
 			type: DataTypes.BIGINT,
-			primaryKey: true
+			primaryKey: true,
+			autoIncrement: true
+		},
+		accountDBID: {
+			type: DataTypes.BIGINT
 		},
 		serverId: {
-			type: DataTypes.INTEGER,
-			primaryKey: true
+			type: DataTypes.INTEGER
 		},
 		ip: {
 			type: DataTypes.STRING(64)
 		},
-		type: {
+		boxId: {
 			type: DataTypes.INTEGER
 		},
-		cheatInfo: {
-			type: DataTypes.STRING(1024)
+		productId: {
+			type: DataTypes.STRING(255)
 		},
-		reportTime: {
+		price: {
+			type: DataTypes.INTEGER
+		},
+		status: {
+			type: DataTypes.STRING(16)
+		},
+		createdAt: {
+			type: DataTypes.DATE
+		},
+		updatedAt: {
 			type: DataTypes.DATE
 		}
 	})

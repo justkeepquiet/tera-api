@@ -14,7 +14,7 @@ const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/adm
 /**
  * @param {modules} modules
  */
-module.exports.fund = ({ logger, shopModel }) => [
+module.exports.fund = ({ logger, reportModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
@@ -28,7 +28,7 @@ module.exports.fund = ({ logger, shopModel }) => [
 		from = from ? moment.tz(from, req.user.tz) : moment().subtract(30, "days");
 		to = to ? moment.tz(to, req.user.tz) : moment();
 
-		shopModel.fundLogs.findAll({
+		reportModel.shopFund.findAll({
 			where: {
 				...accountDBID ? { accountDBID } : {},
 				createdAt: {
@@ -58,7 +58,7 @@ module.exports.fund = ({ logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.pay = ({ logger, accountModel, shopModel }) => [
+module.exports.pay = ({ logger, accountModel, reportModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
@@ -72,7 +72,7 @@ module.exports.pay = ({ logger, accountModel, shopModel }) => [
 		from = from ? moment.tz(from, req.user.tz) : moment().subtract(30, "days");
 		to = to ? moment.tz(to, req.user.tz) : moment();
 
-		shopModel.payLogs.findAll({
+		reportModel.shopPay.findAll({
 			where: {
 				...(accountDBID ? { accountDBID } : {}),
 				...(serverId ? { serverId } : {}),

@@ -552,7 +552,7 @@ module.exports.GetAccountInfo = ({ logger, accountModel, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.PurchaseAction = ({ i18n, logger, fcgi, accountModel, shopModel }) => [
+module.exports.PurchaseAction = ({ i18n, logger, fcgi, reportModel, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[body("productId").notEmpty().isNumeric()],
@@ -569,7 +569,7 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, accountModel, shopModel }
 
 		try {
 			/*
-			const payLog = await shopModel.payLogs.findOne({ // buying rate limits
+			const payLog = await reportModel.shopPay.findOne({ // buying rate limits
 				where: {
 					accountDBID: req.user.accountDBID"),
 					status: "completed",
@@ -623,7 +623,7 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, accountModel, shopModel }
 				return resultJson(res, 1000, "low balance");
 			}
 
-			const logResult = await shopModel.payLogs.create({
+			const logResult = await reportModel.shopPay.create({
 				accountDBID: req.user.accountDBID,
 				serverId: req.user.lastLoginServer,
 				ip: req.user.lastLoginIP,
@@ -658,7 +658,7 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, accountModel, shopModel }
 					}
 				);
 
-				return await shopModel.payLogs.update({
+				return await reportModel.shopPay.update({
 					boxId: boxResult.box_id,
 					status: "completed"
 				}, {

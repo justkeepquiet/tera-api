@@ -21,8 +21,14 @@ module.exports = (sequelize, DataTypes) =>
 		endTime: {
 			type: DataTypes.DATE
 		},
+		ip: {
+			type: DataTypes.STRING(64)
+		},
 		description: {
 			type: DataTypes.STRING
+		},
+		active: {
+			type: DataTypes.TINYINT(4)
 		}
 	})
 ;

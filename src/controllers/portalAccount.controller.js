@@ -22,6 +22,7 @@ module.exports.GetAccountInfoByAuthKey = ({ logger, accountModel }) => [
 	 */
 	(req, res) => {
 		const { authKey } = req.body;
+		const clientIP = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
 		accountModel.info.belongsTo(accountModel.bans, { foreignKey: "accountDBID" });
 		accountModel.info.hasOne(accountModel.bans, { foreignKey: "accountDBID" });
@@ -31,6 +32,7 @@ module.exports.GetAccountInfoByAuthKey = ({ logger, accountModel }) => [
 			include: [{
 				model: accountModel.bans,
 				where: {
+					active: 1,
 					startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
 					endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
 				},
@@ -48,6 +50,7 @@ module.exports.GetAccountInfoByAuthKey = ({ logger, accountModel }) => [
 			}
 
 			let characterCount = "0";
+			let bannedByIp = null;
 
 			try {
 				const characters = await accountModel.characters.findAll({
@@ -59,6 +62,15 @@ module.exports.GetAccountInfoByAuthKey = ({ logger, accountModel }) => [
 				if (characters !== null) {
 					characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
 				}
+
+				bannedByIp = await accountModel.bans.findOne({
+					where: {
+						active: 1,
+						ip: { [Op.like]: `%"${clientIP}"%` },
+						startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
+						endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+					}
+				});
 			} catch (err) {
 				logger.error(err);
 			}
@@ -70,7 +82,7 @@ module.exports.GetAccountInfoByAuthKey = ({ logger, accountModel }) => [
 				Language: account.get("language"),
 				UserNo: account.get("accountDBID"),
 				UserName: account.get("userName"),
-				Banned: !!account.get("banned")
+				Banned: !!account.get("banned") || bannedByIp !== null
 			});
 		}).catch(err => {
 			logger.error(err);

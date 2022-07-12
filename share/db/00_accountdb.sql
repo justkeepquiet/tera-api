@@ -9,7 +9,9 @@ CREATE TABLE IF NOT EXISTS `account_bans` (
   `accountDBID` bigint(20) NOT NULL,
   `startTime` datetime NOT NULL,
   `endTime` datetime NOT NULL,
+  `ip` varchar(2048) DEFAULT '[]',
   `description` text,
+  `active` tinyint(4) DEFAULT '1',
   PRIMARY KEY (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -68,6 +70,19 @@ CREATE TABLE IF NOT EXISTS `report_activity` (
   KEY `accountDBID` (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `report_admin_op` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `userId` varchar(64) DEFAULT NULL,
+  `userType` varchar(64) DEFAULT NULL,
+  `userSn` bigint(20) DEFAULT NULL,
+  `ip` varchar(64) DEFAULT NULL,
+  `function` varchar(256) DEFAULT NULL,
+  `payload` text,
+  `reportType` int(11) DEFAULT NULL,
+  `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `report_characters` (
   `accountDBID` bigint(20) NOT NULL,
   `serverId` int(11) NOT NULL,
@@ -98,6 +113,29 @@ CREATE TABLE IF NOT EXISTS `report_chronoscrolls` (
   `chronoId` int(11) DEFAULT NULL,
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   KEY `accountDBID` (`accountDBID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `report_shop_fund` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `accountDBID` bigint(20) NOT NULL,
+  `amount` int(11) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `report_shop_pay` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `accountDBID` bigint(20) DEFAULT NULL,
+  `serverId` int(11) NOT NULL,
+  `ip` varchar(64) NOT NULL,
+  `boxId` bigint(20) DEFAULT NULL,
+  `productId` varchar(255) NOT NULL,
+  `price` int(11) NOT NULL,
+  `status` varchar(16) NOT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `server_info` (
@@ -140,7 +178,7 @@ CREATE TABLE IF NOT EXISTS `server_strings` (
   PRIMARY KEY (`language`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-INSERT INTO `server_strings` (`language`, `categoryPvE`, `categoryPvP`, `serverOffline`, `serverLow`, `serverMedium`, `serverHigh`, `crowdNo`, `crowdYes`, `popup`) VALUES
+INSERT IGNORE INTO `server_strings` (`language`, `categoryPvE`, `categoryPvP`, `serverOffline`, `serverLow`, `serverMedium`, `serverHigh`, `crowdNo`, `crowdYes`, `popup`) VALUES
 	('en', 'PvE', 'PvP', 'Offline', 'Low', 'Medium', 'High', 'No', 'Yes', 'Unable to access the server at this time.'),
 	('ru', 'PvE', 'PvP', 'Отключен', 'Низко', 'Средне', 'Высоко', 'Нет', 'Да', 'В настоящее время невозможно войти на сервер.'),
 	('tw', 'PvE', 'PvP', '离线', '低的', '中间', '高的', '不', '是的', '此时无法访问服务器。');

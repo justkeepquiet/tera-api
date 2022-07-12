@@ -12,7 +12,7 @@ const body = require("express-validator").body;
 const Op = require("sequelize").Op;
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 const encryptPasswords = /^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWORDS);
 
 /**
@@ -98,7 +98,7 @@ module.exports.add = ({ i18n, datasheets }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, accountModel, datasheets }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, accountModel, datasheets }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -129,7 +129,7 @@ module.exports.addAction = ({ i18n, logger, accountModel, datasheets }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { userName, passWord, email, permission, privilege, benefitIds, availableUntils } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 		let passwordString = passWord;
@@ -185,13 +185,20 @@ module.exports.addAction = ({ i18n, logger, accountModel, datasheets }) => [
 				}
 
 				return Promise.all(promises).then(() =>
-					res.redirect("/accounts")
+					next()
 				);
 			})
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/accounts");
 	}
 ];
 
@@ -238,7 +245,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, accountModel }) => [
+module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -266,7 +273,7 @@ module.exports.editAction = ({ i18n, logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { accountDBID } = req.query;
 		const { userName, passWord, email, permission, privilege, benefitIds, availableUntils } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
@@ -301,24 +308,31 @@ module.exports.editAction = ({ i18n, logger, accountModel }) => [
 		}, {
 			where: { accountDBID }
 		}).then(() =>
-			res.redirect("/accounts")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/accounts");
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, accountModel, shopModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { accountDBID } = req.query;
 
 		if (!accountDBID) {
@@ -348,12 +362,19 @@ module.exports.deleteAction = ({ logger, accountModel, shopModel }) => [
 					transaction
 				})
 			]).then(() =>
-				res.redirect("/accounts")
+				next()
 			)
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/accounts");
 	}
 ];
 

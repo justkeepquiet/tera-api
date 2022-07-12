@@ -39,7 +39,7 @@
 	"Function access denied": "Доступ к функции запрещен",
 	"Operation failed": "Ошибка операции",
 	"Server ID field must contain the value as a number.": "Поле 'ID сервера' должно содержать номерное значение.",
-	"Login IP field must contain a valid IP value.": "Поле 'IP авторизации' входа должно содержать допустимое значение IP-адреса.",
+	"Login IP field must contain a valid IP value.": "Поле 'IP авторизации' должно содержать допустимое значение IP-адреса.",
 	"Login port field must contain a valid port value.": "Поле 'Порт авторизации' должно содержать допустимое значение порта.",
 	"Language field must be a valid value.": "Поле 'Язык' должно содержать допустимое значение.",
 	"Language field must be between 2 and 3 characters.": "Поле 'Язык' должно содержать от 2 до 3 символов.",
@@ -96,6 +96,7 @@
 	"Added item already exists.": "Добавленный предмет уже существует.",
 	"Account ID field contains already banned account ID.": "Поле 'ID аккаунта' содержит ID уже забаненого аккаунта.",
 	"Server ID field must contain a valid number.": "Поле 'ID сервера' должно содержать номерное значение.",
+	"IP address field must contain a valid IP value.": "Поле 'IP адрес' должно содержать допустимое значение IP-адреса.",
 	"Profile": "Профиль",
 	"Logout": "Выйти",
 	"Dashboard": "Информация",
@@ -379,5 +380,12 @@
 	"Account Bans": "Баны аккаунтов",
 	"Edit Ban Account": "Редактировать бан аккаунта",
 	"Ban Account": "Забанить аккаунт",
-	"Kick all online players": "Отключить всех игроков"
+	"Kick all online players": "Отключить всех игроков",
+	"Operations Report": "Журнал операций",
+	"Admin Operations Report": "Журнал операций администратора",
+	"Function": "Функция",
+	"IP address": "IP адрес",
+	"View Operations Report": "Просмотр журнала операций",
+	"Parameters": "Параметры",
+	"Operation Parameters": "Параметры операции"
 }

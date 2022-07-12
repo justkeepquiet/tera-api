@@ -10,23 +10,32 @@
 * @param {DataTypes} DataTypes
 */
 module.exports = (sequelize, DataTypes) =>
-	sequelize.define("report_cheats", {
-		accountDBID: {
+	sequelize.define("report_admin_op", {
+		id: {
 			type: DataTypes.BIGINT,
-			primaryKey: true
+			primaryKey: true,
+			autoIncrement: true
 		},
-		serverId: {
-			type: DataTypes.INTEGER,
-			primaryKey: true
+		userId: {
+			type: DataTypes.STRING(64)
+		},
+		userType: {
+			type: DataTypes.STRING(64)
+		},
+		userSn: {
+			type: DataTypes.BIGINT
 		},
 		ip: {
 			type: DataTypes.STRING(64)
 		},
-		type: {
-			type: DataTypes.INTEGER
+		function: {
+			type: DataTypes.STRING(256)
 		},
-		cheatInfo: {
-			type: DataTypes.STRING(1024)
+		payload: {
+			type: DataTypes.TEXT
+		},
+		reportType: {
+			type: DataTypes.INTEGER
 		},
 		reportTime: {
 			type: DataTypes.DATE

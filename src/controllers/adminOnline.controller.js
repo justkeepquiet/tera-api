@@ -10,7 +10,7 @@ const query = require("express-validator").query;
 const moment = require("moment-timezone");
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -65,7 +65,7 @@ module.exports.index = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.kickAction = ({ i18n, logger, fcgi, accountModel }) => [
+module.exports.kickAction = ({ i18n, logger, fcgi, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -95,8 +95,8 @@ module.exports.kickAction = ({ i18n, logger, fcgi, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		const { accountDBID, serverId, fromServerId } = req.query;
+	(req, res, next) => {
+		const { accountDBID, serverId } = req.query;
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
@@ -104,18 +104,25 @@ module.exports.kickAction = ({ i18n, logger, fcgi, accountModel }) => [
 		}
 
 		fcgi.kick(serverId, accountDBID, 33).then(() =>
-			res.redirect(`/online?serverId=${fromServerId}`)
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect(`/online?serverId=${req.query.fromServerId || ""}`);
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.kickAllAction = ({ i18n, logger, fcgi, accountModel }) => [
+module.exports.kickAllAction = ({ i18n, logger, fcgi, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -134,8 +141,8 @@ module.exports.kickAllAction = ({ i18n, logger, fcgi, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		const { serverId, fromServerId } = req.query;
+	(req, res, next) => {
+		const { serverId } = req.query;
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
@@ -143,10 +150,17 @@ module.exports.kickAllAction = ({ i18n, logger, fcgi, accountModel }) => [
 		}
 
 		fcgi.bulkKick(serverId, 33).then(() =>
-			res.redirect(`/online?serverId=${fromServerId}`)
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect(`/online?serverId=${req.query.fromServerId || ""}`);
 	}
 ];

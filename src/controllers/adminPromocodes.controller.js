@@ -12,7 +12,7 @@ const I18n = require("i18n").I18n;
 const moment = require("moment-timezone");
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 const shopLocales = require("../../config/admin").shopLocales;
 const promocodeFunctions = Object.keys(require("../../config/promoCode"));
 
@@ -84,7 +84,7 @@ module.exports.add = () => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, shopModel }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
@@ -115,7 +115,7 @@ module.exports.addAction = ({ i18n, logger, shopModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { promoCode, aFunction, validAfter, validBefore, active, description } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
@@ -159,13 +159,20 @@ module.exports.addAction = ({ i18n, logger, shopModel }) => [
 				}
 
 				return Promise.all(promises).then(() =>
-					res.redirect("/promocodes")
+					next()
 				);
 			})
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/promocodes");
 	}
 ];
 
@@ -228,7 +235,7 @@ module.exports.edit = ({ logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, shopModel }) => [
+module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
@@ -248,7 +255,7 @@ module.exports.editAction = ({ i18n, logger, shopModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { promoCodeId } = req.query;
 		const { aFunction, validAfter, validBefore, active, description } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
@@ -307,7 +314,7 @@ module.exports.editAction = ({ i18n, logger, shopModel }) => [
 					}
 
 					return Promise.all(promises).then(() =>
-						res.redirect("/promocodes")
+						next()
 					);
 				})
 			);
@@ -315,20 +322,27 @@ module.exports.editAction = ({ i18n, logger, shopModel }) => [
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/promocodes");
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, shopModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { promoCodeId } = req.query;
 
 		if (!promoCodeId) {
@@ -350,11 +364,18 @@ module.exports.deleteAction = ({ logger, shopModel }) => [
 					transaction
 				})
 			]).then(() =>
-				res.redirect("/promocodes")
+				next()
 			)
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/promocodes");
 	}
 ];

@@ -47,7 +47,7 @@ module.exports.home = ({ logger, datasheets, accountModel, reportModel, shopMode
 
 			const payLogs = !isSteer ||
 				Object.values(req.user.functions).includes("/shop_pay_logs") && /^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE) ?
-				await shopModel.payLogs.findAll({
+				await reportModel.shopPay.findAll({
 					offset: 0, limit: 8,
 					order: [
 						["createdAt", "DESC"]

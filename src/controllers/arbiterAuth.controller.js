@@ -79,6 +79,7 @@ module.exports.GameAuthenticationLogin = ({ logger, accountModel }) => [
 			include: [{
 				model: accountModel.bans,
 				where: {
+					active: 1,
 					startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
 					endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
 				},
@@ -90,22 +91,30 @@ module.exports.GameAuthenticationLogin = ({ logger, accountModel }) => [
 					[accountModel.info.sequelize.col("startTime"), "banned"]
 				]
 			}
-		}).then(account => {
-			if (account === null) {
-				return resultJson(res, 50000, "account not exist");
-			}
+		}).then(account =>
+			accountModel.bans.findOne({
+				where: {
+					active: 1,
+					ip: { [Op.like]: `%"${clientIP}"%` },
+					startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
+					endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+				}
+			}).then(bannedByIp => {
+				if (account === null) {
+					return resultJson(res, 50000, "account not exist");
+				}
 
-			if (account.get("banned")) {
-				return resultJson(res, 50010, "account banned");
-			}
+				if (account.get("banned") || bannedByIp !== null) {
+					return resultJson(res, 50010, "account banned");
+				}
 
-			if (account.get("authKey") !== authKey) {
-				return resultJson(res, 50011, "authkey mismatch");
-			}
+				if (account.get("authKey") !== authKey) {
+					return resultJson(res, 50011, "authkey mismatch");
+				}
 
-			resultJson(res, 0, "success");
-
-		}).catch(err => {
+				resultJson(res, 0, "success");
+			})
+		).catch(err => {
 			logger.error(err);
 			resultJson(res, 1, "internal error");
 		});

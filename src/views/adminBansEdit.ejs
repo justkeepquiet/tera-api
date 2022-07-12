@@ -16,6 +16,10 @@
 							<label class="control-label" for="accountDBID"><%= __("Account ID") %></label>
 							<input type="number" class="form-control boxed" name="accountDBID" value="<%= accountDBID %>" disabled>
 						</div>
+						<div class="form-group">
+							<label class="control-label" for="ip"><%= __("IP address") %></label>
+							<input type="text" class="form-control boxed" name="ip" value="<%= ip %>" placeholder="<%= __("optional") %>">
+						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="description"><%= __("Start time") %></label>
@@ -25,6 +29,12 @@
 								<label class="control-label" for="description"><%= __("End time") %></label>
 								<input type="datetime-local" class="form-control boxed" name="endTime" value="<%= endTime.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
 							</div>
+						</div>
+						<div class="form-group">
+							<label>
+								<input type="checkbox" class="checkbox" name="active" <%= active ? "checked=\"checked\"" : "" %>>
+								<span><%= __("Active") %></span>
+							</label>
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="description"><%= __("Description") %></label>

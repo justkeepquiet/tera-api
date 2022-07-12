@@ -10,7 +10,7 @@ const body = require("express-validator").body;
 const moment = require("moment-timezone");
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 const shopLocales = require("../../config/admin").shopLocales;
 
 /**
@@ -251,7 +251,7 @@ module.exports.add = ({ i18n, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, platform, shopModel }) => [
+module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
@@ -313,7 +313,7 @@ module.exports.addAction = ({ i18n, logger, platform, shopModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	async (req, res) => {
+	async (req, res, next) => {
 		const { fromCategoryId } = req.query;
 		const { categoryId, validate, validAfter, validBefore, active, price,
 			title, description, icon, rareGrade,
@@ -469,11 +469,18 @@ module.exports.addAction = ({ i18n, logger, platform, shopModel }) => [
 				await Promise.all(promises);
 			});
 
-			res.redirect(`/shop_products?categoryId=${fromCategoryId}`);
+			next();
 		} catch (err) {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect(`/shop_products?categoryId=${req.query.fromCategoryId || ""}`);
 	}
 ];
 
@@ -640,7 +647,7 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, platform, shopModel }) => [
+module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
@@ -704,7 +711,7 @@ module.exports.editAction = ({ i18n, logger, platform, shopModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	async (req, res) => {
+	async (req, res, next) => {
 		const { id, fromCategoryId } = req.query;
 		const { validate, categoryId, validAfter, validBefore, active, price, sort,
 			title, description, icon, rareGrade,
@@ -956,26 +963,33 @@ module.exports.editAction = ({ i18n, logger, platform, shopModel }) => [
 				await Promise.all(promises);
 			});
 
-			res.redirect(`/shop_products?categoryId=${fromCategoryId}`);
+			next();
 		} catch (err) {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect(`/shop_products?categoryId=${req.query.fromCategoryId || ""}`);
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, platform, shopModel }) => [
+module.exports.deleteAction = ({ logger, platform, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	async (req, res) => {
-		const { id, fromCategoryId } = req.query;
+	async (req, res, next) => {
+		const { id } = req.query;
 
 		try {
 			if (!id) {
@@ -1021,10 +1035,17 @@ module.exports.deleteAction = ({ logger, platform, shopModel }) => [
 				await Promise.all(promises);
 			});
 
-			res.redirect(`/shop_products?categoryId=${fromCategoryId}`);
+			next();
 		} catch (err) {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect(`/shop_products?categoryId=${req.query.fromCategoryId || ""}`);
 	}
 ];

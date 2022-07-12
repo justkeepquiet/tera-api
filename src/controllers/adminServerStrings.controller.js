@@ -9,7 +9,7 @@ const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -63,7 +63,7 @@ module.exports.add = () => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, accountModel }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -92,7 +92,7 @@ module.exports.addAction = ({ i18n, logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { language, categoryPvE, categoryPvP, serverOffline,
 			serverLow, serverMedium, serverHigh, crowdNo, crowdYes, popup } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
@@ -126,11 +126,18 @@ module.exports.addAction = ({ i18n, logger, accountModel }) => [
 			crowdYes,
 			popup
 		}).then(() =>
-			res.redirect("/server_strings")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/server_strings");
 	}
 ];
 
@@ -175,7 +182,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, accountModel }) => [
+module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -201,7 +208,7 @@ module.exports.editAction = ({ i18n, logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { language } = req.query;
 		const { categoryPvE, categoryPvP, serverOffline,
 			serverLow, serverMedium, serverHigh, crowdNo, crowdYes, popup } = req.body;
@@ -241,24 +248,31 @@ module.exports.editAction = ({ i18n, logger, accountModel }) => [
 		}, {
 			where: { language }
 		}).then(() =>
-			res.redirect("/server_strings")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/server_strings");
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, accountModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { language } = req.query;
 
 		if (!language) {
@@ -266,10 +280,17 @@ module.exports.deleteAction = ({ logger, accountModel }) => [
 		}
 
 		accountModel.serverStrings.destroy({ where: { language } }).then(() =>
-			res.redirect("/server_strings")
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect("/server_strings");
 	}
 ];

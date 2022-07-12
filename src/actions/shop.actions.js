@@ -32,7 +32,7 @@ class Shop {
 				balance: amount
 			});
 		}).then(() =>
-			this.modules.shopModel.fundLogs.create({
+			this.modules.reportModel.shopFund.create({
 				accountDBID: this.userId,
 				amount: amount,
 				description: this.params.report

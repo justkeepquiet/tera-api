@@ -1,0 +1,77 @@
+<%_
+const strings = {
+	id: __("ID"),
+	accountDBID: __("Account ID"),
+	serverId: __("Server ID"),
+	benefitId: __("Benefit ID"),
+	categoryId: __("Category ID"),
+	promoCodeId: __("Promo code ID"),
+	language: __("Language")
+};
+_%>
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Admin Operations Report") %></h1>
+	</div>
+	<section class="section">
+		<form class="form-inline" action="" method="GET">
+			<div class="form-group">
+				<label for="from"><%= __("Period from") %></label>
+				<input type="datetime-local" class="form-control boxed" name="from" value="<%= from.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
+			</div>
+			<div class="form-group">
+				<label for="to"><%= __("to") %></label>
+				<input type="datetime-local" class="form-control boxed" name="to" value="<%= to.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
+			</div>
+			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
+		</form>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<table class="table table-hover data-table-desc-nosort mt-5">
+								<thead>
+									<tr>
+										<th><%= __("Report time") %></th>
+										<th><%= __("User login ID") %></th>
+										<th><%= __("Function") %></th>
+										<th><%= __("Parameters") %></th>
+										<th><%= __("IP address") %></th>
+										<th></th>
+									</tr>
+								</thead>
+								<tbody>
+									<%_ reports.forEach(report => {
+										const [query, body] = JSON.parse(report.get("payload"));
+										const parameters = [];
+
+										Object.keys(query).forEach(key => {
+											if (query[key] !== "" && !/^from.+/.test(key)) {
+												parameters.push(`<span class="text-secondary">${strings[key] || key}</span>: ${query[key]}`)
+											}
+										});
+									_%>
+									<tr>
+										<td><%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
+										<td><%= report.get("userId") %></td>
+										<td><a href="/operations_report/view?id=<%= report.get("id") %>&amp;from=<%= from.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>&amp;to=<%= to.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>"><%= report.get("function") %></a></td>
+										<td><%- parameters.join("<br>") || "-" %></td>
+										<td><%= report.get("ip") %></td>
+										<td class="text-right">
+											<a class="btn btn-secondary btn-sm" href="/operations_report/view?id=<%= report.get("id") %>&amp;from=<%= from.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>&amp;to=<%= to.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>"><i class="fa fa-file-text-o"></i></a>
+										</td>
+									</tr>
+									<%_ }) _%>
+								</tbody>
+							</table>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

@@ -3,10 +3,14 @@
 /**
  * @typedef {object} reportModel
  * @property {import("sequelize").Sequelize} sequelize
+ * @property {import("winston").Logger} logger
  * @property {import("sequelize").ModelCtor<Model<any, any>>} activity
  * @property {import("sequelize").ModelCtor<Model<any, any>>} characters
  * @property {import("sequelize").ModelCtor<Model<any, any>>} cheats
  * @property {import("sequelize").ModelCtor<Model<any, any>>} chronoScrolls
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} shopFund
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} shopPay
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} adminOp
  */
 
 const { Sequelize, DataTypes } = require("sequelize");
@@ -50,10 +54,13 @@ module.exports = ({ logger }) => new Promise((resolve, reject) => {
 			activity: require("./report/reportActivity.model")(sequelize, DataTypes),
 			characters: require("./report/reportCharacters.model")(sequelize, DataTypes),
 			cheats: require("./report/reportCheats.model")(sequelize, DataTypes),
-			chronoScrolls: require("./report/reportChronoScrolls.model")(sequelize, DataTypes)
+			chronoScrolls: require("./report/reportChronoScrolls.model")(sequelize, DataTypes),
+			shopFund: require("./report/reportShopFund.model")(sequelize, DataTypes),
+			shopPay: require("./report/reportShopPay.model")(sequelize, DataTypes),
+			adminOp: require("./report/reportAdminOp.model")(sequelize, DataTypes)
 		};
 
-		resolve({ ...models, sequelize });
+		resolve({ ...models, sequelize, logger });
 	}).catch(err => {
 		logger.error("Connection error:", err);
 		reject();

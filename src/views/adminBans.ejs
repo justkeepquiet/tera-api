@@ -21,12 +21,13 @@
 											<th><%= __("End time") %></th>
 											<th><%= __("Active") %></th>
 											<th><%= __("Description") %></th>
+											<th><%= __("IP address") %></th>
 											<th></th>
 										</tr>
 									</thead>
 									<tbody>
 										<%_ bans.forEach(ban => { 
-											const active = moment(ban.get("startTime")) < moment() && moment(ban.get("endTime")) > moment();
+											const active = moment(ban.get("startTime")) < moment() && moment(ban.get("endTime")) > moment() && ban.get("active");
 										_%>
 										<tr>
 											<td><%= ban.get("accountDBID") %></td>
@@ -34,6 +35,7 @@
 											<td><%= moment(ban.get("endTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
 											<td class="text-<%= active ? "success" : "danger" %>"><%= active ? __("Yes") : __("No") %></td>
 											<td><%= ban.get("description") %></td>
+											<td><%- JSON.parse(ban.get("ip") || "[]").join("<br>") || "-" %></td>
 											<td class="text-right">
 												<a class="btn btn-secondary btn-sm" href="/bans/edit?accountDBID=<%= ban.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
 												<a class="btn btn-secondary btn-sm" href="/bans/delete?accountDBID=<%= ban.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
