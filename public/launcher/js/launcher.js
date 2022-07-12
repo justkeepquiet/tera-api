@@ -212,12 +212,13 @@ var Launcher = {
 	 */
 	launchGame: function() {
 		Launcher.disableLaunchButton("Wait", "btn-wait");
+		Launcher.setRegion(REGION);
 
-		if (!loginIFrame.QA_MODE) {
+		if (!loginIFrame.QA_MODE && loginIFrame.PERMISSION < 256) {
 			var maintenance = launcherMaintenanceStatus();
 
-			if (maintenance && maintenance.Return && maintenance.Description) {
-				alert(maintenance.Description);
+			if (maintenance && maintenance.Return && maintenance.StartTime) {
+				alert(maintenance.Description || serverMaintenanceString);
 				Launcher.enableLaunchButton("Play", "btn-gamestart");
 				return;
 			}

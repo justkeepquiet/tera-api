@@ -33,7 +33,7 @@
 											<td><%= moment(maintenance.get("startTime")).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= moment(maintenance.get("endTime")).format("YYYY-MM-DD HH:mm") %></td>
 											<td class="text-<%= active ? "success" : "danger" %>"><%= active ? __("Yes") : __("No") %></td>
-											<td><%= maintenance.get("description") %></td>
+											<td><%= maintenance.get("description") || "-" %></td>
 											<td class="text-right">
 												<a class="btn btn-secondary btn-sm" href="/maintenance/edit?id=<%= maintenance.get("id") %>"><i class="fa fa-pencil"></i></a>
 												<a class="btn btn-secondary btn-sm" href="/maintenance/delete?id=<%= maintenance.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>

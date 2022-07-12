@@ -56,7 +56,7 @@ class SlsBuilder {
 			crowdness,
 			open,
 			permissionMask,
-			serverStat: "0x00000000",
+			serverStat: permissionMask,
 			popup: strings.get("popup"),
 			language: server.get("language")
 		});

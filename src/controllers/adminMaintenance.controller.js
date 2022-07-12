@@ -67,7 +67,7 @@ module.exports.addAction = ({ i18n, logger, accountModel }) => [
 		body("endTime")
 			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
 		body("description").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
+			.isLength({ min: 0, max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
 	],
 	/**
 	 * @type {RequestHandler}
@@ -147,7 +147,7 @@ module.exports.editAction = ({ i18n, logger, accountModel }) => [
 		body("endTime")
 			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
 		body("description").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
+			.isLength({ min: 0, max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
 	],
 	/**
 	 * @type {RequestHandler}

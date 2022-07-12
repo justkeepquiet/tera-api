@@ -42,12 +42,18 @@
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label>
+									<button type="button" class="btn btn-secondary" id="permission-priority"><i class="fa fa-level-up"></i> <%= __("Set PL") %></button>
+								</label>
+								<label>
+									<button type="button" class="btn btn-secondary" id="permission-maintainer"><i class="fa fa-wrench"></i> <%= __("Set MT") %></button>
+								</label>
+								<label>
 									<button type="button" class="btn btn-secondary" id="permission-reset"><i class="fa fa-refresh"></i> <%= __("Reset") %></button>
 								</label>
 							</div>
 							<div class="col-sm-6">
 								<label>
-									<button type="button" class="btn btn-secondary" id="privilege-gm"><i class="fa fa-shield"></i> <%= __("Set GM") %></button>
+									<button type="button" class="btn btn-secondary" id="privilege-gm"><i class="fa fa-magic"></i> <%= __("Set GM") %></button>
 								</label>
 								<label>
 									<button type="button" class="btn btn-secondary" id="privilege-reset"><i class="fa fa-refresh"></i> <%= __("Reset") %></button>
@@ -66,6 +72,12 @@
 <%- contentFor("scripts") %>
 <script>
 	$(function() {
+		$("#permission-priority").click(function() {
+			$("input[name='permission']").val("1");
+		});
+		$("#permission-maintainer").click(function() {
+			$("input[name='permission']").val("256");
+		});
 		$("#permission-reset").click(function() {
 			$("input[name='permission']").val("0");
 		});

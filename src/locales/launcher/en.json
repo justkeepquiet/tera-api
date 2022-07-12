@@ -14,6 +14,7 @@
 	"Patch": "Patch",
 	"Check": "Check",
 	"Delete": "Delete",
+	"The server is under maintenance. Please try again later.": "The server is under maintenance. Please try again later.",
 	"Making patch list...": "Making patch list...",
 	"Account blocked. Please contact support.": "Account blocked. Please contact support.",
 	"This login is already exists.": "This login is already exists.",

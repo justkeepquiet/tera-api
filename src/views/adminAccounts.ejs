@@ -35,7 +35,13 @@
 											<td><%= account.get("accountDBID") %></td>
 											<td><a href="/accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><%= account.get("userName") %></a><%- banned ? ' <i class="fa fa-ban text-danger"></i>' : "" %></a></td>
 											<td><%= moment(account.get("registerTime")).format("YYYY-MM-DD HH:mm") %></td>
+											<%_ if (account.get("permission") >= 256) { _%>
+											<td class="text-primary"><%= account.get("permission") %> (<%= __("MT") %>)</td>
+											<%_ } else if (account.get("permission") >= 1) { _%>
+											<td class="text-success"><%= account.get("permission") %> (<%= __("PL") %>)</td>
+											<%_ } else { _%>
 											<td><%= account.get("permission") %></td>
+											<%_ } _%>
 											<%_ if (account.get("privilege") == 32 || account.get("privilege") == 33) { _%>
 											<td class="text-success"><%= account.get("privilege") %> (<%= __("GM") %>)</td>
 											<%_ } else { _%>

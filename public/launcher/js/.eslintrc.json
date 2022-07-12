@@ -81,6 +81,7 @@
 		"displayLauncherError": true,
 		"loginIFrame": true,
 		"accountBlockedString": true,
+		"serverMaintenanceString": true,
 		"debug": true,
 		"sprintf": true,
 		"REGION": true,

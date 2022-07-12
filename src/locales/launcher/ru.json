@@ -14,6 +14,7 @@
 	"Patch": "Применение",
 	"Check": "Проверка",
 	"Delete": "Удаление",
+	"The server is under maintenance. Please try again later.": "Проводятся технические работы. Попробуйте повторить попытку позже.",
 	"Making patch list...": "Создания списка обновлений...",
 	"Account blocked. Please contact support.": "Аккаунт заблокирован. Свяжитесь со службой поддержки.",
 	"This login is already exists.": "Указанный логин уже существует.",
