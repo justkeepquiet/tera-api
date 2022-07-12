@@ -25,7 +25,7 @@
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="email"><%= __("Email") %></label>
-							<input type="email" class="form-control boxed" name="email" value="<%= email %>">
+							<input type="email" class="form-control boxed" name="email" value="<%= email %>" placeholder="<%= __("optional") %>">
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
@@ -78,7 +78,7 @@
 								</div>
 								<div class="col-sm-6">
 									<label class="control-label" for="availableUntils[]"><%= __("Available until") %></label>
-									<input type="datetime-local" class="form-control boxed mt-2" name="availableUntils[]" value="<%= availableUntils[i] %>">
+									<input type="datetime-local" class="form-control boxed mt-2" name="availableUntils[]" value="<%= moment(availableUntils[i]).format("YYYY-MM-DDTHH:mm") %>">
 								</div>
 							</div>
 							<%_ } }) _%>
@@ -131,7 +131,7 @@
 				"	</div>" +
 				"	<div class='col-sm-6'>" +
 				"		<label class='control-label' for='availableUntils[]'><%= __('Available until') %></label>" +
-				"		<input type='datetime-local' class='form-control boxed mt-2' name='availableUntils[]' value='<%= moment().subtract(30, 'days').format('YYYY-MM-DDTHH:mm') %>'>" +
+				"		<input type='datetime-local' class='form-control boxed mt-2' name='availableUntils[]' value='<%= moment().subtract(30, 'days').tz(user.tz).format('YYYY-MM-DDTHH:mm') %>'>" +
 				"	</div>" +
 				"</div>"
 			);

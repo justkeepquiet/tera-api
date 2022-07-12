@@ -63,7 +63,7 @@ _%>
 								<tbody>
 									<%_ reports.forEach(report => { _%>
 									<tr>
-										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm:ss") %></td>
+										<td><%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= reportType[report.get("reportType")] %></td>
 										<td><%= report.get("characterId") %></td>
 										<td><%= report.get("name") || "-" %></td>

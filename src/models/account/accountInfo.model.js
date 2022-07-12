@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.DATE
 		},
 		lastLoginTime: {
-			type: DataTypes.INTEGER
+			type: DataTypes.DATE
 		},
 		lastLoginIP: {
 			type: DataTypes.STRING(64)

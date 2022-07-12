@@ -19,16 +19,16 @@ const reportHandler = (logger, accountModel, model, view, viewData = {}) =>
 		let { from, to } = req.query;
 		const { serverId, accountDBID } = req.query;
 
-		from = from ? moment(from) : moment().subtract(30, "days");
-		to = to ? moment(to) : moment();
+		from = from ? moment.tz(from, req.user.tz) : moment().subtract(30, "days");
+		to = to ? moment.tz(to, req.user.tz) : moment();
 
 		model.findAll({
 			where: {
 				...serverId ? { serverId } : {},
 				...accountDBID ? { accountDBID } : {},
 				reportTime: {
-					[Op.gt]: from.format("YYYY-MM-DD HH:mm:ss"),
-					[Op.lt]: to.format("YYYY-MM-DD HH:mm:ss")
+					[Op.gt]: from.toDate(),
+					[Op.lt]: to.toDate()
 				}
 			},
 			order: [

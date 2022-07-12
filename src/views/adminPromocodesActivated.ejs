@@ -46,7 +46,7 @@
 									<tbody>
 										<%_ promocodes.forEach(activated => { _%>
 										<tr>
-											<td><%= moment(activated.get("createdAt")).format("YYYY-MM-DD HH:mm:ss") %></td>
+											<td><%= moment(activated.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
 											<td><%= activated.get("promoCodeId") %></td>
 											<td><%= activated.get("promoCode") %></td>
 											<td><%= activated.get("accountDBID") %></td>

@@ -22,7 +22,7 @@
 								<tbody>
 									<%_ reports.forEach(report => { _%>
 									<tr>
-										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm:ss") %></td>
+										<td><%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= report.get("chronoId") %></td>
 										<td><%= report.get("accountDBID") %></td>
 										<td><%= report.get("serverId") %></td>

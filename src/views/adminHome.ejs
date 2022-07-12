@@ -78,7 +78,7 @@
 										<%_ } else { _%>
 										<%_ activityReport.forEach(report => { _%>
 										<tr>
-											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= report.get("reportType") == 2 ?
 												`${__("Leave game")} (${(report.get("playTime") / 60).toFixed(2)} ${__("min.")})` :
 												__("Enter game")
@@ -123,7 +123,7 @@
 										<%_ } else { _%>
 										<%_ payLogs.forEach(log => { _%>
 										<tr>
-											<td><%= moment(log.get("createdAt")).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= moment(log.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= log.get("accountDBID") %></td>
 											<td><%= log.get("serverId") %></td>
 											<td><a href="/shop_products/edit?id=<%= log.get("productId") %>"><%= log.get("productId") %></a></td>
@@ -178,7 +178,7 @@
 											);
 										_%>
 										<tr>
-											<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= report.get("accountDBID") %></td>
 											<td><%= name %></td>
 											<td><%= skill %> <%= a %>/<%= b %></td>

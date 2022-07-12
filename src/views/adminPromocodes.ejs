@@ -34,8 +34,8 @@
 											<td><%= promocode.get("description") %></td>
 											<td><%= promocode.get("function") %></td>
 											<td><%= promocode.get("active") ? __("Yes") : __("No") %></td>
-											<td><%= moment(promocode.get("validAfter")).format("YYYY-MM-DD HH:mm") %></td>
-											<td><%= moment(promocode.get("validBefore")).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= moment(promocode.get("validAfter")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= moment(promocode.get("validBefore")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
 											<td class="text-right">
 												<!--a class="btn btn-secondary btn-sm" href="/promocode_strings?promoCodeId=<%= promocode.get("promoCodeId") %>"><i class="fa fa-bars"></i></a-->
 												<a class="btn btn-secondary btn-sm" href="/promocodes/edit?promoCodeId=<%= promocode.get("promoCodeId") %>"><i class="fa fa-pencil"></i></a>

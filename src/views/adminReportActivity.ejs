@@ -23,7 +23,7 @@
 								<tbody>
 									<%_ reports.forEach(report => { _%>
 									<tr>
-										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm:ss") %></td>
+										<td><%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= report.get("reportType") == 2 ?
 											`${__("Leave game")} (${(report.get("playTime") / 60).toFixed(2)} ${__("min.")})` :
 											__("Enter game")

@@ -20,7 +20,7 @@ module.exports = (sequelize, DataTypes) =>
 			primaryKey: true
 		},
 		availableUntil: {
-			type: DataTypes.INTEGER
+			type: DataTypes.DATE
 		}
 	})
 ;

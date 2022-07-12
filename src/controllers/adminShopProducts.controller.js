@@ -387,8 +387,8 @@ module.exports.addAction = ({ i18n, logger, platform, shopModel }) => [
 					categories,
 					fromCategoryId,
 					categoryId,
-					validAfter: moment(validAfter),
-					validBefore: moment(validBefore),
+					validAfter: moment.tz(validAfter, req.user.tz),
+					validBefore: moment.tz(validBefore, req.user.tz),
 					active,
 					price,
 					title,
@@ -410,8 +410,8 @@ module.exports.addAction = ({ i18n, logger, platform, shopModel }) => [
 					price,
 					icon,
 					rareGrade: rareGrade === "" ? null : rareGrade,
-					validAfter: moment(validAfter).format("YYYY-MM-DD HH:mm:ss"),
-					validBefore: moment(validBefore).format("YYYY-MM-DD HH:mm:ss")
+					validAfter: moment.tz(validAfter, req.user.tz).toDate(),
+					validBefore: moment.tz(validBefore, req.user.tz).toDate()
 				}, {
 					transaction
 				});
@@ -789,8 +789,8 @@ module.exports.editAction = ({ i18n, logger, platform, shopModel }) => [
 					id: product.get("id"),
 					fromCategoryId,
 					categoryId,
-					validAfter: moment(validAfter),
-					validBefore: moment(validBefore),
+					validAfter: moment.tz(validAfter, req.user.tz),
+					validBefore: moment.tz(validBefore, req.user.tz),
 					active,
 					price,
 					sort,
@@ -823,8 +823,8 @@ module.exports.editAction = ({ i18n, logger, platform, shopModel }) => [
 						sort,
 						icon,
 						rareGrade: rareGrade === "" ? null : rareGrade,
-						validAfter: moment(validAfter).format("YYYY-MM-DD HH:mm:ss"),
-						validBefore: moment(validBefore).format("YYYY-MM-DD HH:mm:ss")
+						validAfter: moment.tz(validAfter, req.user.tz).toDate(),
+						validBefore: moment.tz(validBefore, req.user.tz).toDate()
 					}, {
 						where: { id: product.get("id") },
 						transaction

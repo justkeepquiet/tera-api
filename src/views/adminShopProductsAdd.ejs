@@ -35,11 +35,11 @@ _%>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="validAfter"><%= __("Valid from") %></label>
-								<input type="datetime-local" class="form-control boxed" name="validAfter" value="<%= validAfter.format("YYYY-MM-DDTHH:mm") %>">
+								<input type="datetime-local" class="form-control boxed" name="validAfter" value="<%= validAfter.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="validBefore"><%= __("Valid to") %></label>
-								<input type="datetime-local" class="form-control boxed" name="validBefore" value="<%= validBefore.format("YYYY-MM-DDTHH:mm") %>">
+								<input type="datetime-local" class="form-control boxed" name="validBefore" value="<%= validBefore.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
 							</div>
 						</div>
 						<div class="form-group">

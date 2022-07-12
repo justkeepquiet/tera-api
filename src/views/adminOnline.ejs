@@ -41,7 +41,7 @@
 									<tbody>
 										<%_ online.forEach(account => { _%>
 										<tr>
-											<td><%= moment(account.get("lastLoginTime")).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= moment(account.get("lastLoginTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
 											<td><%= account.get("serverId") || "-" %></td>
 											<%_ if (account.get("permission") >= 256) { _%>
 											<td class="text-primary"><%= account.get("accountDBID") %> <i class="fa fa-wrench"></i></td>

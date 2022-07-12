@@ -76,7 +76,7 @@ module.exports.add = ({ i18n, datasheets }) => [
 
 		helpers.getInitialBenefits().forEach((benefitDays, benefitId) => {
 			benefitIds.push(benefitId);
-			availableUntils.push(moment().add(benefitDays, "days").format("YYYY-MM-DDTHH:mm"));
+			availableUntils.push(moment.tz(req.user.tz).add(benefitDays, "days"));
 		});
 
 		res.render("adminAccountsAdd", {
@@ -177,7 +177,7 @@ module.exports.addAction = ({ i18n, logger, accountModel, datasheets }) => [
 						promises.push(accountModel.benefits.create({
 							accountDBID: account.get("accountDBID"),
 							benefitId,
-							availableUntil: moment(availableUntils[i]).format("YYYY-MM-DD HH:mm:ss")
+							availableUntil: moment.tz(availableUntils[i], req.user.tz).toDate()
 						}, {
 							transaction
 						}));

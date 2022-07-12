@@ -118,8 +118,8 @@ module.exports.addAction = ({ i18n, logger, fcgi, accountModel }) => [
 				layout: "adminLayout",
 				errors: errors.array(),
 				accountDBID,
-				startTime: moment(startTime),
-				endTime: moment(endTime),
+				startTime: moment.tz(startTime, req.user.tz),
+				endTime: moment.tz(endTime, req.user.tz),
 				description
 			});
 		}
@@ -127,8 +127,8 @@ module.exports.addAction = ({ i18n, logger, fcgi, accountModel }) => [
 		accountModel.info.findOne({ where: { accountDBID } }).then(account =>
 			accountModel.bans.create({
 				accountDBID: account.get("accountDBID"),
-				startTime: moment(startTime).format("YYYY-MM-DD HH:mm:ss"),
-				endTime: moment(endTime).format("YYYY-MM-DD HH:mm:ss"),
+				startTime: moment.tz(startTime, req.user.tz).toDate(),
+				endTime: moment.tz(endTime, req.user.tz).toDate(),
 				description
 			}).then(() => {
 				if (account.get("lastLoginServer") && moment(startTime) < moment() && moment(endTime) > moment()) {
@@ -215,16 +215,16 @@ module.exports.editAction = ({ i18n, logger, fcgi, accountModel }) => [
 				layout: "adminLayout",
 				errors: errors.array(),
 				accountDBID,
-				startTime: moment(startTime),
-				endTime: moment(endTime),
+				startTime: moment.tz(startTime, req.user.tz),
+				endTime: moment.tz(endTime, req.user.tz),
 				description
 			});
 		}
 
 		accountModel.info.findOne({ where: { accountDBID } }).then(account =>
 			accountModel.bans.update({
-				startTime: moment(startTime).format("YYYY-MM-DD HH:mm:ss"),
-				endTime: moment(endTime).format("YYYY-MM-DD HH:mm:ss"),
+				startTime: moment.tz(startTime, req.user.tz).toDate(),
+				endTime: moment.tz(endTime, req.user.tz).toDate(),
 				description
 			}, {
 				where: { accountDBID }

@@ -184,7 +184,7 @@ module.exports.EnterGame = ({ logger, accountModel, reportModel }) => [
 		accountModel.sequelize.transaction(transaction => {
 			const promises = [
 				accountModel.info.update({
-					lastLoginTime: moment().format("YYYY-MM-DD HH:mm:ss"),
+					lastLoginTime: moment().toDate(),
 					lastLoginIP: ip,
 					lastLoginServer: server_id,
 					playCount: accountModel.sequelize.literal("playCount + 1")

@@ -30,8 +30,8 @@
 										_%>
 										<tr>
 											<td><%= maintenance.get("id") %></td>
-											<td><%= moment(maintenance.get("startTime")).format("YYYY-MM-DD HH:mm") %></td>
-											<td><%= moment(maintenance.get("endTime")).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= moment(maintenance.get("startTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= moment(maintenance.get("endTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
 											<td class="text-<%= active ? "success" : "danger" %>"><%= active ? __("Yes") : __("No") %></td>
 											<td><%= maintenance.get("description") || "-" %></td>
 											<td class="text-right">

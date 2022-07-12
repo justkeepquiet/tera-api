@@ -34,7 +34,7 @@
 										<tr>
 											<td><%= account.get("accountDBID") %></td>
 											<td><a href="/accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><%= account.get("userName") %></a><%- banned ? ' <i class="fa fa-ban text-danger"></i>' : "" %></a></td>
-											<td><%= moment(account.get("registerTime")).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= moment(account.get("registerTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
 											<%_ if (account.get("permission") >= 256) { _%>
 											<td class="text-primary"><%= account.get("permission") %> <i class="fa fa-wrench"></i></td>
 											<%_ } else if (account.get("permission") >= 1) { _%>
@@ -47,7 +47,7 @@
 											<%_ } else { _%>
 											<td><%= account.get("privilege") %></td>
 											<%_ } _%>
-											<td><%= account.get("lastLoginTime") ? moment(account.get("lastLoginTime")).format("YYYY-MM-DD HH:mm") : "-" %></td>
+											<td><%= account.get("lastLoginTime") ? moment(account.get("lastLoginTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") : "-" %></td>
 											<td><%= account.get("lastLoginServer") || "-" %></td>
 											<td><%= account.get("lastLoginIP") || "-" %></td>
 											<td class="text-right">

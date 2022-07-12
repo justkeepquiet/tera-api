@@ -127,8 +127,8 @@ module.exports.addAction = ({ i18n, logger, shopModel }) => [
 				shopLocales,
 				promoCode,
 				aFunction,
-				validAfter: moment(validAfter),
-				validBefore: moment(validBefore),
+				validAfter: moment.tz(validAfter, req.user.tz),
+				validBefore: moment.tz(validBefore, req.user.tz),
 				active,
 				description
 			});
@@ -138,8 +138,8 @@ module.exports.addAction = ({ i18n, logger, shopModel }) => [
 			shopModel.promoCodes.create({
 				promoCode,
 				function: aFunction,
-				validAfter: moment(validAfter).format("YYYY-MM-DD HH:mm:ss"),
-				validBefore: moment(validBefore).format("YYYY-MM-DD HH:mm:ss"),
+				validAfter: moment.tz(validAfter, req.user.tz).toDate(),
+				validBefore: moment.tz(validBefore, req.user.tz).toDate(),
 				active: active == "on"
 			}, {
 				transaction
@@ -162,8 +162,6 @@ module.exports.addAction = ({ i18n, logger, shopModel }) => [
 					res.redirect("/promocodes")
 				);
 			})
-		).then(() =>
-			res.redirect("/promocodes")
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
@@ -275,8 +273,8 @@ module.exports.editAction = ({ i18n, logger, shopModel }) => [
 					promoCodeId: promocode.get("promoCodeId"),
 					promoCode: promocode.get("promoCode"),
 					aFunction,
-					validAfter: moment(validAfter),
-					validBefore: moment(validBefore),
+					validAfter: moment.tz(validAfter, req.user.tz),
+					validBefore: moment.tz(validBefore, req.user.tz),
 					active,
 					description
 				});
@@ -285,8 +283,8 @@ module.exports.editAction = ({ i18n, logger, shopModel }) => [
 			return shopModel.sequelize.transaction(transaction =>
 				shopModel.promoCodes.update({
 					function: aFunction,
-					validAfter: moment(validAfter).format("YYYY-MM-DD HH:mm:ss"),
-					validBefore: moment(validBefore).format("YYYY-MM-DD HH:mm:ss"),
+					validAfter: moment.tz(validAfter, req.user.tz).toDate(),
+					validBefore: moment.tz(validBefore, req.user.tz).toDate(),
 					active: active == "on"
 				}, {
 					where: { promoCodeId },

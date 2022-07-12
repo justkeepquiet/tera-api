@@ -155,6 +155,7 @@ module.exports.loginAction = ({ passport }) => [
 
 			req.login(user, () => {
 				req.user.remember = !!req.body.remember;
+				req.user.tz = req.body.tz || moment.tz.guess();
 
 				if (req.user.remember) {
 					const maxAge = 86400000 * 7;
@@ -186,7 +187,7 @@ module.exports.logoutAction = ({ logger, steer }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		if (steer.isRegistred && req?.user.sessionKey) {
+		if (steer.isRegistred && req?.user?.sessionKey) {
 			steer.logoutSessionKey(req.user.sessionKey).catch(err =>
 				logger.warn(err)
 			);

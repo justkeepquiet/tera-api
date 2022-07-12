@@ -11,6 +11,7 @@ const body = require("express-validator").body;
 const helpers = require("../utils/helpers");
 
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
+const { utc } = require("moment-timezone");
 
 /**
  * @param {modules} modules
@@ -80,15 +81,15 @@ module.exports.addAction = ({ i18n, logger, accountModel }) => [
 			return res.render("adminMaintenanceAdd", {
 				layout: "adminLayout",
 				errors: errors.array(),
-				startTime: moment(startTime),
-				endTime: moment(endTime),
+				startTime: moment.tz(startTime, req.user.tz),
+				endTime: moment.tz(endTime, req.user.tz),
 				description
 			});
 		}
 
 		accountModel.maintenance.create({
-			startTime: moment(startTime).format("YYYY-MM-DD HH:mm:ss"),
-			endTime: moment(endTime).format("YYYY-MM-DD HH:mm:ss"),
+			startTime: moment.tz(startTime, req.user.tz).toDate(),
+			endTime: moment.tz(endTime, req.user.tz).toDate(),
 			description
 		}).then(() =>
 			res.redirect("/maintenance")
@@ -165,16 +166,16 @@ module.exports.editAction = ({ i18n, logger, accountModel }) => [
 			return res.render("adminMaintenanceEdit", {
 				layout: "adminLayout",
 				errors: errors.array(),
-				startTime: moment(startTime),
-				endTime: moment(endTime),
+				startTime: moment.tz(startTime, req.user.tz),
+				endTime: moment.tz(endTime, req.user.tz),
 				description,
 				id
 			});
 		}
 
 		accountModel.maintenance.update({
-			startTime: moment(startTime).format("YYYY-MM-DD HH:mm:ss"),
-			endTime: moment(endTime).format("YYYY-MM-DD HH:mm:ss"),
+			startTime: moment.tz(startTime, req.user.tz).toDate(),
+			endTime: moment.tz(endTime, req.user.tz).toDate(),
 			description
 		}, {
 			where: { id }

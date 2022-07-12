@@ -131,14 +131,14 @@ module.exports.addAction = ({ i18n, logger, accountModel, datasheets }) => [
 				accountBenefits,
 				accountDBID,
 				benefitId,
-				availableUntil: moment(availableUntil)
+				availableUntil: moment.tz(availableUntil, req.user.tz)
 			});
 		}
 
 		accountModel.benefits.create({
 			accountDBID,
 			benefitId,
-			availableUntil: moment(availableUntil).format("YYYY-MM-DD HH:mm:ss")
+			availableUntil: moment.tz(availableUntil, req.user.tz).toDate()
 		}).then(() =>
 			res.redirect(`/benefits?accountDBID=${accountDBID}`)
 		).catch(err => {
@@ -217,12 +217,12 @@ module.exports.editAction = ({ logger, accountModel }) => [
 				moment,
 				accountDBID,
 				benefitId,
-				availableUntil
+				availableUntil: moment.tz(availableUntil, req.user.tz)
 			});
 		}
 
 		accountModel.benefits.update({
-			availableUntil
+			availableUntil: moment.tz(availableUntil, req.user.tz).toDate()
 		}, {
 			where: { benefitId, accountDBID }
 		}).then(() =>

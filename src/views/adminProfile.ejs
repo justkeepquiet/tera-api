@@ -21,7 +21,7 @@
 							<%= __("Authentication type") %>: <strong><%= user.type === "steer" ? "STEER" : "QA Login" %></strong>
 						</section>
 						<section class="mb-2">
-							<%= __("Time zone") %>: <strong><%= moment().format("Z") %> (<%= moment.tz.guess() %>)</strong>
+							<%= __("Time zone") %>: <strong><%= moment().tz(user.tz).format("Z") %> (<%= user.tz %>)</strong>
 						</section>
 					</div>
 				</div>

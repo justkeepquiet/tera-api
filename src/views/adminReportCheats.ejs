@@ -32,7 +32,7 @@
 										);
 									_%>
 									<tr>
-										<td><%= moment(report.get("reportTime")).format("YYYY-MM-DD HH:mm") %></td>
+										<td><%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
 										<td><%= report.get("accountDBID") %></td>
 										<td><%= name %></td>
 										<td><%= skill %> <%= a %>/<%= b %></td>

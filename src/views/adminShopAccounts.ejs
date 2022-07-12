@@ -43,7 +43,7 @@
 										<td><%= account.get("accountDBID") %></td>
 										<td><%= account.get("balance") %></td>
 										<td><%= account.get("active") ? __("Yes") : __("No") %></td>
-										<td><%= moment(account.get("createdAt")).format("YYYY-MM-DD HH:mm") %></td>
+										<td><%= moment(account.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
 										<td class="text-right">
 											<a class="btn btn-secondary btn-sm" href="/shop_accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
 											<a class="btn btn-secondary btn-sm" href="/shop_accounts/delete?accountDBID=<%= account.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
