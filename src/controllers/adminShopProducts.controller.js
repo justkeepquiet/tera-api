@@ -131,7 +131,10 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
 							[shopModel.itemStrings.sequelize.col("string"), "string"],
 							[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
 						]
-					}
+					},
+					order: [
+						["createdAt", "ASC"]
+					]
 				}));
 			});
 
@@ -551,7 +554,10 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 						[shopModel.itemStrings.sequelize.col("string"), "string"],
 						[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
 					]
-				}
+				},
+				order: [
+					["createdAt", "ASC"]
+				]
 			});
 
 			const itemTemplateIds = [];

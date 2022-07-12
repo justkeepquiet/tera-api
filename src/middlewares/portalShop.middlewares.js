@@ -21,7 +21,7 @@ module.exports.validationHandler = logger =>
 	 */
 	(req, res, next) => {
 		if (!helpers.validationResultLog(req, logger).isEmpty()) {
-			return res.send(); // @todo
+			return res.send();
 		}
 
 		next();
@@ -36,7 +36,7 @@ module.exports.authSessionHandler = () =>
 		if (req.isAuthenticated()) {
 			next();
 		} else {
-			res.send("Access Denied");
+			res.send();
 		}
 	}
 ;

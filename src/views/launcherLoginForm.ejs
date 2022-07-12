@@ -28,15 +28,15 @@
 		if (!parent.urlParam("lang")) {
 			var userLang = (navigator.language || navigator.userLanguage).split('-')[0];
 			if (localStorage.REGION) {
-				parent.Launcher.setRegion(localStorage.REGION);
+				parent.Launcher.setRegion(localStorage.REGION, true);
 			} else {
-				parent.Launcher.setRegion(parent.REGIONS[userLang] || REGION);
+				parent.Launcher.setRegion(parent.REGIONS[userLang] || REGION, true);
 			}
 		}
 
 		parent.$(".region").click(function() {
 			localStorage.REGION = $(this).data("region");
-			parent.Launcher.setRegion($(this).data("region"));
+			parent.Launcher.setRegion($(this).data("region"), true);
 		});
 
 		$("#userLoginForm").submit(function() {
@@ -62,7 +62,7 @@
 		});
 
 		q("#qaRegion").on("change", function() {
-			parent.Launcher.setRegion(this.value);
+			parent.Launcher.setRegion(this.value, true);
 			localStorage.REGION = this.value;
 		});
 

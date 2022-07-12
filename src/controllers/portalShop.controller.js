@@ -22,8 +22,9 @@ module.exports.Auth = ({ passport }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		// eslint-disable-next-line no-empty-function
-		// req.logout(() => {});
+		if (req.isAuthenticated()) {
+			return res.redirect("ShopMain");
+		}
 
 		passport.authenticate("custom", (error, user) => {
 			if (error) {
@@ -58,8 +59,6 @@ module.exports.MainHtml = () => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		console.log(req.user);
-
 		res.render("shopMain");
 	}
 ];
@@ -214,7 +213,10 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, accountModel, shopModel }) 
 							[shopModel.itemStrings.sequelize.col("string"), "string"],
 							[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
 						]
-					}
+					},
+					order: [
+						["createdAt", "ASC"]
+					]
 				}));
 			});
 
@@ -250,7 +252,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, accountModel, shopModel }) 
 						}
 
 						// Remove unresolved products
-						if (!product.icon || !product.title || !product.description) {
+						if (!product.icon || (!product.title && !product.description)) {
 							productsMap.delete(productItem.get("productId"));
 						}
 					}
@@ -348,7 +350,10 @@ module.exports.PartialProductHtml = ({ i18n, logger, accountModel, shopModel }) 
 						[shopModel.itemStrings.sequelize.col("string"), "string"],
 						[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
 					]
-				}
+				},
+				order: [
+					["createdAt", "ASC"]
+				]
 			}).then(async items => {
 				if (items === null) {
 					return res.send();

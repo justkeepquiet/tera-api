@@ -9,7 +9,7 @@ const I18n = require("i18n").I18n;
 const express = require("express");
 const uuid = require("uuid").v4;
 const session = require("express-session");
-const FileStore = require("session-file-store")(session);
+const MemoryStore = require("memorystore")(session);
 const Passport = require("passport").Passport;
 const CustomStrategy = require("passport-custom").Strategy;
 
@@ -63,9 +63,7 @@ module.exports = modules => {
 
 	modules.app.use(session({
 		genid: () => uuid(),
-		store: new FileStore({
-			logFn: modules.logger.debug
-		}),
+		store: new MemoryStore(),
 		secret: process.env.API_PORTAL_SECRET,
 		resave: false,
 		saveUninitialized: true
