@@ -55,6 +55,10 @@ module.exports.GetServerPermission = ({ logger, accountModel }) => [
 		}).then(maintenance => accountModel.serverInfo.findOne({
 			where: { serverId: server_id }
 		}).then(server => {
+			if (server === null) {
+				return resultJson(res, 10000, { msg: "server not exist" });
+			}
+
 			let permission = 0x00000000;
 
 			if (server.get("isCrowdness")) {
