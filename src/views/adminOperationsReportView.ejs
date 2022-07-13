@@ -133,7 +133,8 @@ _%>
 								</div>
 								<%_ }) _%>
 							<%_ } else { _%>
-								<input type="text" class="form-control boxed" value="<%= validator.isISO8601(body[key]) ? moment.tz(body[key], report.get("userTz")).format("YYYY-MM-DD HH:mm") : body[key] %>" readonly>
+								<input type="text" class="form-control boxed" value="<%= report.get("userTz") && validator.isISO8601(body[key]) ?
+									moment.tz(body[key], report.get("userTz")).format("YYYY-MM-DD HH:mm") : body[key] %>" readonly>
 							<%_ } _%>
 							</div>
 						</div>
