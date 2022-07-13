@@ -92,7 +92,9 @@
 					<%= __("Your price") %>: <span class="gold"><strong><%= product.price %></strong> <i class="fas fa-coins"></i></span><br>
 					<a class="btn btn-large btn-danger" href="#" id="buy"><%= __("Buy") %></a>
 				</div>
-				<span id="buy_nocoins" style="display: none"><br><%= __("You don't have enough coins to buy.") %></span>
+				<span id="buy_nocoins" style="display: none"><%= __("You don't have enough coins to buy.") %><br>
+					<br><strong><%= product.price %></strong> <i class="fas fa-coins"></i>
+				</span>
 				<span id="buy_success" style="display: none"><%= __("You have success purchased an item.") %><br>
 					<br><%= __("Debited") %>: <span class="gold"><strong><%= product.price %></strong> <i class="fas fa-coins"></i></span>
 				</span>
@@ -111,7 +113,7 @@
 </script>
 <%_ } _%>
 <script type="text/javascript">
-	$(function() {
+	$(document).ready(function() {
 		function purchaseProduct(productId) {
 			shopPurchaseAction(productId, function(result) {
 				if (result.ReturnCode == 0) {
@@ -122,7 +124,7 @@
 				}
 			});
 		}
-		if ($('#shop_balance').html() < '<%= product.price %>') {
+		if (parseInt($('#shop_balance').html()) < parseInt('<%= product.price %>')) {
 			$('#buy_available').hide();
 			$('#buy_nocoins').show();
 		}
