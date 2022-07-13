@@ -300,7 +300,7 @@
 	"Info": "Информация",
 	"Shop Accounts": "Аккаунты магазина",
 	"Accounts are created automatically when funds are deposited to the user's Shop balance.": "Аккаунты создаются автоматически при зачислении средств на баланс магазина пользователя.",
-	"If additional information is not set, the information for the product will be taken from the first item added.": "Если дополнительная информация не задана, информация о товаре будет взята из первого добавленного товара.",
+	"If additional information is not set, the information for the product will be taken from the first item added.": "Если дополнительная информация не задана, информация о товаре будет взята из первого добавленного предмета.",
 	"Balance": "Баланс",
 	"Active": "Активно",
 	"Created": "Создано",

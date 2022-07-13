@@ -478,6 +478,8 @@ module.exports.PartialPromoCodeHtml = ({ i18n, logger, accountModel, shopModel }
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
+		const { tzOffset } = req.query;
+
 		shopModel.promoCodeActivated.belongsTo(shopModel.promoCodes, { foreignKey: "promoCodeId" });
 		shopModel.promoCodes.hasOne(shopModel.promoCodeStrings, { foreignKey: "promoCodeId" });
 
@@ -503,7 +505,7 @@ module.exports.PartialPromoCodeHtml = ({ i18n, logger, accountModel, shopModel }
 				["createdAt", "DESC"]
 			]
 		}).then(promoCodesAcrivated => {
-			res.render("partials/shopPromoCode", { moment, promoCodesAcrivated });
+			res.render("partials/shopPromoCode", { moment, promoCodesAcrivated, tzOffset: Number(tzOffset) });
 		}).catch(err => {
 			logger.error(err);
 			res.send();

@@ -56,7 +56,9 @@ function loadContent(page, params = null) {
 }
 
 function loadPromoCodes(callback) {
-	apiRequest("ShopPartialPromoCode", null, "html", function(result) {
+	var tzOffset = new Date().getTimezoneOffset();
+
+	apiRequest("ShopPartialPromoCode?tzOffset=" + tzOffset, null, "html", function(result) {
 		$("#content").html(result);
 		callback();
 	});
