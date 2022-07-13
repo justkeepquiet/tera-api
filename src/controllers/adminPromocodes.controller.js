@@ -5,10 +5,8 @@
  * @typedef {import("express").RequestHandler} RequestHandler
  */
 
-const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
-const I18n = require("i18n").I18n;
 const moment = require("moment-timezone");
 const helpers = require("../utils/helpers");
 
@@ -255,18 +253,20 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { promoCodeId } = req.query;
 		const { aFunction, validAfter, validBefore, active, description } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
-		if (!promoCodeId) {
-			return res.redirect("/promocodes");
-		}
+		try {
+			if (!promoCodeId) {
+				return res.redirect("/promocodes");
+			}
 
-		shopModel.promoCodes.findOne({
-			where: { promoCodeId }
-		}).then(promocode => {
+			const promocode = await shopModel.promoCodes.findOne({
+				where: { promoCodeId }
+			});
+
 			if (promocode === null) {
 				return res.redirect("/promocodes");
 			}
@@ -287,41 +287,70 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 				});
 			}
 
-			return shopModel.sequelize.transaction(transaction =>
-				shopModel.promoCodes.update({
-					function: aFunction,
-					validAfter: moment.tz(validAfter, req.user.tz).toDate(),
-					validBefore: moment.tz(validBefore, req.user.tz).toDate(),
-					active: active == "on"
-				}, {
-					where: { promoCodeId },
-					transaction
-				}).then(() => {
-					const promises = [];
+			await shopModel.sequelize.transaction(async transaction => {
+				const promises = [
+					shopModel.promoCodes.update({
+						function: aFunction,
+						validAfter: moment.tz(validAfter, req.user.tz).toDate(),
+						validBefore: moment.tz(validBefore, req.user.tz).toDate(),
+						active: active == "on"
+					}, {
+						where: { promoCodeId },
+						transaction
+					})
+				];
 
-					if (description) {
-						Object.keys(description).forEach(language => {
+				if (description) {
+					const categoryStrings = await shopModel.promoCodeStrings.findAll({
+						where: { promoCodeId }
+					});
+
+					categoryStrings.forEach(promoCodeString => {
+						const language = promoCodeString.get("language");
+
+						if (description[language]) {
 							promises.push(shopModel.promoCodeStrings.update({
 								description: description[language]
 							}, {
-								transaction,
 								where: {
 									promoCodeId,
 									language
-								}
+								},
+								transaction
 							}));
-						});
-					}
+						} else {
+							promises.push(shopModel.promoCodeStrings.destroy({
+								where: {
+									promoCodeId,
+									language
+								},
+								transaction
+							}));
+						}
+					});
 
-					return Promise.all(promises).then(() =>
-						next()
-					);
-				})
-			);
-		}).catch(err => {
+					shopLocales.forEach(language => {
+						if (description[language]) {
+							promises.push(shopModel.promoCodeStrings.create({
+								promoCodeId,
+								description: description[language],
+								language
+							}, {
+								ignoreDuplicates: true,
+								transaction
+							}));
+						}
+					});
+				}
+
+				await Promise.all(promises);
+			});
+
+			next();
+		} catch (err) {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
-		});
+		}
 	},
 	writeOperationReport(reportModel),
 	/**

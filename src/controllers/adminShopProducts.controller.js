@@ -407,7 +407,7 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 					categoryId,
 					active: active == "on",
 					price,
-					icon,
+					icon: icon || null,
 					rareGrade: rareGrade === "" ? null : rareGrade,
 					validAfter: moment.tz(validAfter, req.user.tz).toDate(),
 					validBefore: moment.tz(validBefore, req.user.tz).toDate()
@@ -827,7 +827,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 						active: active == "on",
 						price,
 						sort,
-						icon,
+						icon: icon || null,
 						rareGrade: rareGrade === "" ? null : rareGrade,
 						validAfter: moment.tz(validAfter, req.user.tz).toDate(),
 						validBefore: moment.tz(validBefore, req.user.tz).toDate()
@@ -934,12 +934,18 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 							title: title[language] || null,
 							description: description[language] || null
 						}, {
-							where: { id: productString.get("id") },
+							where: {
+								id: productString.get("id"),
+								language
+							},
 							transaction
 						}));
 					} else {
 						promises.push(shopModel.productStrings.destroy({
-							where: { id: productString.get("id") },
+							where: {
+								id: productString.get("id"),
+								language
+							},
 							transaction
 						}));
 					}

@@ -132,11 +132,9 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 				}
 
 				return Promise.all(promises).then(() =>
-					res.redirect("/shop_categories")
+					next()
 				);
 			})
-		).then(() =>
-			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
@@ -221,18 +219,20 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { id } = req.query;
 		const { sort, active, title } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
-		if (!id) {
-			return res.redirect("/shop_categories");
-		}
+		try {
+			if (!id) {
+				return res.redirect("/shop_categories");
+			}
 
-		shopModel.categories.findOne({
-			where: { id }
-		}).then(category => {
+			const category = await shopModel.categories.findOne({
+				where: { id }
+			});
+
 			if (category === null) {
 				return res.redirect("/shop_categories");
 			}
@@ -249,39 +249,68 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 				});
 			}
 
-			return shopModel.sequelize.transaction(transaction =>
-				shopModel.categories.update({
-					sort,
-					active: active == "on"
-				}, {
-					where: { id },
-					transaction
-				}).then(() => {
-					const promises = [];
+			await shopModel.sequelize.transaction(async transaction => {
+				const promises = [
+					shopModel.categories.update({
+						sort,
+						active: active == "on"
+					}, {
+						where: { id },
+						transaction
+					})
+				];
 
-					if (title) {
-						Object.keys(title).forEach(language => {
+				if (title) {
+					const categoryStrings = await shopModel.categoryStrings.findAll({
+						where: { categoryId: id }
+					});
+
+					categoryStrings.forEach(categoryString => {
+						const language = categoryString.get("language");
+
+						if (title[language]) {
 							promises.push(shopModel.categoryStrings.update({
 								title: title[language]
 							}, {
-								transaction,
 								where: {
 									categoryId: id,
 									language
-								}
+								},
+								transaction
 							}));
-						});
-					}
+						} else {
+							promises.push(shopModel.categoryStrings.destroy({
+								where: {
+									categoryId: id,
+									language
+								},
+								transaction
+							}));
+						}
+					});
 
-					return Promise.all(promises).then(() =>
-						next()
-					);
-				})
-			);
-		}).catch(err => {
+					shopLocales.forEach(language => {
+						if (title[language]) {
+							promises.push(shopModel.categoryStrings.create({
+								categoryId: id,
+								title: title[language],
+								language
+							}, {
+								ignoreDuplicates: true,
+								transaction
+							}));
+						}
+					});
+				}
+
+				await Promise.all(promises);
+			});
+
+			next();
+		} catch (err) {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
-		});
+		}
 	},
 	writeOperationReport(reportModel),
 	/**
