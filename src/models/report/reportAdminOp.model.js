@@ -25,6 +25,9 @@ module.exports = (sequelize, DataTypes) =>
 		userSn: {
 			type: DataTypes.BIGINT
 		},
+		userTz: {
+			type: DataTypes.STRING(128)
+		},
 		ip: {
 			type: DataTypes.STRING(64)
 		},

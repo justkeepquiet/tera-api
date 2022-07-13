@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS `report_admin_op` (
   `userId` varchar(64) DEFAULT NULL,
   `userType` varchar(64) DEFAULT NULL,
   `userSn` bigint(20) DEFAULT NULL,
+  `userTz` varchar(128) DEFAULT NULL,
   `ip` varchar(64) DEFAULT NULL,
   `function` varchar(256) DEFAULT NULL,
   `payload` text,

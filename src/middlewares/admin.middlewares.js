@@ -48,6 +48,7 @@ module.exports.writeOperationReport = (reportModel, params = {}) =>
 			userSn: req?.user?.userSn,
 			userId: req?.user?.login,
 			userType: req?.user?.type,
+			userTz: req?.user?.tz,
 			ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
 			function: req.path,
 			payload: JSON.stringify([req.query, req.body]),
