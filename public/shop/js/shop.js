@@ -44,7 +44,10 @@ function loadContent(page, params = null) {
 	$(".navbar-fixed-top .nav li a[data-page='" + page + "']").parent().addClass("active");
 
 	apiRequest("ShopPartial" + page, params, "html", function(result) {
-		if (page !== "Catalog" && page !== "Product") {
+		if (page === "Error") {
+			$("#menu").html("");
+		}
+		if (page !== "Catalog" && page !== "Product" && page !== "Error") {
 			loadMenu();
 		}
 		$("#content").html(result);

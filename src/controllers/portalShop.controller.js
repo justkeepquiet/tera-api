@@ -46,7 +46,7 @@ module.exports.DisabledHtml = () => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		res.send("TERA Shop is currently disabled.");
+		res.render("shopDisabled");
 	}
 ];
 
@@ -457,9 +457,9 @@ module.exports.PartialWelcomeHtml = ({ logger, accountModel }) => [
 				benefits[benefitData.get("benefitId")] = benefitData.get("availableUntil");
 			}
 
-			const carousel = helpers.requireReload("../../config/shop").welcomeCarousel;
+			const shopConfig = helpers.requireReload("../../config/shop");
 
-			res.render("partials/shopWelcome", { moment, server, benefits, carousel });
+			res.render("partials/shopWelcome", { moment, server, benefits, shopConfig });
 		} catch (err) {
 			logger.error(err);
 			res.status(500).send();
