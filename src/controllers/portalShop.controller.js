@@ -97,13 +97,13 @@ module.exports.PartialMenuHtml = ({ i18n, logger, accountModel, shopModel }) => 
 			]
 		}).then(categories => {
 			if (categories === null) {
-				return res.send();
+				return res.status(500).send();
 			}
 
 			res.render("partials/shopMenu", { categories, active });
 		}).catch(err => {
 			logger.error(err);
-			res.send();
+			res.status(500).send();
 		});
 	}
 ];
@@ -170,7 +170,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, accountModel, shopModel }) 
 			]
 		}).then(products => {
 			if (products === null) {
-				return res.send();
+				return res.status(500).send();
 			}
 
 			const promises = [];
@@ -262,7 +262,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, accountModel, shopModel }) 
 			});
 		}).catch(err => {
 			logger.error(err);
-			res.send();
+			res.status(500).send();
 		});
 	}
 ];
@@ -308,7 +308,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, accountModel, shopModel }) 
 			}
 		}).then(async product => {
 			if (product === null) {
-				return res.send();
+				return res.status(500).send();
 			}
 
 			const productObj = {
@@ -356,7 +356,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, accountModel, shopModel }) 
 				]
 			}).then(async items => {
 				if (items === null) {
-					return res.send();
+					return res.status(500).send();
 				}
 
 				const promises = [];
@@ -424,7 +424,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, accountModel, shopModel }) 
 			});
 		}).catch(err => {
 			logger.error(err);
-			res.send();
+			res.status(500).send();
 		});
 	}
 ];
@@ -449,7 +449,7 @@ module.exports.PartialWelcomeHtml = ({ logger, accountModel }) => [
 			});
 
 			if (server === null || benefitsData === null) {
-				return res.send();
+				return res.status(500).send();
 			}
 
 			const benefits = {};
@@ -461,9 +461,8 @@ module.exports.PartialWelcomeHtml = ({ logger, accountModel }) => [
 
 			res.render("partials/shopWelcome", { moment, server, benefits, carousel });
 		} catch (err) {
-			console.log(err);
 			logger.error(err);
-			res.send();
+			res.status(500).send();
 		}
 	}
 ];
@@ -508,7 +507,7 @@ module.exports.PartialPromoCodeHtml = ({ i18n, logger, accountModel, shopModel }
 			res.render("partials/shopPromoCode", { moment, promoCodesAcrivated, tzOffset: Number(tzOffset) });
 		}).catch(err => {
 			logger.error(err);
-			res.send();
+			res.status(500).send();
 		});
 	}
 ];

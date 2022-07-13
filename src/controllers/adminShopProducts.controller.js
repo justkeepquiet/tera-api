@@ -81,92 +81,91 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
 				]
 			});
 
-			if (products === null) {
-				return res.send();
-			}
-
-			const promises = [];
 			const productsMap = new Map();
 
-			shopModel.productItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
-			shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+			if (products !== null) {
+				shopModel.productItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
+				shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-			products.forEach(product => {
-				productsMap.set(product.get("id"), {
-					sort: product.get("sort"),
-					categoryId: product.get("categoryId"),
-					categoryTitle: categoriesAssoc[product.get("categoryId")] || "",
-					price: product.get("price"),
-					title: product.get("title"),
-					description: product.get("description"),
-					icon: product.get("icon"),
-					rareGrade: product.get("rareGrade"),
-					active: product.get("active"),
-					published:
-						product.get("active") &&
-						moment().isSameOrAfter(moment(product.get("validAfter"))) &&
-						moment().isSameOrBefore(moment(product.get("validBefore"))),
-					itemCount: null
-				});
+				const promises = [];
 
-				promises.push(shopModel.productItems.findOne({
-					where: { productId: product.get("id") },
-					include: [{
-						model: shopModel.itemTemplates,
+				products.forEach(product => {
+					productsMap.set(product.get("id"), {
+						sort: product.get("sort"),
+						categoryId: product.get("categoryId"),
+						categoryTitle: categoriesAssoc[product.get("categoryId")] || "",
+						price: product.get("price"),
+						title: product.get("title"),
+						description: product.get("description"),
+						icon: product.get("icon"),
+						rareGrade: product.get("rareGrade"),
+						active: product.get("active"),
+						published:
+							product.get("active") &&
+							moment().isSameOrAfter(moment(product.get("validAfter"))) &&
+							moment().isSameOrBefore(moment(product.get("validBefore"))),
+						itemCount: null
+					});
+
+					promises.push(shopModel.productItems.findOne({
+						where: { productId: product.get("id") },
 						include: [{
-							model: shopModel.itemStrings,
-							where: {
-								language: i18n.getLocale()
-							},
+							model: shopModel.itemTemplates,
+							include: [{
+								model: shopModel.itemStrings,
+								where: {
+									language: i18n.getLocale()
+								},
+								attributes: []
+							}],
 							attributes: []
 						}],
-						attributes: []
-					}],
-					attributes: {
-						include: [
-							[shopModel.productItems.sequelize.col("productId"), "productId"],
-							[shopModel.productItems.sequelize.col("boxItemCount"), "boxItemCount"],
-							[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-							[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-							[shopModel.itemStrings.sequelize.col("string"), "string"],
-							[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+						attributes: {
+							include: [
+								[shopModel.productItems.sequelize.col("productId"), "productId"],
+								[shopModel.productItems.sequelize.col("boxItemCount"), "boxItemCount"],
+								[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
+								[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
+								[shopModel.itemStrings.sequelize.col("string"), "string"],
+								[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+							]
+						},
+						order: [
+							["createdAt", "ASC"]
 						]
-					},
-					order: [
-						["createdAt", "ASC"]
-					]
-				}));
-			});
+					}));
+				});
 
-			const productItemsAssoc = await Promise.all(promises);
+				const productItemsAssoc = await Promise.all(promises);
 
-			if (productItemsAssoc !== null) {
-				for (const productItem of productItemsAssoc) {
-					if (productItem === null) {
-						break;
-					}
-
-					const product = productsMap.get(productItem.get("productId"));
-
-					if (product) {
-						if (!product.title) {
-							product.title = productItem.get("string");
+				if (productItemsAssoc !== null) {
+					for (const productItem of productItemsAssoc) {
+						if (productItem === null) {
+							break;
 						}
 
-						if (!product.description) {
-							product.description = productItem.get("toolTip");
-						}
+						const product = productsMap.get(productItem.get("productId"));
 
-						if (!product.icon) {
-							product.icon = productItem.get("icon");
-						}
+						if (product) {
+							if (!product.title) {
+								product.title = productItem.get("string");
+							}
 
-						if (product.rareGrade === null) {
-							product.rareGrade = productItem.get("rareGrade");
-						}
+							if (!product.description) {
+								product.description = productItem.get("toolTip");
+							}
 
-						if (!product.itemCount) {
-							product.itemCount = productItem.get("boxItemCount");
+							if (!product.icon) {
+								product.icon = productItem.get("icon");
+							}
+
+							if (product.rareGrade === null) {
+								product.rareGrade = productItem.get("rareGrade");
+							}
+
+							if (!product.itemCount) {
+								product.itemCount = productItem.get("boxItemCount");
+							}
 						}
 					}
 				}
@@ -180,7 +179,7 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
 			});
 		} catch (err) {
 			logger.error(err);
-			res.send();
+			res.render("adminError", { layout: "adminLayout", err });
 		}
 	}
 ];
@@ -243,7 +242,7 @@ module.exports.add = ({ i18n, logger, shopModel }) => [
 			});
 		} catch (err) {
 			logger.error(err);
-			res.send();
+			res.render("adminError", { layout: "adminLayout", err });
 		}
 	}
 ];
@@ -639,7 +638,7 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 			});
 		} catch (err) {
 			logger.error(err);
-			res.send();
+			res.render("adminError", { layout: "adminLayout", err });
 		}
 	}
 ];
