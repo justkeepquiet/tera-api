@@ -10,9 +10,9 @@ const PlatformError = require("./platformError");
 class PlatformConnection {
 	constructor(platformAddr, platformPort, params) {
 		this.gusid = {
-			boxapi: (16 << 24) + 1,
-			steersesion: (10 << 24) + 0,
-			steermind: (4 << 24) + 0
+			boxapi: (16 << 24) + 1, // 268435457
+			steersession: (10 << 24) + 0, // 167772160
+			steermind: (4 << 24) + 0 // 67108864
 		};
 
 		this.serverType = {
@@ -78,7 +78,7 @@ class PlatformConnection {
 		this.params = params;
 	}
 
-	sendAndRecv(opMsg, msgId = 1) {
+	sendAndRecv(opMsg, gusid, msgId = 1) {
 		const id = uuid();
 
 		if (this.params.logger?.debug) {
@@ -106,7 +106,7 @@ class PlatformConnection {
 
 		const sendData = Buffer.concat([
 			struct.pack(sizeFormat, msgSize),
-			struct.pack(destFormat, this.gusid.boxapi),
+			struct.pack(destFormat, gusid),
 			struct.pack(idFormat, msgId),
 			serializedData
 		]);

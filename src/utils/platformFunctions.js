@@ -27,7 +27,7 @@ class PlatformFunctions extends PlatformConnection {
 			]
 		});
 
-		return this.sendAndRecv(opMsg).then(data => {
+		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
 			if (resultCode === this.platformErrorCode.success) {
@@ -96,7 +96,7 @@ class PlatformFunctions extends PlatformConnection {
 			]
 		});
 
-		return this.sendAndRecv(opMsg).then(data => {
+		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
 			if (resultCode === this.platformErrorCode.success) {
@@ -123,7 +123,7 @@ class PlatformFunctions extends PlatformConnection {
 			]
 		});
 
-		return this.sendAndRecv(opMsg).then(data => {
+		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
 			if (resultCode === this.platformErrorCode.success) {
@@ -226,7 +226,7 @@ class PlatformFunctions extends PlatformConnection {
 			]
 		});
 
-		return this.sendAndRecv(this.socket, opMsg).then(data => {
+		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
 			if (resultCode === this.platformErrorCode.success) {
