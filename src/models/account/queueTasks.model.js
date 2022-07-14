@@ -10,25 +10,26 @@
 * @param {DataTypes} DataTypes
 */
 module.exports = (sequelize, DataTypes) =>
-	sequelize.define("account_bans", {
-		accountDBID: {
+	sequelize.define("queue_tasks", {
+		id: {
 			type: DataTypes.BIGINT,
-			primaryKey: true
+			primaryKey: true,
+			autoIncrement: true
 		},
-		startTime: {
-			type: DataTypes.DATE
+		handler: {
+			type: DataTypes.STRING(256)
 		},
-		endTime: {
-			type: DataTypes.DATE
-		},
-		ip: {
+		arguments: {
 			type: DataTypes.TEXT
 		},
-		description: {
-			type: DataTypes.STRING
+		status: {
+			type: DataTypes.INTEGER
 		},
-		active: {
-			type: DataTypes.TINYINT(4)
+		message: {
+			type: DataTypes.TEXT
+		},
+		createdAt: {
+			type: DataTypes.DATE
 		}
 	})
 ;

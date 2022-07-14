@@ -9,10 +9,11 @@ CREATE TABLE IF NOT EXISTS `account_bans` (
   `accountDBID` bigint(20) NOT NULL,
   `startTime` datetime NOT NULL,
   `endTime` datetime NOT NULL,
-  `ip` varchar(2048) DEFAULT '[]',
+  `ip` text,
   `description` text,
   `active` tinyint(4) DEFAULT '1',
-  PRIMARY KEY (`accountDBID`)
+  PRIMARY KEY (`accountDBID`),
+  FULLTEXT KEY `ip` (`ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `account_benefits` (
@@ -58,6 +59,17 @@ CREATE TABLE IF NOT EXISTS `account_online` (
   `serverId` int(11) NOT NULL,
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`accountDBID`,`serverId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `queue_tasks` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `handler` varchar(256) NOT NULL,
+  `arguments` text NOT NULL,
+  `status` int(11) NOT NULL DEFAULT '0',
+  `message` text,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_activity` (

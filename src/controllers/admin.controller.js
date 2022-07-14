@@ -73,13 +73,31 @@ module.exports.home = ({ logger, datasheets, accountModel, reportModel, shopMode
 /**
  * @param {modules} modules
  */
-module.exports.profile = () => [
+module.exports.profile = ({ queue }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
+		/*
+		queue.insert("test", ["TEST"]);
+
+		const boxContext = {
+			title: "Test Box",
+			content: "We give you these useful items for activating the Premium.",
+			icon: "GiftBox01.bmp",
+			days: 365,
+			items: [
+				{ item_id: 2, item_count: 1 }
+			]
+		};
+
+		queue.insert("makeBox", [2800, 1, boxContext]);
+		queue.insert("makeBox", [2800, 6, boxContext]);
+		queue.insert("makeBox", [2800, 22, boxContext]);
+		*/
+
 		res.render("adminProfile", { layout: "adminLayout", moment });
 	}
 ];

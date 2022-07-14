@@ -162,3 +162,10 @@ module.exports.serializeRange = array =>
 module.exports.unserializeRange = string =>
 	string.split(";").map(e => e.trim() || null).filter(e => e !== null)
 ;
+
+/**
+* @return {array[]}
+*/
+module.exports.getPromocodeFunctionsNames = () =>
+	Object.keys(module.exports.requireReload("../../config/promoCode"))
+;

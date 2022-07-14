@@ -69,12 +69,22 @@
 					{ name: __("List"), page: "/promocodes" },
 					{ name: __("Activated"), page: "/promocodes_activated" }
 				]
-			}
+			},
+			/*
+			{ icon: "fa-truck", name: __("Item Claim"), elements: [
+					{ name: __("List"), page: "/boxes" },
+					{ name: __("Send"), page: "/boxes/send" },
+					{ name: __("Send Online"), page: "/boxes/send_online" },
+					{ name: __("Send All"), page: "/boxes/send_all" }
+				]
+			},
+			*/
 		]);
 	}
 
 	menuContents.push(
-		{ icon: "fa-tasks", name: __("Operations Report"), page: "/operations_report" },
+		// { icon: "fa-tasks", name: __("Tasks Queue"), page: "/tasks" },
+		{ icon: "fa-list", name: __("Operations Report"), page: "/operations_report" },
 		{ icon: "fa-gear", name: __("API Settings"), page: "/settings" }
 	);
 

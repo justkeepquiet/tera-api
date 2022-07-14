@@ -12,7 +12,6 @@ const helpers = require("../utils/helpers");
 
 const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 const shopLocales = require("../../config/admin").shopLocales;
-const promocodeFunctions = Object.keys(require("../../config/promoCode"));
 
 /**
  * @param {modules} modules
@@ -67,7 +66,7 @@ module.exports.add = () => [
 		res.render("adminPromocodesAdd", {
 			layout: "adminLayout",
 			errors: null,
-			promocodeFunctions,
+			promocodeFunctions: helpers.getPromocodeFunctionsNames(),
 			shopLocales,
 			promoCode: "",
 			aFunction: "",
@@ -99,7 +98,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 				}
 			})),
 		body("aFunction")
-			.custom(value => promocodeFunctions.includes(value))
+			.custom(value => helpers.getPromocodeFunctionsNames().includes(value))
 			.withMessage(i18n.__("Assigned function field contains invalid function.")),
 		body("validAfter")
 			.isISO8601().withMessage(i18n.__("Valid from field must contain a valid date.")),
@@ -121,7 +120,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 			return res.render("adminPromocodesAdd", {
 				layout: "adminLayout",
 				errors: errors.array(),
-				promocodeFunctions,
+				promocodeFunctions: helpers.getPromocodeFunctionsNames(),
 				shopLocales,
 				promoCode,
 				aFunction,
@@ -212,7 +211,7 @@ module.exports.edit = ({ logger, shopModel }) => [
 				res.render("adminPromocodesEdit", {
 					layout: "adminLayout",
 					errors: null,
-					promocodeFunctions,
+					promocodeFunctions: helpers.getPromocodeFunctionsNames(),
 					shopLocales,
 					promoCodeId: promocode.get("promoCodeId"),
 					promoCode: promocode.get("promoCode"),
@@ -239,7 +238,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	expressLayouts,
 	[
 		body("aFunction")
-			.custom(value => promocodeFunctions.includes(value))
+			.custom(value => helpers.getPromocodeFunctionsNames().includes(value))
 			.withMessage(i18n.__("Assigned function field contains invalid function.")),
 		body("validAfter")
 			.isISO8601().withMessage(i18n.__("Valid from field must contain a valid date.")),
@@ -275,7 +274,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 				return res.render("adminPromocodesEdit", {
 					layout: "adminLayout",
 					errors: errors.array(),
-					promocodeFunctions,
+					promocodeFunctions: helpers.getPromocodeFunctionsNames(),
 					shopLocales,
 					promoCodeId: promocode.get("promoCodeId"),
 					promoCode: promocode.get("promoCode"),

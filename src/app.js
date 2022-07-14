@@ -5,6 +5,7 @@
  * @property {FcgiFunctions} fcgi
  * @property {PlatformFunctions} platform
  * @property {SteerFunctions} steer
+ * @property {BackgroundQueue} queue
  * @property {import("./utils/logger").logger} logger
  * @property {import("./utils/expressServer").app} app
  * @property {import("./utils/datasheets").datasheets} datasheets
@@ -17,8 +18,8 @@ require("dotenv").config();
 
 const CoreLoader = require("./utils/coreLoader");
 const cliHelper = require("./utils/cliHelper");
-const isPortReachable = require("./utils/isPortReachable");
 const createLogger = require("./utils/logger").createLogger;
+const BackgroundQueue = require("./utils/backgroundQueue");
 const ExpressServer = require("./utils/expressServer");
 const SteerFunctions = require("./utils/steerFunctions");
 const PlatformFunctions = require("./utils/platformFunctions");
@@ -27,12 +28,18 @@ const datasheets = require("./utils/datasheets");
 const accountModel = require("./models/account.model");
 const reportModel = require("./models/report.model");
 const shopModel = require("./models/shop.model");
+const TasksActions = require("./actions/tasks.actions");
 
 const moduleLoader = new CoreLoader();
 const logger = createLogger("CL");
 const cli = cliHelper(logger);
 
 moduleLoader.setAsync("logger", () => logger);
+
+moduleLoader.setAsync("queue", () => new BackgroundQueue({
+	concurrent: 5,
+	logger: createLogger("CL: Background Queue")
+}));
 
 moduleLoader.setAsync("fcgi", () => new FcgiFunctions(
 	process.env.FCGI_GW_WEBAPI_URL, {
@@ -75,11 +82,9 @@ if (/^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE)) {
 	moduleLoader.setPromise("shopModel", shopModel, { logger: createLogger("Shop database") });
 }
 
-/**
- * @param {modules} modules
- */
 moduleLoader.final().then(modules => {
 	const serverLoader = new CoreLoader();
+	const tasksActions = new TasksActions(modules);
 
 	serverLoader.setPromise("arbiterApi", () => {
 		const es = new ExpressServer(modules, {
@@ -144,13 +149,21 @@ moduleLoader.final().then(modules => {
 		);
 	});
 
+	modules.queue.setModel(modules.accountModel.queueTasks);
+	modules.queue.setHandlers(tasksActions);
+
 	return serverLoader.final().then(() => {
 		cli.printInfo();
 		cli.printMemoryUsage();
 		cli.printReady();
 
 		setInterval(() =>
-			cli.printMemoryUsage(), 60000 * 30);
+			cli.printMemoryUsage(), 60000 * 30
+		);
+
+		setInterval(() =>
+			modules.queue.start(), 60000
+		);
 	});
 }).catch(err => {
 	if (err) {

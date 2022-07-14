@@ -427,7 +427,7 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
 								resolvedItems[itemTemplateId].get("string"),
-								resolvedItems[itemTemplateId].get("toolTip"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								shopModel.productItems.create({
@@ -850,7 +850,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
 								resolvedItems[itemTemplateId].get("string"),
-								resolvedItems[itemTemplateId].get("toolTip"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								shopModel.productItems.update({

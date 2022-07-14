@@ -12,6 +12,7 @@
  * @property {import("sequelize").ModelCtor<Model<any, any>>} maintenance
  * @property {import("sequelize").ModelCtor<Model<any, any>>} serverInfo
  * @property {import("sequelize").ModelCtor<Model<any, any>>} serverStrings
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} queueTasks
  */
 
 const { Sequelize, DataTypes } = require("sequelize");
@@ -61,7 +62,9 @@ module.exports = ({ logger }) => new Promise((resolve, reject) => {
 			maintenance: require("./account/serverMaintenance.model")(sequelize, DataTypes),
 			// Server
 			serverInfo: require("./account/serverInfo.model")(sequelize, DataTypes),
-			serverStrings: require("./account/serverStrings.model")(sequelize, DataTypes)
+			serverStrings: require("./account/serverStrings.model")(sequelize, DataTypes),
+			// Admin Panel
+			queueTasks: require("./account/queueTasks.model")(sequelize, DataTypes)
 		};
 
 		resolve({ ...models, sequelize, logger });
