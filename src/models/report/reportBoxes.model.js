@@ -28,6 +28,9 @@ module.exports = (sequelize, DataTypes) =>
 		logId: {
 			type: DataTypes.INTEGER
 		},
+		days: {
+			type: DataTypes.INTEGER
+		},
 		context: {
 			type: DataTypes.TEXT
 		},

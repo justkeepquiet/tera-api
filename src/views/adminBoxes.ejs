@@ -20,8 +20,8 @@
 											<th><%= __("Icon") %></th>
 											<th><%= __("Title") %></th>
 											<th><%= __("Description") %></th>
-											<th><%= __("Items") %></th>
 											<th><%= __("Days") %></th>
+											<th><%= __("Items") %> (<%= __("count") %>)</th>
 											<th></th>
 										</tr>
 									</thead>
@@ -32,6 +32,7 @@
 											<td><%= box.icon %></td>
 											<td><a href="/boxes/edit?id=<%= id %>"><%= box.title %></a></td>
 											<td><%= box.content %></td>
+											<td><%= box.days %></td>
 											<td>
 												<%_ box.items.forEach(item => { _%>
 													<div class="form-control boxed mb-1" style="overflow: hidden; background: transparent !important;">
@@ -39,11 +40,10 @@
 															<img src="/static/images/tera-icons/icon_items/<%= item.get("icon") %>.png" class="item-icon-grade-<%= item.get("rareGrade") %> item-icon">
 															<img src="/static/images/icons/icon_grade_<%= item.get("rareGrade") %>.png" class="item-icon-grade" alt="">
 														</div>
-														<small class="item-grade-<%= item.get("rareGrade") %>"><%= item.get("string") %></small>
+														<small class="item-grade-<%= item.get("rareGrade") %>"><%= item.get("string") %> (<%= item.get("boxItemCount") %>)</small>
 													</div>
 												<%_ }) _%>
 											</td>
-											<td><%= box.days %></td>
 											<td class="text-right">
 												<%_ if (!box.processing) { _%>
 												<a class="btn btn-secondary" href="/boxes/send?id=<%= id %>"><i class="fa fa-arrow-right"></i><i class="fa fa-user"></i></a>

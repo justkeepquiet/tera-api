@@ -19,7 +19,8 @@
 										<th><%= __("Server ID") %></th>
 										<th><%= __("Character ID") %></th>
 										<th><%= __("Title") %></th>
-										<th><%= __("Item template ID") %> (<%= __("Count").toLowerCase() %>)</th>
+										<th><%= __("Days") %></th>
+										<th><%= __("Item template ID") %> (<%= __("count") %>)</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -32,6 +33,7 @@
 										<td><%= log.get("serverId") || "-" %></td>
 										<td><%= log.get("characterId") || "-" %></td>
 										<td><%= context.title %></td>
+										<td><%= log.get("days") %></td>
 										<td><%= context.items.map(item => `${item.item_template_id} (${item.item_count})`).join(", ") %></td>
 									</tr>
 									<%_ }) _%>

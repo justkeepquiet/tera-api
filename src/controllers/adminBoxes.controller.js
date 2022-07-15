@@ -93,7 +93,6 @@ module.exports.index = ({ i18n, logger, queue, shopModel }) => [
 
 				if (tasksAssoc !== null) {
 					tasksAssoc.forEach(task => {
-						console.log(task);
 						if (task !== null && task[0] !== undefined) {
 							const boxId = Number(task[0].get("tag"));
 
@@ -993,8 +992,7 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accou
 						item_template_id: item.get("itemTemplateId")
 					}))
 				},
-				moment().utc().format("YYYY-MM-DD HH:mm:ss"),
-				moment().utc().add(box.get("days"), "days").format("YYYY-MM-DD HH:mm:ss"),
+				box.get("days"),
 				accountDBID,
 				serverId,
 				characterId || null,
@@ -1243,8 +1241,7 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
 							item_template_id: item.get("itemTemplateId")
 						}))
 					},
-					moment().utc().format("YYYY-MM-DD HH:mm:ss"),
-					moment().utc().add(box.get("days"), "days").format("YYYY-MM-DD HH:mm:ss"),
+					box.get("days"),
 					user.get("accountDBID"),
 					user.get("lastLoginServer"),
 					null,

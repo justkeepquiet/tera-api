@@ -431,5 +431,6 @@
 	"Task with this box ID is already running. Check tasks queue.": "Задача с данным ID коробки уже выполняется. См. очередь задач.",
 	"Boxes List": "Список",
 	"Boxes Logs": "Журнал",
-	"Item Claim Boxes Logs": "Журнал отправки предметов"
+	"Item Claim Boxes Logs": "Журнал отправки предметов",
+	"count": "кол-во"
 }
