@@ -38,9 +38,8 @@
 									</tr>
 								</thead>
 								<tbody>
-									<%_ logs.forEach(log => {
-										const [type, value, info] = log.get("description").split(",");
-									_%>
+									<%_ logs.forEach(log => { _%>
+									<%_ const [type, value, info] = log.get("description").split(",") _%>
 									<tr>
 										<td><%= moment(log.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= log.get("accountDBID") %></td>

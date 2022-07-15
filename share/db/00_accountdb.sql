@@ -84,6 +84,17 @@ CREATE TABLE IF NOT EXISTS `report_activity` (
   KEY `accountDBID` (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `report_boxes` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `accountDBID` bigint(20) NOT NULL,
+  `serverId` int(11) DEFAULT NULL,
+  `characterId` int(11) DEFAULT NULL,
+  `logId` int(11) DEFAULT NULL,
+  `context` text NOT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `report_admin_op` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `userId` varchar(64) DEFAULT NULL,

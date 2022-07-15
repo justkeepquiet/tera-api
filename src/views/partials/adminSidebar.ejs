@@ -70,7 +70,10 @@
 					{ name: __("Activated"), page: "/promocodes_activated" }
 				]
 			},
-			{ icon: "fa-truck", name: __("Item Claim"), page: "/boxes" },
+			{ icon: "fa-truck", name: __("Item Claim"), elements: [
+				{ name: __("Boxes List"), page: "/boxes" },
+				{ name: __("Boxes Logs"), page: "/boxes_logs" }
+			] },
 		]);
 	}
 

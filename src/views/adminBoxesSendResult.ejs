@@ -26,14 +26,14 @@
 							</ul>
 						</section>
 						<section>
-							<a class="btn btn-secondary mt-4" title="" href="/tasks?tag=<%= id %>"><%= __("Show tasks") %></a>
+							<a class="btn btn-secondary mt-4" title="" href="/tasks?handler=createBox&amp;tag=<%= id %>"><%= __("Show tasks") %></a>
 						</section>
 					<%_} else { _%>
 						<section class="text-primary">
 							<%= __("Operation is running in the background...") %>
 						</section>
 						<section>
-							<a class="btn btn-secondary mt-4" title="" href="/tasks?tag=<%= id %>"><%= __("Show tasks") %></a>
+							<a class="btn btn-secondary mt-4" title="" href="/tasks?handler=createBox&amp;tag=<%= id %>"><%= __("Show tasks") %></a>
 						</section>
 					<%_ } _%>
 					<%_ } _%>

@@ -20,10 +20,13 @@ module.exports.index = ({ logger, accountModel }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		const { tag } = req.query;
+		const { handler, tag } = req.query;
 
 		accountModel.queueTasks.findAll({
-			...tag ? { where: { tag } } : {},
+			where: {
+				...handler ? { handler } : {},
+				...tag ? { tag } : {}
+			},
 			order: [
 				["id", "DESC"]
 			]
@@ -31,6 +34,8 @@ module.exports.index = ({ logger, accountModel }) => [
 			res.render("adminTasks", {
 				layout: "adminLayout",
 				moment,
+				tag,
+				handler,
 				tasks
 			})
 		).catch(err => {
@@ -69,7 +74,9 @@ module.exports.cancelFailedAction = ({ logger, queue }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		queue.clear(queue.status.rejected).then(() =>
+		const { handler, tag } = req.query;
+
+		queue.clear(queue.status.rejected, handler || null, tag || null).then(() =>
 			res.redirect("/tasks")
 		).catch(err => {
 			logger.error(err);

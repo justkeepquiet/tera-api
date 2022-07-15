@@ -4,8 +4,21 @@
 		<h1 class="title"><%= __("Admin Tasks Queue") %></h1>
 	</div>
 	<section class="section">
+		<form class="form-inline" action="" method="GET">
+			<div class="form-group">
+				<label for="handler"><%= __("Task name") %></label>
+				<input type="text" class="form-control boxed" name="handler" value="<%= handler %>">
+			</div>
+			<div class="form-group">
+				<label for="tag"><%= __("Task tag") %></label>
+				<input type="text" class="form-control boxed" name="tag" value="<%= tag %>">
+			</div>
+			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
+		</form>
+	</section>
+	<section class="section">
 		<a class="btn btn-primary" title="" href="/tasks/restart"><%= __("Restart tasks queue") %></a>
-		<a class="btn btn-warning ml-2" title="" href="/tasks/cancel_failed" data-toggle="modal" data-target="#confirm-del-modal"><%= __("Cancel failed tasks") %></a>
+		<a class="btn btn-warning ml-2" title="" href="/tasks/cancel_failed?handler=<%= handler %>&amp;tag=<%= tag %>" data-toggle="modal" data-target="#confirm-del-modal"><%= __("Cancel failed tasks") %></a>
 		<a class="btn btn-danger ml-2" title="" href="/tasks/cancel_all" data-toggle="modal" data-target="#confirm-del-modal"><%= __("Cancel all tasks") %></a>
 	</section>
 	<section class="section">

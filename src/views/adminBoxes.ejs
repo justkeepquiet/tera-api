@@ -45,8 +45,12 @@
 											</td>
 											<td><%= box.days %></td>
 											<td class="text-right">
+												<%_ if (!box.processing) { _%>
 												<a class="btn btn-secondary" href="/boxes/send?id=<%= id %>"><i class="fa fa-arrow-right"></i><i class="fa fa-user"></i></a>
 												<a class="btn btn-secondary" href="/boxes/send_all?id=<%= id %>"><i class="fa fa-arrow-right"></i><i class="fa fa-users"></i></a>
+												<%_ } else { _%>
+												<a class="btn btn-warning-outline btn-sm" href="/tasks?handler=createBox&amp;tag=<%= id %>"><i class="fa fa-tasks"></i> <i class="fa fa-refresh"></i></a>
+												<%_} _%>
 												<a class="btn btn-secondary btn-sm ml-2" href="/boxes/edit?id=<%= id %>"><i class="fa fa-pencil"></i></a>
 												<a class="btn btn-secondary btn-sm" href="/boxes/delete?id=<%= id %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 											</td>

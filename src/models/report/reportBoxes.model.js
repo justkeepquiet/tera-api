@@ -10,7 +10,7 @@
 * @param {DataTypes} DataTypes
 */
 module.exports = (sequelize, DataTypes) =>
-	sequelize.define("report_shop_fund", {
+	sequelize.define("report_boxes", {
 		id: {
 			type: DataTypes.BIGINT,
 			primaryKey: true,
@@ -19,11 +19,17 @@ module.exports = (sequelize, DataTypes) =>
 		accountDBID: {
 			type: DataTypes.BIGINT
 		},
-		amount: {
+		serverId: {
 			type: DataTypes.INTEGER
 		},
-		description: {
-			type: DataTypes.STRING(255)
+		characterId: {
+			type: DataTypes.INTEGER
+		},
+		logId: {
+			type: DataTypes.INTEGER
+		},
+		context: {
+			type: DataTypes.TEXT
 		},
 		createdAt: {
 			type: DataTypes.DATE

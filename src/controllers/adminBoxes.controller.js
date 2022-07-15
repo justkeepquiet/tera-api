@@ -16,7 +16,7 @@ const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = requi
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ i18n, logger, shopModel }) => [
+module.exports.index = ({ i18n, logger, queue, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
@@ -26,14 +26,14 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
 	async (req, res) => {
 		try {
 			const boxes = await shopModel.boxes.findAll();
-
 			const boxesMap = new Map();
 
 			if (boxes !== null) {
 				shopModel.boxItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
 				shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-				const promises = [];
+				const boxItemsPromises = [];
+				const tasksPromises = [];
 
 				boxes.forEach(box => {
 					boxesMap.set(box.get("id"), {
@@ -41,10 +41,11 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
 						content: box.get("content"),
 						icon: box.get("icon"),
 						days: box.get("days"),
-						items: null
+						items: null,
+						processing: false
 					});
 
-					promises.push(shopModel.boxItems.findAll({
+					boxItemsPromises.push(shopModel.boxItems.findAll({
 						where: { boxId: box.get("id") },
 						include: [{
 							model: shopModel.itemTemplates,
@@ -71,17 +72,33 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
 							["createdAt", "ASC"]
 						]
 					}));
+
+					tasksPromises.push(queue.findByTag("createBox", box.get("id"), 1));
 				});
 
-				const boxItemsAssoc = await Promise.all(promises);
+				const boxItemsAssoc = await Promise.all(boxItemsPromises);
+				const tasksAssoc = await Promise.all(tasksPromises);
 
 				if (boxItemsAssoc !== null) {
 					boxItemsAssoc.forEach(boxItem => {
-						if (boxItem !== null) {
+						if (boxItem !== null && boxItem[0] !== undefined) {
 							const boxId = boxItem[0].get("boxId");
 
-							if (boxesMap.get(boxId)) {
-								boxesMap.get(boxId).items = boxItem;
+							if (boxesMap.has(boxId)) {
+								boxesMap.get(boxItem[0].get("boxId")).items = boxItem;
+							}
+						}
+					});
+				}
+
+				if (tasksAssoc !== null) {
+					tasksAssoc.forEach(task => {
+						console.log(task);
+						if (task !== null && task[0] !== undefined) {
+							const boxId = Number(task[0].get("tag"));
+
+							if (boxesMap.has(boxId)) {
+								boxesMap.get(boxId).processing = true;
 							}
 						}
 					});
@@ -938,7 +955,7 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accou
 				});
 			}
 
-			const task = await queue.findByTag(id, 1);
+			const task = await queue.findByTag("createBox", id, 1);
 
 			if (task.length > 0) {
 				errors.push({
@@ -972,14 +989,16 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accou
 					icon: box.get("icon"),
 					items: items.map(item => ({
 						item_id: item.get("boxItemId"),
-						item_count: item.get("boxItemCount")
+						item_count: item.get("boxItemCount"),
+						item_template_id: item.get("itemTemplateId")
 					}))
 				},
 				moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 				moment().utc().add(box.get("days"), "days").format("YYYY-MM-DD HH:mm:ss"),
 				accountDBID,
 				serverId,
-				characterId || 0
+				characterId || null,
+				id
 			],
 			box.get("id"));
 
@@ -1187,7 +1206,7 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
 				});
 			}
 
-			const task = await queue.findByTag(id, 1);
+			const task = await queue.findByTag("createBox", id, 1);
 
 			if (task.length > 0) {
 				errors.push({
@@ -1220,13 +1239,16 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
 						icon: box.get("icon"),
 						items: items.map(item => ({
 							item_id: item.get("boxItemId"),
-							item_count: item.get("boxItemCount")
+							item_count: item.get("boxItemCount"),
+							item_template_id: item.get("itemTemplateId")
 						}))
 					},
 					moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 					moment().utc().add(box.get("days"), "days").format("YYYY-MM-DD HH:mm:ss"),
 					user.get("accountDBID"),
-					user.get("lastLoginServer")
+					user.get("lastLoginServer"),
+					null,
+					id
 				],
 				box.get("id"))
 			);
@@ -1263,12 +1285,61 @@ module.exports.sendResult = ({ logger, queue }) => [
 			return res.redirect("/boxes");
 		}
 
-		queue.findByTag(id, 10).then(tasks =>
+		queue.findByTag("createBox", id, 10).then(tasks =>
 			res.render("adminBoxesSendResult", {
 				layout: "adminLayout",
 				queue,
 				tasks,
 				id
+			})
+		).catch(err => {
+			logger.error(err);
+			res.render("adminError", { layout: "adminLayout", err });
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.logs = ({ logger, accountModel, reportModel }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
+	expressLayouts,
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		let { from, to } = req.query;
+		const { accountDBID, serverId } = req.query;
+
+		from = from ? moment.tz(from, req.user.tz) : moment().subtract(30, "days");
+		to = to ? moment.tz(to, req.user.tz) : moment().add(30, "days");
+
+		reportModel.boxes.findAll({
+			where: {
+				...(accountDBID ? { accountDBID } : {}),
+				...(serverId ? { serverId } : {}),
+				createdAt: {
+					[Op.gt]: from.toDate(),
+					[Op.lt]: to.toDate()
+				}
+			},
+			order: [
+				["createdAt", "DESC"]
+			]
+		}).then(logs =>
+			accountModel.serverInfo.findAll().then(servers => {
+				res.render("adminBoxesLogs", {
+					layout: "adminLayout",
+					moment,
+					servers,
+					logs,
+					from,
+					to,
+					serverId,
+					accountDBID
+				});
 			})
 		).catch(err => {
 			logger.error(err);

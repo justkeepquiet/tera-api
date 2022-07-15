@@ -11,6 +11,7 @@
  * @property {import("sequelize").ModelCtor<Model<any, any>>} shopFund
  * @property {import("sequelize").ModelCtor<Model<any, any>>} shopPay
  * @property {import("sequelize").ModelCtor<Model<any, any>>} adminOp
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} boxes
  */
 
 const { Sequelize, DataTypes } = require("sequelize");
@@ -57,7 +58,8 @@ module.exports = ({ logger }) => new Promise((resolve, reject) => {
 			chronoScrolls: require("./report/reportChronoScrolls.model")(sequelize, DataTypes),
 			shopFund: require("./report/reportShopFund.model")(sequelize, DataTypes),
 			shopPay: require("./report/reportShopPay.model")(sequelize, DataTypes),
-			adminOp: require("./report/reportAdminOp.model")(sequelize, DataTypes)
+			adminOp: require("./report/reportAdminOp.model")(sequelize, DataTypes),
+			boxes: require("./report/reportBoxes.model")(sequelize, DataTypes)
 		};
 
 		resolve({ ...models, sequelize, logger });

@@ -43,12 +43,16 @@ class BackgroundQueue {
 		return this.model.findOne({ where: { id } });
 	}
 
-	findByTag(tag, limit = null) {
-		return this.model.findAll({ where: { tag }, ...limit ? { offset: 0, limit } : {} });
+	findByTag(handler, tag, limit = null) {
+		return this.model.findAll({
+			where: { handler, tag }, ...limit ? { offset: 0, limit } : {}
+		});
 	}
 
 	findByStatus(status, limit = null) {
-		return this.model.findAll({ where: { status }, ...limit ? { offset: 0, limit } : {} });
+		return this.model.findAll({
+			where: { status }, ...limit ? { offset: 0, limit } : {}
+		});
 	}
 
 	insert(handler, args = [], tag = null) {
@@ -66,9 +70,15 @@ class BackgroundQueue {
 		);
 	}
 
-	clear(status = null) {
-		if (status !== null) {
-			return this.model.destroy({ where: { status } });
+	clear(status = null, handler = null, tag = null) {
+		if (status !== null || handler !== null || tag !== null) {
+			return this.model.destroy({
+				where: {
+					status,
+					...handler ? { handler } : {},
+					...tag ? { tag } : {}
+				}
+			});
 		}
 
 		this.queue.clear();
