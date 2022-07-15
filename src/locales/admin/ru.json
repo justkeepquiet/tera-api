@@ -427,5 +427,6 @@
 	"Operation has errors during execution": "Операция имеет ошибки в ходе выполнения",
 	"Operation completed successfully.": "Операция выполнена успешно.",
 	"Operation is running in the background...": "Операция выполняется в фоновом режиме...",
-	"Rejected with message": "Отменено с сообщением"
+	"Rejected with message": "Отменено с сообщением",
+	"Task with this box ID is already running. Check tasks queue.": "Задача с данным ID коробки уже выполняется. См. очередь задач."
 }

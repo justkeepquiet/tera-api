@@ -938,6 +938,14 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accou
 				});
 			}
 
+			const task = await queue.findByTag(id, 1);
+
+			if (task.length > 0) {
+				errors.push({
+					msg: i18n.__("Task with this box ID is already running. Check tasks queue.")
+				});
+			}
+
 			if (errors.length > 0) {
 				return res.render("adminBoxesSend", {
 					layout: "adminLayout",
@@ -1179,6 +1187,14 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
 				});
 			}
 
+			const task = await queue.findByTag(id, 1);
+
+			if (task.length > 0) {
+				errors.push({
+					msg: i18n.__("Task with this box ID is already running. Check tasks queue.")
+				});
+			}
+
 			if (errors.length > 0) {
 				return res.render("adminBoxesSendAll", {
 					layout: "adminLayout",
@@ -1242,6 +1258,10 @@ module.exports.sendResult = ({ logger, queue }) => [
 	 */
 	(req, res) => {
 		const { id } = req.query;
+
+		if (!id) {
+			return res.redirect("/boxes");
+		}
 
 		queue.findByTag(id, 10).then(tasks =>
 			res.render("adminBoxesSendResult", {

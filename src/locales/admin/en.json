@@ -426,5 +426,6 @@
 	"Operation has errors during execution": "Operation has errors during execution",
 	"Operation completed successfully.": "Operation completed successfully.",
 	"Operation is running in the background...": "Operation is running in the background...",
-	"Rejected with message": "Rejected with message"
+	"Rejected with message": "Rejected with message",
+	"Task with this box ID is already running. Check tasks queue.": "Task with this box ID is already running. Check tasks queue."
 }
