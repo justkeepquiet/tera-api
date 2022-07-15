@@ -232,6 +232,7 @@ module.exports = modules => {
 		.post("/boxes/send", adminBoxesController.sendAction(mod))
 		.get("/boxes/send_all", adminBoxesController.sendAll(mod))
 		.post("/boxes/send_all", adminBoxesController.sendAllAction(mod))
+		.get("/boxes/send_result", adminBoxesController.sendResult(mod))
 		// Tasks queue
 		.get("/tasks", adminTasksController.index(mod))
 		.get("/tasks/restart", adminTasksController.restartAction(mod))

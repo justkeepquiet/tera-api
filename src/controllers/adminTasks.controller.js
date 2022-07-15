@@ -20,7 +20,10 @@ module.exports.index = ({ logger, accountModel }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
+		const { tag } = req.query;
+
 		accountModel.queueTasks.findAll({
+			...tag ? { where: { tag } } : {},
 			order: [
 				["id", "DESC"]
 			]

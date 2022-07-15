@@ -43,12 +43,12 @@ class BackgroundQueue {
 		return this.model.findOne({ where: { id } });
 	}
 
-	findByTag(tag) {
-		return this.model.findAll({ where: { tag } });
+	findByTag(tag, limit = null) {
+		return this.model.findAll({ where: { tag }, ...limit ? { offset: 0, limit } : {} });
 	}
 
-	findByStatus(status) {
-		return this.model.findAll({ where: { status } });
+	findByStatus(status, limit = null) {
+		return this.model.findAll({ where: { status }, ...limit ? { offset: 0, limit } : {} });
 	}
 
 	insert(handler, args = [], tag = null) {

@@ -73,7 +73,7 @@ module.exports.home = ({ logger, datasheets, accountModel, reportModel, shopMode
 /**
  * @param {modules} modules
  */
-module.exports.profile = ({ queue }) => [
+module.exports.profile = () => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -161,8 +161,8 @@ module.exports.loginAction = ({ passport }) => [
 					const maxAge = 86400000 * 7;
 
 					const token = jwt.sign({
-						login: req.user.login,
-						password: req.user.password
+						login: req.body.login,
+						password: req.body.password
 					}, process.env.ADMIN_PANEL_SECRET, {
 						algorithm: "HS256",
 						expiresIn: maxAge

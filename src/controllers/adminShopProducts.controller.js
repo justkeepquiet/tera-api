@@ -8,6 +8,7 @@
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
 const moment = require("moment-timezone");
+const Op = require("sequelize").Op;
 const helpers = require("../utils/helpers");
 
 const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
@@ -1020,9 +1021,20 @@ module.exports.deleteAction = ({ logger, platform, reportModel, shopModel }) => 
 				if (productItems !== null) {
 					for (const productItem of productItems) {
 						if (productItem.get("boxItemId")) {
-							if (productItem.get("boxItemId")) {
-								promises.push(platform.removeServiceItem(productItem.get("boxItemId")));
-							}
+							promises.push(shopModel.productItems.findOne({
+								where: {
+									id: { [Op.not]: productItem.get("id") },
+									boxItemId: productItem.get("boxItemId")
+								}
+							}).then(resultProductItem => shopModel.boxItems.findOne({
+								where: {
+									boxItemId: productItem.get("boxItemId")
+								}
+							}).then(resultBoxItem => {
+								if (resultProductItem === null && resultBoxItem === null) {
+									promises.push(platform.removeServiceItem(productItem.get("boxItemId")));
+								}
+							})));
 
 							promises.push(shopModel.productItems.destroy({
 								where: { id: productItem.get("id") },

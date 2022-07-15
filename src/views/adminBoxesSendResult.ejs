@@ -1,0 +1,47 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Results of Sending Item Claim Box") %> ID <%= id %></h1>
+	</div>
+	<section class="section">
+		<div class="row">
+			<div class="col form">
+				<div class="card card-block">
+					<%_ if (tasks.length === 0) { _%>
+					<section class="text-success">
+						<%= __("Operation completed successfully.") %>
+					</section>
+					<%_ } else { %>
+					<%_ const rejected = tasks.filter(task => task.get("status") === queue.status.rejected); _%>
+					<%_ if (rejected.length > 0) { _%>
+						<section class="text-danger">
+							<%= __("Operation has errors during execution") %>:
+							<ul class="mb-0">
+							<%_ rejected.forEach(task => { _%>
+								<li>(<%= task.get("id") %>) <%= __("Rejected with message") %>: <%= task.get("message") %></li>
+							<%_ }) _%>
+							<%_ if (rejected.length >= 10) { _%>
+								<li>...</li>
+							<%_ } _%>
+							</ul>
+						</section>
+						<section>
+							<a class="btn btn-secondary mt-4" title="" href="/tasks?tag=<%= id %>"><%= __("Show tasks") %></a>
+						</section>
+					<%_} else { _%>
+						<section class="text-primary">
+							<%= __("Operation is running in the background...") %>
+						</section>
+						<section>
+							<a class="btn btn-secondary mt-4" title="" href="/tasks?tag=<%= id %>"><%= __("Show tasks") %></a>
+						</section>
+					<%_ } _%>
+					<%_ } _%>
+				</div>
+			</div>
+		</div>
+	</section>
+	<section class="section">
+		<a class="btn btn-primary" title="" href="/boxes"><%= __("Back to list") %></a>
+	</section>
+</article>

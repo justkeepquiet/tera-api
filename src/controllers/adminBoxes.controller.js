@@ -16,7 +16,7 @@ const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = requi
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ i18n, logger, queue, shopModel }) => [
+module.exports.index = ({ i18n, logger, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
 	expressLayouts,
@@ -355,10 +355,10 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 			const promises = [];
 
 			if (boxItems !== null) {
-				boxItems.forEach(productItem => {
-					itemTemplateIds.push(productItem.get("itemTemplateId"));
-					boxItemIds.push(productItem.get("boxItemId"));
-					boxItemCounts.push(productItem.get("boxItemCount"));
+				boxItems.forEach(boxItem => {
+					itemTemplateIds.push(boxItem.get("itemTemplateId"));
+					boxItemIds.push(boxItem.get("boxItemId"));
+					boxItemCounts.push(boxItem.get("boxItemCount"));
 				});
 			}
 
@@ -549,8 +549,8 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 					})
 				];
 
-				boxItems.forEach(productItem => {
-					const itemTemplateId = productItem.get("itemTemplateId");
+				boxItems.forEach(boxItem => {
+					const itemTemplateId = boxItem.get("itemTemplateId");
 					const index = Object.keys(itemTemplateIds).find(k => itemTemplateIds[k] == itemTemplateId);
 
 					if (itemTemplateIds[index]) {
@@ -569,7 +569,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 									boxItemId,
 									boxItemCount: boxItemCounts[index] || 1
 								}, {
-									where: { id: productItem.get("id") },
+									where: { id: boxItem.get("id") },
 									transaction
 								})
 							));
@@ -578,17 +578,17 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 								boxItemId: boxItemIds[index] || null,
 								boxItemCount: boxItemCounts[index] || 1
 							}, {
-								where: { id: productItem.get("id") },
+								where: { id: boxItem.get("id") },
 								transaction
 							}));
 						}
 					} else {
-						if (productItem.get("boxItemId")) {
-							promises.push(platform.removeServiceItem(productItem.get("boxItemId")));
+						if (boxItem.get("boxItemId")) {
+							promises.push(platform.removeServiceItem(boxItem.get("boxItemId")));
 						}
 
 						promises.push(shopModel.boxItems.destroy({
-							where: { id: productItem.get("id") },
+							where: { id: boxItem.get("id") },
 							transaction
 						}));
 					}
@@ -601,8 +601,8 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 								boxId: box.get("id"),
 								itemTemplateId
 							}
-						}).then(async productItem => {
-							if (productItem === null) {
+						}).then(async boxItem => {
+							if (boxItem === null) {
 								if (!boxItemIds[index]) {
 									return platform.createServiceItem(
 										req.user.userSn || 0,
@@ -687,19 +687,30 @@ module.exports.deleteAction = ({ logger, platform, reportModel, shopModel }) => 
 				];
 
 				if (boxItems !== null) {
-					for (const productItem of boxItems) {
-						if (productItem.get("boxItemId")) {
-							if (productItem.get("boxItemId")) {
-								promises.push(platform.removeServiceItem(productItem.get("boxItemId")));
-							}
+					for (const boxItem of boxItems) {
+						if (boxItem.get("boxItemId")) {
+							promises.push(shopModel.boxItems.findOne({
+								where: {
+									id: { [Op.not]: boxItem.get("id") },
+									boxItemId: boxItem.get("boxItemId")
+								}
+							}).then(resultBoxItem => shopModel.productItems.findOne({
+								where: {
+									boxItemId: boxItem.get("boxItemId")
+								}
+							}).then(resultProductItem => {
+								if (resultBoxItem === null && resultProductItem === null) {
+									promises.push(platform.removeServiceItem(boxItem.get("boxItemId")));
+								}
+							})));
 
 							promises.push(shopModel.boxItems.destroy({
-								where: { id: productItem.get("id") },
+								where: { id: boxItem.get("id") },
 								transaction
 							}));
 						} else {
 							promises.push(shopModel.boxItems.destroy({
-								where: { id: productItem.get("id") },
+								where: { id: boxItem.get("id") },
 								transaction
 							}));
 						}
@@ -818,7 +829,6 @@ module.exports.send = ({ i18n, logger, platform, accountModel, shopModel }) => [
 module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
-	expressLayouts,
 	expressLayouts,
 	[
 		body("serverId")
@@ -976,7 +986,7 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accou
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		res.redirect("/boxes");
+		res.redirect(`/boxes/send_result?id=${req.query.id || ""}`);
 	}
 ];
 
@@ -1073,7 +1083,6 @@ module.exports.sendAll = ({ i18n, logger, platform, accountModel, shopModel }) =
 module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
 	shopStatusHandler,
-	expressLayouts,
 	expressLayouts,
 	[
 		body("serverId")
@@ -1217,6 +1226,33 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		res.redirect("/boxes");
+		res.redirect(`/boxes/send_result?id=${req.query.id || ""}`);
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.sendResult = ({ logger, queue }) => [
+	accessFunctionHandler,
+	shopStatusHandler,
+	expressLayouts,
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		const { id } = req.query;
+
+		queue.findByTag(id, 10).then(tasks =>
+			res.render("adminBoxesSendResult", {
+				layout: "adminLayout",
+				queue,
+				tasks,
+				id
+			})
+		).catch(err => {
+			logger.error(err);
+			res.render("adminError", { layout: "adminLayout", err });
+		});
 	}
 ];

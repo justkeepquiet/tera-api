@@ -421,5 +421,11 @@
 	"Character ID field contains not existing character ID.": "Поле 'ID персонажа' содержит несуществующий ID.",
 	"There are no Service Items for the specified box item IDs.": "Не существует предметов услуг для указанных ID предметов коробок.",
 	"Send Item Claim Box (All Users)": "Отправка коробки (всем пользователям)",
-	"Last login field must contain a valid date.": "Поле 'Последний вход' должно содержать верную дату."
+	"Last login field must contain a valid date.": "Поле 'Последний вход' должно содержать верную дату.",
+	"Results of Sending Item Claim Box": "Результаты отправки коробки",
+	"Show tasks": "Просмотр задач",
+	"Operation has errors during execution": "Операция имеет ошибки в ходе выполнения",
+	"Operation completed successfully.": "Операция выполнена успешно.",
+	"Operation is running in the background...": "Операция выполняется в фоновом режиме...",
+	"Rejected with message": "Отменено с сообщением"
 }

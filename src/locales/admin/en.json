@@ -420,5 +420,11 @@
 	"Character ID field contains not existing character ID.": "Character ID field contains not existing character ID.",
 	"There are no Service Items for the specified box item IDs.": "There are no Service Items for the specified box item IDs.",
 	"Send Item Claim Box (All Users)": "Send Item Claim Box (All Users)",
-	"Last login field must contain a valid date.": "Last login field must contain a valid date."
+	"Last login field must contain a valid date.": "Last login field must contain a valid date.",
+	"Results of Sending Item Claim Box": "Results of Sending Item Claim Box",
+	"Show tasks": "Show tasks",
+	"Operation has errors during execution": "Operation has errors during execution",
+	"Operation completed successfully.": "Operation completed successfully.",
+	"Operation is running in the background...": "Operation is running in the background...",
+	"Rejected with message": "Rejected with message"
 }
