@@ -842,7 +842,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 					const index = Object.keys(itemTemplateIds).find(k => itemTemplateIds[k] == itemTemplateId);
 
 					if (itemTemplateIds[index]) {
-						if (boxItemIds[index] != productItem.get("boxItemId")) {
+						if (!boxItemIds[index]) {
 							promises.push(platform.createServiceItem(
 								req.user.userSn || 0,
 								itemTemplateId,

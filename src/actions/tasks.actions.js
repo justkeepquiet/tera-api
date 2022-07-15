@@ -12,7 +12,7 @@ class TasksActions {
 		this.modules = modules;
 	}
 
-	createBox(context, startDate, endDate, accountId, serverId, characterId = null) {
+	createBox(context, startDate, endDate, accountId, serverId = null, characterId = null) {
 		return this.modules.platform.createBoxFromContext(context, startDate, endDate, accountId, serverId, characterId);
 	}
 }
