@@ -134,10 +134,31 @@ class PlatformFunctions extends PlatformConnection {
 		});
 	}
 
-	createBox(receiverServiceSN, receiverUserSN, startDate, endDate, visibleFlag, itemData, boxTagData,
+	createBoxFromContext(context, startDate, endDate, receiverUserSN, receiverGUSID = null, receiverCharacterSN = null) {
+		const itemData = [];
+		const boxTagData = [
+			{ boxTagSN: 1, boxTagValue: context.content },
+			{ boxTagSN: 2, boxTagValue: context.title },
+			{ boxTagSN: 3, boxTagValue: context.icon }
+		];
+
+		context.items.forEach(item =>
+			itemData.push({
+				serviceItemSN: item.item_id,
+				externalItemKey: 0,
+				serviceItemTag: [
+					{ serviceItemTagSN: 1, serviceItemTagValue: item.item_count }
+				]
+			})
+		);
+
+		return this.createBox(1, receiverUserSN, startDate, endDate, true, itemData, boxTagData, receiverGUSID, receiverCharacterSN);
+	}
+
+	createBox(receiverServiceSN, receiverUserSN, startDate, endDate, visibleFlag, itemData, tagData,
 		receiverGUSID = null, receiverCharacterSN = null, receiverCharacterName = null, usableTimeAfterOpen = null
 	) {
-		const { boxTagInfo, boxServiceItemInfo } = this.convertBoxTagValue(boxTagData, itemData);
+		const { boxTagInfo, boxServiceItemInfo } = this.convertBoxTagValue(tagData, itemData);
 
 		const opMsg = OpMsg.create({
 			gufid: this.makeGuid(this.serverType.boxapi, 107), // CreateBox
@@ -200,16 +221,12 @@ class PlatformFunctions extends PlatformConnection {
 					value: Buffer.from(endDate.toString())
 				}),
 				OpMsg.Argument.create({
-					name: Buffer.from("endActivationDateTime"),
-					value: Buffer.from(endDate.toString())
-				}),
-				OpMsg.Argument.create({
 					name: Buffer.from("activateDurationAfterOpen"),
 					value: Buffer.from(usableTimeAfterOpen ? usableTimeAfterOpen.toString() : "")
 				}),
 				OpMsg.Argument.create({
 					name: Buffer.from("visableFlagBeforeActivation"),
-					value: Buffer.from(visibleFlag.toString())
+					value: Buffer.from(Number(visibleFlag).toString())
 				}),
 				OpMsg.Argument.create({
 					name: Buffer.from("boxEventSN"),
@@ -222,6 +239,10 @@ class PlatformFunctions extends PlatformConnection {
 				OpMsg.Argument.create({
 					name: Buffer.from("boxServiceItemInfo"),
 					value: Buffer.from(boxServiceItemInfo)
+				}),
+				OpMsg.Argument.create({
+					name: Buffer.from("boxTransactionSN"),
+					value: Buffer.from("")
 				})
 			]
 		});
@@ -237,32 +258,34 @@ class PlatformFunctions extends PlatformConnection {
 		});
 	}
 
-	convertBoxTagValue(boxTagInfoList, boxItemTagInfoList) {
+	convertBoxTagValue(boxTagInfoList, boxServiceItemInfoList) {
 		let boxTagInfo = "";
-		let boxTagItemInfo = "";
+		let boxServiceItemInfo = "";
 
 		if (boxTagInfoList.length > 0) {
 			boxTagInfo += boxTagInfoList.length.toString();
 
-			boxTagInfoList.forEarch(boxTag => {
-				boxTagInfo += `,${boxTag.boxTagSN},${boxTag.boxTagValue}`;
+			boxTagInfoList.forEach(boxTag => {
+				boxTagInfo += `,${boxTag.boxTagSN},${Buffer.from(
+					boxTag.boxTagValue.toString(), "utf8").toString("hex")}`;
 			});
 		}
 
-		if (boxItemTagInfoList.length > 0) {
-			boxTagItemInfo += boxItemTagInfoList.length.toString();
+		if (boxServiceItemInfoList.length > 0) {
+			boxServiceItemInfo += boxServiceItemInfoList.length.toString();
 
-			boxItemTagInfoList.forEarch(boxItemTag => {
-				boxTagItemInfo += `,${boxItemTag.serviceItemSN},${boxItemTag.externalItemKey}`;
-				boxTagItemInfo += `,${boxItemTag.serviceItemTag.length}`;
+			boxServiceItemInfoList.forEach(boxItemTag => {
+				boxServiceItemInfo += `,${boxItemTag.serviceItemSN},${boxItemTag.externalItemKey}`;
+				boxServiceItemInfo += `,${boxItemTag.serviceItemTag.length}`;
 
-				boxItemTag.serviceItemTag.forEarch(serviceItemTag => {
-					boxTagItemInfo += `,${serviceItemTag.serviceItemTagSN},${serviceItemTag.serviceItemTagValue}`;
+				boxItemTag.serviceItemTag.forEach(serviceItemTag => {
+					boxServiceItemInfo += `,${serviceItemTag.serviceItemTagSN},${
+						Buffer.from(serviceItemTag.serviceItemTagValue.toString(), "utf8").toString("hex")}`;
 				});
 			});
 		}
 
-		return { boxTagInfo, boxTagItemInfo };
+		return { boxTagInfo, boxServiceItemInfo };
 	}
 }
 

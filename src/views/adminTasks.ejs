@@ -1,0 +1,49 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Admin Tasks Queue") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-primary" title="" href="/tasks/restart"><%= __("Restart tasks queue") %></a>
+		<a class="btn btn-warning ml-2" title="" href="/tasks/cancel_failed" data-toggle="modal" data-target="#confirm-del-modal"><%= __("Cancel failed tasks") %></a>
+		<a class="btn btn-danger ml-2" title="" href="/tasks/cancel_all" data-toggle="modal" data-target="#confirm-del-modal"><%= __("Cancel all tasks") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-desc mt-5">
+									<thead>
+										<tr>
+											<th><%= __("ID") %></th>
+											<th><%= __("Time") %></th>
+											<th><%= __("Task name") %></th>
+											<th><%= __("Task tag") %></th>
+											<th><%= __("Status") %></th>
+											<th><%= __("Message") %></th>
+										</tr>
+									</thead>
+									<tbody>
+										<%_ tasks.forEach(task => { _%>
+										<tr>
+											<td><%= task.get("id") %></td>
+											<td><%= moment(task.get("updatedAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
+											<td><%= task.get("handler") %></td>
+											<td><%= task.get("tag") || "-" %></td>
+											<td class="text-<%= { "0": "primary", "1": "warning", "2": "danger"}[task.get("status")] %>"><%= __({ "0": "Created", "1": "Pending", "2": "Failed"}[task.get("status")]) %></td>
+											<td><%= task.get("message") || "-" %></td>
+										</tr>
+										<%_ }) _%>
+									</tbody>
+								</table>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

@@ -3,6 +3,7 @@ const strings = {
 	id: __("ID"),
 	accountDBID: __("Account ID"),
 	serverId: __("Server ID"),
+	characterId: __("Character ID"),
 	benefitId: __("Benefit ID"),
 	categoryId: __("Category ID"),
 	promoCodeId: __("Promo code ID"),
@@ -10,6 +11,7 @@ const strings = {
 	validBefore: __("Valid to"),
 	startTime: __("Start time"),
 	endTime: __("End time"),
+	loginAfterTime: __("Last login"),
 	availableUntil: __("Available until"),
 	active: __("Active"),
 	sort: __("Sort"),
@@ -133,8 +135,7 @@ _%>
 								</div>
 								<%_ }) _%>
 							<%_ } else { _%>
-								<input type="text" class="form-control boxed" value="<%= report.get("userTz") && validator.isISO8601(body[key]) ?
-									moment.tz(body[key], report.get("userTz")).format("YYYY-MM-DD HH:mm") : body[key] %>" readonly>
+								<input type="text" class="form-control boxed" value="<%= body[key] %>" readonly>
 							<%_ } _%>
 							</div>
 						</div>

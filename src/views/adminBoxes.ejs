@@ -1,0 +1,64 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Item Claim Boxes") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-success" title="" href="/boxes/add"><%= __("Add new box") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-desc-nosort mt-5">
+									<thead>
+										<tr>
+											<th><%= __("ID") %></th>
+											<th><%= __("Icon") %></th>
+											<th><%= __("Title") %></th>
+											<th><%= __("Description") %></th>
+											<th><%= __("Items") %></th>
+											<th><%= __("Days") %></th>
+											<th></th>
+										</tr>
+									</thead>
+									<tbody>
+										<%_ boxes.forEach((box, id) => { _%>
+										<tr>
+											<td><%= id %></td>
+											<td><%= box.icon %></td>
+											<td><a href="/boxes/edit?id=<%= id %>"><%= box.title %></a></td>
+											<td><%= box.content %></td>
+											<td>
+												<%_ box.items.forEach(item => { _%>
+													<div class="form-control boxed mb-1" style="overflow: hidden; background: transparent !important;">
+														<div class="item-icon-block" style="margin: -4px 10px 0 -10px;">
+															<img src="/static/images/tera-icons/icon_items/<%= item.get("icon") %>.png" class="item-icon-grade-<%= item.get("rareGrade") %> item-icon">
+															<img src="/static/images/icons/icon_grade_<%= item.get("rareGrade") %>.png" class="item-icon-grade" alt="">
+														</div>
+														<small class="item-grade-<%= item.get("rareGrade") %>"><%= item.get("string") %></small>
+													</div>
+												<%_ }) _%>
+											</td>
+											<td><%= box.days %></td>
+											<td class="text-right">
+												<a class="btn btn-secondary" href="/boxes/send?id=<%= id %>"><i class="fa fa-arrow-right"></i><i class="fa fa-user"></i></a>
+												<a class="btn btn-secondary" href="/boxes/send_all?id=<%= id %>"><i class="fa fa-arrow-right"></i><i class="fa fa-users"></i></a>
+												<a class="btn btn-secondary btn-sm ml-2" href="/boxes/edit?id=<%= id %>"><i class="fa fa-pencil"></i></a>
+												<a class="btn btn-secondary btn-sm" href="/boxes/delete?id=<%= id %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
+											</td>
+										</tr>
+										<%_ }) _%>
+									</tbody>
+								</table>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

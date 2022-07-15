@@ -63,13 +63,15 @@ CREATE TABLE IF NOT EXISTS `account_online` (
 
 CREATE TABLE IF NOT EXISTS `queue_tasks` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `tag` varchar(256) DEFAULT NULL,
   `handler` varchar(256) NOT NULL,
   `arguments` text NOT NULL,
   `status` int(11) NOT NULL DEFAULT '0',
   `message` text,
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `tag` (`tag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_activity` (

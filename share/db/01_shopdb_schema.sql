@@ -14,6 +14,29 @@ CREATE TABLE IF NOT EXISTS `shop_accounts` (
   PRIMARY KEY (`accountDBID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `shop_boxes` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `icon` varchar(255) NOT NULL,
+  `title` varchar(1024) NOT NULL,
+  `content` varchar(2048) NOT NULL,
+  `days` int(11) NOT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `shop_box_items` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `boxId` int(11) NOT NULL,
+  `itemTemplateId` int(11) NOT NULL,
+  `boxItemId` int(11) DEFAULT NULL,
+  `boxItemCount` int(11) NOT NULL DEFAULT '1',
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UNIQUE` (`boxId`,`itemTemplateId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `shop_categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `sort` int(11) NOT NULL DEFAULT '1',

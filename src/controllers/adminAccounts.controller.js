@@ -33,6 +33,7 @@ module.exports.index = ({ logger, accountModel }) => [
 		accountModel.info.findAll({
 			include: [{
 				model: accountModel.bans,
+				where: { active: 1 },
 				required: false,
 				attributes: []
 			}],

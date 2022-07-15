@@ -28,9 +28,8 @@
 										</tr>
 									</thead>
 									<tbody>
-										<%_ accounts.forEach(account => {
-											const banned = moment(account.get("bannedStartTime")) < moment() && moment(account.get("bannedEndTime")) > moment();	
-										_%>
+										<%_ accounts.forEach(account => { _%>
+										<%_ const banned = moment(account.get("bannedStartTime")) < moment() && moment(account.get("bannedEndTime")) > moment(); _%>
 										<tr>
 											<td><%= account.get("accountDBID") %></td>
 											<td><a href="/accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><%= account.get("userName") %></a><%- banned ? ' <i class="fa fa-ban text-danger"></i>' : "" %></a></td>
@@ -55,8 +54,8 @@
 												<%_ if(account.get("lastLoginServer")) { _%>
 												<a class="btn btn-secondary btn-sm" href="/characters?accountDBID=<%= account.get("accountDBID") %>&amp;serverId=<%= account.get("lastLoginServer") %>"><i class="fa fa-user"></i></a>
 												<%_ } _%>
-												<a class="btn btn-secondary btn-sm" href="/accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
 												<a class="btn btn-secondary btn-sm" href="/bans/<%= account.get("bannedStartTime") ? "edit" : "add" %>?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-ban"></i></a>
+												<a class="btn btn-secondary btn-sm ml-2" href="/accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
 												<a class="btn btn-secondary btn-sm" href="/accounts/delete?accountDBID=<%= account.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 											</td>
 										</tr>

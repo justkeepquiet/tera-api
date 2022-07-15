@@ -10,28 +10,30 @@
 * @param {DataTypes} DataTypes
 */
 module.exports = (sequelize, DataTypes) =>
-	sequelize.define("queue_tasks", {
+	sequelize.define("shop_box_items", {
 		id: {
 			type: DataTypes.BIGINT,
 			primaryKey: true,
 			autoIncrement: true
 		},
-		tag: {
-			type: DataTypes.STRING(256)
+		boxId: {
+			type: DataTypes.INTEGER,
+			unique: "unique"
 		},
-		handler: {
-			type: DataTypes.STRING(256)
+		itemTemplateId: {
+			type: DataTypes.BIGINT,
+			unique: "unique"
 		},
-		arguments: {
-			type: DataTypes.TEXT
-		},
-		status: {
+		boxItemId: {
 			type: DataTypes.INTEGER
 		},
-		message: {
-			type: DataTypes.TEXT
+		boxItemCount: {
+			type: DataTypes.INTEGER
 		},
 		createdAt: {
+			type: DataTypes.DATE
+		},
+		updatedAt: {
 			type: DataTypes.DATE
 		}
 	})

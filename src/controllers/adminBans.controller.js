@@ -147,7 +147,7 @@ module.exports.addAction = ({ i18n, logger, fcgi, reportModel, accountModel }) =
 				ip: JSON.stringify(helpers.unserializeRange(ip)),
 				description
 			}).then(() => {
-				if (account.get("lastLoginServer") && moment(startTime) < moment() && moment(endTime) > moment()) {
+				if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
 					fcgi.kick(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
 						if (err.resultCode() !== 2) {
 							logger.warn(err);
@@ -265,7 +265,7 @@ module.exports.editAction = ({ i18n, logger, fcgi, reportModel, accountModel }) 
 			}, {
 				where: { accountDBID }
 			}).then(() => {
-				if (account.get("lastLoginServer") && moment(startTime) < moment() && moment(endTime) > moment()) {
+				if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
 					fcgi.kick(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
 						if (err.resultCode() !== 2) {
 							logger.warn(err);

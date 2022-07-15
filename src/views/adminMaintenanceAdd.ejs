@@ -14,11 +14,11 @@
 						<%- include("partials/adminFormErrors", { errors }) -%>
 						<div class="form-group row">
 							<div class="col-sm-6">
-								<label class="control-label" for="description"><%= __("Start time") %></label>
+								<label class="control-label" for="startTime"><%= __("Start time") %></label>
 								<input type="datetime-local" class="form-control boxed" name="startTime" value="<%= startTime.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
 							</div>
 							<div class="col-sm-6">
-								<label class="control-label" for="description"><%= __("End time") %></label>
+								<label class="control-label" for="endTime"><%= __("End time") %></label>
 								<input type="datetime-local" class="form-control boxed" name="endTime" value="<%= endTime.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
 							</div>
 						</div>

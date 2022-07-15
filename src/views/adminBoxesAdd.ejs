@@ -1,0 +1,125 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Add Item Claim Box") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-secondary" title="" href="/boxes"><i class="fa fa-chevron-left"></i> <%= __("Back to list") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col form">
+				<div class="card card-block">
+					<form id="form" method="POST" action="">
+						<%- include("partials/adminFormErrors", { errors }) -%>
+						<div class="title-block">
+							<h3 class="title"><%= __("Box Information") %></h3>
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="title"><%= __("Title") %></label>
+							<input type="text" class="form-control boxed" name="title" value="<%= title %>">
+						</div>
+						<div class="form-group">
+							<label class="control-label" for="content"><%= __("Description") %></label>
+							<textarea type="text" class="form-control boxed" name="content"><%= content %></textarea>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="icon"><%= __("Icon") %></label>
+								<input type="text" class="form-control boxed" name="icon" value="<%= icon %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="days"><%= __("Days") %></label>
+								<input type="number" class="form-control boxed" name="days" value="<%= days %>">
+							</div>
+						</div>
+						<div class="form-group row"></div>
+						<div class="title-block">
+							<h3 class="title"><%= __("Box Items") %></h3>
+						</div>
+						<div id="items">
+							<%_ itemTemplateIds.forEach((itemTemplateId, i) => { _%>
+							<div class="form-group row">
+								<div class="col-sm-6">
+									<label class="control-label" for="itemTemplateIds[]">
+										<%= __("Item template ID") %>
+										<a class="btn btn-secondary btn-sm remove-item" title="" href="#"><i class="fa fa-minus"></i></a>
+									</label>
+									<%_ if (resolvedItems[itemTemplateId]) { _%>
+									<div class="row">
+										<div class="col-sm-12">
+											<div class="form-control boxed" style="overflow: hidden;">
+												<div class="item-icon-block" style="margin: -4px 10px 0 -10px;">
+													<img src="/static/images/tera-icons/icon_items/<%= resolvedItems[itemTemplateId].get("icon") %>.png" class="item-icon-grade-<%= resolvedItems[itemTemplateId].get("rareGrade") %> item-icon">
+													<img src="/static/images/icons/icon_grade_<%= resolvedItems[itemTemplateId].get("rareGrade") %>.png" class="item-icon-grade" alt="">
+												</div>
+												<small class="item-grade-<%= resolvedItems[itemTemplateId].get("rareGrade") %>">(<%= itemTemplateId %>) <%= resolvedItems[itemTemplateId].get("string") %></small>
+											</div>
+										</div>
+									</div>
+									<input type="hidden" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
+									<%_ } else { _%>
+									<input type="number" class="form-control boxed" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
+									<%_ } _%>
+								</div>
+								<div class="col-sm-2">
+									<label class="control-label" for="boxItemCounts[]"><%= __("Count") %></label>
+									<input type="number" class="form-control boxed mt-2" name="boxItemCounts[]" value="<%= boxItemCounts[i] %>">
+								</div>
+								<div class="col-sm-4">
+									<label class="control-label" for="boxItemIds[]"><%= __("Box item ID") %></label>
+									<input type="number" class="form-control boxed mt-2" name="boxItemIds[]" value="<%= boxItemIds[i] %>" placeholder="<%= __("optional") %>">
+								</div>
+							</div>
+							<%_ }) _%>
+						</div>
+						<div class="form-group">
+							<button type="button" class="btn btn-secondary" id="add-item"><i class="fa fa-plus"></i> <%= __("Add item") %></button>
+						</div>
+						<div class="form-group row"></div>
+						<div class="form-group">
+							<input type="hidden" name="validate" id="validate" value="<%= validate %>">
+							<button type="submit" id="submit" class="btn btn-primary"><%= validate ? __("Validate form") : __("Add") %></button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>
+<%- contentFor("scripts") %>
+<script>
+	$(function() {
+		$(".remove-item").click(function() {
+			$("#validate").val("1");
+			$("#submit").html("<%= __('Validate form') %>");
+			$(this).closest(".row").remove();
+		});
+		$("#add-item").click(function() {
+			$("#validate").val("1");
+			$("#submit").html("<%= __('Validate form') %>");
+			$("#items").append(
+				"<div class='form-group row'>" +
+				"	<div class='col-sm-6'>" +
+				"		<label class='control-label' for='itemTemplateIds[]'>" +
+				"			<%= __('Item template ID') %>" +
+				"			<a class='btn btn-secondary btn-sm remove-item' title='' href='#'><i class='fa fa-minus'></i></a>" +
+				"		</label>" +
+				"		<input type='number' class='form-control boxed' name='itemTemplateIds[]' value=''>" +
+				"	</div>" +
+				"	<div class='col-sm-2'>" +
+				"		<label class='control-label' for='boxItemCounts[]'><%= __('Count') %></label>" +
+				"		<input type='number' class='form-control boxed mt-2' name='boxItemCounts[]' value='1'>" +
+				"	</div>" +
+				"	<div class='col-sm-4'>" +
+				"		<label class='control-label' for='boxItemIds[]'><%= __('Box item ID') %></label>" +
+				"		<input type='number' class='form-control boxed mt-2' name='boxItemIds[]' value='' placeholder='<%= __('optional') %>'>" +
+				"	</div>" +
+				"</div>"
+			);
+			$(".remove-item").click(function() {
+				$(this).closest(".row").remove();
+			});
+		});
+	});
+</script>

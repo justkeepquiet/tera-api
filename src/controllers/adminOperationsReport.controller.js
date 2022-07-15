@@ -25,7 +25,7 @@ module.exports.index = ({ logger, reportModel }) => [
 		let { from, to } = req.query;
 
 		from = from ? moment.tz(from, req.user.tz) : moment().subtract(30, "days");
-		to = to ? moment.tz(to, req.user.tz) : moment();
+		to = to ? moment.tz(to, req.user.tz) : moment().add(30, "days");
 
 		reportModel.adminOp.findAll({
 			where: {

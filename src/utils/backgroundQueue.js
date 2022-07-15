@@ -1,5 +1,6 @@
 "use strict";
 
+const e = require("express");
 /**
  * @typedef {import("sequelize").ModelCtor<Model<any, any>>} model
  */
@@ -38,28 +39,41 @@ class BackgroundQueue {
 		this.handlers = handlers;
 	}
 
-	insert(handler, args = []) {
+	findById(id) {
+		return this.model.findOne({ where: { id } });
+	}
+
+	findByTag(tag) {
+		return this.model.findAll({ where: { tag } });
+	}
+
+	findByStatus(status) {
+		return this.model.findAll({ where: { status } });
+	}
+
+	insert(handler, args = [], tag = null) {
 		if (typeof this.handlers[handler] !== "function") {
 			return Promise.reject(new TypeError("Handler is not a function."));
 		}
 
 		return this.model.create({
 			status: this.status.created,
+			tag,
 			handler,
 			arguments: JSON.stringify(args)
 		}).then(task =>
 			this.push(task.get("id"), this.handlers, this.handlers[handler], args)
-		).catch(err =>
-			this.logger.error(err)
 		);
 	}
 
-	clear() {
+	clear(status = null) {
+		if (status !== null) {
+			return this.model.destroy({ where: { status } });
+		}
+
 		this.queue.clear();
 
-		return this.model.truncate().catch(err =>
-			this.logger.error(err)
-		);
+		return this.model.truncate();
 	}
 
 	start() {
@@ -78,9 +92,7 @@ class BackgroundQueue {
 					JSON.parse(task.get("arguments"))
 				)
 			);
-		}).catch(err =>
-			this.logger.error(err)
-		);
+		});
 	}
 
 	push(id, instance, handler, args) {
@@ -101,8 +113,6 @@ class BackgroundQueue {
 					where: { id }
 				});
 			})
-		).catch(err =>
-			this.logger.error(err)
 		);
 
 		this.queue.enqueue(task);

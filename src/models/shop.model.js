@@ -16,6 +16,8 @@
  * @property {import("sequelize").ModelCtor<Model<any, any>>} promoCodes
  * @property {import("sequelize").ModelCtor<Model<any, any>>} promoCodeStrings
  * @property {import("sequelize").ModelCtor<Model<any, any>>} promoCodeActivated
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} boxes
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} boxItems
  */
 
 const { Sequelize, DataTypes } = require("sequelize");
@@ -73,7 +75,9 @@ module.exports = ({ logger }) => new Promise((resolve, reject) => {
 			itemStrings: require("./shop/shopItemStrings.model")(sequelize, DataTypes),
 			promoCodes: require("./shop/shopPromoCodes.model")(sequelize, DataTypes),
 			promoCodeStrings: require("./shop/shopPromoCodeStrings.model")(sequelize, DataTypes),
-			promoCodeActivated: require("./shop/shopPromoCodeActivated.model")(sequelize, DataTypes)
+			promoCodeActivated: require("./shop/shopPromoCodeActivated.model")(sequelize, DataTypes),
+			boxes: require("./shop/shopBoxes.model")(sequelize, DataTypes),
+			boxItems: require("./shop/shopBoxItems.model")(sequelize, DataTypes)
 		};
 
 		resolve({ ...models, sequelize, logger });

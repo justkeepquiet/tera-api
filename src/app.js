@@ -65,7 +65,7 @@ moduleLoader.setPromise("steer", () => new Promise(resolve => {
 	);
 
 	if (!/^true$/i.test(process.env.STEER_ENABLE)) {
-		steer.params.logger.warn("Not configured.");
+		steer.params.logger.warn("Not configured or disabled.");
 		return resolve(steer);
 	}
 
@@ -162,7 +162,9 @@ moduleLoader.final().then(modules => {
 		);
 
 		setInterval(() =>
-			modules.queue.start(), 60000
+			modules.queue.start().catch(err =>
+				modules.queue.logger.error(err)
+			), 60000
 		);
 	});
 }).catch(err => {

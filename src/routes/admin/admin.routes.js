@@ -28,9 +28,9 @@ const adminShopCategoriesController = require("../../controllers/adminShopCatego
 const adminShopProductsController = require("../../controllers/adminShopProducts.controller");
 const adminPromocodesController = require("../../controllers/adminPromocodes.controller");
 const adminPromocodesActivatedController = require("../../controllers/adminPromocodesActivated.controller");
-// const adminBoxesController = require("../../controllers/adminBoxes.controller");
+const adminBoxesController = require("../../controllers/adminBoxes.controller");
 const adminShopLogsController = require("../../controllers/adminShopLogs.controller");
-// const adminTasksController = require("../../controllers/adminTasks.controller");
+const adminTasksController = require("../../controllers/adminTasks.controller");
 
 /**
 * @param {modules} modules
@@ -222,20 +222,20 @@ module.exports = modules => {
 		.post("/promocodes_activated/add", adminPromocodesActivatedController.addAction(mod))
 		.get("/promocodes_activated/delete", adminPromocodesActivatedController.deleteAction(mod))
 		// Boxes
-		// .get("/boxes", adminBoxesController.index(mod))
-		// .get("/boxes/add", adminBoxesController.add(mod))
-		// .post("/boxes/add", adminBoxesController.addAction(mod))
-		// .get("/boxes/edit", adminBoxesController.edit(mod))
-		// .post("/boxes/edit", adminBoxesController.editAction(mod))
-		// .get("/boxes/delete", adminBoxesController.deleteAction(mod))
-		// .get("/boxes/send", adminBoxesController.send(mod))
-		// .post("/boxes/send", adminBoxesController.sendAction(mod))
-		// .get("/boxes/send_online", adminBoxesController.sendOnline(mod))
-		// .post("/boxes/send_online", adminBoxesController.sendOnlineAction(mod))
-		// .get("/boxes/send_all", adminBoxesController.sendAll(mod))
-		// .post("/boxes/send_all", adminBoxesController.sendAllAction(mod))
+		.get("/boxes", adminBoxesController.index(mod))
+		.get("/boxes/add", adminBoxesController.add(mod))
+		.post("/boxes/add", adminBoxesController.addAction(mod))
+		.get("/boxes/edit", adminBoxesController.edit(mod))
+		.post("/boxes/edit", adminBoxesController.editAction(mod))
+		.get("/boxes/delete", adminBoxesController.deleteAction(mod))
+		.get("/boxes/send", adminBoxesController.send(mod))
+		.post("/boxes/send", adminBoxesController.sendAction(mod))
+		.get("/boxes/send_all", adminBoxesController.sendAll(mod))
+		.post("/boxes/send_all", adminBoxesController.sendAllAction(mod))
 		// Tasks queue
-		// .get("/tasks", adminTasksController.index(mod))
-		// .get("/tasks/clear", adminTasksController.clearAction(mod))
+		.get("/tasks", adminTasksController.index(mod))
+		.get("/tasks/restart", adminTasksController.restartAction(mod))
+		.get("/tasks/cancel_failed", adminTasksController.cancelFailedAction(mod))
+		.get("/tasks/cancel_all", adminTasksController.cancelAllAction(mod))
 	;
 };

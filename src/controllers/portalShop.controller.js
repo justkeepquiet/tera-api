@@ -28,7 +28,7 @@ module.exports.Auth = ({ passport }) => [
 
 		passport.authenticate("custom", (error, user) => {
 			if (error) {
-				return res.send(error);
+				return res.status(401).send(error);
 			}
 
 			req.login(user, () => {
@@ -66,7 +66,7 @@ module.exports.MainHtml = () => [
 /**
  * @param {modules} modules
  */
-module.exports.PartialMenuHtml = ({ i18n, logger, accountModel, shopModel }) => [
+module.exports.PartialMenuHtml = ({ i18n, logger, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[query("active").isNumeric().optional()],
@@ -111,7 +111,7 @@ module.exports.PartialMenuHtml = ({ i18n, logger, accountModel, shopModel }) => 
 /**
  * @param {modules} modules
  */
-module.exports.PartialCatalogHtml = ({ i18n, logger, accountModel, shopModel }) => [
+module.exports.PartialCatalogHtml = ({ i18n, logger, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[
@@ -270,7 +270,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, accountModel, shopModel }) 
 /**
  * @param {modules} modules
  */
-module.exports.PartialProductHtml = ({ i18n, logger, accountModel, shopModel }) => [
+module.exports.PartialProductHtml = ({ i18n, logger, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[

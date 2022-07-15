@@ -80,24 +80,6 @@ module.exports.profile = ({ queue }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		/*
-		queue.insert("test", ["TEST"]);
-
-		const boxContext = {
-			title: "Test Box",
-			content: "We give you these useful items for activating the Premium.",
-			icon: "GiftBox01.bmp",
-			days: 365,
-			items: [
-				{ item_id: 2, item_count: 1 }
-			]
-		};
-
-		queue.insert("makeBox", [2800, 1, boxContext]);
-		queue.insert("makeBox", [2800, 6, boxContext]);
-		queue.insert("makeBox", [2800, 22, boxContext]);
-		*/
-
 		res.render("adminProfile", { layout: "adminLayout", moment });
 	}
 ];
@@ -180,7 +162,7 @@ module.exports.loginAction = ({ passport }) => [
 
 					const token = jwt.sign({
 						login: req.user.login,
-						password: req.user.login
+						password: req.user.password
 					}, process.env.ADMIN_PANEL_SECRET, {
 						algorithm: "HS256",
 						expiresIn: maxAge
