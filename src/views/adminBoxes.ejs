@@ -29,7 +29,11 @@
 										<%_ boxes.forEach((box, id) => { _%>
 										<tr>
 											<td><%= id %></td>
-											<td><%= box.icon %></td>
+											<td style="width:1%">
+												<div class="mw-10 item-icon-block">
+													<img src="/static/images/icons/<%= box.icon.toLowerCase() %>.png" class="item-icon" alt="">
+												</div>
+											</td>
 											<td><a href="/boxes/edit?id=<%= id %>"><%= box.title %></a></td>
 											<td><%= box.content %></td>
 											<td><%= box.days %></td>

@@ -25,7 +25,12 @@ module.exports.index = ({ i18n, logger, queue, shopModel }) => [
 	 */
 	async (req, res) => {
 		try {
-			const boxes = await shopModel.boxes.findAll();
+			const boxes = await shopModel.boxes.findAll({
+				order: [
+					["id", "DESC"]
+				]
+			});
+
 			const boxesMap = new Map();
 
 			if (boxes !== null) {
@@ -847,11 +852,11 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accou
 	shopStatusHandler,
 	expressLayouts,
 	[
-		body("serverId")
+		body("serverId").optional({ checkFalsy: true })
 			.isInt().withMessage(i18n.__("Server ID field must contain a valid number."))
 			.custom((value, { req }) => accountModel.serverInfo.findOne({
 				where: {
-					serverId: req.body.serverId
+					...req.body.serverId ? { serverId: req.body.serverId } : {}
 				}
 			}).then(data => {
 				if (data === null) {
@@ -870,7 +875,7 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accou
 				}
 			})),
 		body("characterId").optional({ checkFalsy: true })
-			.isInt({ min: 0 }).withMessage(i18n.__("Character ID field must contain a valid number."))
+			.isInt().withMessage(i18n.__("Character ID field must contain a valid number."))
 			.custom((value, { req }) => accountModel.characters.findOne({
 				where: {
 					characterId: req.body.characterId,
@@ -994,7 +999,7 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accou
 				},
 				box.get("days"),
 				accountDBID,
-				serverId,
+				serverId || null,
 				characterId || null,
 				id
 			],
@@ -1110,11 +1115,11 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
 	shopStatusHandler,
 	expressLayouts,
 	[
-		body("serverId")
+		body("serverId").optional({ checkFalsy: true })
 			.isInt().withMessage(i18n.__("Server ID field must contain a valid number."))
 			.custom((value, { req }) => accountModel.serverInfo.findOne({
 				where: {
-					serverId: req.body.serverId
+					...req.body.serverId ? { serverId: req.body.serverId } : {}
 				}
 			}).then(data => {
 				if (data === null) {
@@ -1143,7 +1148,7 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
 
 			const users = await accountModel.info.findAll({
 				where: {
-					lastLoginServer: serverId,
+					...serverId ? { lastLoginServer: serverId } : {},
 					lastLoginTime: {
 						[Op.gt]: moment.tz(loginAfterTime, req.user.tz).toDate()
 					}
@@ -1243,7 +1248,7 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
 					},
 					box.get("days"),
 					user.get("accountDBID"),
-					user.get("lastLoginServer"),
+					serverId || null,
 					null,
 					id
 				],

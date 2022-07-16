@@ -1,14 +1,11 @@
 
-.item-icon, .item-icon-block {
+.item-icon, .item-icon-block, .item-icon-input {
 	width: 32px!important;
 	height: 100%!important;
 	position: relative;
 	left: 0;
 	top: 0;
 	float: left;
-	-webkit-border-radius: 3px 0 0 3px;
-	-moz-border-radius: 3px 0 0 3px;
-	border-radius: 3px 0 0 3px;
 }
 
 .item-icon {
@@ -17,9 +14,17 @@
 	max-height: 32px!important;
 	max-width: 32px!important;
 	margin-right: 5px;
-	-webkit-border-radius: 3px 0 0 0;
-	-moz-border-radius: 3px 0 0 0;
-	border-radius: 3px 0 0 0;
+}
+
+.item-icon-input {
+	margin: -4px 10px 0 -10px;
+}
+
+.item-icon-form {
+	height: 32px!important;
+	max-height: 32px!important;
+	max-width: 32px!important;
+	margin-right: 5px;
 }
 
 .item-icon-grade {

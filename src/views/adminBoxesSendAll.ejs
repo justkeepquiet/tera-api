@@ -19,6 +19,7 @@
 							<div class="col-sm-6">
 								<label class="control-label" for="serverId"><%= __("Server ID") %></label>
 								<select class="form-control boxed" name="serverId">
+									<option value=""><%= __("All") %></option>
 								<%_ servers.forEach(s => { _%>
 									<option value="<%= s.get("serverId") %>" <%= s.get("serverId") == serverId ? "selected" : "" %>>(<%= s.get("serverId") %>) <%= s.get("nameString") %></option>
 								<%_ }) _%>
@@ -28,6 +29,10 @@
 								<label class="control-label" for="loginAfterTime"><%= __("Last login") %></label>
 								<input type="datetime-local" class="form-control boxed" name="loginAfterTime" value="<%= loginAfterTime.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
 							</div>
+						</div>
+						<div class="form-group row"></div>
+						<div class="form-group alert alert-secondary">
+							<%= __("In the Last login field, the date of the last entry into the game is specified. Box will not be sent to users who logged into the game before this date.") %>
 						</div>
 						<div class="form-group row"></div>
 						<div class="title-block">
@@ -44,7 +49,11 @@
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label"><%= __("Icon") %></label>
-								<input type="text" class="form-control boxed" value="<%= icon %>" disabled>
+								<div>
+									<label>
+										<span><img src="/static/images/icons/<%= icon.toLowerCase() %>.png" class="item-icon-form"><%= icon %></span>
+									</label>
+								</div>
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label"><%= __("Days") %></label>
@@ -73,7 +82,7 @@
 									<div class="row">
 										<div class="col-sm-12">
 											<div class="form-control boxed" style="overflow: hidden;">
-												<div class="item-icon-block" style="margin: -4px 10px 0 -10px;">
+												<div class="item-icon-input">
 													<img src="/static/images/tera-icons/icon_items/<%= item.get("icon") %>.png" class="item-icon-grade-<%= item.get("rareGrade") %> item-icon">
 													<img src="/static/images/icons/icon_grade_<%= item.get("rareGrade") %>.png" class="item-icon-grade" alt="">
 												</div>
