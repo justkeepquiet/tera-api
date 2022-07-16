@@ -167,7 +167,7 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 		body("icon").optional().trim()
 			.isLength({ max: 2048 }).withMessage(i18n.__("Icon must be between 1 and 255 characters.")),
 		body("days").trim()
-			.isInt({ min: 1 }).withMessage(i18n.__("Days field must contain the value as a number.")),
+			.isInt({ min: 1, max: 4000 }).withMessage(i18n.__("Days field must contain the value as a number.")),
 		// Items
 		body("itemTemplateIds.*")
 			.isInt({ min: 1 }).withMessage(i18n.__("Item template ID field has invalid value."))
@@ -452,7 +452,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 		body("icon").optional().trim()
 			.isLength({ max: 2048 }).withMessage(i18n.__("Icon must be between 1 and 255 characters.")),
 		body("days").trim()
-			.isInt({ min: 1 }).withMessage(i18n.__("Days field must contain the value as a number.")),
+			.isInt({ min: 1, max: 4000 }).withMessage(i18n.__("Days field must contain the value as a number.")),
 		// Items
 		body("itemTemplateIds.*")
 			.isInt({ min: 1 }).withMessage(i18n.__("Item template ID field has invalid value."))
@@ -776,7 +776,9 @@ module.exports.send = ({ i18n, logger, platform, accountModel, shopModel }) => [
 				return res.redirect("/boxes");
 			}
 
-			const servers = await accountModel.serverInfo.findAll();
+			const servers = await accountModel.serverInfo.findAll({
+				where: { isEnabled: 1 }
+			});
 
 			shopModel.boxItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
 			shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
@@ -903,7 +905,9 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accou
 				return res.redirect("/boxes");
 			}
 
-			const servers = await accountModel.serverInfo.findAll();
+			const servers = await accountModel.serverInfo.findAll({
+				where: { isEnabled: 1 }
+			});
 
 			shopModel.boxItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
 			shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
@@ -1040,7 +1044,9 @@ module.exports.sendAll = ({ i18n, logger, platform, accountModel, shopModel }) =
 				return res.redirect("/boxes");
 			}
 
-			const servers = await accountModel.serverInfo.findAll();
+			const servers = await accountModel.serverInfo.findAll({
+				where: { isEnabled: 1 }
+			});
 
 			shopModel.boxItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
 			shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
@@ -1144,7 +1150,9 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
 				return res.redirect("/boxes");
 			}
 
-			const servers = await accountModel.serverInfo.findAll();
+			const servers = await accountModel.serverInfo.findAll({
+				where: { isEnabled: 1 }
+			});
 
 			const users = await accountModel.info.findAll({
 				where: {

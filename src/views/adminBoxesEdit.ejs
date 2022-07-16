@@ -24,22 +24,22 @@
 							<textarea type="text" class="form-control boxed" name="content"><%= content %></textarea>
 						</div>
 						<div class="form-group row">
-							<div class="col-sm-8">
+							<div class="col-sm-6">
+								<label class="control-label" for="days"><%= __("Days") %></label>
+								<input type="number" class="form-control boxed" name="days" value="<%= days %>">
+							</div>
+							<div class="col-sm-6">
 								<label class="control-label" for="icon"><%= __("Icon") %></label>
 								<div>
 									<label>
 										<input class="radio squared" name="icon" value="GiftBox01.bmp" type="radio"<%= icon === "GiftBox01.bmp" ? " checked" : "" %>>
-										<span><img src="/static/images/icons/giftbox01.bmp.png" class="item-icon-form">GiftBox01.bmp</span>
+										<span><img src="/static/images/icons/giftbox01.bmp.png" class="item-icon-form"></span>
 									</label>
 									<label>
 										<input class="radio squared" name="icon" value="GiftBox02.bmp" type="radio"<%= icon === "GiftBox02.bmp" ? " checked" : "" %>>
-										<span><img src="/static/images/icons/giftbox02.bmp.png" class="item-icon-form">GiftBox02.bmp</span>
+										<span><img src="/static/images/icons/giftbox02.bmp.png" class="item-icon-form"></span>
 									</label>
 								</div>
-							</div>
-							<div class="col-sm-4">
-								<label class="control-label" for="days"><%= __("Days") %></label>
-								<input type="number" class="form-control boxed" name="days" value="<%= days %>">
 							</div>
 						</div>
 						<div class="form-group row"></div>
