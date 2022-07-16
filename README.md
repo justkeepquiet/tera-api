@@ -6,16 +6,16 @@ The Arbiter API intended for processing internal requests from the Arbiter Serve
 
 The Portal API is a web server intended for the [Launcher](https://github.com/justkeepquiet/tera-launcher)/Shop. This API must be available from the outside (proxied by Nginx or binded on external IP) for use by server users: registration, authorization, login, update routines etc. Also, this API allows to process static elements (directory **public**).
 
-Built-in admin panel for full control of all functionality and viewing logs. There is also full integration with the Box Server and Steer Server (for setting permissions).
+Built-in admin panel for full control of all functionality and viewing API logs. There is also full integration with the Box Server and Steer Server (for setting permissions).
 
 ## Requirements
 
 * [Node.js](https://nodejs.org/en/) v18.1.0
 * [MySQL Server](https://dev.mysql.com/downloads/mysql/5.7.html) v5.7.38
 * [TERA Retail Server](https://forum.ragezone.com/f797/) patch 92.03, 92.04 or 100.02
-* [Steer Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) (for admin extended auth)
-* [Box Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) (for Item Claim)
-* [FCGI GW and FCGI Web API](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) (for TERA Shop)
+* [Steer Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
+* [Box Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
+* [FCGI GW and FCGI Web API](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
 
 ## Deployment
 
@@ -62,4 +62,4 @@ The Steer Server allows you to flexibly manage permissions to certain sections o
 6. Open your **.env** and set the `API_PORTAL_SHOP_ENABLE` parameter to `true`.
 7. For Item Claim to work, you also need to set parameter `FCGI_GW_WEBAPI_ENABLE` to `true` and configure parameter `FCGI_GW_WEBAPI_URL`.
 
-Setting up the products of the Shop is carried out through the TERA API Admin Panel. The creation of a Service Item in the Box System occurs automatically when a product is added (using the Platform Hub Gateway). Sending goods to the player is carried out through the FCGI Gateway Web API.
+TERA Shop products are configured through the TERA API Admin Panel. The creation of a Service Item in the Box System occurs automatically when a product is added (using the Platform Hub Gateway). Sending products to the player is carried out through the FCGI Gateway Web API.
