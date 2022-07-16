@@ -33,7 +33,7 @@
 										<td><%= log.get("serverId") || __("All") %></td>
 										<td><%= log.get("characterId") || __("All") %></td>
 										<td><%= context.title %></td>
-										<td><%= log.get("days") %></td>
+										<td><%= context.days %></td>
 										<td><%= context.items.map(item => `${item.item_template_id} (${item.item_count})`).join(", ") %></td>
 									</tr>
 									<%_ }) _%>

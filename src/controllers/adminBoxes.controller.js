@@ -991,13 +991,13 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accou
 					content: box.get("content"),
 					title: box.get("title"),
 					icon: box.get("icon"),
+					days: box.get("days"),
 					items: items.map(item => ({
 						item_id: item.get("boxItemId"),
 						item_count: item.get("boxItemCount"),
 						item_template_id: item.get("itemTemplateId")
 					}))
 				},
-				box.get("days"),
 				accountDBID,
 				serverId || null,
 				characterId || null,
@@ -1240,13 +1240,13 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
 						content: box.get("content"),
 						title: box.get("title"),
 						icon: box.get("icon"),
+						days: box.get("days"),
 						items: items.map(item => ({
 							item_id: item.get("boxItemId"),
 							item_count: item.get("boxItemCount"),
 							item_template_id: item.get("itemTemplateId")
 						}))
 					},
-					box.get("days"),
 					user.get("accountDBID"),
 					serverId || null,
 					null,

@@ -90,7 +90,6 @@ CREATE TABLE IF NOT EXISTS `report_boxes` (
   `serverId` int(11) DEFAULT NULL,
   `characterId` int(11) DEFAULT NULL,
   `logId` int(11) DEFAULT NULL,
-  `days` int(11) NOT NULL,
   `context` text NOT NULL,
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
