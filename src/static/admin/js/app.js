@@ -281,6 +281,43 @@ var modalMedia = {
 };
 */
 
+function loadNotifications() {
+	$.ajax({
+		url: "/notifications",
+		method: "get",
+		async: false,
+		success: function(data) {
+			if (data.result_code === 0) {
+				$("#counter").html(data.count);
+				$("#counter").removeClass("text-danger");
+				$("#notifications-container").empty().hide();
+
+				if (data.count > 0) {
+					$("#counter").addClass("text-danger");
+
+					data.items.forEach(function(item) {
+						$("#notifications-container").append(
+							"<li><a href=\"/tasks\" class=\"notification-item\">" +
+							"<div class=\"body-col\"><span class=\"text-danger\"><i class=\"fa fa-warning\"></i> (" + item.handler + ") " + item.message + "</span></div>" +
+							"</a></li>"
+						);
+					});
+
+					$("#notifications-container").show();
+				}
+			}
+		}
+	});
+}
+
+$(function() {
+	loadNotifications();
+	setInterval(loadNotifications, 60000);
+	$("#notifications-dropdown").click(function() {
+		loadNotifications();
+	});
+});
+
 $(function() {
 	$("#confirm-modal, #confirm-del-modal").on("show.bs.modal", function(event) {
 		$(this).find(".modal-yes").click(function() {

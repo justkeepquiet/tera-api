@@ -12,6 +12,20 @@
 	</div>
 	<div class="header-block header-block-nav">
 		<ul class="nav-profile">
+			<li class="notifications new" id="notifications">
+				<a href="" data-toggle="dropdown" id="notifications-dropdown">
+					<i class="fa fa-bell-o"></i>
+					<sup><span class="counter" id="counter">0</span></sup>
+				</a>
+				<div class="dropdown-menu notifications-dropdown-menu">
+					<ul class="notifications-container" id="notifications-container" style="display: none;"></ul>
+					<footer>
+						<ul>
+							<li><a class="text-primary pt-1 pb-1" href="/tasks"><%= __("Show all tasks") %></a></li>
+						</ul>
+					</footer>
+				</div>
+			</li>
 			<li class="profile dropdown">
 				<a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">
 					<span class="name"><%= user.login %></span>

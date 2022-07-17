@@ -10,7 +10,37 @@ const moment = require("moment-timezone");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 
-const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, resultJson } = require("../middlewares/admin.middlewares");
+
+/**
+ * @param {modules} modules
+ */
+module.exports.notifications = ({ logger, queue }) => [
+	expressLayouts,
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res) => {
+		queue.findByStatus(queue.status.rejected, 6).then(tasks => {
+			const items = [];
+
+			tasks.forEach(task => {
+				items.push({
+					id: task.get("id"),
+					tag: task.get("tag"),
+					handler: task.get("handler"),
+					status: task.get("status"),
+					message: task.get("message")
+				});
+			});
+
+			resultJson(res, 0, { msg: "success", count: items.length, items });
+		}).catch(err => {
+			logger.error(err);
+			resultJson(res, 1, { msg: "internal error" });
+		});
+	}
+];
 
 /**
  * @param {modules} modules

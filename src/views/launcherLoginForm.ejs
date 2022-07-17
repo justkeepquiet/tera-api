@@ -109,7 +109,10 @@
 	}
 
 	function loginFromLocalStorage() {
-		var result = parent.getAccountInfoByAuthKey(localStorage.AUTH_KEY);
+		var result = parent.getAccountInfoByUserNo(
+			localStorage.ACCOUNT_ID,
+			localStorage.AUTH_KEY
+		);
 
 		if (result) {
 			if (result.Return) {

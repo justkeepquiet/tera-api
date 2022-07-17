@@ -6,6 +6,13 @@
  */
 
 /**
+ * @param {Response} res
+ */
+const resultJson = (res, code, params = {}) => res.json({
+	result_code: code, ...params
+});
+
+/**
  * @type {RequestHandler}
  */
 module.exports.accessFunctionHandler = (req, res, next) => {
@@ -49,3 +56,5 @@ module.exports.writeOperationReport = (reportModel, params = {}) =>
 		next();
 	}
 ;
+
+module.exports.resultJson = resultJson;

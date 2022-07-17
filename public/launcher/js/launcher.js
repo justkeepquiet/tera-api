@@ -58,14 +58,16 @@ function launcherSignupAction(login, email, password, token) {
 	});
 }
 
-function getAccountInfoByAuthKey(authKey) {
-	return apiRequest("GetAccountInfoByAuthKey", {
+function getAccountInfoByUserNo(userNo, authKey) {
+	return apiRequest("GetAccountInfoByUserNo", {
+		userNo: userNo,
 		authKey: authKey
 	});
 }
 
-function setAccountInfoByAuthKey(authKey, language) {
-	return apiRequest("SetAccountInfoByAuthKey", {
+function setAccountInfoByUserNo(userNo, authKey, language) {
+	return apiRequest("SetAccountInfoByUserNo", {
+		userNo: userNo,
 		authKey: authKey,
 		language: language
 	});
@@ -108,7 +110,7 @@ var Launcher = {
 		$("#totalText").text("");
 
 		if (localStorage.REGION && !urlParam("lang")) {
-			Launcher.setRegion(localStorage.REGION);
+			Launcher.setRegion(localStorage.REGION, true);
 		}
 	},
 
@@ -212,7 +214,7 @@ var Launcher = {
 	 */
 	launchGame: function() {
 		Launcher.disableLaunchButton("Wait", "btn-wait");
-		Launcher.setRegion(REGION);
+		Launcher.setRegion(REGION, false);
 
 		if (!loginIFrame.QA_MODE && loginIFrame.PERMISSION < 256) {
 			var maintenance = launcherMaintenanceStatus();
@@ -261,14 +263,16 @@ var Launcher = {
 		Launcher.sendCommand("abort_p");
 	},
 
-	setRegion: function(region) {
+	setRegion: function(region, reload) {
 		var language = regionToLanguage(region);
 
 		if (language) {
-			location.replace("LauncherMain" + "?lang=" + language);
+			if (reload) {
+				location.replace("LauncherMain" + "?lang=" + language);
+			}
 
-			if (loginIFrame.AUTH_KEY) {
-				setAccountInfoByAuthKey(loginIFrame.AUTH_KEY, language);
+			if (loginIFrame.ACCOUNT_ID && loginIFrame.AUTH_KEY) {
+				setAccountInfoByUserNo(loginIFrame.ACCOUNT_ID, loginIFrame.AUTH_KEY, language);
 			}
 		}
 

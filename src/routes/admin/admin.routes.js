@@ -127,7 +127,7 @@ module.exports = modules => {
 		.post("/login", adminController.loginAction(mod))
 		.get("/logout", adminController.logoutAction(mod))
 		// Admin Panel Home
-		.get("/test", adminController.home(mod))
+		.get("/notifications", adminController.notifications(mod))
 		.get("/home", adminController.home(mod))
 		.get("/profile", adminController.profile(mod))
 		.get("/settings", adminController.settings(mod))

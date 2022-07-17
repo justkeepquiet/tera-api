@@ -14,21 +14,24 @@ const { validationHandler, resultJson } = require("../middlewares/portalLauncher
 /**
  * @param {modules} modules
  */
-module.exports.GetAccountInfoByAuthKey = ({ logger, sequelize, accountModel }) => [
-	[body("authKey").notEmpty()],
+module.exports.GetAccountInfoByUserNo = ({ logger, sequelize, accountModel }) => [
+	[
+		body("userNo").notEmpty(),
+		body("authKey").notEmpty()
+	],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		const { authKey } = req.body;
+		const { userNo, authKey } = req.body;
 		const clientIP = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
 		accountModel.info.belongsTo(accountModel.bans, { foreignKey: "accountDBID" });
 		accountModel.info.hasOne(accountModel.bans, { foreignKey: "accountDBID" });
 
 		accountModel.info.findOne({
-			where: { authKey },
+			where: { accountDBID: userNo, authKey },
 			include: [{
 				model: accountModel.bans,
 				where: {
@@ -94,8 +97,9 @@ module.exports.GetAccountInfoByAuthKey = ({ logger, sequelize, accountModel }) =
 /**
  * @param {modules} modules
  */
-module.exports.SetAccountInfoByAuthKey = ({ logger, accountModel }) => [
+module.exports.SetAccountInfoByUserNo = ({ logger, accountModel }) => [
 	[
+		body("userNo").notEmpty(),
 		body("authKey").notEmpty(),
 		body("language").isIn(["cn", "en", "fr", "de", "jp", "ru", "se", "th", "tw"])
 	],
@@ -104,10 +108,10 @@ module.exports.SetAccountInfoByAuthKey = ({ logger, accountModel }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		const { authKey, language } = req.body;
+		const { userNo, authKey, language } = req.body;
 
 		accountModel.info.findOne({
-			where: { authKey }
+			where: { accountDBID: userNo, authKey }
 		}).then(account => {
 			if (account === null) {
 				return resultJson(res, 50000, "account not exist");

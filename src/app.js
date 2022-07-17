@@ -202,22 +202,22 @@ moduleLoader.final().then(
 			);
 		});
 
-		serverLoader.setPromise("shopApi", () => {
-			if (!process.env.API_SHOP_LISTEN_PORT) {
-				return Promise.reject("Invalid configuration parameter: API_SHOP_LISTEN_PORT");
+		serverLoader.setPromise("gatewayApi", () => {
+			if (!process.env.API_GATEWAY_LISTEN_PORT) {
+				return Promise.reject("Invalid configuration parameter: API_GATEWAY_LISTEN_PORT");
 			}
 
 			const es = new ExpressServer(modules, {
-				logger: createLogger("Shop API"),
+				logger: createLogger("Gateway API"),
 				disableCache: true
 			});
 
 			es.setLogging();
-			es.setRouter("../routes/shop.index");
+			es.setRouter("../routes/gateway.index");
 
 			return es.bind(
-				process.env.API_SHOP_LISTEN_HOST,
-				process.env.API_SHOP_LISTEN_PORT
+				process.env.API_GATEWAY_LISTEN_HOST,
+				process.env.API_GATEWAY_LISTEN_PORT
 			);
 		});
 
