@@ -40,7 +40,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.FundByUserNo = ({ logger, reportModel, accountModel, shopModel }) => [
+module.exports.FundByUserNo = ({ logger, sequelize, reportModel, accountModel, shopModel }) => [
 	[
 		body("userNo").isNumeric(),
 		body("transactionId").isNumeric(),
@@ -53,36 +53,42 @@ module.exports.FundByUserNo = ({ logger, reportModel, accountModel, shopModel })
 	(req, res) => {
 		const { userNo, transactionId, amount } = req.body;
 
-		accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
-			if (account === null) {
-				return resultJson(res, 50000, "account not exist");
-			}
-
-			return shopModel.accounts.findOne({
-				where: { accountDBID: userNo }
-			}).then(shopAccount => {
-				if (shopAccount !== null) {
-					return shopModel.accounts.increment({
-						balance: amount
-					});
+		sequelize.transaction(transaction =>
+			accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
+				if (account === null) {
+					return resultJson(res, 50000, "account not exist");
 				}
 
-				return shopModel.accounts.create({
-					accountDBID: userNo,
-					balance: amount
-				});
-			}).then(() => {
-				reportModel.shopFund.create({
-					accountDBID: userNo,
-					amount: amount,
-					description: `ShopApi,${transactionId}`
-				}).catch(err => {
-					logger.error(err);
-				});
+				return shopModel.accounts.findOne({
+					where: { accountDBID: userNo }
+				}).then(shopAccount => {
+					if (shopAccount !== null) {
+						return shopModel.accounts.increment({
+							balance: amount
+						}, {
+							transaction
+						});
+					}
 
-				resultJson(res, 0, "success");
-			});
-		}).catch(err => {
+					return shopModel.accounts.create({
+						accountDBID: userNo,
+						balance: amount
+					}, {
+						transaction
+					});
+				}).then(() =>
+					reportModel.shopFund.create({
+						accountDBID: userNo,
+						amount: amount,
+						description: `ShopApi,${transactionId}`
+					}, {
+						transaction
+					}).then(() =>
+						resultJson(res, 0, "success")
+					)
+				);
+			})
+		).catch(err => {
 			logger.error(err);
 			resultJson(res, 1, "internal error");
 		});

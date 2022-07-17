@@ -6,7 +6,6 @@
  */
 
 const crypto = require("crypto");
-const validator = require("validator");
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
