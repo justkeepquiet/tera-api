@@ -15,14 +15,14 @@ const { accessFunctionHandler, writeOperationReport } = require("../middlewares/
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, accountModel }) => [
+module.exports.index = ({ logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		accountModel.maintenance.findAll().then(maintenances => {
+		serverModel.maintenance.findAll().then(maintenances => {
 			res.render("adminMaintenance", {
 				layout: "adminLayout",
 				maintenances,
@@ -58,7 +58,7 @@ module.exports.add = () => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, reportModel, accountModel }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -86,7 +86,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel }) => [
 			});
 		}
 
-		accountModel.maintenance.create({
+		serverModel.maintenance.create({
 			startTime: moment.tz(startTime, req.user.tz).toDate(),
 			endTime: moment.tz(endTime, req.user.tz).toDate(),
 			description
@@ -109,7 +109,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, accountModel }) => [
+module.exports.edit = ({ logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -122,7 +122,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 			return res.redirect("/maintenance");
 		}
 
-		accountModel.maintenance.findOne({ where: { id } }).then(data => {
+		serverModel.maintenance.findOne({ where: { id } }).then(data => {
 			if (data === null) {
 				return res.redirect("/maintenance");
 			}
@@ -145,7 +145,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
+module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -179,7 +179,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 			});
 		}
 
-		accountModel.maintenance.update({
+		serverModel.maintenance.update({
 			startTime: moment.tz(startTime, req.user.tz).toDate(),
 			endTime: moment.tz(endTime, req.user.tz).toDate(),
 			description
@@ -204,7 +204,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -217,7 +217,7 @@ module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
 			return res.redirect("/maintenance");
 		}
 
-		accountModel.maintenance.destroy({ where: { id } }).then(() =>
+		serverModel.maintenance.destroy({ where: { id } }).then(() =>
 			next()
 		).catch(err => {
 			logger.error(err);

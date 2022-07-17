@@ -15,7 +15,7 @@ const { accessFunctionHandler, writeOperationReport } = require("../middlewares/
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, accountModel }) => [
+module.exports.index = ({ logger, sequelize, accountModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -38,15 +38,15 @@ module.exports.index = ({ logger, accountModel }) => [
 			}],
 			attributes: {
 				include: [
-					[accountModel.info.sequelize.col("userName"), "userName"],
-					[accountModel.info.sequelize.col("lastLoginTime"), "lastLoginTime"],
-					[accountModel.info.sequelize.col("lastLoginIP"), "lastLoginIP"],
-					[accountModel.info.sequelize.col("permission"), "permission"],
-					[accountModel.info.sequelize.col("privilege"), "privilege"]
+					[sequelize.col("userName"), "userName"],
+					[sequelize.col("lastLoginTime"), "lastLoginTime"],
+					[sequelize.col("lastLoginIP"), "lastLoginIP"],
+					[sequelize.col("permission"), "permission"],
+					[sequelize.col("privilege"), "privilege"]
 				]
 			}
 		}).then(online =>
-			accountModel.serverInfo.findAll().then(servers => {
+			serverModel.info.findAll().then(servers => {
 				res.render("adminOnline", {
 					layout: "adminLayout",
 					moment,
@@ -65,7 +65,7 @@ module.exports.index = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.kickAction = ({ i18n, logger, fcgi, reportModel, accountModel }) => [
+module.exports.kickAction = ({ i18n, logger, fcgi, reportModel, accountModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -82,7 +82,7 @@ module.exports.kickAction = ({ i18n, logger, fcgi, reportModel, accountModel }) 
 			})),
 		query("serverId").trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.serverInfo.findOne({
+			.custom((value, { req }) => serverModel.info.findOne({
 				where: {
 					serverId: req.query.serverId
 				}
@@ -95,20 +95,26 @@ module.exports.kickAction = ({ i18n, logger, fcgi, reportModel, accountModel }) 
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { accountDBID, serverId } = req.query;
 		const errors = helpers.validationResultLog(req, logger);
 
-		if (!errors.isEmpty()) {
-			return res.render("adminError", { layout: "adminLayout", err: errors.array()[0].msg });
-		}
+		try {
+			if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
+				throw "FCGI Gateway is not configured or disabled.";
+			}
 
-		fcgi.kick(serverId, accountDBID, 33).then(() =>
-			next()
-		).catch(err => {
+			if (!errors.isEmpty()) {
+				throw new Error(errors.array()[0].msg);
+			}
+
+			await fcgi.kick(serverId, accountDBID, 33);
+
+			next();
+		} catch (err) {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
-		});
+		}
 	},
 	writeOperationReport(reportModel),
 	/**
@@ -122,13 +128,13 @@ module.exports.kickAction = ({ i18n, logger, fcgi, reportModel, accountModel }) 
 /**
  * @param {modules} modules
  */
-module.exports.kickAllAction = ({ i18n, logger, fcgi, reportModel, accountModel }) => [
+module.exports.kickAllAction = ({ i18n, logger, fcgi, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
 		query("serverId").trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.serverInfo.findOne({
+			.custom((value, { req }) => serverModel.info.findOne({
 				where: {
 					serverId: req.query.serverId
 				}
@@ -141,20 +147,26 @@ module.exports.kickAllAction = ({ i18n, logger, fcgi, reportModel, accountModel 
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { serverId } = req.query;
 		const errors = helpers.validationResultLog(req, logger);
 
-		if (!errors.isEmpty()) {
-			return res.render("adminError", { layout: "adminLayout", err: errors.array()[0].msg });
-		}
+		try {
+			if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
+				throw "FCGI Gateway is not configured or disabled.";
+			}
 
-		fcgi.bulkKick(serverId, 33).then(() =>
-			next()
-		).catch(err => {
+			if (!errors.isEmpty()) {
+				throw new Error(errors.array()[0].msg);
+			}
+
+			await fcgi.bulkKick(serverId, 33);
+
+			next();
+		} catch (err) {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
-		});
+		}
 	},
 	writeOperationReport(reportModel),
 	/**

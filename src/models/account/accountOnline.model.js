@@ -1,8 +1,8 @@
 "use strict";
 
 /**
-* @typedef {import("sequelize").Sequelize} Sequelize
-* @typedef {import("sequelize/types")} DataTypes
+* @typedef {import("../account.model").Sequelize} Sequelize
+* @typedef {import("../account.model").DataTypes} DataTypes
 */
 
 /**

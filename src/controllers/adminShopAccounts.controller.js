@@ -10,14 +10,13 @@ const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
  */
 module.exports.index = ({ logger, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -48,7 +47,6 @@ module.exports.index = ({ logger, shopModel }) => [
  */
 module.exports.add = ({ i18n }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	[
 		query("accountDBID").trim().optional()
@@ -76,7 +74,6 @@ module.exports.add = ({ i18n }) => [
  */
 module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	[
 		body("accountDBID").trim()
@@ -146,7 +143,6 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
  */
 module.exports.edit = ({ logger, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -184,7 +180,6 @@ module.exports.edit = ({ logger, shopModel }) => [
  */
 module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	[
 		body("balance").trim()
@@ -240,7 +235,6 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
  */
 module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}

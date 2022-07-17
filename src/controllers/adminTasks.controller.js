@@ -13,7 +13,7 @@ const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, accountModel }) => [
+module.exports.index = ({ logger, queueModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -22,7 +22,7 @@ module.exports.index = ({ logger, accountModel }) => [
 	(req, res) => {
 		const { handler, tag } = req.query;
 
-		accountModel.queueTasks.findAll({
+		queueModel.tasks.findAll({
 			where: {
 				...handler ? { handler } : {},
 				...tag ? { tag } : {}

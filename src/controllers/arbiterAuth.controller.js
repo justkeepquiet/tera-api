@@ -14,12 +14,12 @@ const { validationHandler, resultJson } = require("../middlewares/arbiterAuth.mi
  * endpoint: /systemApi/RequestAPIServerStatusAvailable
  * @param {modules} modules
  */
-module.exports.RequestAPIServerStatusAvailable = ({ logger, accountModel }) => [
+module.exports.RequestAPIServerStatusAvailable = ({ logger, serverModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		accountModel.serverInfo.update({ isAvailable: 0, usersOnline: 0 }, {
+		serverModel.info.update({ isAvailable: 0, usersOnline: 0 }, {
 			where: { isEnabled: 1 }
 		}).then(() =>
 			res.json({ Return: true })
@@ -62,7 +62,7 @@ module.exports.RequestAuthkey = ({ logger, accountModel }) => [
  * endpoint: /authApi/GameAuthenticationLogin
  * @param {modules} modules
  */
-module.exports.GameAuthenticationLogin = ({ logger, accountModel }) => [
+module.exports.GameAuthenticationLogin = ({ logger, sequelize, accountModel }) => [
 	[body("authKey").notEmpty(), body("userNo").isNumeric()],
 	validationHandler(logger),
 	/**
@@ -80,15 +80,15 @@ module.exports.GameAuthenticationLogin = ({ logger, accountModel }) => [
 				model: accountModel.bans,
 				where: {
 					active: 1,
-					startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
-					endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+					startTime: { [Op.lt]: sequelize.fn("NOW") },
+					endTime: { [Op.gt]: sequelize.fn("NOW") }
 				},
 				required: false,
 				attributes: []
 			}],
 			attributes: {
 				include: [
-					[accountModel.info.sequelize.col("startTime"), "banned"]
+					[sequelize.col("startTime"), "banned"]
 				]
 			}
 		}).then(account =>
@@ -96,8 +96,8 @@ module.exports.GameAuthenticationLogin = ({ logger, accountModel }) => [
 				where: {
 					active: 1,
 					ip: { [Op.like]: `%"${clientIP}"%` },
-					startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
-					endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+					startTime: { [Op.lt]: sequelize.fn("NOW") },
+					endTime: { [Op.gt]: sequelize.fn("NOW") }
 				}
 			}).then(bannedByIp => {
 				if (account === null) {

@@ -9,14 +9,13 @@ const expressLayouts = require("express-ejs-layouts");
 const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
 
-const { accessFunctionHandler, shopStatusHandler } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
  */
 module.exports.fund = ({ logger, reportModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -58,9 +57,8 @@ module.exports.fund = ({ logger, reportModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.pay = ({ logger, accountModel, reportModel }) => [
+module.exports.pay = ({ logger, serverModel, reportModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -85,7 +83,7 @@ module.exports.pay = ({ logger, accountModel, reportModel }) => [
 				["createdAt", "DESC"]
 			]
 		}).then(logs =>
-			accountModel.serverInfo.findAll().then(servers => {
+			serverModel.info.findAll().then(servers => {
 				res.render("adminShopPayLogs", {
 					layout: "adminLayout",
 					moment,

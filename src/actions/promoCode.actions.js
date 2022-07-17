@@ -19,19 +19,21 @@ class PromoCodeActions {
 		this.controller = {};
 
 		Object.keys(config).forEach(itemId => {
-			this.controller[itemId] = (...args) => {
-				const methods = [];
+			this.controller[itemId] = (...args) =>
+				modules.sequelize.transaction(transaction => {
+					const methods = [];
 
-				config[itemId].forEach(controller => {
-					const instance = new controller[0](...args);
+					config[itemId].forEach(controller => {
+						const instance = new controller[0](transaction, ...args);
 
-					Object.keys(controller[1]).forEach(method => {
-						methods.push(instance[method].bind(instance, ...controller[1][method]));
+						Object.keys(controller[1]).forEach(method => {
+							methods.push(instance[method].bind(instance, ...controller[1][method]));
+						});
 					});
-				});
 
-				return chainPromise(methods);
-			};
+					return chainPromise(methods);
+				})
+			;
 		});
 	}
 

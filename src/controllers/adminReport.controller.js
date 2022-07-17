@@ -11,7 +11,7 @@ const Op = require("sequelize").Op;
 
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-const reportHandler = (logger, accountModel, model, view, viewData = {}) =>
+const reportHandler = (logger, serverModel, model, view, viewData = {}) =>
 	/**
 	 * @type {RequestHandler}
 	*/
@@ -35,7 +35,7 @@ const reportHandler = (logger, accountModel, model, view, viewData = {}) =>
 				["reportTime", "DESC"]
 			]
 		}).then(reports =>
-			accountModel.serverInfo.findAll().then(servers => {
+			serverModel.info.findAll().then(servers => {
 				res.render(view, {
 					layout: "adminLayout",
 					moment,

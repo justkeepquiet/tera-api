@@ -32,56 +32,42 @@
 		{ icon: "fa-sitemap", name: __("Online Users"), page: "/online" },
 		{ icon: "fa-wrench", name: __("Maintenance"), page: "/maintenance" },
 		{ icon: "fa-desktop", name: __("Servers"), elements: [
-				{ name: __("Servers List (SLS)"), page: "/servers" },
-				{ name: __("Strings"), page: "/server_strings" }
-			]
-		},
+			{ name: __("Servers List (SLS)"), page: "/servers" },
+			{ name: __("Strings"), page: "/server_strings" }
+		] },
 		{ icon: "fa-users", name: __("Accounts"), elements: [
-				{ name: __("Accounts"), page: "/accounts" },
-				{ name: __("Benefits"), page: "/benefits" },
-				{ name: __("Characters"), page: "/characters" },
-				{ name: __("Bans"), page: "/bans" }
-			]
-		},
+			{ name: __("Accounts"), page: "/accounts" },
+			{ name: __("Benefits"), page: "/benefits" },
+			{ name: __("Characters"), page: "/characters" },
+			{ name: __("Bans"), page: "/bans" }
+		] },
 		{ icon: "fa-book", name: __("Reports"), elements: [
-				{ name: __("Activity"), page: "/report_activity" },
-				{ name: __("Characters"), page: "/report_characters" },
-				{ name: __("Cheats"), page: "/report_cheats" },
-				{ name: __("Chronoscrolls"), page: "/report_chronoscrolls" }
-			]
-		}
-	];
-
-	if (/^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE)) {
-		menuContents.push(...[
-			{ icon: "fa-shopping-cart", name: __("Shop"), elements: [
-					{ name: __("Accounts"), page: "/shop_accounts" },
-					{ name: __("Categories"), page: "/shop_categories" },
-					{ name: __("Products"), page: "/shop_products" }
-				]
-			},
-			{ icon: "fa-file-text", name: __("Shop Logs"), elements: [
-					{ name: __("Fund Logs"), page: "/shop_fund_logs" },
-					{ name: __("Pay Logs"), page: "/shop_pay_logs" }
-				]
-			},
-			{ icon: "fa-ticket", name: __("Promo Codes"), elements: [
-					{ name: __("List"), page: "/promocodes" },
-					{ name: __("Activated"), page: "/promocodes_activated" }
-				]
-			},
-			{ icon: "fa-truck", name: __("Item Claim"), elements: [
-				{ name: __("Boxes List"), page: "/boxes" },
-				{ name: __("Boxes Logs"), page: "/boxes_logs" }
-			] },
-		]);
-	}
-
-	menuContents.push(
+			{ name: __("Activity"), page: "/report_activity" },
+			{ name: __("Characters"), page: "/report_characters" },
+			{ name: __("Cheats"), page: "/report_cheats" },
+			{ name: __("Chronoscrolls"), page: "/report_chronoscrolls" }
+		] },
+		{ icon: "fa-shopping-cart", name: __("Shop"), elements: [
+			{ name: __("Accounts"), page: "/shop_accounts" },
+			{ name: __("Categories"), page: "/shop_categories" },
+			{ name: __("Products"), page: "/shop_products" }
+		] },
+		{ icon: "fa-file-text", name: __("Shop Logs"), elements: [
+			{ name: __("Fund Logs"), page: "/shop_fund_logs" },
+			{ name: __("Pay Logs"), page: "/shop_pay_logs" }
+		] },
+		{ icon: "fa-ticket", name: __("Promo Codes"), elements: [
+			{ name: __("List"), page: "/promocodes" },
+			{ name: __("Activated"), page: "/promocodes_activated" }
+		] },
+		{ icon: "fa-truck", name: __("Item Claim"), elements: [
+			{ name: __("Boxes List"), page: "/boxes" },
+			{ name: __("Boxes Logs"), page: "/boxes_logs" }
+		] },
 		{ icon: "fa-tasks", name: __("Tasks Queue"), page: "/tasks" },
 		{ icon: "fa-file-text", name: __("Operations Report"), page: "/operations_report" },
 		{ icon: "fa-gear", name: __("API Settings"), page: "/settings" }
-	);
+	];
 
 	const menu = filterMenu(menuContents);
 	const page = `/${__endpoint.split("/")[1]}`;

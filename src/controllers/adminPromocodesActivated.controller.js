@@ -10,14 +10,13 @@ const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, shopModel }) => [
+module.exports.index = ({ logger, sequelize, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -49,7 +48,7 @@ module.exports.index = ({ logger, shopModel }) => [
 			}],
 			attributes: {
 				include: [
-					[shopModel.itemStrings.sequelize.col("promoCode"), "promoCode"]
+					[sequelize.col("promoCode"), "promoCode"]
 				]
 			}
 		}).then(promocodes => {
@@ -72,7 +71,6 @@ module.exports.index = ({ logger, shopModel }) => [
  */
 module.exports.add = ({ i18n, logger, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	[
 		query("promoCodeId").trim().optional()
@@ -106,7 +104,6 @@ module.exports.add = ({ i18n, logger, shopModel }) => [
  */
 module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	[
 		body("promoCodeId").trim()
@@ -186,7 +183,6 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
  */
 module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}

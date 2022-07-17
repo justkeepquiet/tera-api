@@ -18,7 +18,7 @@ const encryptPasswords = /^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWO
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, accountModel }) => [
+module.exports.index = ({ logger, sequelize, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -39,8 +39,8 @@ module.exports.index = ({ logger, accountModel }) => [
 			}],
 			attributes: {
 				include: [
-					[accountModel.info.sequelize.col("startTime"), "bannedStartTime"],
-					[accountModel.info.sequelize.col("endTime"), "bannedEndTime"]
+					[sequelize.col("startTime"), "bannedStartTime"],
+					[sequelize.col("endTime"), "bannedEndTime"]
 				]
 			},
 			order: [
@@ -99,7 +99,7 @@ module.exports.add = ({ i18n, datasheets }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, reportModel, accountModel, datasheets }) => [
+module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel, datasheets }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -157,7 +157,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, datasheet
 			});
 		}
 
-		accountModel.sequelize.transaction(transaction =>
+		sequelize.transaction(transaction =>
 			accountModel.info.create({
 				userName,
 				passWord: passwordString,
@@ -327,7 +327,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, reportModel, accountModel, shopModel }) => [
+module.exports.deleteAction = ({ logger, sequelize, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -340,7 +340,7 @@ module.exports.deleteAction = ({ logger, reportModel, accountModel, shopModel })
 			return res.redirect("/accounts");
 		}
 
-		accountModel.sequelize.transaction(transaction =>
+		sequelize.transaction(transaction =>
 			Promise.all([
 				accountModel.info.destroy({
 					where: { accountDBID },
@@ -382,7 +382,7 @@ module.exports.deleteAction = ({ logger, reportModel, accountModel, shopModel })
 /**
  * @param {modules} modules
  */
-module.exports.characters = ({ logger, accountModel }) => [
+module.exports.characters = ({ logger, accountModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -391,7 +391,7 @@ module.exports.characters = ({ logger, accountModel }) => [
 	(req, res) => {
 		const { serverId, accountDBID } = req.query;
 
-		accountModel.serverInfo.findAll().then(servers => {
+		serverModel.info.findAll().then(servers => {
 			if (!serverId || !accountDBID) {
 				return res.render("adminAccountsCharacters", {
 					layout: "adminLayout",

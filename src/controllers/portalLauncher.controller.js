@@ -17,15 +17,15 @@ const { recaptcha, validationHandler, resultJson } = require("../middlewares/por
 /**
  * @param {modules} modules
  */
-module.exports.MaintenanceStatus = ({ logger, accountModel }) => [
+module.exports.MaintenanceStatus = ({ logger, sequelize, serverModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		accountModel.maintenance.findOne({
+		serverModel.maintenance.findOne({
 			where: {
-				startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
-				endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+				startTime: { [Op.lt]: sequelize.fn("NOW") },
+				endTime: { [Op.gt]: sequelize.fn("NOW") }
 			}
 		}).then(maintenance => {
 			if (maintenance !== null) {
@@ -99,7 +99,7 @@ module.exports.SignupFormHtml = () => [
 /**
  * @param {modules} modules
  */
-module.exports.LoginAction = ({ logger, accountModel }) => [
+module.exports.LoginAction = ({ logger, sequelize, accountModel }) => [
 	[body("login").notEmpty(), body("password").notEmpty()],
 	validationHandler(logger),
 	/**
@@ -133,7 +133,7 @@ module.exports.LoginAction = ({ logger, accountModel }) => [
 
 				try {
 					const characters = await accountModel.characters.findAll({
-						attributes: ["serverId", [accountModel.characters.sequelize.fn("COUNT", "characterId"), "charCount"]],
+						attributes: ["serverId", [sequelize.fn("COUNT", "characterId"), "charCount"]],
 						group: ["serverId"],
 						where: { accountDBID: account.get("accountDBID") }
 					});
@@ -167,7 +167,7 @@ module.exports.LoginAction = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.SignupAction = ({ logger, accountModel }) => [
+module.exports.SignupAction = ({ logger, sequelize, accountModel }) => [
 	[
 		body("login").trim()
 			.isLength({ min: 3, max: 13 }).withMessage("$1")
@@ -211,7 +211,7 @@ module.exports.SignupAction = ({ logger, accountModel }) => [
 				passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
 			}
 
-			accountModel.sequelize.transaction(transaction =>
+			sequelize.transaction(transaction =>
 				accountModel.info.create({
 					userName: login,
 					passWord: passwordString,
@@ -224,7 +224,7 @@ module.exports.SignupAction = ({ logger, accountModel }) => [
 						promises.push(accountModel.benefits.create({
 							accountDBID: account.get("accountDBID"),
 							benefitId: benefitId,
-							availableUntil: accountModel.sequelize.fn("ADDDATE", accountModel.sequelize.fn("NOW"), benefitDays)
+							availableUntil: sequelize.fn("ADDDATE", sequelize.fn("NOW"), benefitDays)
 						}, { transaction }));
 					});
 

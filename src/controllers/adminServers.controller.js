@@ -24,7 +24,7 @@ module.exports.index = modules => [
 	(req, res) => {
 		const serverUp = new ServerUpActions(modules);
 
-		modules.accountModel.serverInfo.findAll().then(servers => {
+		modules.serverModel.info.findAll().then(servers => {
 			const promises = [];
 
 			servers.forEach(server => {
@@ -82,13 +82,13 @@ module.exports.add = ({ i18n }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, reportModel, accountModel }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("serverId")
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain the value as a number."))
-			.custom((value, { req }) => accountModel.serverInfo.findOne({
+			.custom((value, { req }) => serverModel.info.findOne({
 				where: {
 					serverId: req.body.serverId
 				}
@@ -148,7 +148,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel }) => [
 			});
 		}
 
-		accountModel.serverInfo.create({
+		serverModel.info.create({
 			serverId,
 			loginIp,
 			loginPort,
@@ -180,7 +180,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, accountModel }) => [
+module.exports.edit = ({ logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -189,7 +189,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 	(req, res) => {
 		const { serverId } = req.query;
 
-		accountModel.serverInfo.findOne({ where: { serverId } }).then(data => {
+		serverModel.info.findOne({ where: { serverId } }).then(data => {
 			if (data === null) {
 				return res.redirect("/servers");
 			}
@@ -220,7 +220,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
+module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -280,7 +280,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 			});
 		}
 
-		accountModel.serverInfo.update({
+		serverModel.info.update({
 			loginIp,
 			loginPort,
 			language,
@@ -313,7 +313,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -326,7 +326,7 @@ module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
 			return res.redirect("/servers");
 		}
 
-		accountModel.serverInfo.destroy({ where: { serverId } }).then(() =>
+		serverModel.info.destroy({ where: { serverId } }).then(() =>
 			next()
 		).catch(err => {
 			logger.error(err);

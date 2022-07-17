@@ -26,17 +26,6 @@ module.exports.accessFunctionHandler = (req, res, next) => {
 };
 
 /**
- * @type {RequestHandler}
- */
-module.exports.shopStatusHandler = (req, res, next) => {
-	if (!/^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE)) {
-		return res.redirect("/");
-	}
-
-	next();
-};
-
-/**
  * @param {reportModel} reportModel
  */
 module.exports.writeOperationReport = (reportModel, params = {}) =>

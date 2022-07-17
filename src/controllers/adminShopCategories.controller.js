@@ -9,15 +9,14 @@ const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 const shopLocales = require("../../config/admin").shopLocales;
 
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ i18n, logger, shopModel }) => [
+module.exports.index = ({ i18n, logger, sequelize, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -35,7 +34,7 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
 			}],
 			attributes: {
 				include: [
-					[shopModel.categoryStrings.sequelize.col("title"), "title"]
+					[sequelize.col("title"), "title"]
 				]
 			},
 			order: [
@@ -58,7 +57,6 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
  */
 module.exports.add = () => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -78,9 +76,8 @@ module.exports.add = () => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
+module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	[
 		body("sort").trim()
@@ -108,7 +105,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 			});
 		}
 
-		shopModel.sequelize.transaction(transaction =>
+		sequelize.transaction(transaction =>
 			shopModel.categories.create({
 				sort,
 				active: active == "on"
@@ -152,7 +149,6 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
  */
 module.exports.edit = ({ logger, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -202,9 +198,8 @@ module.exports.edit = ({ logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
+module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	[
 		body("sort").trim()
@@ -247,7 +242,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 				});
 			}
 
-			await shopModel.sequelize.transaction(async transaction => {
+			await sequelize.transaction(async transaction => {
 				const promises = [
 					shopModel.categories.update({
 						sort,
@@ -322,9 +317,8 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
+module.exports.deleteAction = ({ logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -336,7 +330,7 @@ module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
 			return res.redirect("/shop_categories");
 		}
 
-		shopModel.sequelize.transaction(transaction =>
+		sequelize.transaction(transaction =>
 			Promise.all([
 				shopModel.categories.destroy({
 					where: { id },

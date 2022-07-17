@@ -11,21 +11,20 @@ const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ i18n, logger, queue, shopModel }) => [
+module.exports.index = ({ i18n, logger, queue, sequelize, boxModel, dataModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		try {
-			const boxes = await shopModel.boxes.findAll({
+			const boxes = await boxModel.info.findAll({
 				order: [
 					["id", "DESC"]
 				]
@@ -34,8 +33,8 @@ module.exports.index = ({ i18n, logger, queue, shopModel }) => [
 			const boxesMap = new Map();
 
 			if (boxes !== null) {
-				shopModel.boxItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
-				shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+				boxModel.items.belongsTo(dataModel.itemTemplates, { foreignKey: "itemTemplateId" });
+				dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
 				const boxItemsPromises = [];
 				const tasksPromises = [];
@@ -50,12 +49,12 @@ module.exports.index = ({ i18n, logger, queue, shopModel }) => [
 						processing: false
 					});
 
-					boxItemsPromises.push(shopModel.boxItems.findAll({
+					boxItemsPromises.push(boxModel.items.findAll({
 						where: { boxId: box.get("id") },
 						include: [{
-							model: shopModel.itemTemplates,
+							model: dataModel.itemTemplates,
 							include: [{
-								model: shopModel.itemStrings,
+								model: dataModel.itemStrings,
 								where: {
 									language: i18n.getLocale()
 								},
@@ -65,12 +64,12 @@ module.exports.index = ({ i18n, logger, queue, shopModel }) => [
 						}],
 						attributes: {
 							include: [
-								[shopModel.boxItems.sequelize.col("boxId"), "boxId"],
-								[shopModel.boxItems.sequelize.col("boxItemCount"), "boxItemCount"],
-								[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-								[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-								[shopModel.itemStrings.sequelize.col("string"), "string"],
-								[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+								[sequelize.col("boxId"), "boxId"],
+								[sequelize.col("boxItemCount"), "boxItemCount"],
+								[sequelize.col("rareGrade"), "rareGrade"],
+								[sequelize.col("icon"), "icon"],
+								[sequelize.col("string"), "string"],
+								[sequelize.col("toolTip"), "toolTip"]
 							]
 						},
 						order: [
@@ -125,7 +124,6 @@ module.exports.index = ({ i18n, logger, queue, shopModel }) => [
  */
 module.exports.add = ({ logger }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -155,9 +153,8 @@ module.exports.add = ({ logger }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) => [
+module.exports.addAction = ({ i18n, logger, platform, sequelize, reportModel, boxModel, dataModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	[
 		body("title").trim()
@@ -171,7 +168,7 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 		// Items
 		body("itemTemplateIds.*")
 			.isInt({ min: 1 }).withMessage(i18n.__("Item template ID field has invalid value."))
-			.custom(value => shopModel.itemTemplates.findOne({
+			.custom(value => dataModel.itemTemplates.findOne({
 				where: {
 					itemTemplateId: value
 				}
@@ -208,13 +205,13 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 
 			if (itemTemplateIds) {
 				itemTemplateIds.forEach(itemTemplateId => {
-					shopModel.itemTemplates.belongsTo(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
-					shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+					dataModel.itemTemplates.belongsTo(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
+					dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-					itemsPromises.push(shopModel.itemTemplates.findOne({
+					itemsPromises.push(dataModel.itemTemplates.findOne({
 						where: { itemTemplateId },
 						include: [{
-							model: shopModel.itemStrings,
+							model: dataModel.itemStrings,
 							where: {
 								language: i18n.getLocale()
 							},
@@ -222,10 +219,10 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 						}],
 						attributes: {
 							include: [
-								[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-								[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-								[shopModel.itemStrings.sequelize.col("string"), "string"],
-								[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+								[sequelize.col("rareGrade"), "rareGrade"],
+								[sequelize.col("icon"), "icon"],
+								[sequelize.col("string"), "string"],
+								[sequelize.col("toolTip"), "toolTip"]
 							]
 						}
 					}));
@@ -256,8 +253,8 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 				});
 			}
 
-			await shopModel.sequelize.transaction(async transaction => {
-				const box = await shopModel.boxes.create({
+			await sequelize.transaction(async transaction => {
+				const box = await boxModel.info.create({
 					title,
 					content,
 					icon,
@@ -281,7 +278,7 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
-								shopModel.boxItems.create({
+								boxModel.items.create({
 									boxId: box.get("id"),
 									itemTemplateId,
 									boxItemId,
@@ -291,7 +288,7 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 								})
 							));
 						} else {
-							promises.push(shopModel.boxItems.create({
+							promises.push(boxModel.items.create({
 								boxId: box.get("id"),
 								itemTemplateId,
 								boxItemId: boxItemIds[index] || null,
@@ -324,9 +321,8 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ i18n, logger, shopModel }) => [
+module.exports.edit = ({ i18n, logger, sequelize, boxModel, dataModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -335,21 +331,21 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 		const { id } = req.query;
 
 		try {
-			const box = await shopModel.boxes.findOne({ where: { id } });
+			const box = await boxModel.info.findOne({ where: { id } });
 
 			if (box === null) {
 				return res.redirect("/boxes");
 			}
 
-			shopModel.boxItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
-			shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+			boxModel.items.belongsTo(dataModel.itemTemplates, { foreignKey: "itemTemplateId" });
+			dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-			const boxItems = await shopModel.boxItems.findAll({
+			const boxItems = await boxModel.items.findAll({
 				where: { boxId: box.get("id") },
 				include: [{
-					model: shopModel.itemTemplates,
+					model: dataModel.itemTemplates,
 					include: [{
-						model: shopModel.itemStrings,
+						model: dataModel.itemStrings,
 						where: { language: i18n.getLocale() },
 						attributes: []
 					}],
@@ -357,12 +353,12 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 				}],
 				attributes: {
 					include: [
-						[shopModel.boxItems.sequelize.col("boxId"), "boxId"],
-						[shopModel.boxItems.sequelize.col("boxItemCount"), "boxItemCount"],
-						[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-						[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-						[shopModel.itemStrings.sequelize.col("string"), "string"],
-						[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+						[sequelize.col("boxId"), "boxId"],
+						[sequelize.col("boxItemCount"), "boxItemCount"],
+						[sequelize.col("rareGrade"), "rareGrade"],
+						[sequelize.col("icon"), "icon"],
+						[sequelize.col("string"), "string"],
+						[sequelize.col("toolTip"), "toolTip"]
 					]
 				},
 				order: [
@@ -384,13 +380,13 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 			}
 
 			itemTemplateIds.forEach(itemTemplateId => {
-				shopModel.itemTemplates.belongsTo(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
-				shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+				dataModel.itemTemplates.belongsTo(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
+				dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-				promises.push(shopModel.itemTemplates.findOne({
+				promises.push(dataModel.itemTemplates.findOne({
 					where: { itemTemplateId },
 					include: [{
-						model: shopModel.itemStrings,
+						model: dataModel.itemStrings,
 						where: {
 							language: i18n.getLocale()
 						},
@@ -398,10 +394,10 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 					}],
 					attributes: {
 						include: [
-							[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-							[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-							[shopModel.itemStrings.sequelize.col("string"), "string"],
-							[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+							[sequelize.col("rareGrade"), "rareGrade"],
+							[sequelize.col("icon"), "icon"],
+							[sequelize.col("string"), "string"],
+							[sequelize.col("toolTip"), "toolTip"]
 						]
 					}
 				}));
@@ -440,9 +436,8 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel }) => [
+module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, boxModel, dataModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	[
 		body("title").trim()
@@ -456,7 +451,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 		// Items
 		body("itemTemplateIds.*")
 			.isInt({ min: 1 }).withMessage(i18n.__("Item template ID field has invalid value."))
-			.custom(value => shopModel.itemTemplates.findOne({
+			.custom(value => dataModel.itemTemplates.findOne({
 				where: {
 					itemTemplateId: value
 				}
@@ -493,7 +488,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 				return res.redirect("/boxes");
 			}
 
-			const box = await shopModel.boxes.findOne({ where: { id } });
+			const box = await boxModel.info.findOne({ where: { id } });
 
 			if (box === null) {
 				return res.redirect("/boxes");
@@ -504,13 +499,13 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 
 			if (itemTemplateIds) {
 				itemTemplateIds.forEach(itemTemplateId => {
-					shopModel.itemTemplates.belongsTo(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
-					shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+					dataModel.itemTemplates.belongsTo(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
+					dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-					itemsPromises.push(shopModel.itemTemplates.findOne({
+					itemsPromises.push(dataModel.itemTemplates.findOne({
 						where: { itemTemplateId },
 						include: [{
-							model: shopModel.itemStrings,
+							model: dataModel.itemStrings,
 							where: {
 								language: i18n.getLocale()
 							},
@@ -518,10 +513,10 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 						}],
 						attributes: {
 							include: [
-								[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-								[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-								[shopModel.itemStrings.sequelize.col("string"), "string"],
-								[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+								[sequelize.col("rareGrade"), "rareGrade"],
+								[sequelize.col("icon"), "icon"],
+								[sequelize.col("string"), "string"],
+								[sequelize.col("toolTip"), "toolTip"]
 							]
 						}
 					}));
@@ -553,13 +548,13 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 				});
 			}
 
-			const boxItems = await shopModel.boxItems.findAll({
+			const boxItems = await boxModel.items.findAll({
 				where: { boxId: box.get("id") }
 			});
 
-			await shopModel.sequelize.transaction(async transaction => {
+			await sequelize.transaction(async transaction => {
 				const promises = [
-					shopModel.boxes.update({
+					boxModel.info.update({
 						icon,
 						title,
 						content,
@@ -586,7 +581,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
-								shopModel.boxItems.update({
+								boxModel.items.update({
 									boxItemId,
 									boxItemCount: boxItemCounts[index] || 1
 								}, {
@@ -595,7 +590,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 								})
 							));
 						} else {
-							promises.push(shopModel.boxItems.update({
+							promises.push(boxModel.items.update({
 								boxItemId: boxItemIds[index] || null,
 								boxItemCount: boxItemCounts[index] || 1
 							}, {
@@ -608,7 +603,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 							promises.push(platform.removeServiceItem(boxItem.get("boxItemId")));
 						}
 
-						promises.push(shopModel.boxItems.destroy({
+						promises.push(boxModel.items.destroy({
 							where: { id: boxItem.get("id") },
 							transaction
 						}));
@@ -617,7 +612,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 
 				if (itemTemplateIds) {
 					itemTemplateIds.forEach((itemTemplateId, index) =>
-						promises.push(shopModel.boxItems.findOne({
+						promises.push(boxModel.items.findOne({
 							where: {
 								boxId: box.get("id"),
 								itemTemplateId
@@ -635,7 +630,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 										resolvedItems[itemTemplateId].get("toolTip"),
 										"1,1,1"
 									).then(boxItemId =>
-										shopModel.boxItems.create({
+										boxModel.items.create({
 											boxId: box.get("id"),
 											itemTemplateId,
 											boxItemId,
@@ -645,7 +640,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 										})
 									);
 								} else {
-									return shopModel.boxItems.create({
+									return boxModel.items.create({
 										boxId: box.get("id"),
 										itemTemplateId,
 										boxItemId: boxItemIds[index] || null,
@@ -680,9 +675,8 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, platform, reportModel, shopModel }) => [
+module.exports.deleteAction = ({ logger, platform, sequelize, reportModel, shopModel, boxModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -695,13 +689,13 @@ module.exports.deleteAction = ({ logger, platform, reportModel, shopModel }) => 
 				return res.redirect("/boxes");
 			}
 
-			const boxItems = await shopModel.boxItems.findAll({
+			const boxItems = await boxModel.items.findAll({
 				where: { boxId: id }
 			});
 
-			await shopModel.sequelize.transaction(async transaction => {
+			await sequelize.transaction(async transaction => {
 				const promises = [
-					shopModel.boxes.destroy({
+					boxModel.info.destroy({
 						where: { id },
 						transaction
 					})
@@ -710,7 +704,7 @@ module.exports.deleteAction = ({ logger, platform, reportModel, shopModel }) => 
 				if (boxItems !== null) {
 					for (const boxItem of boxItems) {
 						if (boxItem.get("boxItemId")) {
-							promises.push(shopModel.boxItems.findOne({
+							promises.push(boxModel.items.findOne({
 								where: {
 									id: { [Op.not]: boxItem.get("id") },
 									boxItemId: boxItem.get("boxItemId")
@@ -725,12 +719,12 @@ module.exports.deleteAction = ({ logger, platform, reportModel, shopModel }) => 
 								}
 							})));
 
-							promises.push(shopModel.boxItems.destroy({
+							promises.push(boxModel.items.destroy({
 								where: { id: boxItem.get("id") },
 								transaction
 							}));
 						} else {
-							promises.push(shopModel.boxItems.destroy({
+							promises.push(boxModel.items.destroy({
 								where: { id: boxItem.get("id") },
 								transaction
 							}));
@@ -759,9 +753,8 @@ module.exports.deleteAction = ({ logger, platform, reportModel, shopModel }) => 
 /**
  * @param {modules} modules
  */
-module.exports.send = ({ i18n, logger, platform, accountModel, shopModel }) => [
+module.exports.send = ({ i18n, logger, platform, sequelize, serverModel, boxModel, dataModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -770,25 +763,25 @@ module.exports.send = ({ i18n, logger, platform, accountModel, shopModel }) => [
 		const { id } = req.query;
 
 		try {
-			const box = await shopModel.boxes.findOne({ where: { id } });
+			const box = await boxModel.info.findOne({ where: { id } });
 
 			if (box === null) {
 				return res.redirect("/boxes");
 			}
 
-			const servers = await accountModel.serverInfo.findAll({
+			const servers = await serverModel.info.findAll({
 				where: { isEnabled: 1 }
 			});
 
-			shopModel.boxItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
-			shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+			boxModel.items.belongsTo(dataModel.itemTemplates, { foreignKey: "itemTemplateId" });
+			dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-			const items = await shopModel.boxItems.findAll({
+			const items = await boxModel.items.findAll({
 				where: { boxId: box.get("id") },
 				include: [{
-					model: shopModel.itemTemplates,
+					model: dataModel.itemTemplates,
 					include: [{
-						model: shopModel.itemStrings,
+						model: dataModel.itemStrings,
 						where: { language: i18n.getLocale() },
 						attributes: []
 					}],
@@ -796,12 +789,12 @@ module.exports.send = ({ i18n, logger, platform, accountModel, shopModel }) => [
 				}],
 				attributes: {
 					include: [
-						[shopModel.boxItems.sequelize.col("boxId"), "boxId"],
-						[shopModel.boxItems.sequelize.col("boxItemCount"), "boxItemCount"],
-						[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-						[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-						[shopModel.itemStrings.sequelize.col("string"), "string"],
-						[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+						[sequelize.col("boxId"), "boxId"],
+						[sequelize.col("boxItemCount"), "boxItemCount"],
+						[sequelize.col("rareGrade"), "rareGrade"],
+						[sequelize.col("icon"), "icon"],
+						[sequelize.col("string"), "string"],
+						[sequelize.col("toolTip"), "toolTip"]
 					]
 				},
 				order: [
@@ -849,14 +842,13 @@ module.exports.send = ({ i18n, logger, platform, accountModel, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accountModel, shopModel }) => [
+module.exports.sendAction = ({ i18n, logger, queue, platform, sequelize, serverModel, reportModel, accountModel, boxModel, dataModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	[
 		body("serverId").optional({ checkFalsy: true })
 			.isInt().withMessage(i18n.__("Server ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.serverInfo.findOne({
+			.custom((value, { req }) => serverModel.info.findOne({
 				where: {
 					...req.body.serverId ? { serverId: req.body.serverId } : {}
 				}
@@ -899,25 +891,25 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accou
 		const errors = helpers.validationResultLog(req, logger).array();
 
 		try {
-			const box = await shopModel.boxes.findOne({ where: { id } });
+			const box = await boxModel.info.findOne({ where: { id } });
 
 			if (box === null) {
 				return res.redirect("/boxes");
 			}
 
-			const servers = await accountModel.serverInfo.findAll({
+			const servers = await serverModel.info.findAll({
 				where: { isEnabled: 1 }
 			});
 
-			shopModel.boxItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
-			shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+			boxModel.items.belongsTo(dataModel.itemTemplates, { foreignKey: "itemTemplateId" });
+			dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-			const items = await shopModel.boxItems.findAll({
+			const items = await boxModel.items.findAll({
 				where: { boxId: box.get("id") },
 				include: [{
-					model: shopModel.itemTemplates,
+					model: dataModel.itemTemplates,
 					include: [{
-						model: shopModel.itemStrings,
+						model: dataModel.itemStrings,
 						where: { language: i18n.getLocale() },
 						attributes: []
 					}],
@@ -925,12 +917,12 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accou
 				}],
 				attributes: {
 					include: [
-						[shopModel.boxItems.sequelize.col("boxId"), "boxId"],
-						[shopModel.boxItems.sequelize.col("boxItemCount"), "boxItemCount"],
-						[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-						[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-						[shopModel.itemStrings.sequelize.col("string"), "string"],
-						[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+						[sequelize.col("boxId"), "boxId"],
+						[sequelize.col("boxItemCount"), "boxItemCount"],
+						[sequelize.col("rareGrade"), "rareGrade"],
+						[sequelize.col("icon"), "icon"],
+						[sequelize.col("string"), "string"],
+						[sequelize.col("toolTip"), "toolTip"]
 					]
 				},
 				order: [
@@ -1027,9 +1019,8 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, reportModel, accou
 /**
  * @param {modules} modules
  */
-module.exports.sendAll = ({ i18n, logger, platform, accountModel, shopModel }) => [
+module.exports.sendAll = ({ i18n, logger, platform, sequelize, serverModel, boxModel, dataModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -1038,25 +1029,25 @@ module.exports.sendAll = ({ i18n, logger, platform, accountModel, shopModel }) =
 		const { id } = req.query;
 
 		try {
-			const box = await shopModel.boxes.findOne({ where: { id } });
+			const box = await boxModel.info.findOne({ where: { id } });
 
 			if (box === null) {
 				return res.redirect("/boxes");
 			}
 
-			const servers = await accountModel.serverInfo.findAll({
+			const servers = await serverModel.info.findAll({
 				where: { isEnabled: 1 }
 			});
 
-			shopModel.boxItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
-			shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+			boxModel.items.belongsTo(dataModel.itemTemplates, { foreignKey: "itemTemplateId" });
+			dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-			const items = await shopModel.boxItems.findAll({
+			const items = await boxModel.items.findAll({
 				where: { boxId: box.get("id") },
 				include: [{
-					model: shopModel.itemTemplates,
+					model: dataModel.itemTemplates,
 					include: [{
-						model: shopModel.itemStrings,
+						model: dataModel.itemStrings,
 						where: { language: i18n.getLocale() },
 						attributes: []
 					}],
@@ -1064,12 +1055,12 @@ module.exports.sendAll = ({ i18n, logger, platform, accountModel, shopModel }) =
 				}],
 				attributes: {
 					include: [
-						[shopModel.boxItems.sequelize.col("boxId"), "boxId"],
-						[shopModel.boxItems.sequelize.col("boxItemCount"), "boxItemCount"],
-						[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-						[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-						[shopModel.itemStrings.sequelize.col("string"), "string"],
-						[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+						[sequelize.col("boxId"), "boxId"],
+						[sequelize.col("boxItemCount"), "boxItemCount"],
+						[sequelize.col("rareGrade"), "rareGrade"],
+						[sequelize.col("icon"), "icon"],
+						[sequelize.col("string"), "string"],
+						[sequelize.col("toolTip"), "toolTip"]
 					]
 				},
 				order: [
@@ -1116,14 +1107,13 @@ module.exports.sendAll = ({ i18n, logger, platform, accountModel, shopModel }) =
 /**
  * @param {modules} modules
  */
-module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, accountModel, shopModel }) => [
+module.exports.sendAllAction = ({ i18n, logger, queue, platform, sequelize, serverModel, reportModel, accountModel, boxModel, dataModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	[
 		body("serverId").optional({ checkFalsy: true })
 			.isInt().withMessage(i18n.__("Server ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.serverInfo.findOne({
+			.custom((value, { req }) => serverModel.info.findOne({
 				where: {
 					...req.body.serverId ? { serverId: req.body.serverId } : {}
 				}
@@ -1144,13 +1134,13 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
 		const errors = helpers.validationResultLog(req, logger).array();
 
 		try {
-			const box = await shopModel.boxes.findOne({ where: { id } });
+			const box = await boxModel.info.findOne({ where: { id } });
 
 			if (box === null) {
 				return res.redirect("/boxes");
 			}
 
-			const servers = await accountModel.serverInfo.findAll({
+			const servers = await serverModel.info.findAll({
 				where: { isEnabled: 1 }
 			});
 
@@ -1163,15 +1153,15 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
 				}
 			});
 
-			shopModel.boxItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
-			shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+			boxModel.items.belongsTo(dataModel.itemTemplates, { foreignKey: "itemTemplateId" });
+			dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-			const items = await shopModel.boxItems.findAll({
+			const items = await boxModel.items.findAll({
 				where: { boxId: box.get("id") },
 				include: [{
-					model: shopModel.itemTemplates,
+					model: dataModel.itemTemplates,
 					include: [{
-						model: shopModel.itemStrings,
+						model: dataModel.itemStrings,
 						where: { language: i18n.getLocale() },
 						attributes: []
 					}],
@@ -1179,12 +1169,12 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
 				}],
 				attributes: {
 					include: [
-						[shopModel.boxItems.sequelize.col("boxId"), "boxId"],
-						[shopModel.boxItems.sequelize.col("boxItemCount"), "boxItemCount"],
-						[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-						[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-						[shopModel.itemStrings.sequelize.col("string"), "string"],
-						[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+						[sequelize.col("boxId"), "boxId"],
+						[sequelize.col("boxItemCount"), "boxItemCount"],
+						[sequelize.col("rareGrade"), "rareGrade"],
+						[sequelize.col("icon"), "icon"],
+						[sequelize.col("string"), "string"],
+						[sequelize.col("toolTip"), "toolTip"]
 					]
 				},
 				order: [
@@ -1283,7 +1273,6 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, reportModel, ac
  */
 module.exports.sendResult = ({ logger, queue }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -1312,9 +1301,8 @@ module.exports.sendResult = ({ logger, queue }) => [
 /**
  * @param {modules} modules
  */
-module.exports.logs = ({ logger, accountModel, reportModel }) => [
+module.exports.logs = ({ logger, serverModel, reportModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -1339,7 +1327,7 @@ module.exports.logs = ({ logger, accountModel, reportModel }) => [
 				["createdAt", "DESC"]
 			]
 		}).then(logs =>
-			accountModel.serverInfo.findAll().then(servers => {
+			serverModel.info.findAll().then(servers => {
 				res.render("adminBoxesLogs", {
 					layout: "adminLayout",
 					moment,

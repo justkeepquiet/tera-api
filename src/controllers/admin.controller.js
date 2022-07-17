@@ -15,7 +15,7 @@ const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 /**
  * @param {modules} modules
  */
-module.exports.home = ({ logger, datasheets, accountModel, reportModel, shopModel }) => [
+module.exports.home = ({ logger, datasheets, serverModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -25,7 +25,7 @@ module.exports.home = ({ logger, datasheets, accountModel, reportModel, shopMode
 		const isSteer = req.user.type === "steer";
 
 		try {
-			const servers = await accountModel.serverInfo.findAll({
+			const servers = await serverModel.info.findAll({
 				where: { isEnabled: 1 }
 			});
 
@@ -46,7 +46,7 @@ module.exports.home = ({ logger, datasheets, accountModel, reportModel, shopMode
 				}) : null;
 
 			const payLogs = !isSteer ||
-				Object.values(req.user.functions).includes("/shop_pay_logs") && /^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE) ?
+				Object.values(req.user.functions).includes("/shop_pay_logs") ?
 				await reportModel.shopPay.findAll({
 					offset: 0, limit: 8,
 					order: [

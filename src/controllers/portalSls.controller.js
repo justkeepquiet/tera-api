@@ -17,14 +17,14 @@ module.exports.GetServerListXml = modules => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		modules.accountModel.maintenance.findOne({
+		modules.serverModel.maintenance.findOne({
 			where: {
-				startTime: { [Op.lt]: modules.accountModel.sequelize.fn("NOW") },
-				endTime: { [Op.gt]: modules.accountModel.sequelize.fn("NOW") }
+				startTime: { [Op.lt]: modules.sequelize.fn("NOW") },
+				endTime: { [Op.gt]: modules.sequelize.fn("NOW") }
 			}
-		}).then(maintenance => modules.accountModel.serverStrings.findOne({
+		}).then(maintenance => modules.serverModel.strings.findOne({
 			where: { language: req.query.lang || "en" }
-		}).then(strings => modules.accountModel.serverInfo.findAll({
+		}).then(strings => modules.serverModel.info.findAll({
 			where: { isEnabled: 1 }
 		}).then(servers => {
 			if (strings === null || servers === null) {

@@ -14,7 +14,7 @@ const { validationHandler, resultJson } = require("../middlewares/portalLauncher
 /**
  * @param {modules} modules
  */
-module.exports.GetAccountInfoByAuthKey = ({ logger, accountModel }) => [
+module.exports.GetAccountInfoByAuthKey = ({ logger, sequelize, accountModel }) => [
 	[body("authKey").notEmpty()],
 	validationHandler(logger),
 	/**
@@ -33,15 +33,15 @@ module.exports.GetAccountInfoByAuthKey = ({ logger, accountModel }) => [
 				model: accountModel.bans,
 				where: {
 					active: 1,
-					startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
-					endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+					startTime: { [Op.lt]: sequelize.fn("NOW") },
+					endTime: { [Op.gt]: sequelize.fn("NOW") }
 				},
 				required: false,
 				attributes: []
 			}],
 			attributes: {
 				include: [
-					[accountModel.info.sequelize.col("startTime"), "banned"]
+					[sequelize.col("startTime"), "banned"]
 				]
 			}
 		}).then(async account => {
@@ -54,7 +54,7 @@ module.exports.GetAccountInfoByAuthKey = ({ logger, accountModel }) => [
 
 			try {
 				const characters = await accountModel.characters.findAll({
-					attributes: ["serverId", [accountModel.characters.sequelize.fn("COUNT", "characterId"), "charCount"]],
+					attributes: ["serverId", [sequelize.fn("COUNT", "characterId"), "charCount"]],
 					group: ["serverId"],
 					where: { accountDBID: account.get("accountDBID") }
 				});
@@ -67,8 +67,8 @@ module.exports.GetAccountInfoByAuthKey = ({ logger, accountModel }) => [
 					where: {
 						active: 1,
 						ip: { [Op.like]: `%"${clientIP}"%` },
-						startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
-						endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+						startTime: { [Op.lt]: sequelize.fn("NOW") },
+						endTime: { [Op.gt]: sequelize.fn("NOW") }
 					}
 				});
 			} catch (err) {

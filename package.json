@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node src/app",
     "dev": "nodemon src/app.js",
-    "itemupden": "node src/tools/shopItemsUpdater.js en",
-    "itemupdru": "node src/tools/shopItemsUpdater.js ru"
+    "itemupden": "node src/tools/dataItemsUpdater.js en",
+    "itemupdru": "node src/tools/dataItemsUpdater.js ru"
   },
   "author": "Non-commercial Project 'HSDN' <info@hsdn.org>",
   "keywords": [

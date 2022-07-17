@@ -11,15 +11,14 @@ const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 const helpers = require("../utils/helpers");
 
-const { accessFunctionHandler, shopStatusHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 const shopLocales = require("../../config/admin").shopLocales;
 
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ i18n, logger, shopModel }) => [
+module.exports.index = ({ i18n, logger, sequelize, shopModel, dataModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -40,7 +39,7 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
 				}],
 				attributes: {
 					include: [
-						[shopModel.categoryStrings.sequelize.col("title"), "title"]
+						[sequelize.col("title"), "title"]
 					]
 				},
 				order: [
@@ -73,8 +72,8 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
 				}],
 				attributes: {
 					include: [
-						[shopModel.productStrings.sequelize.col("title"), "title"],
-						[shopModel.productStrings.sequelize.col("description"), "description"]
+						[sequelize.col("title"), "title"],
+						[sequelize.col("description"), "description"]
 					]
 				},
 				order: [
@@ -85,8 +84,8 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
 			const productsMap = new Map();
 
 			if (products !== null) {
-				shopModel.productItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
-				shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+				shopModel.productItems.belongsTo(dataModel.itemTemplates, { foreignKey: "itemTemplateId" });
+				dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
 				const promises = [];
 
@@ -111,9 +110,9 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
 					promises.push(shopModel.productItems.findOne({
 						where: { productId: product.get("id") },
 						include: [{
-							model: shopModel.itemTemplates,
+							model: dataModel.itemTemplates,
 							include: [{
-								model: shopModel.itemStrings,
+								model: dataModel.itemStrings,
 								where: {
 									language: i18n.getLocale()
 								},
@@ -123,12 +122,12 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
 						}],
 						attributes: {
 							include: [
-								[shopModel.productItems.sequelize.col("productId"), "productId"],
-								[shopModel.productItems.sequelize.col("boxItemCount"), "boxItemCount"],
-								[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-								[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-								[shopModel.itemStrings.sequelize.col("string"), "string"],
-								[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+								[sequelize.col("productId"), "productId"],
+								[sequelize.col("boxItemCount"), "boxItemCount"],
+								[sequelize.col("rareGrade"), "rareGrade"],
+								[sequelize.col("icon"), "icon"],
+								[sequelize.col("string"), "string"],
+								[sequelize.col("toolTip"), "toolTip"]
 							]
 						},
 						order: [
@@ -188,9 +187,8 @@ module.exports.index = ({ i18n, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ i18n, logger, shopModel }) => [
+module.exports.add = ({ i18n, logger, sequelize, shopModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -211,7 +209,7 @@ module.exports.add = ({ i18n, logger, shopModel }) => [
 				}],
 				attributes: {
 					include: [
-						[shopModel.categoryStrings.sequelize.col("title"), "title"]
+						[sequelize.col("title"), "title"]
 					]
 				},
 				order: [
@@ -251,9 +249,8 @@ module.exports.add = ({ i18n, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) => [
+module.exports.addAction = ({ i18n, logger, platform, sequelize, reportModel, shopModel, dataModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	[
 		body("price").trim()
@@ -277,7 +274,7 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 		// Items
 		body("itemTemplateIds.*")
 			.isInt({ min: 1 }).withMessage(i18n.__("Item template ID field has invalid value."))
-			.custom(value => shopModel.itemTemplates.findOne({
+			.custom(value => dataModel.itemTemplates.findOne({
 				where: {
 					itemTemplateId: value
 				}
@@ -333,7 +330,7 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 				}],
 				attributes: {
 					include: [
-						[shopModel.categoryStrings.sequelize.col("title"), "title"]
+						[sequelize.col("title"), "title"]
 					]
 				},
 				order: [
@@ -346,13 +343,13 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 
 			if (itemTemplateIds) {
 				itemTemplateIds.forEach(itemTemplateId => {
-					shopModel.itemTemplates.belongsTo(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
-					shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+					dataModel.itemTemplates.belongsTo(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
+					dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-					itemsPromises.push(shopModel.itemTemplates.findOne({
+					itemsPromises.push(dataModel.itemTemplates.findOne({
 						where: { itemTemplateId },
 						include: [{
-							model: shopModel.itemStrings,
+							model: dataModel.itemStrings,
 							where: {
 								language: i18n.getLocale()
 							},
@@ -360,10 +357,10 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 						}],
 						attributes: {
 							include: [
-								[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-								[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-								[shopModel.itemStrings.sequelize.col("string"), "string"],
-								[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+								[sequelize.col("rareGrade"), "rareGrade"],
+								[sequelize.col("icon"), "icon"],
+								[sequelize.col("string"), "string"],
+								[sequelize.col("toolTip"), "toolTip"]
 							]
 						}
 					}));
@@ -403,7 +400,7 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 				});
 			}
 
-			await shopModel.sequelize.transaction(async transaction => {
+			await sequelize.transaction(async transaction => {
 				const product = await shopModel.products.create({
 					categoryId,
 					active: active == "on",
@@ -487,9 +484,8 @@ module.exports.addAction = ({ i18n, logger, platform, reportModel, shopModel }) 
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ i18n, logger, shopModel }) => [
+module.exports.edit = ({ i18n, logger, sequelize, shopModel, dataModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -510,7 +506,7 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 				}],
 				attributes: {
 					include: [
-						[shopModel.categoryStrings.sequelize.col("title"), "title"]
+						[sequelize.col("title"), "title"]
 					]
 				},
 				order: [
@@ -538,15 +534,15 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 				});
 			}
 
-			shopModel.productItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
-			shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+			shopModel.productItems.belongsTo(dataModel.itemTemplates, { foreignKey: "itemTemplateId" });
+			dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
 			const productItems = await shopModel.productItems.findAll({
 				where: { productId: product.get("id") },
 				include: [{
-					model: shopModel.itemTemplates,
+					model: dataModel.itemTemplates,
 					include: [{
-						model: shopModel.itemStrings,
+						model: dataModel.itemStrings,
 						where: { language: i18n.getLocale() },
 						attributes: []
 					}],
@@ -554,12 +550,12 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 				}],
 				attributes: {
 					include: [
-						[shopModel.productItems.sequelize.col("productId"), "productId"],
-						[shopModel.productItems.sequelize.col("boxItemCount"), "boxItemCount"],
-						[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-						[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-						[shopModel.itemStrings.sequelize.col("string"), "string"],
-						[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+						[sequelize.col("productId"), "productId"],
+						[sequelize.col("boxItemCount"), "boxItemCount"],
+						[sequelize.col("rareGrade"), "rareGrade"],
+						[sequelize.col("icon"), "icon"],
+						[sequelize.col("string"), "string"],
+						[sequelize.col("toolTip"), "toolTip"]
 					]
 				},
 				order: [
@@ -581,13 +577,13 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 			}
 
 			itemTemplateIds.forEach(itemTemplateId => {
-				shopModel.itemTemplates.belongsTo(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
-				shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+				dataModel.itemTemplates.belongsTo(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
+				dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-				promises.push(shopModel.itemTemplates.findOne({
+				promises.push(dataModel.itemTemplates.findOne({
 					where: { itemTemplateId },
 					include: [{
-						model: shopModel.itemStrings,
+						model: dataModel.itemStrings,
 						where: {
 							language: i18n.getLocale()
 						},
@@ -595,10 +591,10 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 					}],
 					attributes: {
 						include: [
-							[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-							[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-							[shopModel.itemStrings.sequelize.col("string"), "string"],
-							[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+							[sequelize.col("rareGrade"), "rareGrade"],
+							[sequelize.col("icon"), "icon"],
+							[sequelize.col("string"), "string"],
+							[sequelize.col("toolTip"), "toolTip"]
 						]
 					}
 				}));
@@ -647,9 +643,8 @@ module.exports.edit = ({ i18n, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel }) => [
+module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, shopModel, dataModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	[
 		body("price").trim()
@@ -675,7 +670,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 		// Items
 		body("itemTemplateIds.*")
 			.isInt({ min: 1 }).withMessage(i18n.__("Item template ID field has invalid value."))
-			.custom(value => shopModel.itemTemplates.findOne({
+			.custom(value => dataModel.itemTemplates.findOne({
 				where: {
 					itemTemplateId: value
 				}
@@ -741,7 +736,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 				}],
 				attributes: {
 					include: [
-						[shopModel.categoryStrings.sequelize.col("title"), "title"]
+						[sequelize.col("title"), "title"]
 					]
 				},
 				order: [
@@ -754,13 +749,13 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 
 			if (itemTemplateIds) {
 				itemTemplateIds.forEach(itemTemplateId => {
-					shopModel.itemTemplates.belongsTo(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
-					shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+					dataModel.itemTemplates.belongsTo(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
+					dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-					itemsPromises.push(shopModel.itemTemplates.findOne({
+					itemsPromises.push(dataModel.itemTemplates.findOne({
 						where: { itemTemplateId },
 						include: [{
-							model: shopModel.itemStrings,
+							model: dataModel.itemStrings,
 							where: {
 								language: i18n.getLocale()
 							},
@@ -768,10 +763,10 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 						}],
 						attributes: {
 							include: [
-								[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-								[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-								[shopModel.itemStrings.sequelize.col("string"), "string"],
-								[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+								[sequelize.col("rareGrade"), "rareGrade"],
+								[sequelize.col("icon"), "icon"],
+								[sequelize.col("string"), "string"],
+								[sequelize.col("toolTip"), "toolTip"]
 							]
 						}
 					}));
@@ -821,7 +816,7 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 				where: { productId: product.get("id") }
 			});
 
-			await shopModel.sequelize.transaction(async transaction => {
+			await sequelize.transaction(async transaction => {
 				const promises = [
 					shopModel.products.update({
 						categoryId,
@@ -987,9 +982,8 @@ module.exports.editAction = ({ i18n, logger, platform, reportModel, shopModel })
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, platform, reportModel, shopModel }) => [
+module.exports.deleteAction = ({ logger, platform, sequelize, reportModel, shopModel, boxModel }) => [
 	accessFunctionHandler,
-	shopStatusHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
@@ -1006,7 +1000,7 @@ module.exports.deleteAction = ({ logger, platform, reportModel, shopModel }) => 
 				where: { productId: id }
 			});
 
-			await shopModel.sequelize.transaction(async transaction => {
+			await sequelize.transaction(async transaction => {
 				const promises = [
 					shopModel.products.destroy({
 						where: { id },
@@ -1026,7 +1020,7 @@ module.exports.deleteAction = ({ logger, platform, reportModel, shopModel }) => 
 									id: { [Op.not]: productItem.get("id") },
 									boxItemId: productItem.get("boxItemId")
 								}
-							}).then(resultProductItem => shopModel.boxItems.findOne({
+							}).then(resultProductItem => boxModel.items.findOne({
 								where: {
 									boxItemId: productItem.get("boxItemId")
 								}

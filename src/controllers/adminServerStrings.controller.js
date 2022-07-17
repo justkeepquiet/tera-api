@@ -14,14 +14,14 @@ const { accessFunctionHandler, writeOperationReport } = require("../middlewares/
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, accountModel }) => [
+module.exports.index = ({ logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		accountModel.serverStrings.findAll().then(strings => {
+		serverModel.strings.findAll().then(strings => {
 			res.render("adminServerStrings", {
 				layout: "adminLayout",
 				strings
@@ -63,7 +63,7 @@ module.exports.add = () => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, reportModel, accountModel }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -114,7 +114,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel }) => [
 			});
 		}
 
-		accountModel.serverStrings.create({
+		serverModel.strings.create({
 			language,
 			categoryPvE,
 			categoryPvP,
@@ -144,7 +144,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, accountModel }) => [
+module.exports.edit = ({ logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -153,7 +153,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 	(req, res) => {
 		const { language } = req.query;
 
-		accountModel.serverStrings.findOne({ where: { language } }).then(data => {
+		serverModel.strings.findOne({ where: { language } }).then(data => {
 			if (data === null) {
 				return res.redirect("/server_strings");
 			}
@@ -182,7 +182,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
+module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -235,7 +235,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 			});
 		}
 
-		accountModel.serverStrings.update({
+		serverModel.strings.update({
 			categoryPvE,
 			categoryPvP,
 			serverOffline,
@@ -266,7 +266,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -279,7 +279,7 @@ module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
 			return res.redirect("/server_strings");
 		}
 
-		accountModel.serverStrings.destroy({ where: { language } }).then(() =>
+		serverModel.strings.destroy({ where: { language } }).then(() =>
 			next()
 		).catch(err => {
 			logger.error(err);

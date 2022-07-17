@@ -21,12 +21,12 @@ const reportCheats = /^true$/i.test(process.env.API_ARBITER_REPORT_CHEATS);
 /**
  * @param {modules} modules
  */
-module.exports.ServiceTest = ({ logger, accountModel }) => [
+module.exports.ServiceTest = ({ logger, sequelize }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		accountModel.sequelize.authenticate().then(() =>
+		sequelize.authenticate().then(() =>
 			resultJson(res, 0, { server_time: Date.now() / 1000 })
 		).catch(err => {
 			logger.error(err);
@@ -38,7 +38,7 @@ module.exports.ServiceTest = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.GetServerPermission = ({ logger, accountModel }) => [
+module.exports.GetServerPermission = ({ logger, sequelize, serverModel }) => [
 	[body("server_id").isNumeric()],
 	validationHandler(logger),
 	/**
@@ -47,12 +47,12 @@ module.exports.GetServerPermission = ({ logger, accountModel }) => [
 	(req, res) => {
 		const { server_id } = req.body;
 
-		accountModel.maintenance.findOne({
+		serverModel.maintenance.findOne({
 			where: {
-				startTime: { [Op.lt]: accountModel.sequelize.fn("NOW") },
-				endTime: { [Op.gt]: accountModel.sequelize.fn("NOW") }
+				startTime: { [Op.lt]: sequelize.fn("NOW") },
+				endTime: { [Op.gt]: sequelize.fn("NOW") }
 			}
-		}).then(maintenance => accountModel.serverInfo.findOne({
+		}).then(maintenance => serverModel.info.findOne({
 			where: { serverId: server_id }
 		}).then(server => {
 			if (server === null) {
@@ -80,7 +80,7 @@ module.exports.GetServerPermission = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.ServerDown = ({ logger, accountModel }) => [
+module.exports.ServerDown = ({ logger, accountModel, serverModel }) => [
 	[body("server_id").isNumeric()],
 	validationHandler(logger),
 	/**
@@ -90,7 +90,7 @@ module.exports.ServerDown = ({ logger, accountModel }) => [
 		const { server_id } = req.body;
 
 		Promise.all([
-			accountModel.serverInfo.update({
+			serverModel.info.update({
 				isAvailable: 0,
 				usersOnline: 0
 			}, {
@@ -110,7 +110,7 @@ module.exports.ServerDown = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.GetUserInfo = ({ logger, accountModel }) => [
+module.exports.GetUserInfo = ({ logger, sequelize, accountModel }) => [
 	[body("user_srl").isNumeric()],
 	validationHandler(logger),
 	/**
@@ -129,7 +129,7 @@ module.exports.GetUserInfo = ({ logger, accountModel }) => [
 
 			try {
 				const characters = await accountModel.characters.findAll({
-					attributes: ["serverId", [accountModel.characters.sequelize.fn("COUNT", "characterId"), "charCount"]],
+					attributes: ["serverId", [sequelize.fn("COUNT", "characterId"), "charCount"]],
 					group: ["serverId"],
 					where: { accountDBID: account.get("accountDBID") }
 				});
@@ -172,7 +172,7 @@ module.exports.GetUserInfo = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.EnterGame = ({ logger, accountModel, reportModel }) => [
+module.exports.EnterGame = ({ logger, sequelize, accountModel, serverModel, reportModel }) => [
 	[
 		body("ip").isIP(),
 		body("server_id").isNumeric(),
@@ -185,18 +185,18 @@ module.exports.EnterGame = ({ logger, accountModel, reportModel }) => [
 	(req, res) => {
 		const { ip, server_id, user_srl } = req.body;
 
-		accountModel.sequelize.transaction(transaction => {
+		sequelize.transaction(transaction => {
 			const promises = [
 				accountModel.info.update({
 					lastLoginTime: moment().toDate(),
 					lastLoginIP: ip,
 					lastLoginServer: server_id,
-					playCount: accountModel.sequelize.literal("playCount + 1")
+					playCount: sequelize.literal("playCount + 1")
 				}, {
 					where: { accountDBID: user_srl },
 					transaction
 				}),
-				accountModel.serverInfo.increment({ usersOnline: 1 }, {
+				serverModel.info.increment({ usersOnline: 1 }, {
 					where: { serverId: server_id },
 					transaction
 				}),
@@ -230,7 +230,7 @@ module.exports.EnterGame = ({ logger, accountModel, reportModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.LeaveGame = ({ logger, accountModel, reportModel }) => [
+module.exports.LeaveGame = ({ logger, sequelize, accountModel, serverModel, reportModel }) => [
 	[
 		body("play_time").isNumeric(),
 		body("user_srl").isNumeric()
@@ -242,7 +242,7 @@ module.exports.LeaveGame = ({ logger, accountModel, reportModel }) => [
 	(req, res) => {
 		const { play_time, user_srl } = req.body;
 
-		accountModel.sequelize.transaction(transaction => {
+		sequelize.transaction(transaction => {
 			const promises = [
 				accountModel.info.findOne({
 					where: { accountDBID: user_srl }
@@ -261,14 +261,14 @@ module.exports.LeaveGame = ({ logger, accountModel, reportModel }) => [
 						});
 					}
 
-					return accountModel.serverInfo.decrement({ usersOnline: 1 }, {
+					return serverModel.info.decrement({ usersOnline: 1 }, {
 						where: { serverId: account.get("lastLoginServer") },
 						transaction
 					});
 				}),
 				accountModel.info.update({
 					playTimeLast: play_time,
-					playTimeTotal: accountModel.sequelize.literal(`playTimeTotal + ${play_time}`)
+					playTimeTotal: sequelize.literal(`playTimeTotal + ${play_time}`)
 				}, {
 					where: { accountDBID: user_srl },
 					transaction
@@ -291,7 +291,7 @@ module.exports.LeaveGame = ({ logger, accountModel, reportModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.CreateChar = ({ logger, accountModel, reportModel }) => [
+module.exports.CreateChar = ({ logger, sequelize, accountModel, serverModel, reportModel }) => [
 	[
 		body("server_id").isNumeric(),
 		body("user_srl").isNumeric(),
@@ -309,9 +309,9 @@ module.exports.CreateChar = ({ logger, accountModel, reportModel }) => [
 	(req, res) => {
 		const { char_name, char_srl, class_id, gender_id, level, race_id, server_id, user_srl } = req.body;
 
-		accountModel.sequelize.transaction(transaction => {
+		sequelize.transaction(transaction => {
 			const promises = [
-				accountModel.serverInfo.increment({ usersTotal: 1 }, {
+				serverModel.info.increment({ usersTotal: 1 }, {
 					where: { serverId: server_id },
 					transaction
 				}),
@@ -416,7 +416,7 @@ module.exports.ModifyChar = ({ logger, accountModel, reportModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.DeleteChar = ({ logger, accountModel, reportModel }) => [
+module.exports.DeleteChar = ({ logger, sequelize, accountModel, serverModel, reportModel }) => [
 	[
 		body("char_srl").isNumeric(),
 		body("server_id").isNumeric(),
@@ -429,9 +429,9 @@ module.exports.DeleteChar = ({ logger, accountModel, reportModel }) => [
 	(req, res) => {
 		const { char_srl, server_id, user_srl } = req.body;
 
-		accountModel.sequelize.transaction(transaction => {
+		sequelize.transaction(transaction => {
 			const promises = [
-				accountModel.serverInfo.decrement({ usersTotal: 1 }, {
+				serverModel.info.decrement({ usersTotal: 1 }, {
 					where: { serverId: server_id },
 					transaction
 				}),

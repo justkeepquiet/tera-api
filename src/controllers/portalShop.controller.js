@@ -66,7 +66,7 @@ module.exports.MainHtml = () => [
 /**
  * @param {modules} modules
  */
-module.exports.PartialMenuHtml = ({ i18n, logger, shopModel }) => [
+module.exports.PartialMenuHtml = ({ i18n, logger, sequelize, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[query("active").isNumeric().optional()],
@@ -89,7 +89,7 @@ module.exports.PartialMenuHtml = ({ i18n, logger, shopModel }) => [
 			}],
 			attributes: {
 				include: [
-					[shopModel.categoryStrings.sequelize.col("title"), "title"]
+					[sequelize.col("title"), "title"]
 				]
 			},
 			order: [
@@ -111,7 +111,7 @@ module.exports.PartialMenuHtml = ({ i18n, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.PartialCatalogHtml = ({ i18n, logger, shopModel }) => [
+module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[
@@ -138,8 +138,8 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, shopModel }) => [
 			where: {
 				...category ? { categoryId: category } : {},
 				active: 1,
-				validAfter: { [Op.lt]: shopModel.sequelize.fn("NOW") },
-				validBefore: { [Op.gt]: shopModel.sequelize.fn("NOW") }
+				validAfter: { [Op.lt]: sequelize.fn("NOW") },
+				validBefore: { [Op.gt]: sequelize.fn("NOW") }
 			},
 			include: [{
 				model: shopModel.productStrings,
@@ -153,7 +153,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, shopModel }) => [
 			attributes: {
 				include: [
 					[
-						shopModel.sequelize.literal(`(
+						sequelize.literal(`(
 							SELECT COUNT(*)
 							FROM shop_product_items AS shop_product_item
 							WHERE
@@ -161,8 +161,8 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, shopModel }) => [
 						)`),
 						"itemsCount"
 					],
-					[shopModel.productStrings.sequelize.col("title"), "title"],
-					[shopModel.productStrings.sequelize.col("description"), "description"]
+					[sequelize.col("title"), "title"],
+					[sequelize.col("description"), "description"]
 				]
 			},
 			order: [
@@ -176,8 +176,8 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, shopModel }) => [
 			const promises = [];
 			const productsMap = new Map();
 
-			shopModel.productItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
-			shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+			shopModel.productItems.belongsTo(dataModel.itemTemplates, { foreignKey: "itemTemplateId" });
+			dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
 			products.forEach(product => {
 				productsMap.set(product.get("id"), {
@@ -193,9 +193,9 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, shopModel }) => [
 				promises.push(shopModel.productItems.findOne({
 					where: { productId: product.get("id") },
 					include: [{
-						model: shopModel.itemTemplates,
+						model: dataModel.itemTemplates,
 						include: [{
-							model: shopModel.itemStrings,
+							model: dataModel.itemStrings,
 							where: {
 								...search && !product.get("title") ? { string: { [Op.like]: `%${search}%` } } : {},
 								language: i18n.getLocale()
@@ -206,12 +206,12 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, shopModel }) => [
 					}],
 					attributes: {
 						include: [
-							[shopModel.productItems.sequelize.col("productId"), "productId"],
-							[shopModel.productItems.sequelize.col("boxItemCount"), "boxItemCount"],
-							[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-							[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-							[shopModel.itemStrings.sequelize.col("string"), "string"],
-							[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+							[sequelize.col("productId"), "productId"],
+							[sequelize.col("boxItemCount"), "boxItemCount"],
+							[sequelize.col("rareGrade"), "rareGrade"],
+							[sequelize.col("icon"), "icon"],
+							[sequelize.col("string"), "string"],
+							[sequelize.col("toolTip"), "toolTip"]
 						]
 					},
 					order: [
@@ -270,7 +270,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.PartialProductHtml = ({ i18n, logger, shopModel }) => [
+module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[
@@ -291,8 +291,8 @@ module.exports.PartialProductHtml = ({ i18n, logger, shopModel }) => [
 			where: {
 				id,
 				active: 1,
-				validAfter: { [Op.lt]: shopModel.sequelize.fn("NOW") },
-				validBefore: { [Op.gt]: shopModel.sequelize.fn("NOW") }
+				validAfter: { [Op.lt]: sequelize.fn("NOW") },
+				validBefore: { [Op.gt]: sequelize.fn("NOW") }
 			},
 			include: [{
 				model: shopModel.productStrings,
@@ -302,8 +302,8 @@ module.exports.PartialProductHtml = ({ i18n, logger, shopModel }) => [
 			}],
 			attributes: {
 				include: [
-					[shopModel.productStrings.sequelize.col("title"), "title"],
-					[shopModel.productStrings.sequelize.col("description"), "description"]
+					[sequelize.col("title"), "title"],
+					[sequelize.col("description"), "description"]
 				]
 			}
 		}).then(async product => {
@@ -321,15 +321,15 @@ module.exports.PartialProductHtml = ({ i18n, logger, shopModel }) => [
 				rareGrade: product.get("rareGrade")
 			};
 
-			shopModel.productItems.belongsTo(shopModel.itemTemplates, { foreignKey: "itemTemplateId" });
-			shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+			shopModel.productItems.belongsTo(dataModel.itemTemplates, { foreignKey: "itemTemplateId" });
+			dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
 			return shopModel.productItems.findAll({
 				where: { productId: product.get("id") },
 				include: [{
-					model: shopModel.itemTemplates,
+					model: dataModel.itemTemplates,
 					include: [{
-						model: shopModel.itemStrings,
+						model: dataModel.itemStrings,
 						where: { language: i18n.getLocale() },
 						attributes: []
 					}],
@@ -337,18 +337,18 @@ module.exports.PartialProductHtml = ({ i18n, logger, shopModel }) => [
 				}],
 				attributes: {
 					include: [
-						[shopModel.productItems.sequelize.col("productId"), "productId"],
-						[shopModel.productItems.sequelize.col("boxItemCount"), "boxItemCount"],
-						[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-						[shopModel.itemTemplates.sequelize.col("requiredLevel"), "requiredLevel"],
-						[shopModel.itemTemplates.sequelize.col("requiredClass"), "requiredClass"],
-						[shopModel.itemTemplates.sequelize.col("requiredGender"), "requiredGender"],
-						[shopModel.itemTemplates.sequelize.col("requiredRace"), "requiredRace"],
-						[shopModel.itemTemplates.sequelize.col("tradable"), "tradable"],
-						[shopModel.itemTemplates.sequelize.col("warehouseStorable"), "warehouseStorable"],
-						[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-						[shopModel.itemStrings.sequelize.col("string"), "string"],
-						[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+						[sequelize.col("productId"), "productId"],
+						[sequelize.col("boxItemCount"), "boxItemCount"],
+						[sequelize.col("rareGrade"), "rareGrade"],
+						[sequelize.col("requiredLevel"), "requiredLevel"],
+						[sequelize.col("requiredClass"), "requiredClass"],
+						[sequelize.col("requiredGender"), "requiredGender"],
+						[sequelize.col("requiredRace"), "requiredRace"],
+						[sequelize.col("tradable"), "tradable"],
+						[sequelize.col("warehouseStorable"), "warehouseStorable"],
+						[sequelize.col("icon"), "icon"],
+						[sequelize.col("string"), "string"],
+						[sequelize.col("toolTip"), "toolTip"]
 					]
 				},
 				order: [
@@ -362,15 +362,15 @@ module.exports.PartialProductHtml = ({ i18n, logger, shopModel }) => [
 				const promises = [];
 
 				items.forEach(async item => {
-					shopModel.itemConversions.belongsTo(shopModel.itemTemplates, { foreignKey: "fixedItemTemplateId" });
-					shopModel.itemTemplates.hasOne(shopModel.itemStrings, { foreignKey: "itemTemplateId" });
+					dataModel.itemConversions.belongsTo(dataModel.itemTemplates, { foreignKey: "fixedItemTemplateId" });
+					dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
-					promises.push(shopModel.itemConversions.findAll({
+					promises.push(dataModel.itemConversions.findAll({
 						where: { itemTemplateId: item.get("itemTemplateId") },
 						include: [{
-							model: shopModel.itemTemplates,
+							model: dataModel.itemTemplates,
 							include: [{
-								model: shopModel.itemStrings,
+								model: dataModel.itemStrings,
 								where: { language: i18n.getLocale() },
 								attributes: []
 							}],
@@ -378,10 +378,10 @@ module.exports.PartialProductHtml = ({ i18n, logger, shopModel }) => [
 						}],
 						attributes: {
 							include: [
-								[shopModel.itemTemplates.sequelize.col("icon"), "icon"],
-								[shopModel.itemTemplates.sequelize.col("rareGrade"), "rareGrade"],
-								[shopModel.itemStrings.sequelize.col("string"), "string"],
-								[shopModel.itemStrings.sequelize.col("toolTip"), "toolTip"]
+								[sequelize.col("icon"), "icon"],
+								[sequelize.col("rareGrade"), "rareGrade"],
+								[sequelize.col("string"), "string"],
+								[sequelize.col("toolTip"), "toolTip"]
 							]
 						}
 					}));
@@ -432,7 +432,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.PartialWelcomeHtml = ({ logger, accountModel }) => [
+module.exports.PartialWelcomeHtml = ({ logger, accountModel, serverModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	/**
@@ -440,7 +440,7 @@ module.exports.PartialWelcomeHtml = ({ logger, accountModel }) => [
 	 */
 	async (req, res) => {
 		try {
-			const server = await accountModel.serverInfo.findOne({
+			const server = await serverModel.info.findOne({
 				where: { serverId: req.user.lastLoginServer }
 			});
 
@@ -470,7 +470,7 @@ module.exports.PartialWelcomeHtml = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.PartialPromoCodeHtml = ({ i18n, logger, accountModel, shopModel }) => [
+module.exports.PartialPromoCodeHtml = ({ i18n, logger, sequelize, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	/**
@@ -496,8 +496,8 @@ module.exports.PartialPromoCodeHtml = ({ i18n, logger, accountModel, shopModel }
 			}],
 			attributes: {
 				include: [
-					[shopModel.itemStrings.sequelize.col("promoCode"), "promoCode"],
-					[shopModel.itemStrings.sequelize.col("description"), "description"]
+					[sequelize.col("promoCode"), "promoCode"],
+					[sequelize.col("description"), "description"]
 				]
 			},
 			order: [
@@ -527,7 +527,7 @@ module.exports.PartialErrorHtml = () => [
 /**
  * @param {modules} modules
  */
-module.exports.GetAccountInfo = ({ logger, accountModel, shopModel }) => [
+module.exports.GetAccountInfo = ({ logger, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	/**
@@ -553,7 +553,7 @@ module.exports.GetAccountInfo = ({ logger, accountModel, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.PurchaseAction = ({ i18n, logger, fcgi, reportModel, shopModel }) => [
+module.exports.PurchaseAction = ({ i18n, logger, fcgi, sequelize, reportModel, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[body("productId").notEmpty().isNumeric()],
@@ -564,17 +564,17 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, reportModel, shopModel })
 	async (req, res) => {
 		const { productId } = req.body;
 
-		if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
-			return resultJson(res, 2, "fcgi is not configured");
-		}
-
 		try {
+			if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
+				throw "FCGI Gateway is not configured or disabled.";
+			}
+
 			/*
 			const payLog = await reportModel.shopPay.findOne({ // buying rate limits
 				where: {
 					accountDBID: req.user.accountDBID"),
 					status: "completed",
-					updatedAt: { [Op.gt]: shopModel.sequelize.literal("NOW() - INTERVAL 5 second") }
+					updatedAt: { [Op.gt]: sequelize.literal("NOW() - INTERVAL 5 second") }
 				}
 			});
 
@@ -588,8 +588,8 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, reportModel, shopModel })
 				where: {
 					id: productId,
 					active: 1,
-					validAfter: { [Op.lt]: shopModel.sequelize.fn("NOW") },
-					validBefore: { [Op.gt]: shopModel.sequelize.fn("NOW") }
+					validAfter: { [Op.lt]: sequelize.fn("NOW") },
+					validBefore: { [Op.gt]: sequelize.fn("NOW") }
 				}
 			});
 
@@ -637,7 +637,7 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, reportModel, shopModel })
 				return resultJson(res, 1, "internal error");
 			}
 
-			await shopModel.sequelize.transaction(async transaction => {
+			await sequelize.transaction(async transaction => {
 				await shopModel.accounts.decrement({
 					balance: shopProduct.get("price")
 				}, {
@@ -693,8 +693,8 @@ module.exports.PromoCodeAction = modules => [
 			where: {
 				promoCode: promoCode,
 				active: 1,
-				validAfter: { [Op.lt]: modules.shopModel.sequelize.fn("NOW") },
-				validBefore: { [Op.gt]: modules.shopModel.sequelize.fn("NOW") }
+				validAfter: { [Op.lt]: modules.sequelize.fn("NOW") },
+				validBefore: { [Op.gt]: modules.sequelize.fn("NOW") }
 			}
 		}).then(promocode => {
 			if (promocode === null) {

@@ -47,7 +47,7 @@ class ServerUpActions {
 
 		if (status === true) {
 			try {
-				await this.modules.accountModel.serverInfo.update({ isAvailable: 1 }, {
+				await this.modules.serverModel.info.update({ isAvailable: 1 }, {
 					where: { serverId }
 				});
 
