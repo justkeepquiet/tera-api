@@ -24,15 +24,17 @@ module.exports.notifications = ({ logger, queue }) => [
 		queue.findByStatus(queue.status.rejected, 6).then(tasks => {
 			const items = [];
 
-			tasks.forEach(task => {
-				items.push({
-					id: task.get("id"),
-					tag: task.get("tag"),
-					handler: task.get("handler"),
-					status: task.get("status"),
-					message: task.get("message")
+			if (req.user.type !== "steer" || Object.values(req.user.functions).includes("/tasks")) {
+				tasks.forEach(task => {
+					items.push({
+						id: task.get("id"),
+						tag: task.get("tag"),
+						handler: task.get("handler"),
+						status: task.get("status"),
+						message: task.get("message")
+					});
 				});
-			});
+			}
 
 			resultJson(res, 0, { msg: "success", count: items.length, items });
 		}).catch(err => {
