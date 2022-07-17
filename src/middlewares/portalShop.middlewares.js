@@ -5,7 +5,6 @@
  * @typedef {import("express").Response} Response
  */
 
-const jwt = require("jsonwebtoken");
 const helpers = require("../utils/helpers");
 
 /**

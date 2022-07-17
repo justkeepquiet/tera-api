@@ -1,6 +1,6 @@
 # tera-api
 
-API and In-game Shop implementation for the TERA Online retail server (patch 92/100) on Node.js. The API consists of three independent servers (Arbiter API, Portal API and Admin Panel) running on different ports.
+API and In-game Shop implementation for the TERA Online retail server (patch 92/100) on Node.js. The API consists of four independent servers (Arbiter API, Portal API, Shop API and Admin Panel) running on different ports.
 
 The Arbiter API intended for processing internal requests from the Arbiter Server, such as checking a token, receiving events about the character's behavior, etc. This API must be binded only on a local IP address and must not be accessed by external users!
 
@@ -35,7 +35,7 @@ If you don't plan to use [tera-client-packer](https://github.com/justkeepquiet/t
 
 ### Admin Panel
 
-By default, the admin panel is available on all IP addresses on port 85, like [http://127.0.0.1:85](http://127.0.0.1:85/). You can change this in the **.env** settings. To enter the admin panel, use login `apiadmin` and password `password`. These credentials should be used **only for tests**, and in production you need to set up integration with the Steer Server.
+By default, the admin panel is available on all IP addresses on port 8050, like [http://127.0.0.1:8050](http://127.0.0.1:8050/). You can change this in the **.env** settings. To enter the admin panel, use login `apiadmin` and password `password`. These credentials should be used **only for tests**, and in production you need to set up integration with the Steer Server.
 
 ### Integration with Steer Server
 

@@ -572,7 +572,7 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, sequelize, reportModel, s
 			/*
 			const payLog = await reportModel.shopPay.findOne({ // buying rate limits
 				where: {
-					accountDBID: req.user.accountDBID"),
+					accountDBID: req.user.accountDBID,
 					status: "completed",
 					updatedAt: { [Op.gt]: sequelize.literal("NOW() - INTERVAL 5 second") }
 				}

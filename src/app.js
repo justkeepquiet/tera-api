@@ -152,6 +152,10 @@ moduleLoader.final().then(
 		const tasksActions = new TasksActions(modules);
 
 		serverLoader.setPromise("arbiterApi", () => {
+			if (!process.env.API_ARBITER_LISTEN_PORT) {
+				return Promise.reject("Invalid configuration parameter: API_ARBITER_LISTEN_PORT");
+			}
+
 			const es = new ExpressServer(modules, {
 				logger: createLogger("Arbiter API"),
 				disableCache: true
@@ -167,6 +171,10 @@ moduleLoader.final().then(
 		});
 
 		serverLoader.setPromise("portalApi", () => {
+			if (!process.env.API_PORTAL_LISTEN_PORT) {
+				return Promise.reject("Invalid configuration parameter: API_PORTAL_LISTEN_PORT");
+			}
+
 			if (!process.env.API_PORTAL_LOCALE) {
 				return Promise.reject("Invalid configuration parameter: API_PORTAL_LOCALE");
 			}
@@ -194,7 +202,30 @@ moduleLoader.final().then(
 			);
 		});
 
+		serverLoader.setPromise("shopApi", () => {
+			if (!process.env.API_SHOP_LISTEN_PORT) {
+				return Promise.reject("Invalid configuration parameter: API_SHOP_LISTEN_PORT");
+			}
+
+			const es = new ExpressServer(modules, {
+				logger: createLogger("Shop API"),
+				disableCache: true
+			});
+
+			es.setLogging();
+			es.setRouter("../routes/shop.index");
+
+			return es.bind(
+				process.env.API_SHOP_LISTEN_HOST,
+				process.env.API_SHOP_LISTEN_PORT
+			);
+		});
+
 		serverLoader.setPromise("adminPanel", () => {
+			if (!process.env.ADMIN_PANEL_LISTEN_PORT) {
+				return Promise.reject("Invalid configuration parameter: ADMIN_PANEL_LISTEN_PORT");
+			}
+
 			if (!process.env.ADMIN_PANEL_LOCALE) {
 				return Promise.reject("Invalid configuration parameter: ADMIN_PANEL_LOCALE");
 			}
