@@ -4,6 +4,19 @@
 		<h1 class="title"><%= __("Accounts") %></h1>
 	</div>
 	<section class="section">
+		<form class="form-inline" action="" method="GET">
+			<div class="form-group">
+				<label for="accountDBID"><%= __("Account ID") %></label>
+				<input type="number" class="form-control boxed" name="accountDBID" value="<%= accountDBID %>">
+			</div>
+			<div class="form-group">
+				<label for="email"><%= __("Email") %></label>
+				<input type="email" class="form-control boxed" name="email" value="<%= email %>">
+			</div>
+			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
+		</form>
+	</section>
+	<section class="section">
 		<a class="btn btn-success" title="" href="/accounts/add"><%= __("Create new account") %></a>
 	</section>
 	<section class="section">

@@ -436,5 +436,6 @@
 	"count": "кол-во",
 	"In the Last login field, the date of the last entry into the game is specified. Box will not be sent to users who logged into the game before this date.": "В поле 'Последний вход' указыается дата последнего входа в игру. Коробка не будет оптравлена пользователям, которые последний раз заходили раньше этой даты.",
 	"Server ID field contains not existing server ID.": "Поле 'ID сервера' содержит несуществующий ID сервера.",
-	"Show all tasks": "Показать все задачи"
+	"Show all tasks": "Показать все задачи",
+	"example": "пример"
 }

@@ -434,5 +434,6 @@
 	"count": "count",
 	"In the Last login field, the date of the last entry into the game is specified. Box will not be sent to users who logged into the game before this date.": "In the Last login field, the date of the last entry into the game is specified. Box will not be sent to users who logged into the game before this date.",
 	"Server ID field contains not existing server ID.": "Server ID field contains not existing server ID.",
-	"Show all tasks": "Show all tasks"
+	"Show all tasks": "Show all tasks",
+	"example": "example"
 }

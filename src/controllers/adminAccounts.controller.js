@@ -6,6 +6,7 @@
  */
 
 const crypto = require("crypto");
+const validator = require("validator");
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
@@ -25,12 +26,16 @@ module.exports.index = ({ logger, sequelize, accountModel }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		const { serverId } = req.query;
+		const { accountDBID, email } = req.query;
 
 		accountModel.info.belongsTo(accountModel.bans, { foreignKey: "accountDBID" });
 		accountModel.info.hasOne(accountModel.bans, { foreignKey: "accountDBID" });
 
 		accountModel.info.findAll({
+			where: {
+				...accountDBID ? { accountDBID } : {},
+				...email ? { email } : {}
+			},
 			include: [{
 				model: accountModel.bans,
 				where: { active: 1 },
@@ -51,7 +56,8 @@ module.exports.index = ({ logger, sequelize, accountModel }) => [
 				layout: "adminLayout",
 				accounts,
 				moment,
-				serverId
+				accountDBID,
+				email
 			});
 		}).catch(err => {
 			logger.error(err);
