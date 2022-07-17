@@ -73,9 +73,9 @@ module.exports.add = ({ i18n, logger, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("promoCodeId").trim().optional()
+		query("promoCodeId").optional()
 			.isInt({ min: 0 }).withMessage(i18n.__("Promo code ID field must contain a valid number.")),
-		query("accountDBID").trim().optional()
+		query("accountDBID").optional()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 	],
 	/**
@@ -106,7 +106,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		body("promoCodeId").trim()
+		body("promoCodeId")
 			.isInt({ min: 0 }).withMessage(i18n.__("Promo code ID field must contain a valid number."))
 			.custom((value, { req }) => shopModel.promoCodes.findOne({
 				where: {
@@ -117,7 +117,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 					return Promise.reject(i18n.__("Promo code ID field contains not existing promo code ID."));
 				}
 			})),
-		body("accountDBID").trim()
+		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom((value, { req }) => accountModel.info.findOne({
 				where: {

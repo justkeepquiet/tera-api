@@ -80,7 +80,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		body("sort").trim()
+		body("sort")
 			.isNumeric().withMessage(i18n.__("Sort field must contain the value as a number.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
@@ -202,7 +202,7 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		body("sort").trim()
+		body("sort")
 			.isNumeric().withMessage(i18n.__("Sort field must contain the value as a number.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),

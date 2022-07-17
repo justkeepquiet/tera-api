@@ -49,7 +49,7 @@ module.exports.add = ({ i18n }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("accountDBID").trim().optional()
+		query("accountDBID").optional()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 	],
 	/**
@@ -76,7 +76,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		body("accountDBID").trim()
+		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom((value, { req }) => shopModel.accounts.findOne({
 				where: {
@@ -96,7 +96,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
-		body("balance").trim()
+		body("balance")
 			.isInt({ min: 0 }).withMessage(i18n.__("Balance field must contain a valid number.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value."))
@@ -182,7 +182,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		body("balance").trim()
+		body("balance")
 			.isInt({ min: 0 }).withMessage(i18n.__("Balance field must contain a valid number.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value."))

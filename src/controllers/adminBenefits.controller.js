@@ -60,7 +60,7 @@ module.exports.add = ({ i18n, accountModel, datasheets }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		body("accountDBID").trim()
+		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
@@ -98,7 +98,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, datasheet
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		body("accountDBID").trim()
+		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
@@ -109,7 +109,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, datasheet
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
-		body("benefitId").trim()
+		body("benefitId")
 			.isInt({ min: 0 }).withMessage(i18n.__("Benefit ID field must contain a valid number.")),
 		body("availableUntil").trim()
 			.isISO8601().withMessage("Available until field must contain a valid date.")

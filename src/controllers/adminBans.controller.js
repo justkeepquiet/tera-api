@@ -44,7 +44,7 @@ module.exports.add = ({ i18n, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		body("accountDBID").trim()
+		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
@@ -83,7 +83,7 @@ module.exports.addAction = ({ i18n, logger, fcgi, reportModel, accountModel }) =
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		body("accountDBID").trim()
+		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom((value, { req }) => accountModel.bans.findOne({
 				where: {
@@ -107,7 +107,7 @@ module.exports.addAction = ({ i18n, logger, fcgi, reportModel, accountModel }) =
 			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
 		body("endTime")
 			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
-		body("ip").trim().optional()
+		body("ip").optional().trim()
 			.custom(value => {
 				const ip = helpers.unserializeRange(value);
 				return ip.length === 0 || ip.length === ip.filter(e => validator.isIP(e)).length;
@@ -220,7 +220,7 @@ module.exports.editAction = ({ i18n, logger, fcgi, reportModel, accountModel }) 
 			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
 		body("endTime")
 			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
-		body("ip").trim().optional()
+		body("ip").optional().trim()
 			.custom(value => {
 				const ip = helpers.unserializeRange(value);
 				return ip.length === 0 || ip.length === ip.filter(e => validator.isIP(e)).length;

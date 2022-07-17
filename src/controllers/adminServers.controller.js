@@ -108,9 +108,9 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
 		body("descrString").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field string must be between 1 and 1024 characters.")),
-		body("tresholdLow").trim()
+		body("tresholdLow")
 			.isInt({ min: 0 }).withMessage(i18n.__("Treshold low field must contain the value as a number.")),
-		body("tresholdMedium").trim()
+		body("tresholdMedium")
 			.isInt({ min: 0 }).withMessage(i18n.__("Treshold medium field must contain the value as a number.")),
 		body("isPvE").optional()
 			.isIn(["on"]).withMessage(i18n.__("Only PvE field has invalid value.")),
@@ -235,9 +235,9 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
 		body("descrString").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description string field must be between 1 and 1024 characters.")),
-		body("tresholdLow").trim()
+		body("tresholdLow")
 			.isInt({ min: 0 }).withMessage(i18n.__("Treshold low field must contain the value as a number.")),
-		body("tresholdMedium").trim()
+		body("tresholdMedium")
 			.isInt({ min: 0 }).withMessage(i18n.__("Treshold medium field must contain the value as a number.")),
 		body("isPvE").optional()
 			.isIn(["on"]).withMessage(i18n.__("Only PvE field has invalid value.")),

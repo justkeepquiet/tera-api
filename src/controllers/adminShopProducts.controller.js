@@ -253,9 +253,9 @@ module.exports.addAction = ({ i18n, logger, platform, sequelize, reportModel, sh
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		body("price").trim()
+		body("price")
 			.isInt({ min: 0 }).withMessage(i18n.__("Price field must contain a valid number.")),
-		body("categoryId").trim()
+		body("categoryId")
 			.custom((value, { req }) => shopModel.categories.findOne({
 				where: {
 					id: req.body.categoryId
@@ -647,11 +647,11 @@ module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, s
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		body("price").trim()
+		body("price")
 			.isInt({ min: 0 }).withMessage(i18n.__("Price field must contain a valid number.")),
-		body("sort").trim()
+		body("sort")
 			.isNumeric().withMessage(i18n.__("Sort field must contain the value as a number.")),
-		body("categoryId").trim()
+		body("categoryId")
 			.custom((value, { req }) => shopModel.categories.findOne({
 				where: {
 					id: req.body.categoryId

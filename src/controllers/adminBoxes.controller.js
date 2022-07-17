@@ -163,7 +163,7 @@ module.exports.addAction = ({ i18n, logger, platform, sequelize, reportModel, bo
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Description must be between 1 and 2048 characters.")),
 		body("icon").optional().trim()
 			.isLength({ max: 2048 }).withMessage(i18n.__("Icon must be between 1 and 255 characters.")),
-		body("days").trim()
+		body("days")
 			.isInt({ min: 1, max: 4000 }).withMessage(i18n.__("Days field must contain the value as a number.")),
 		// Items
 		body("itemTemplateIds.*")
@@ -446,7 +446,7 @@ module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, b
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Description must be between 1 and 2048 characters.")),
 		body("icon").optional().trim()
 			.isLength({ max: 2048 }).withMessage(i18n.__("Icon must be between 1 and 255 characters.")),
-		body("days").trim()
+		body("days")
 			.isInt({ min: 1, max: 4000 }).withMessage(i18n.__("Days field must contain the value as a number.")),
 		// Items
 		body("itemTemplateIds.*")

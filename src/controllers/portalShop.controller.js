@@ -69,7 +69,7 @@ module.exports.MainHtml = () => [
 module.exports.PartialMenuHtml = ({ i18n, logger, sequelize, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
-	[query("active").isNumeric().optional()],
+	[query("active").optional().isNumeric()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}

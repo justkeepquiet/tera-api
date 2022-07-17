@@ -118,9 +118,9 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 			.isLength({ min: 1, max: 128 }).withMessage(i18n.__("Password field must be between 1 and 128 characters.")),
 		body("email").optional({ checkFalsy: true }).trim()
 			.isEmail().withMessage(i18n.__("Email field must contain a valid email.")),
-		body("permission").trim()
+		body("permission")
 			.isNumeric().withMessage(i18n.__("Permission field must contain a valid number.")),
-		body("privilege").trim()
+		body("privilege")
 			.isNumeric().withMessage(i18n.__("Privilege field must contain a valid number.")),
 		body("benefitIds.*").optional()
 			.isInt({ min: 0 }).withMessage(i18n.__("Benefit ID field must contain a valid number.")),
@@ -266,9 +266,9 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 			.isLength({ max: 128 }).withMessage(i18n.__("Password field must be between 1 and 128 characters.")),
 		body("email").trim().optional({ checkFalsy: true })
 			.isEmail().withMessage(i18n.__("Email field must contain a valid email.")),
-		body("permission").trim()
+		body("permission")
 			.isNumeric().withMessage(i18n.__("Permission field must contain a valid number.")),
-		body("privilege").trim()
+		body("privilege")
 			.isNumeric().withMessage(i18n.__("Privilege field must contain a valid number."))
 	],
 	/**
