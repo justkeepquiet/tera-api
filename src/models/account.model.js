@@ -16,10 +16,17 @@
  * @param {Sequelize} sequelize
  * @param {DataTypes} DataTypes
  */
-module.exports = (sequelize, DataTypes) => ({
-	info: require("./account/accountInfo.model")(sequelize, DataTypes),
-	bans: require("./account/accountBans.model")(sequelize, DataTypes),
-	characters: require("./account/accountCharacters.model")(sequelize, DataTypes),
-	benefits: require("./account/accountBenefits.model")(sequelize, DataTypes),
-	online: require("./account/accountOnline.model")(sequelize, DataTypes)
-});
+module.exports = (sequelize, DataTypes) => {
+	const model = {
+		info: require("./account/accountInfo.model")(sequelize, DataTypes),
+		bans: require("./account/accountBans.model")(sequelize, DataTypes),
+		characters: require("./account/accountCharacters.model")(sequelize, DataTypes),
+		benefits: require("./account/accountBenefits.model")(sequelize, DataTypes),
+		online: require("./account/accountOnline.model")(sequelize, DataTypes)
+	};
+
+	model.info.hasOne(model.bans, { foreignKey: "accountDBID", as: "banned" });
+	model.online.hasOne(model.info, { foreignKey: "accountDBID", as: "info" });
+
+	return model;
+};

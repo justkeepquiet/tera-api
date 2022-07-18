@@ -31,7 +31,7 @@
 										<tr>
 											<td><%= promocode.get("promoCodeId") %></td>
 											<td><%= promocode.get("promoCode") %></td>
-											<td><%= promocode.get("description") %></td>
+											<td><%= promocode.get("strings")?.get("description") || "-" %></td>
 											<td><%= promocode.get("function") %></td>
 											<td><%= promocode.get("active") ? __("Yes") : __("No") %></td>
 											<td><%= moment(promocode.get("validAfter")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>

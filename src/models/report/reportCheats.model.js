@@ -12,24 +12,25 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("report_cheats", {
 		accountDBID: {
-			type: DataTypes.BIGINT,
+			type: DataTypes.BIGINT(20),
 			primaryKey: true
 		},
 		serverId: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.INTEGER(11),
 			primaryKey: true
 		},
 		ip: {
 			type: DataTypes.STRING(64)
 		},
 		type: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11)
 		},
 		cheatInfo: {
 			type: DataTypes.STRING(1024)
 		},
 		reportTime: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW
 		}
 	})
 ;

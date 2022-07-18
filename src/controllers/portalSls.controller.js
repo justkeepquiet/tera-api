@@ -27,7 +27,7 @@ module.exports.GetServerListXml = modules => [
 		}).then(strings => modules.serverModel.info.findAll({
 			where: { isEnabled: 1 }
 		}).then(servers => {
-			if (strings === null || servers === null) {
+			if (strings === null) {
 				return res.status(500).end("getting sls error");
 			}
 

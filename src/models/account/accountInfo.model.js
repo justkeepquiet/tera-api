@@ -12,16 +12,19 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("account_info", {
 		accountDBID: {
-			type: DataTypes.BIGINT,
+			type: DataTypes.BIGINT(20),
 			primaryKey: true,
-			autoIncrement: true
+			autoIncrement: true,
+			allowNull: false
 		},
 		userName: {
 			type: DataTypes.STRING(64),
-			primaryKey: true
+			primaryKey: true,
+			allowNull: false
 		},
 		passWord: {
-			type: DataTypes.STRING(128)
+			type: DataTypes.STRING(128),
+			allowNull: false
 		},
 		authKey: {
 			type: DataTypes.STRING(128)
@@ -31,7 +34,8 @@ module.exports = (sequelize, DataTypes) =>
 			primaryKey: true
 		},
 		registerTime: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW
 		},
 		lastLoginTime: {
 			type: DataTypes.DATE
@@ -40,22 +44,32 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.STRING(64)
 		},
 		lastLoginServer: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11)
 		},
 		playTimeLast: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0
 		},
 		playTimeTotal: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0
 		},
 		playCount: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0
 		},
 		permission: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0
 		},
 		privilege: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0
 		},
 		language: {
 			type: DataTypes.STRING(3)

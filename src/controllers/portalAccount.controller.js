@@ -27,26 +27,18 @@ module.exports.GetAccountInfoByUserNo = ({ logger, sequelize, accountModel }) =>
 		const { userNo, authKey } = req.body;
 		const clientIP = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
-		accountModel.info.belongsTo(accountModel.bans, { foreignKey: "accountDBID" });
-		accountModel.info.hasOne(accountModel.bans, { foreignKey: "accountDBID" });
-
 		accountModel.info.findOne({
 			where: { accountDBID: userNo, authKey },
 			include: [{
+				as: "banned",
 				model: accountModel.bans,
 				where: {
 					active: 1,
 					startTime: { [Op.lt]: sequelize.fn("NOW") },
 					endTime: { [Op.gt]: sequelize.fn("NOW") }
 				},
-				required: false,
-				attributes: []
-			}],
-			attributes: {
-				include: [
-					[sequelize.col("startTime"), "banned"]
-				]
-			}
+				required: false
+			}]
 		}).then(async account => {
 			if (account === null) {
 				return resultJson(res, 50000, "account not exist");
@@ -62,9 +54,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, sequelize, accountModel }) =>
 					where: { accountDBID: account.get("accountDBID") }
 				});
 
-				if (characters !== null) {
-					characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
-				}
+				characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
 
 				bannedByIp = await accountModel.bans.findOne({
 					where: {
@@ -85,7 +75,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, sequelize, accountModel }) =>
 				Language: account.get("language"),
 				UserNo: account.get("accountDBID"),
 				UserName: account.get("userName"),
-				Banned: !!account.get("banned") || bannedByIp !== null
+				Banned: account.get("banned") !== null || bannedByIp !== null
 			});
 		}).catch(err => {
 			logger.error(err);

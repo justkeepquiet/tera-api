@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) =>
 		id: {
 			type: DataTypes.INTEGER(11),
 			primaryKey: true,
-			autoIncrement: true
+			autoIncrement: true,
+			allowNull: false
 		},
 		startTime: {
 			type: DataTypes.DATE

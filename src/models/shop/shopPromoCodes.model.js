@@ -12,30 +12,40 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("shop_promocodes", {
 		promoCodeId: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.INTEGER(11),
 			primaryKey: true,
-			autoIncrement: true
+			autoIncrement: true,
+			allowNull: false
 		},
 		promoCode: {
-			type: DataTypes.STRING(255)
+			type: DataTypes.STRING(255),
+			allowNull: false
 		},
 		function: {
-			type: DataTypes.STRING(255)
+			type: DataTypes.STRING(255),
+			allowNull: false
 		},
 		validAfter: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			allowNull: false
 		},
 		validBefore: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			allowNull: false
 		},
 		active: {
-			type: DataTypes.TINYINT(4)
+			type: DataTypes.TINYINT(4),
+			allowNull: false,
+			defaultValue: 1
 		},
 		createdAt: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW
 		},
 		updatedAt: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW,
+			onUpdate: DataTypes.NOW
 		}
 	})
 ;

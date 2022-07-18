@@ -34,23 +34,15 @@ module.exports.index = ({ logger, sequelize, shopModel }) => [
 			});
 		}
 
-		shopModel.promoCodeActivated.belongsTo(shopModel.promoCodes, { foreignKey: "promoCodeId" });
-		shopModel.promoCodeActivated.hasMany(shopModel.promoCodes, { foreignKey: "promoCodeId" });
-
 		shopModel.promoCodeActivated.findAll({
 			where: {
 				...promoCodeId ? { promoCodeId } : {},
 				...accountDBID ? { accountDBID } : {}
 			},
 			include: [{
-				model: shopModel.promoCodes,
-				attributes: []
-			}],
-			attributes: {
-				include: [
-					[sequelize.col("promoCode"), "promoCode"]
-				]
-			}
+				as: "info",
+				model: shopModel.promoCodes
+			}]
 		}).then(promocodes => {
 			res.render("adminPromocodesActivated", {
 				layout: "adminLayout",

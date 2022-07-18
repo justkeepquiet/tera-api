@@ -41,17 +41,17 @@
 									<tbody>
 										<%_ online.forEach(account => { _%>
 										<tr>
-											<td><%= moment(account.get("lastLoginTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-											<td><%= account.get("serverId") || "-" %></td>
-											<%_ if (account.get("permission") >= 256) { _%>
+											<td><%= moment(account.get("info").get("lastLoginTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
+											<td><%= account.get("info").get("serverId") || "-" %></td>
+											<%_ if (account.get("info").get("permission") >= 256) { _%>
 											<td class="text-primary"><%= account.get("accountDBID") %> <i class="fa fa-wrench"></i></td>
-											<%_ } else if (account.get("permission") >= 1) { _%>
+											<%_ } else if (account.get("info").get("permission") >= 1) { _%>
 											<td class="text-success"><%= account.get("accountDBID") %> <i class="fa fa-level-up"></i></td>
 											<%_ } else { _%>
 											<td><%= account.get("accountDBID") %></td>
 											<%_ } _%>
-											<td><%= account.get("userName") %></a></td>
-											<td><%= account.get("lastLoginIP") %></td>
+											<td><%= account.get("info").get("userName") %></a></td>
+											<td><%= account.get("info").get("lastLoginIP") %></td>
 											<td class="text-right">
 												<a class="btn btn-secondary btn-sm" href="/online/kick?accountDBID=<%= account.get("accountDBID") %>&amp;serverId=<%= account.get("serverId") %>&amp;fromServerId=<%= serverId %>"><i class="fa fa-times"></i></a>
 											</td>

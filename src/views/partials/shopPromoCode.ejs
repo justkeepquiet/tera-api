@@ -24,11 +24,11 @@
 		<%_ promoCodesAcrivated.forEach(promoCodeAcrivated => { _%>
 		<tr>
 			<td style="width: 1%; white-space: nowrap; text-align: center;">
-				<span class="promocode"><%= promoCodeAcrivated.get("promoCode") %></span><br>
+				<span class="promocode"><%= promoCodeAcrivated.get("info").get("promoCode") %></span><br>
 				<span class="date"><%= moment.utc(promoCodeAcrivated.get("createdAt")).utcOffset(-tzOffset).format("DD.MM.YYYY HH:mm:ss") %></span> 
 			</td>
 			<td>
-				<%= promoCodeAcrivated.get("description") || "Activated promocode." %>
+				<%= promoCodeAcrivated.get("strings")?.get("description") || "Activated promocode." %>
 			</td>
 		</tr>
 		<%_ }) _%>

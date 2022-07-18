@@ -14,15 +14,18 @@ module.exports = (sequelize, DataTypes) =>
 		id: {
 			type: DataTypes.BIGINT,
 			unique: "id",
-			autoIncrement: true
+			autoIncrement: true,
+			allowNull: false
 		},
 		language: {
 			type: DataTypes.STRING(3),
-			primaryKey: true
+			primaryKey: true,
+			allowNull: false
 		},
 		promoCodeId: {
-			type: DataTypes.INTEGER,
-			primaryKey: true
+			type: DataTypes.INTEGER(11),
+			primaryKey: true,
+			allowNull: false
 		},
 		description: {
 			type: DataTypes.STRING(2048)

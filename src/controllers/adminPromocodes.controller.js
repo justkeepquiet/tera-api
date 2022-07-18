@@ -16,28 +16,20 @@ const shopLocales = require("../../config/admin").shopLocales;
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ i18n, logger, sequelize, shopModel }) => [
+module.exports.index = ({ i18n, logger, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		shopModel.promoCodes.belongsTo(shopModel.promoCodeStrings, { foreignKey: "promoCodeId" });
-		shopModel.promoCodes.hasOne(shopModel.promoCodeStrings, { foreignKey: "promoCodeId" });
-
 		shopModel.promoCodes.findAll({
 			include: [{
+				as: "strings",
 				model: shopModel.promoCodeStrings,
 				where: { language: i18n.getLocale() },
-				required: false,
-				attributes: []
-			}],
-			attributes: {
-				include: [
-					[sequelize.col("description"), "description"]
-				]
-			}
+				required: false
+			}]
 		}).then(promocodes => {
 			res.render("adminPromocodes", {
 				layout: "adminLayout",
@@ -198,11 +190,9 @@ module.exports.edit = ({ logger, shopModel }) => [
 			}).then(strings => {
 				const description = {};
 
-				if (strings !== null) {
-					strings.forEach(string => {
-						description[string.get("language")] = string.get("description");
-					});
-				}
+				strings.forEach(string => {
+					description[string.get("language")] = string.get("description");
+				});
 
 				res.render("adminPromocodesEdit", {
 					layout: "adminLayout",

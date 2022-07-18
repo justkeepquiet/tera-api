@@ -12,17 +12,20 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("data_item_strings", {
 		id: {
-			type: DataTypes.BIGINT,
+			type: DataTypes.INTEGER(11),
 			unique: "id",
-			autoIncrement: true
+			autoIncrement: true,
+			allowNull: false
 		},
 		language: {
 			type: DataTypes.STRING(3),
-			primaryKey: true
+			primaryKey: true,
+			allowNull: false
 		},
 		itemTemplateId: {
-			type: DataTypes.INTEGER,
-			primaryKey: true
+			type: DataTypes.BIGINT(20),
+			primaryKey: true,
+			allowNull: false
 		},
 		string: {
 			type: DataTypes.STRING(2048)

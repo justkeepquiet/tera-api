@@ -29,7 +29,7 @@
 										<tr>
 											<td><%= category.get("sort") %></td>
 											<td><%= category.get("id") %></td>
-											<td><%= category.get("title") %></td>
+											<td><%= category.get("strings")?.get("title") || "-" %></td>
 											<td><%= category.get("active") ? __("Yes") : __("No") %></td>
 											<td class="text-<%= category.get("active") ? "success" : "danger" %>"><%= category.get("active") ? __("Yes") : __("No") %></td>
 											<td class="text-right">

@@ -41,10 +41,10 @@
 												<%_ box.items.forEach(item => { _%>
 													<div class="form-control boxed mb-1" style="overflow: hidden; background: transparent !important;">
 														<div class="item-icon-block" style="margin: -4px 10px 0 -10px;">
-															<img src="/static/images/tera-icons/icon_items/<%= item.get("icon") %>.png" class="item-icon-grade-<%= item.get("rareGrade") %> item-icon">
-															<img src="/static/images/icons/icon_grade_<%= item.get("rareGrade") %>.png" class="item-icon-grade" alt="">
+															<img src="/static/images/tera-icons/icon_items/<%= item.get("template").get("icon") %>.png" class="item-icon-grade-<%= item.get("template").get("rareGrade") %> item-icon">
+															<img src="/static/images/icons/icon_grade_<%= item.get("template").get("rareGrade") %>.png" class="item-icon-grade" alt="">
 														</div>
-														<small class="item-grade-<%= item.get("rareGrade") %>"><%= item.get("string") %> (<%= item.get("boxItemCount") %>)</small>
+														<small class="item-grade-<%= item.get("template").get("rareGrade") %>"><%= item.get("strings").get("string") %> (<%= item.get("boxItemCount") %>)</small>
 													</div>
 												<%_ }) _%>
 											</td>

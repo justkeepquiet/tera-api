@@ -12,27 +12,35 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("box_info", {
 		id: {
-			type: DataTypes.BIGINT,
+			type: DataTypes.BIGINT(20),
 			primaryKey: true,
-			autoIncrement: true
+			autoIncrement: true,
+			allowNull: false
 		},
 		icon: {
-			type: DataTypes.TEXT(255)
+			type: DataTypes.TEXT(255),
+			allowNull: false
 		},
 		title: {
-			type: DataTypes.TEXT(1024)
+			type: DataTypes.TEXT(1024),
+			allowNull: false
 		},
 		content: {
-			type: DataTypes.TEXT(1024)
+			type: DataTypes.TEXT(2048),
+			allowNull: false
 		},
 		days: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11),
+			allowNull: false
 		},
 		createdAt: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW
 		},
 		updatedAt: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW,
+			onUpdate: DataTypes.NOW
 		}
 	})
 ;

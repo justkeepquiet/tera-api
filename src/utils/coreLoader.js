@@ -7,15 +7,19 @@ class CoreLoader {
 	}
 
 	setAsync(name, callback, ...args) {
-		this.resolved[name] = callback(...args);
+		this.resolved[name] = callback(...args, this.resolved);
 	}
 
 	setPromise(name, callback, ...args) {
-		this.promises.push(callback(...args).then(resolved => this.resolved[name] = resolved));
+		this.promises.push(callback(...args, this.resolved).then(resolved =>
+			this.resolved[name] = resolved
+		));
 	}
 
 	final() {
-		return Promise.all(this.promises).then(() => Promise.resolve(this.resolved));
+		return Promise.all(this.promises).then(() =>
+			Promise.resolve(this.resolved)
+		);
 	}
 }
 

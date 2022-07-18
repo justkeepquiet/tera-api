@@ -18,7 +18,7 @@ const encryptPasswords = /^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWO
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, sequelize, accountModel }) => [
+module.exports.index = ({ logger, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -27,38 +27,29 @@ module.exports.index = ({ logger, sequelize, accountModel }) => [
 	(req, res) => {
 		const { accountDBID, email } = req.query;
 
-		accountModel.info.belongsTo(accountModel.bans, { foreignKey: "accountDBID" });
-		accountModel.info.hasOne(accountModel.bans, { foreignKey: "accountDBID" });
-
 		accountModel.info.findAll({
 			where: {
 				...accountDBID ? { accountDBID } : {},
 				...email ? { email } : {}
 			},
 			include: [{
+				as: "banned",
 				model: accountModel.bans,
 				where: { active: 1 },
-				required: false,
-				attributes: []
+				required: false
 			}],
-			attributes: {
-				include: [
-					[sequelize.col("startTime"), "bannedStartTime"],
-					[sequelize.col("endTime"), "bannedEndTime"]
-				]
-			},
 			order: [
 				["accountDBID", "ASC"]
 			]
-		}).then(accounts => {
+		}).then(accounts =>
 			res.render("adminAccounts", {
 				layout: "adminLayout",
 				accounts,
 				moment,
 				accountDBID,
 				email
-			});
-		}).catch(err => {
+			})
+		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});

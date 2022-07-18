@@ -66,7 +66,7 @@ module.exports.MainHtml = () => [
 /**
  * @param {modules} modules
  */
-module.exports.PartialMenuHtml = ({ i18n, logger, sequelize, shopModel }) => [
+module.exports.PartialMenuHtml = ({ i18n, logger, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[query("active").optional().isNumeric()],
@@ -77,31 +77,19 @@ module.exports.PartialMenuHtml = ({ i18n, logger, sequelize, shopModel }) => [
 	(req, res) => {
 		const { active } = req.query;
 
-		shopModel.categories.belongsTo(shopModel.categoryStrings, { foreignKey: "id" });
-		shopModel.categories.hasOne(shopModel.categoryStrings, { foreignKey: "categoryId" });
-
 		shopModel.categories.findAll({
 			where: { active: 1 },
 			include: [{
+				as: "strings",
 				model: shopModel.categoryStrings,
-				where: { language: i18n.getLocale() },
-				attributes: []
+				where: { language: i18n.getLocale() }
 			}],
-			attributes: {
-				include: [
-					[sequelize.col("title"), "title"]
-				]
-			},
 			order: [
 				["sort", "DESC"]
 			]
-		}).then(categories => {
-			if (categories === null) {
-				return res.status(500).send();
-			}
-
-			res.render("partials/shopMenu", { categories, active });
-		}).catch(err => {
+		}).then(categories =>
+			res.render("partials/shopMenu", { categories, active })
+		).catch(err => {
 			logger.error(err);
 			res.status(500).send();
 		});
@@ -131,9 +119,6 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 			});
 		}
 
-		shopModel.products.belongsTo(shopModel.productStrings, { foreignKey: "id" });
-		shopModel.products.hasOne(shopModel.productStrings, { foreignKey: "productId" });
-
 		shopModel.products.findAll({
 			where: {
 				...category ? { categoryId: category } : {},
@@ -142,12 +127,12 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 				validBefore: { [Op.gt]: sequelize.fn("NOW") }
 			},
 			include: [{
+				as: "strings",
 				model: shopModel.productStrings,
 				where: {
 					...search ? { title: { [Op.like]: `%${search}%` } } : {},
 					language: i18n.getLocale()
 				},
-				attributes: [],
 				required: false
 			}],
 			attributes: {
@@ -160,30 +145,21 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 								shop_product_item.productId = shop_products.id
 						)`),
 						"itemsCount"
-					],
-					[sequelize.col("title"), "title"],
-					[sequelize.col("description"), "description"]
+					]
 				]
 			},
 			order: [
 				["sort", "DESC"]
 			]
 		}).then(products => {
-			if (products === null) {
-				return res.status(500).send();
-			}
-
 			const promises = [];
 			const productsMap = new Map();
-
-			shopModel.productItems.belongsTo(dataModel.itemTemplates, { foreignKey: "itemTemplateId" });
-			dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
 
 			products.forEach(product => {
 				productsMap.set(product.get("id"), {
 					price: product.get("price"),
-					title: product.get("title"),
-					description: product.get("description"),
+					title: product.get("strings")?.get("title"),
+					description: product.get("strings")?.get("description"),
 					icon: product.get("icon"),
 					rareGrade: product.get("rareGrade"),
 					itemsCount: product.get("itemsCount"),
@@ -192,71 +168,61 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 
 				promises.push(shopModel.productItems.findOne({
 					where: { productId: product.get("id") },
-					include: [{
-						model: dataModel.itemTemplates,
-						include: [{
+					include: [
+						{
+							as: "template",
+							model: dataModel.itemTemplates
+						},
+						{
+							as: "strings",
 							model: dataModel.itemStrings,
 							where: {
-								...search && !product.get("title") ? { string: { [Op.like]: `%${search}%` } } : {},
+								...search && !product.get("strings")?.get("title") ? { string: { [Op.like]: `%${search}%` } } : {},
 								language: i18n.getLocale()
-							},
-							attributes: []
-						}],
-						attributes: []
-					}],
-					attributes: {
-						include: [
-							[sequelize.col("productId"), "productId"],
-							[sequelize.col("boxItemCount"), "boxItemCount"],
-							[sequelize.col("rareGrade"), "rareGrade"],
-							[sequelize.col("icon"), "icon"],
-							[sequelize.col("string"), "string"],
-							[sequelize.col("toolTip"), "toolTip"]
-						]
-					},
+							}
+						}
+					],
 					order: [
 						["createdAt", "ASC"]
 					]
 				}));
 			});
 
-			return Promise.all(promises).then(productItemsAssoc => {
-				if (productItemsAssoc !== null) {
-					for (const productItem of productItemsAssoc) {
-						if (productItem === null) {
-							break;
+			return Promise.all(promises).then(productItems => {
+				productItems.forEach(productItem => {
+					if (productItem === null) {
+						return;
+					}
+
+					const product = productsMap.get(productItem.get("productId"));
+
+					if (product) {
+						if (!product.title) {
+							product.title = productItem.get("strings").get("string");
 						}
 
-						const product = productsMap.get(productItem.get("productId"));
-
-						if (product) {
-							if (!product.title) {
-								product.title = productItem.get("string");
-							}
-
-							if (!product.description) {
-								product.description = productItem.get("toolTip");
-							}
-
-							if (!product.icon) {
-								product.icon = productItem.get("icon");
-							}
-
-							if (product.rareGrade === null) {
-								product.rareGrade = productItem.get("rareGrade");
-							}
-
-							if (!product.itemCount) {
-								product.itemCount = productItem.get("boxItemCount");
-							}
+						if (!product.description) {
+							product.description = productItem.get("strings").get("toolTip");
 						}
 
-						// Remove unresolved products
-						if (!product.icon || (!product.title && !product.description)) {
-							productsMap.delete(productItem.get("productId"));
+						if (!product.icon) {
+							product.icon = productItem.get("template").get("icon");
+						}
+
+						if (product.rareGrade === null) {
+							product.rareGrade = productItem.get("template").get("rareGrade");
+						}
+
+						if (!product.itemCount) {
+							product.itemCount = productItem.get("boxItemCount");
 						}
 					}
-				}
+
+					// Remove unresolved products
+					if (!product.icon || (!product.title && !product.description)) {
+						productsMap.delete(productItem.get("productId"));
+					}
+				});
 
 				res.render("partials/shopCatalog", { helpers, products: productsMap, search: search || "" });
 			});
@@ -284,9 +250,6 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataM
 	(req, res) => {
 		const { id, search, scroll, back } = req.body;
 
-		shopModel.products.belongsTo(shopModel.productStrings, { foreignKey: "id" });
-		shopModel.products.hasOne(shopModel.productStrings, { foreignKey: "productId" });
-
 		shopModel.products.findOne({
 			where: {
 				id,
@@ -295,18 +258,12 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataM
 				validBefore: { [Op.gt]: sequelize.fn("NOW") }
 			},
 			include: [{
+				as: "strings",
 				model: shopModel.productStrings,
 				where: { language: i18n.getLocale() },
-				attributes: [],
 				required: false
-			}],
-			attributes: {
-				include: [
-					[sequelize.col("title"), "title"],
-					[sequelize.col("description"), "description"]
-				]
-			}
-		}).then(async product => {
+			}]
+		}).then(product => {
 			if (product === null) {
 				return res.status(500).send();
 			}
@@ -315,110 +272,82 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataM
 				id: product.get("id"),
 				categoryId: product.get("categoryId"),
 				price: product.get("price"),
-				title: product.get("title"),
-				description: product.get("description"),
+				title: product.get("strings")?.get("title"),
+				description: product.get("strings")?.get("description"),
 				icon: product.get("icon"),
 				rareGrade: product.get("rareGrade")
 			};
 
-			shopModel.productItems.belongsTo(dataModel.itemTemplates, { foreignKey: "itemTemplateId" });
-			dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
-
 			return shopModel.productItems.findAll({
 				where: { productId: product.get("id") },
-				include: [{
-					model: dataModel.itemTemplates,
-					include: [{
+				include: [
+					{
+						as: "template",
+						model: dataModel.itemTemplates
+					},
+					{
+						as: "strings",
 						model: dataModel.itemStrings,
-						where: { language: i18n.getLocale() },
-						attributes: []
-					}],
-					attributes: []
-				}],
-				attributes: {
-					include: [
-						[sequelize.col("productId"), "productId"],
-						[sequelize.col("boxItemCount"), "boxItemCount"],
-						[sequelize.col("rareGrade"), "rareGrade"],
-						[sequelize.col("requiredLevel"), "requiredLevel"],
-						[sequelize.col("requiredClass"), "requiredClass"],
-						[sequelize.col("requiredGender"), "requiredGender"],
-						[sequelize.col("requiredRace"), "requiredRace"],
-						[sequelize.col("tradable"), "tradable"],
-						[sequelize.col("warehouseStorable"), "warehouseStorable"],
-						[sequelize.col("icon"), "icon"],
-						[sequelize.col("string"), "string"],
-						[sequelize.col("toolTip"), "toolTip"]
-					]
-				},
+						where: { language: i18n.getLocale() }
+					}
+				],
 				order: [
 					["createdAt", "ASC"]
 				]
 			}).then(async items => {
-				if (items === null) {
+				if (items.length === 0) {
 					return res.status(500).send();
 				}
 
+				const firstItem = items[0];
+				const conversions = [];
 				const promises = [];
 
-				items.forEach(async item => {
-					dataModel.itemConversions.belongsTo(dataModel.itemTemplates, { foreignKey: "fixedItemTemplateId" });
-					dataModel.itemTemplates.hasOne(dataModel.itemStrings, { foreignKey: "itemTemplateId" });
-
+				items.forEach(item => {
 					promises.push(dataModel.itemConversions.findAll({
 						where: { itemTemplateId: item.get("itemTemplateId") },
-						include: [{
-							model: dataModel.itemTemplates,
-							include: [{
+						include: [
+							{
+								as: "template",
+								model: dataModel.itemTemplates
+							},
+							{
+								as: "strings",
 								model: dataModel.itemStrings,
-								where: { language: i18n.getLocale() },
-								attributes: []
-							}],
-							attributes: []
-						}],
-						attributes: {
-							include: [
-								[sequelize.col("icon"), "icon"],
-								[sequelize.col("rareGrade"), "rareGrade"],
-								[sequelize.col("string"), "string"],
-								[sequelize.col("toolTip"), "toolTip"]
-							]
-						}
+								where: { language: i18n.getLocale() }
+							}
+						]
 					}));
 				});
 
-				const firstItem = items[0];
-				const ItemConversionsAssoc = await Promise.all(promises);
-				const conversions = [];
-
-				for (const ItemConversionAssoc of ItemConversionsAssoc) {
-					ItemConversionAssoc.forEach(conversion => conversions.push(conversion));
-				}
+				(await Promise.all(promises)).forEach(ItemConversion =>
+					ItemConversion.forEach(conversion => conversions.push(conversion))
+				);
 
 				if (!productObj.title) {
-					productObj.title = firstItem.get("string");
+					productObj.title = firstItem.get("strings").get("string");
 				}
 
 				if (!productObj.description) {
-					productObj.description = firstItem.get("toolTip");
+					productObj.description = firstItem.get("strings").get("toolTip");
 				}
 
 				if (!productObj.icon) {
-					productObj.icon = firstItem.get("icon");
+					productObj.icon = firstItem.get("template").get("icon");
 				}
 
 				if (!productObj.rareGrade) {
-					productObj.rareGrade = firstItem.get("rareGrade");
+					productObj.rareGrade = firstItem.get("template").get("rareGrade");
 				}
 
-				productObj.requiredLevel = firstItem.get("requiredLevel");
-				productObj.requiredClass = firstItem.get("requiredClass")?.split(";") || [];
-				productObj.requiredGender = firstItem.get("requiredGender");
-				productObj.requiredRace = (firstItem.get("requiredRace")?.split(";") || [])
+				productObj.requiredLevel = firstItem.get("template").get("requiredLevel");
+				productObj.requiredClass = firstItem.get("template").get("requiredClass")?.split(";") || [];
+				productObj.requiredGender = firstItem.get("template").get("requiredGender");
+				productObj.requiredRace = (firstItem.get("template").get("requiredRace")?.split(";") || [])
 					.map(race => (race === "popori" && productObj.requiredGender === "female" ? "elin" : "popori"));
 
-				productObj.tradable = firstItem.get("tradable");
-				productObj.warehouseStorable = firstItem.get("warehouseStorable");
+				productObj.tradable = firstItem.get("template").get("tradable");
+				productObj.warehouseStorable = firstItem.get("template").get("warehouseStorable");
 
 				res.render("partials/shopProduct", { helpers, product: productObj, items, conversions, search, scroll, back });
 			});
@@ -444,22 +373,20 @@ module.exports.PartialWelcomeHtml = ({ logger, accountModel, serverModel }) => [
 				where: { serverId: req.user.lastLoginServer }
 			});
 
-			const benefitsData = await accountModel.benefits.findAll({
-				where: { accountDBID: req.user.accountDBID }
-			});
-
-			if (server === null || benefitsData === null) {
-				return res.status(500).send();
-			}
-
 			const benefits = {};
-			for (const benefitData of benefitsData) {
-				benefits[benefitData.get("benefitId")] = benefitData.get("availableUntil");
-			}
 
-			const shopConfig = helpers.requireReload("../../config/shop");
+			(await accountModel.benefits.findAll({
+				where: { accountDBID: req.user.accountDBID }
+			})).forEach(benefitData =>
+				benefits[benefitData.get("benefitId")] = benefitData.get("availableUntil")
+			);
 
-			res.render("partials/shopWelcome", { moment, server, benefits, shopConfig });
+			res.render("partials/shopWelcome", {
+				moment,
+				server,
+				benefits,
+				shopConfig: helpers.requireReload("../../config/shop")
+			});
 		} catch (err) {
 			logger.error(err);
 			res.status(500).send();
@@ -470,7 +397,7 @@ module.exports.PartialWelcomeHtml = ({ logger, accountModel, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.PartialPromoCodeHtml = ({ i18n, logger, sequelize, shopModel }) => [
+module.exports.PartialPromoCodeHtml = ({ i18n, logger, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	/**
@@ -479,27 +406,20 @@ module.exports.PartialPromoCodeHtml = ({ i18n, logger, sequelize, shopModel }) =
 	(req, res) => {
 		const { tzOffset } = req.query;
 
-		shopModel.promoCodeActivated.belongsTo(shopModel.promoCodes, { foreignKey: "promoCodeId" });
-		shopModel.promoCodes.hasOne(shopModel.promoCodeStrings, { foreignKey: "promoCodeId" });
-
 		return shopModel.promoCodeActivated.findAll({
 			where: { accountDBID: req.user.accountDBID },
-			include: [{
-				model: shopModel.promoCodes,
-				include: [{
+			include: [
+				{
+					as: "info",
+					model: shopModel.promoCodes
+				},
+				{
+					as: "strings",
 					model: shopModel.promoCodeStrings,
 					where: { language: i18n.getLocale() },
-					attributes: [],
 					required: false
-				}],
-				attributes: []
-			}],
-			attributes: {
-				include: [
-					[sequelize.col("promoCode"), "promoCode"],
-					[sequelize.col("description"), "description"]
-				]
-			},
+				}
+			],
 			order: [
 				["createdAt", "DESC"]
 			]
@@ -597,15 +517,9 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, sequelize, reportModel, s
 				return resultJson(res, 2000, "product not exists");
 			}
 
-			const shopProductItems = await shopModel.productItems.findAll({
+			(await shopModel.productItems.findAll({
 				where: { productId: shopProduct.get("id") }
-			});
-
-			if (shopProductItems === null) {
-				return resultJson(res, 3000, "items not exists");
-			}
-
-			shopProductItems.forEach(item =>
+			})).forEach(item =>
 				items.push({
 					item_id: item.get("boxItemId"),
 					item_count: item.get("boxItemCount")

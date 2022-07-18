@@ -42,7 +42,7 @@
 									</thead>
 									<tbody>
 										<%_ accounts.forEach(account => { _%>
-										<%_ const banned = moment(account.get("bannedStartTime")) < moment() && moment(account.get("bannedEndTime")) > moment(); _%>
+										<%_ const banned = moment(account.get("banned")?.get("startTime")) < moment() && moment(account.get("banned")?.get("endTime")) > moment(); _%>
 										<tr>
 											<td><%= account.get("accountDBID") %></td>
 											<td><a href="/accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><%= account.get("userName") %></a><%- banned ? ' <i class="fa fa-ban text-danger"></i>' : "" %></a></td>

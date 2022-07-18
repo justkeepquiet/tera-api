@@ -46,12 +46,12 @@
 			<tr>
 				<td style="width: 30px;">
 					<div class="item-icon-block2">
-						<img src="/public/shop/images/tera-icons/icon_items/<%= item.get("icon") %>.png" class="icon_grade_<%= item.get("rareGrade") %> item-icon2" alt="">
-						<img src="/public/shop/images/icons/icon_grade_<%= item.get("rareGrade") %>.png" class="item-icon-grade2" alt="">
+						<img src="/public/shop/images/tera-icons/icon_items/<%= item.get("template").get("icon") %>.png" class="icon_grade_<%= item.get("template").get("rareGrade") %> item-icon2" alt="">
+						<img src="/public/shop/images/icons/icon_grade_<%= item.get("template").get("rareGrade") %>.png" class="item-icon-grade2" alt="">
 					</div>
 				</td>
 				<td class="name">
-					<span class="item_grade_<%= item.get("rareGrade") %>"><%- item.get("string") %></span> &ndash; <%- item.get("boxItemCount") %> <%= __("pc.") %>
+					<span class="item_grade_<%= item.get("template").get("rareGrade") %>"><%- item.get("strings").get("string") %></span> &ndash; <%- item.get("boxItemCount") %> <%= __("pc.") %>
 				</td>
 			</tr>
 			<%_ }) _%>
@@ -64,12 +64,12 @@
 			<tr>
 				<td style="width: 30px;">
 					<div class="item-icon-block2">
-						<img src="/public/shop/images/tera-icons/icon_items/<%= conversion.get("icon") %>.png" class="icon_grade_<%= conversion.get("rareGrade") %> item-icon2" alt="">
-						<img src="/public/shop/images/icons/icon_grade_<%= conversion.get("rareGrade") %>.png" class="item-icon-grade2" alt="">
+						<img src="/public/shop/images/tera-icons/icon_items/<%= conversion.get("template").get("icon") %>.png" class="icon_grade_<%= conversion.get("template").get("rareGrade") %> item-icon2" alt="">
+						<img src="/public/shop/images/icons/icon_grade_<%= conversion.get("template").get("rareGrade") %>.png" class="item-icon-grade2" alt="">
 					</div>
 				</td>
 				<td class="name">
-					<span class="item_grade_<%= conversion.get("rareGrade") %>"><%- conversion.get("string") %></span>
+					<span class="item_grade_<%= conversion.get("template").get("rareGrade") %>"><%- conversion.get("strings").get("string") %></span>
 				</td>
 			</tr>
 			<%_ }) _%>

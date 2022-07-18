@@ -12,37 +12,41 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("report_characters", {
 		accountDBID: {
-			type: DataTypes.BIGINT,
-			primaryKey: true
+			type: DataTypes.BIGINT(20),
+			primaryKey: true,
+			allowNull: false
 		},
 		serverId: {
-			type: DataTypes.INTEGER,
-			primaryKey: true
+			type: DataTypes.INTEGER(11),
+			primaryKey: true,
+			allowNull: false
 		},
 		characterId: {
-			type: DataTypes.INTEGER,
-			primaryKey: true
+			type: DataTypes.INTEGER(11),
+			primaryKey: true,
+			allowNull: false
 		},
 		name: {
 			type: DataTypes.STRING(64)
 		},
 		classId: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11)
 		},
 		genderId: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11)
 		},
 		raceId: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11)
 		},
 		level: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11)
 		},
 		reportType: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11)
 		},
 		reportTime: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW
 		}
 	})
 ;

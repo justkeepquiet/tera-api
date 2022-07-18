@@ -5,6 +5,8 @@
  * @typedef {import("../models/report.model").reportModel} reportModel
  */
 
+const databaseLogger = require("../utils/logger").createLogger("Database");
+
 /**
  * @param {Response} res
  */
@@ -50,7 +52,7 @@ module.exports.writeOperationReport = (reportModel, params = {}) =>
 			payload: JSON.stringify([req.query, req.body]),
 			reportType: params.reportType || 1
 		}).catch(err => {
-			reportModel.logger.error(err);
+			databaseLogger.error(err);
 		});
 
 		next();

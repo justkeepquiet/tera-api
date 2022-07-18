@@ -14,8 +14,30 @@
  * @param {Sequelize} sequelize
  * @param {DataTypes} DataTypes
  */
-module.exports = (sequelize, DataTypes) => ({
-	itemTemplates: require("./data/dataItemTemplates.model")(sequelize, DataTypes),
-	itemConversions: require("./data/dataItemConversions.model")(sequelize, DataTypes),
-	itemStrings: require("./data/dataItemStrings.model")(sequelize, DataTypes)
-});
+module.exports = (sequelize, DataTypes) => {
+	const model = {
+		itemTemplates: require("./data/dataItemTemplates.model")(sequelize, DataTypes),
+		itemConversions: require("./data/dataItemConversions.model")(sequelize, DataTypes),
+		itemStrings: require("./data/dataItemStrings.model")(sequelize, DataTypes)
+	};
+
+	model.itemConversions.hasOne(model.itemTemplates, {
+		foreignKey: "itemTemplateId",
+		sourceKey: "fixedItemTemplateId",
+		as: "template"
+	});
+
+	model.itemConversions.hasOne(model.itemStrings, {
+		foreignKey: "itemTemplateId",
+		sourceKey: "fixedItemTemplateId",
+		as: "strings"
+	});
+
+	model.itemTemplates.hasOne(model.itemStrings, {
+		foreignKey: "itemTemplateId",
+		sourceKey: "itemTemplateId",
+		as: "strings"
+	});
+
+	return model;
+};

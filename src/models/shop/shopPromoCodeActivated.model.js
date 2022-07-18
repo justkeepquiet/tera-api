@@ -12,20 +12,24 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("shop_promocode_activated", {
 		id: {
-			type: DataTypes.INTEGER,
+			type: DataTypes.INTEGER(11),
 			primaryKey: true,
-			autoIncrement: true
+			autoIncrement: true,
+			allowNull: false
 		},
 		promoCodeId: {
-			type: DataTypes.INTEGER,
-			unique: "promoCodeId"
+			type: DataTypes.INTEGER(11),
+			unique: "promoCodeId",
+			allowNull: false
 		},
 		accountDBID: {
 			type: DataTypes.BIGINT(20),
-			unique: "promoCodeId"
+			unique: "promoCodeId",
+			allowNull: false
 		},
 		createdAt: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW
 		}
 	})
 ;

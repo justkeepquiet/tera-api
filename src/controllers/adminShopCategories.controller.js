@@ -22,21 +22,13 @@ module.exports.index = ({ i18n, logger, sequelize, shopModel }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		shopModel.categories.belongsTo(shopModel.categoryStrings, { foreignKey: "id" });
-		shopModel.categories.hasOne(shopModel.categoryStrings, { foreignKey: "categoryId" });
-
 		shopModel.categories.findAll({
 			include: [{
+				as: "strings",
 				model: shopModel.categoryStrings,
 				where: { language: i18n.getLocale() },
-				required: false,
-				attributes: []
+				required: false
 			}],
-			attributes: {
-				include: [
-					[sequelize.col("title"), "title"]
-				]
-			},
 			order: [
 				["sort", "DESC"]
 			]
@@ -172,11 +164,9 @@ module.exports.edit = ({ logger, shopModel }) => [
 			}).then(strings => {
 				const title = {};
 
-				if (strings !== null) {
-					strings.forEach(string => {
-						title[string.get("language")] = string.get("title");
-					});
-				}
+				strings.forEach(string => {
+					title[string.get("language")] = string.get("title");
+				});
 
 				res.render("adminShopCategoriesEdit", {
 					layout: "adminLayout",

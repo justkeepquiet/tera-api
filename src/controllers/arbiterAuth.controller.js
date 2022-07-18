@@ -71,26 +71,18 @@ module.exports.GameAuthenticationLogin = ({ logger, sequelize, accountModel }) =
 	(req, res) => {
 		const { authKey, clientIP, userNo } = req.body;
 
-		accountModel.info.belongsTo(accountModel.bans, { foreignKey: "accountDBID" });
-		accountModel.info.hasOne(accountModel.bans, { foreignKey: "accountDBID" });
-
 		accountModel.info.findOne({
 			where: { accountDBID: userNo },
 			include: [{
+				as: "banned",
 				model: accountModel.bans,
 				where: {
 					active: 1,
 					startTime: { [Op.lt]: sequelize.fn("NOW") },
 					endTime: { [Op.gt]: sequelize.fn("NOW") }
 				},
-				required: false,
-				attributes: []
-			}],
-			attributes: {
-				include: [
-					[sequelize.col("startTime"), "banned"]
-				]
-			}
+				required: false
+			}]
 		}).then(account =>
 			accountModel.bans.findOne({
 				where: {
@@ -104,7 +96,7 @@ module.exports.GameAuthenticationLogin = ({ logger, sequelize, accountModel }) =
 					return resultJson(res, 50000, "account not exist");
 				}
 
-				if (account.get("banned") || bannedByIp !== null) {
+				if (account.get("banned") !== null || bannedByIp !== null) {
 					return resultJson(res, 50010, "account banned");
 				}
 

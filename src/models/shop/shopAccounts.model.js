@@ -12,20 +12,26 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("shop_accounts", {
 		accountDBID: {
-			type: DataTypes.BIGINT,
-			primaryKey: true
+			type: DataTypes.BIGINT(20),
+			primaryKey: true,
+			allowNull: false
 		},
 		balance: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11),
+			defaultValue: 0
 		},
 		active: {
-			type: DataTypes.TINYINT(4)
+			type: DataTypes.TINYINT(4),
+			defaultValue: 1
 		},
 		createdAt: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW
 		},
 		updatedAt: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW,
+			onUpdate: DataTypes.NOW
 		}
 	})
 ;

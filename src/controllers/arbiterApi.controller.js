@@ -134,9 +134,7 @@ module.exports.GetUserInfo = ({ logger, sequelize, accountModel }) => [
 					where: { accountDBID: account.get("accountDBID") }
 				});
 
-				if (characters !== null) {
-					charCountInfo = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
-				}
+				charCountInfo = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
 			} catch (err) {
 				logger.error(err);
 			}
@@ -146,9 +144,7 @@ module.exports.GetUserInfo = ({ logger, sequelize, accountModel }) => [
 					where: { accountDBID: account.get("accountDBID") }
 				});
 
-				if (benefits !== null) {
-					benefit = helpers.getBenefitsArray(benefits, "benefitId", "availableUntil");
-				}
+				benefit = helpers.getBenefitsArray(benefits, "benefitId", "availableUntil");
 			} catch (err) {
 				logger.error(err);
 			}

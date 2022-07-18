@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) =>
 	sequelize.define("server_strings", {
 		language: {
 			type: DataTypes.STRING(3),
-			primaryKey: true
+			primaryKey: true,
+			allowNull: false
 		},
 		categoryPvE: {
 			type: DataTypes.STRING(50)

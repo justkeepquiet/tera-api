@@ -13,13 +13,13 @@
  * @property {import("./utils/logger").logger} logger
  * @property {import("./utils/expressServer").app} app
  * @property {import("./utils/datasheets").datasheets} datasheets
+ * @property {import("./models/queue.model").queueModel} queueModel
+ * @property {import("./models/data.model").dataModel} dataModel
  * @property {import("./models/account.model").accountModel} accountModel
  * @property {import("./models/server.model").serverModel} serverModel
  * @property {import("./models/report.model").reportModel} reportModel
- * @property {import("./models/queue.model").queueModel} queueModel
  * @property {import("./models/shop.model").shopModel} shopModel
  * @property {import("./models/box.model").boxModel} boxModel
- * @property {import("./models/data.model").dataModel} dataModel
  */
 
 require("dotenv").config();
@@ -123,13 +123,13 @@ moduleLoader.setPromise("sequelize", () => new Promise((resolve, reject) => {
 	);
 
 	sequelize.authenticate().then(() => {
-		moduleLoader.setAsync("accountModel", () => require("./models/account.model")(sequelize, DataTypes));
-		moduleLoader.setAsync("serverModel", () => require("./models/server.model")(sequelize, DataTypes));
-		moduleLoader.setAsync("reportModel", () => require("./models/report.model")(sequelize, DataTypes));
-		moduleLoader.setAsync("queueModel", () => require("./models/queue.model")(sequelize, DataTypes));
-		moduleLoader.setAsync("shopModel", () => require("./models/shop.model")(sequelize, DataTypes));
-		moduleLoader.setAsync("boxModel", () => require("./models/box.model")(sequelize, DataTypes));
-		moduleLoader.setAsync("dataModel", () => require("./models/data.model")(sequelize, DataTypes));
+		moduleLoader.setAsync("queueModel", require("./models/queue.model"), sequelize, DataTypes);
+		moduleLoader.setAsync("dataModel", require("./models/data.model"), sequelize, DataTypes);
+		moduleLoader.setAsync("accountModel", require("./models/account.model"), sequelize, DataTypes);
+		moduleLoader.setAsync("serverModel", require("./models/server.model"), sequelize, DataTypes);
+		moduleLoader.setAsync("reportModel", require("./models/report.model"), sequelize, DataTypes);
+		moduleLoader.setAsync("shopModel", require("./models/shop.model"), sequelize, DataTypes);
+		moduleLoader.setAsync("boxModel", require("./models/box.model"), sequelize, DataTypes);
 
 		sequelizeLogger.info("Connected.");
 		resolve(sequelize);

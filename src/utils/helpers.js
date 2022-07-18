@@ -39,6 +39,7 @@ module.exports.formatStrsheet = string =>
 		.replace(/\$H_W_BAD/g, "<span style=\"color: #ff0000\">")
 		.replace(/\$COLOR_END/g, "</span>")
 		.replace(/\$value(\d{0,})/g, "X")
+		.replace(/\$time/g, "T")
 ;
 
 /**

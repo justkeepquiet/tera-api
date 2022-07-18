@@ -15,7 +15,7 @@ const { accessFunctionHandler, writeOperationReport } = require("../middlewares/
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, sequelize, accountModel, serverModel }) => [
+module.exports.index = ({ logger, accountModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -24,27 +24,14 @@ module.exports.index = ({ logger, sequelize, accountModel, serverModel }) => [
 	(req, res) => {
 		const { serverId } = req.query;
 
-		accountModel.online.belongsTo(accountModel.info, { foreignKey: "accountDBID" });
-		accountModel.online.hasOne(accountModel.info, { foreignKey: "accountDBID" });
-
 		accountModel.online.findAll({
 			where: {
 				...serverId ? { serverId } : {}
 			},
 			include: [{
-				model: accountModel.info,
-				required: false,
-				attributes: []
-			}],
-			attributes: {
-				include: [
-					[sequelize.col("userName"), "userName"],
-					[sequelize.col("lastLoginTime"), "lastLoginTime"],
-					[sequelize.col("lastLoginIP"), "lastLoginIP"],
-					[sequelize.col("permission"), "permission"],
-					[sequelize.col("privilege"), "privilege"]
-				]
-			}
+				as: "info",
+				model: accountModel.info
+			}]
 		}).then(online =>
 			serverModel.info.findAll().then(servers => {
 				res.render("adminOnline", {

@@ -12,29 +12,37 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("box_items", {
 		id: {
-			type: DataTypes.BIGINT,
+			type: DataTypes.BIGINT(20),
 			primaryKey: true,
-			autoIncrement: true
+			autoIncrement: true,
+			allowNull: false
 		},
 		boxId: {
-			type: DataTypes.INTEGER,
-			unique: "unique"
+			type: DataTypes.BIGINT(20),
+			unique: "unique",
+			allowNull: false
 		},
 		itemTemplateId: {
-			type: DataTypes.BIGINT,
-			unique: "unique"
+			type: DataTypes.BIGINT(20),
+			unique: "unique",
+			allowNull: false
 		},
 		boxItemId: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11)
 		},
 		boxItemCount: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 1
 		},
 		createdAt: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW
 		},
 		updatedAt: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW,
+			onUpdate: DataTypes.NOW
 		}
 	})
 ;

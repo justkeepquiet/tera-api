@@ -12,17 +12,20 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("shop_category_strings", {
 		id: {
-			type: DataTypes.BIGINT,
+			type: DataTypes.INTEGER(11),
 			primaryKey: true,
-			autoIncrement: true
+			autoIncrement: true,
+			allowNull: false
 		},
 		language: {
 			type: DataTypes.STRING(3),
-			unique: "unique"
+			unique: "unique",
+			allowNull: false
 		},
 		categoryId: {
-			type: DataTypes.INTEGER,
-			unique: "unique"
+			type: DataTypes.INTEGER(11),
+			unique: "unique",
+			allowNull: false
 		},
 		title: {
 			type: DataTypes.STRING(1024)

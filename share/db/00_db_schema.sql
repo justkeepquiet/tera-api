@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS `account_bans` (
   `endTime` datetime NOT NULL,
   `ip` text,
   `description` text,
-  `active` tinyint(4) DEFAULT '1',
+  `active` tinyint(4) NOT NULL DEFAULT '1',
   PRIMARY KEY (`accountDBID`),
   FULLTEXT KEY `ip` (`ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `account_info` (
   `passWord` varchar(128) NOT NULL,
   `authKey` varchar(128) DEFAULT NULL,
   `email` varchar(64) DEFAULT NULL,
-  `registerTime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `registerTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `lastLoginTime` timestamp NULL DEFAULT NULL,
   `lastLoginIP` varchar(64) DEFAULT NULL,
   `lastLoginServer` int(11) DEFAULT NULL,
@@ -57,12 +57,12 @@ CREATE TABLE IF NOT EXISTS `account_info` (
 CREATE TABLE IF NOT EXISTS `account_online` (
   `accountDBID` bigint(20) NOT NULL,
   `serverId` int(11) NOT NULL,
-  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`accountDBID`,`serverId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `box_info` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `icon` varchar(255) NOT NULL,
   `title` varchar(1024) NOT NULL,
   `content` varchar(2048) NOT NULL,
@@ -74,8 +74,8 @@ CREATE TABLE IF NOT EXISTS `box_info` (
 
 CREATE TABLE IF NOT EXISTS `box_items` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `boxId` int(11) NOT NULL,
-  `itemTemplateId` int(11) NOT NULL,
+  `boxId` bigint(20) NOT NULL,
+  `itemTemplateId` bigint(20) NOT NULL,
   `boxItemId` int(11) DEFAULT NULL,
   `boxItemCount` int(11) NOT NULL DEFAULT '1',
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -123,7 +123,7 @@ CREATE TABLE IF NOT EXISTS `queue_tasks` (
   `tag` varchar(256) DEFAULT NULL,
   `handler` varchar(256) NOT NULL,
   `arguments` text NOT NULL,
-  `status` int(11) NOT NULL DEFAULT '0',
+  `status` int(11) NOT NULL,
   `message` text,
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -141,17 +141,6 @@ CREATE TABLE IF NOT EXISTS `report_activity` (
   KEY `accountDBID` (`accountDBID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE IF NOT EXISTS `report_boxes` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `accountDBID` bigint(20) NOT NULL,
-  `serverId` int(11) DEFAULT NULL,
-  `characterId` int(11) DEFAULT NULL,
-  `logId` int(11) DEFAULT NULL,
-  `context` text NOT NULL,
-  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE IF NOT EXISTS `report_admin_op` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `userId` varchar(64) DEFAULT NULL,
@@ -163,6 +152,17 @@ CREATE TABLE IF NOT EXISTS `report_admin_op` (
   `payload` text,
   `reportType` int(11) DEFAULT NULL,
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `report_boxes` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `accountDBID` bigint(20) NOT NULL,
+  `serverId` int(11) DEFAULT NULL,
+  `characterId` int(11) DEFAULT NULL,
+  `logId` bigint(20) DEFAULT NULL,
+  `context` text NOT NULL,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -209,7 +209,7 @@ CREATE TABLE IF NOT EXISTS `report_shop_fund` (
 
 CREATE TABLE IF NOT EXISTS `report_shop_pay` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `accountDBID` bigint(20) DEFAULT NULL,
+  `accountDBID` bigint(20) NOT NULL,
   `serverId` int(11) NOT NULL,
   `ip` varchar(64) NOT NULL,
   `boxId` bigint(20) DEFAULT NULL,
@@ -261,7 +261,6 @@ CREATE TABLE IF NOT EXISTS `server_strings` (
   PRIMARY KEY (`language`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-
 CREATE TABLE IF NOT EXISTS `shop_accounts` (
   `accountDBID` bigint(20) NOT NULL,
   `balance` int(11) DEFAULT '0',
@@ -273,10 +272,10 @@ CREATE TABLE IF NOT EXISTS `shop_accounts` (
 
 CREATE TABLE IF NOT EXISTS `shop_categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sort` int(11) NOT NULL DEFAULT '1',
+  `sort` int(11) NOT NULL DEFAULT '0',
   `active` tinyint(4) NOT NULL DEFAULT '1',
-  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -291,15 +290,15 @@ CREATE TABLE IF NOT EXISTS `shop_category_strings` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `shop_products` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `categoryId` int(11) DEFAULT NULL,
-  `price` int(11) DEFAULT NULL,
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `categoryId` int(11) NOT NULL,
+  `price` int(11) NOT NULL,
   `icon` varchar(255) DEFAULT NULL,
   `rareGrade` int(11) DEFAULT NULL,
   `validAfter` datetime NOT NULL,
   `validBefore` datetime NOT NULL,
   `sort` int(11) NOT NULL DEFAULT '0',
-  `active` tinyint(4) DEFAULT '1',
+  `active` tinyint(4) NOT NULL DEFAULT '1',
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
@@ -307,8 +306,8 @@ CREATE TABLE IF NOT EXISTS `shop_products` (
 
 CREATE TABLE IF NOT EXISTS `shop_product_items` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `productId` int(11) NOT NULL,
-  `itemTemplateId` int(11) NOT NULL,
+  `productId` bigint(20) NOT NULL,
+  `itemTemplateId` bigint(20) NOT NULL,
   `boxItemId` int(11) DEFAULT NULL,
   `boxItemCount` int(11) NOT NULL DEFAULT '1',
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -320,8 +319,8 @@ CREATE TABLE IF NOT EXISTS `shop_product_items` (
 CREATE TABLE IF NOT EXISTS `shop_product_strings` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `language` varchar(3) NOT NULL,
-  `productId` int(11) NOT NULL,
-  `title` varchar(1024) DEFAULT NULL,
+  `productId` bigint(20) NOT NULL,
+  `title` varchar(2048) DEFAULT NULL,
   `description` text,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UNIQUE` (`language`,`productId`) USING BTREE
@@ -334,8 +333,8 @@ CREATE TABLE IF NOT EXISTS `shop_promocodes` (
   `validAfter` datetime NOT NULL,
   `validBefore` datetime NOT NULL,
   `active` tinyint(4) NOT NULL DEFAULT '1',
-  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`promoCodeId`) USING BTREE,
   UNIQUE KEY `promoCode` (`promoCode`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -344,7 +343,7 @@ CREATE TABLE IF NOT EXISTS `shop_promocode_activated` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `promoCodeId` int(11) NOT NULL,
   `accountDBID` bigint(20) NOT NULL,
-  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `promoCodeId` (`promoCodeId`,`accountDBID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -352,7 +351,7 @@ CREATE TABLE IF NOT EXISTS `shop_promocode_activated` (
 CREATE TABLE IF NOT EXISTS `shop_promocode_strings` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `language` varchar(3) NOT NULL,
-  `promoCodeId` bigint(20) NOT NULL,
+  `promoCodeId` int(11) NOT NULL,
   `description` varchar(2048) DEFAULT NULL,
   PRIMARY KEY (`language`,`promoCodeId`) USING BTREE,
   UNIQUE KEY `id` (`id`)

@@ -12,15 +12,18 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("account_benefits", {
 		accountDBID: {
-			type: DataTypes.BIGINT,
-			primaryKey: true
+			type: DataTypes.BIGINT(20),
+			primaryKey: true,
+			allowNull: false
 		},
 		benefitId: {
-			type: DataTypes.INTEGER,
-			primaryKey: true
+			type: DataTypes.INTEGER(11),
+			primaryKey: true,
+			allowNull: false
 		},
 		availableUntil: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			allowNull: false
 		}
 	})
 ;

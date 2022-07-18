@@ -12,27 +12,31 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("report_boxes", {
 		id: {
-			type: DataTypes.BIGINT,
+			type: DataTypes.BIGINT(20),
 			primaryKey: true,
-			autoIncrement: true
+			autoIncrement: true,
+			allowNull: false
 		},
 		accountDBID: {
-			type: DataTypes.BIGINT
+			type: DataTypes.BIGINT(20),
+			allowNull: false
 		},
 		serverId: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11)
 		},
 		characterId: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11)
 		},
 		logId: {
-			type: DataTypes.INTEGER
+			type: DataTypes.BIGINT(20)
 		},
 		context: {
-			type: DataTypes.TEXT
+			type: DataTypes.TEXT,
+			allowNull: false
 		},
 		createdAt: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW
 		}
 	})
 ;

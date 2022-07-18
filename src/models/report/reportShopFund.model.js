@@ -12,21 +12,25 @@
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("report_shop_fund", {
 		id: {
-			type: DataTypes.BIGINT,
+			type: DataTypes.BIGINT(20),
 			primaryKey: true,
-			autoIncrement: true
+			autoIncrement: true,
+			allowNull: false
 		},
 		accountDBID: {
-			type: DataTypes.BIGINT
+			type: DataTypes.BIGINT(20),
+			allowNull: false
 		},
 		amount: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11),
+			allowNull: false
 		},
 		description: {
 			type: DataTypes.STRING(255)
 		},
 		createdAt: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW
 		}
 	})
 ;

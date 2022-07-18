@@ -138,9 +138,7 @@ module.exports.LoginAction = ({ logger, sequelize, accountModel }) => [
 						where: { accountDBID: account.get("accountDBID") }
 					});
 
-					if (characters !== null) {
-						characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
-					}
+					characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
 				} catch (err) {
 					logger.error(err);
 				}

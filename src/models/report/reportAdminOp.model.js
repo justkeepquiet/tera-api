@@ -14,7 +14,8 @@ module.exports = (sequelize, DataTypes) =>
 		id: {
 			type: DataTypes.BIGINT,
 			primaryKey: true,
-			autoIncrement: true
+			autoIncrement: true,
+			allowNull: false
 		},
 		userId: {
 			type: DataTypes.STRING(64)
@@ -23,7 +24,7 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.STRING(64)
 		},
 		userSn: {
-			type: DataTypes.BIGINT
+			type: DataTypes.BIGINT(20)
 		},
 		userTz: {
 			type: DataTypes.STRING(128)
@@ -38,10 +39,11 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.TEXT
 		},
 		reportType: {
-			type: DataTypes.INTEGER
+			type: DataTypes.INTEGER(11)
 		},
 		reportTime: {
-			type: DataTypes.DATE
+			type: DataTypes.DATE,
+			defaultValue: DataTypes.NOW
 		}
 	})
 ;
