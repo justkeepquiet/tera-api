@@ -22,6 +22,7 @@ module.exports.index = ({ logger, reportModel }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
+		const { userId } = req.query;
 		let { from, to } = req.query;
 
 		from = from ? moment.tz(from, req.user.tz) : moment().subtract(30, "days");
@@ -29,6 +30,7 @@ module.exports.index = ({ logger, reportModel }) => [
 
 		reportModel.adminOp.findAll({
 			where: {
+				...userId ? { userId } : {},
 				reportTime: {
 					[Op.gt]: from.toDate(),
 					[Op.lt]: to.toDate()
@@ -43,7 +45,8 @@ module.exports.index = ({ logger, reportModel }) => [
 				moment,
 				reports,
 				from,
-				to
+				to,
+				userId
 			})
 		).catch(err => {
 			logger.error(err);

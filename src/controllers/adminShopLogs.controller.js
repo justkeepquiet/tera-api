@@ -72,8 +72,8 @@ module.exports.pay = ({ logger, serverModel, reportModel }) => [
 
 		reportModel.shopPay.findAll({
 			where: {
-				...(accountDBID ? { accountDBID } : {}),
-				...(serverId ? { serverId } : {}),
+				...accountDBID ? { accountDBID } : {},
+				...serverId ? { serverId } : {},
 				createdAt: {
 					[Op.gt]: from.toDate(),
 					[Op.lt]: to.toDate()
