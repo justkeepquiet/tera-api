@@ -251,7 +251,7 @@ moduleLoader.final().then(
 		modules.queue.setHandlers(tasksActions);
 
 		return serverLoader.final().then(() => {
-			const serversStatusCheck = () => serverCheckActions.checkAll();
+			const serversStatusCheck = () => serverCheckActions.all();
 
 			setInterval(serversStatusCheck, 60000);
 			serversStatusCheck();

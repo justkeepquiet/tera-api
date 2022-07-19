@@ -14,7 +14,7 @@ class ServerCheckActions {
 		this.modules = modules;
 	}
 
-	async checkAll() {
+	async all() {
 		let stat = null;
 
 		if (/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
