@@ -25,24 +25,20 @@ module.exports.index = modules => [
 		const serverUp = new ServerUpActions(modules);
 
 		modules.serverModel.info.findAll().then(servers => {
-			const promises = [];
-
 			servers.forEach(server => {
 				if (/^true$/i.test(process.env.SLS_AUTO_SET_AVAILABLE) && !server.get("isAvailable")) {
-					promises.push(serverUp.set(
+					serverUp.set(
 						server.get("serverId"),
 						server.get("loginIp"),
 						server.get("loginPort")
-					));
+					);
 				}
 			});
 
-			Promise.all(promises).then(() =>
-				res.render("adminServers", {
-					layout: "adminLayout",
-					servers
-				})
-			);
+			res.render("adminServers", {
+				layout: "adminLayout",
+				servers
+			});
 		}).catch(err => {
 			modules.logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });

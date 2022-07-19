@@ -43,7 +43,9 @@ class PromoCodeActions {
 		}
 
 		return this.controller[func](this.modules, this.userId, this.serverId, {
-			report: `PromoCode,${func},${promoCode}`
+			report: `PromoCode,${func},${promoCode}`,
+			logType: 2,
+			logId: promoCode
 		});
 	}
 }

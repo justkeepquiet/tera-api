@@ -889,7 +889,8 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, sequelize, serverM
 				accountDBID,
 				serverId || null,
 				characterId || null,
-				id
+				id,
+				4
 			],
 			box.get("id"));
 
@@ -1127,7 +1128,8 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, sequelize, serv
 					user.get("accountDBID"),
 					serverId || null,
 					null,
-					id
+					id,
+					4
 				],
 				box.get("id"))
 			);

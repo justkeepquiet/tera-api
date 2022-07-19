@@ -433,8 +433,11 @@
 	"Operation completed successfully.": "Операция выполнена успешно.",
 	"Operation is running in the background...": "Операция выполняется в фоновом режиме...",
 	"Rejected with message": "Отменено с сообщением",
-	"Boxes List": "Список",
-	"Boxes Logs": "Журнал",
+	"Boxes": "Коробки",
+	"Logs": "Журнал",
 	"Item Claim Boxes Logs": "Журнал отправки предметов",
-	"Show all tasks": "Показать все задачи"
+	"Show all tasks": "Показать все задачи",
+	"Log ID": "ID записи",
+	"Box": "Коробка",
+	"Chronoscroll": "VIP-предмет"
 }

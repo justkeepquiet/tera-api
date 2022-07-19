@@ -44,7 +44,9 @@ class ChronoScrollActions {
 		}
 
 		return this.controller[chronoId](this.modules, this.userId, this.serverId, {
-			report: `ChronoScroll,${chronoId}`
+			report: `ChronoScroll,${chronoId}`,
+			logType: 1,
+			logId: chronoId
 		});
 	}
 }

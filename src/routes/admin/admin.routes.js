@@ -14,6 +14,7 @@ const Passport = require("passport").Passport;
 const LocalStrategy = require("passport-local").Strategy;
 
 const adminController = require("../../controllers/admin.controller");
+const adminApiController = require("../../controllers/adminApi.controller");
 const adminOperationsReportController = require("../../controllers/adminOperationsReport.controller");
 const adminServersController = require("../../controllers/adminServers.controller");
 const adminServerStringsController = require("../../controllers/adminServerStrings.controller");
@@ -121,13 +122,14 @@ module.exports = modules => {
 	const mod = { ...modules, i18n, passport };
 
 	return express.Router()
+		// API
+		.get("/api/notifications", adminApiController.notifications(mod))
 		// Admin Panel Auth
 		.get("/", adminController.index(mod))
 		.get("/login", adminController.login(mod))
 		.post("/login", adminController.loginAction(mod))
 		.get("/logout", adminController.logoutAction(mod))
 		// Admin Panel Home
-		.get("/notifications", adminController.notifications(mod))
 		.get("/home", adminController.home(mod))
 		.get("/profile", adminController.profile(mod))
 		.get("/settings", adminController.settings(mod))

@@ -157,9 +157,11 @@ CREATE TABLE IF NOT EXISTS `report_admin_op` (
 
 CREATE TABLE IF NOT EXISTS `report_boxes` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `boxId` bigint(20) DEFAULT NULL,
   `accountDBID` bigint(20) NOT NULL,
   `serverId` int(11) DEFAULT NULL,
   `characterId` int(11) DEFAULT NULL,
+  `logType` int(11) DEFAULT NULL,
   `logId` bigint(20) DEFAULT NULL,
   `context` text NOT NULL,
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,

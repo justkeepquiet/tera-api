@@ -29,6 +29,7 @@
 							<table class="table table-hover data-table-desc mt-5">
 								<thead>
 									<tr>
+										<th><%= __("ID") %></th>
 										<th><%= __("Log time") %></th>
 										<th><%= __("Account ID") %></th>
 										<th><%= __("Amount") %></th>
@@ -41,6 +42,7 @@
 									<%_ logs.forEach(log => { _%>
 									<%_ const [type, value, info] = log.get("description").split(",") _%>
 									<tr>
+										<td><%= log.get("id") %></td>
 										<td><%= moment(log.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
 										<td><%= log.get("accountDBID") %></td>
 										<td><%= log.get("amount") %></td>

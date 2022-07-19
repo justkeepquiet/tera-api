@@ -19,7 +19,7 @@
 							<%_ servers.forEach(server => { _%>
 							<div class="row stats-col">
 								<div class="col-6 col-md-4 stat-col">
-									<div class="stat-icon">
+									<div class="stat-icon <%= server.get("isAvailable") ? "text-success" : "text-danger" %>">
 										<i class="fa fa-desktop"></i>
 									</div>
 									<div class="stat">

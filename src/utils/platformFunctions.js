@@ -134,7 +134,7 @@ class PlatformFunctions extends PlatformConnection {
 		});
 	}
 
-	createBoxFromContext(context, startDate, endDate, receiverUserSN, receiverGUSID = null, receiverCharacterSN = null) {
+	createBoxFromContext(context, startDate, endDate, receiverUserSN, receiverGUSID = null, receiverCharacterSN = null, externalTransactionKey = null) {
 		const itemData = [];
 		const boxTagData = [
 			{ boxTagSN: 1, boxTagValue: context.content },
@@ -152,11 +152,13 @@ class PlatformFunctions extends PlatformConnection {
 			})
 		);
 
-		return this.createBox(1, receiverUserSN, startDate, endDate, true, itemData, boxTagData, receiverGUSID, receiverCharacterSN);
+		return this.createBox(1, receiverUserSN, startDate, endDate, true, itemData, boxTagData,
+			receiverGUSID, receiverCharacterSN, null, null, externalTransactionKey
+		);
 	}
 
 	createBox(receiverServiceSN, receiverUserSN, startDate, endDate, visibleFlag, itemData, tagData,
-		receiverGUSID = null, receiverCharacterSN = null, receiverCharacterName = null, usableTimeAfterOpen = null
+		receiverGUSID = null, receiverCharacterSN = null, receiverCharacterName = null, usableTimeAfterOpen = null, externalTransactionKey = null
 	) {
 		const { boxTagInfo, boxServiceItemInfo } = this.convertBoxTagValue(tagData, itemData);
 
@@ -210,7 +212,7 @@ class PlatformFunctions extends PlatformConnection {
 				}),
 				OpMsg.Argument.create({
 					name: Buffer.from("externalTransactionKey"),
-					value: Buffer.from("")
+					value: Buffer.from(externalTransactionKey ? externalTransactionKey.toString() : "")
 				}),
 				OpMsg.Argument.create({
 					name: Buffer.from("startActivationDateTime"),
@@ -251,7 +253,7 @@ class PlatformFunctions extends PlatformConnection {
 			const resultCode = this.getErrorCode(data.resultCode);
 
 			if (resultCode === this.platformErrorCode.success) {
-				return Promise.resolve(data.resultScalar);
+				return Promise.resolve(Buffer.from(data.resultScalar).toString());
 			} else {
 				return Promise.reject(new PlatformError(`Error: ${resultCode}`, data.resultCode));
 			}

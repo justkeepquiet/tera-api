@@ -6,6 +6,7 @@
  */
 
 const body = require("express-validator").body;
+const Shop = require("../actions/handlers/shop");
 
 const { validationHandler, resultJson } = require("../middlewares/shopApi.middlewares");
 
@@ -40,56 +41,41 @@ module.exports.GetAccountInfoByUserNo = ({ logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.FundByUserNo = ({ logger, sequelize, reportModel, accountModel, shopModel }) => [
+module.exports.FundByUserNo = modules => [
 	[
 		body("userNo").isNumeric(),
 		body("transactionId").isNumeric(),
 		body("amount").isInt({ min: 1 })
 	],
-	validationHandler(logger),
+	validationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { userNo, transactionId, amount } = req.body;
 
-		sequelize.transaction(transaction =>
-			accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
+		modules.sequelize.transaction(transaction =>
+			modules.accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
 				if (account === null) {
 					return resultJson(res, 50000, "account not exist");
 				}
 
-				return shopModel.accounts.findOne({
-					where: { accountDBID: userNo }
-				}).then(shopAccount => {
-					if (shopAccount !== null) {
-						return shopModel.accounts.increment({
-							balance: amount
-						}, {
-							transaction
-						});
+				const shop = new Shop(
+					transaction,
+					modules,
+					account.get("accountDBID"),
+					null,
+					{
+						report: `ShopApi,${transactionId}`
 					}
+				);
 
-					return shopModel.accounts.create({
-						accountDBID: userNo,
-						balance: amount
-					}, {
-						transaction
-					});
-				}).then(() =>
-					reportModel.shopFund.create({
-						accountDBID: userNo,
-						amount: amount,
-						description: `ShopApi,${transactionId}`
-					}, {
-						transaction
-					}).then(() =>
-						resultJson(res, 0, "success")
-					)
+				shop.fund(amount).then(() =>
+					resultJson(res, 0, "success")
 				);
 			})
 		).catch(err => {
-			logger.error(err);
+			modules.logger.error(err);
 			resultJson(res, 1, "internal error");
 		});
 	}

@@ -433,8 +433,11 @@
 	"Operation completed successfully.": "Operation completed successfully.",
 	"Operation is running in the background...": "Operation is running in the background...",
 	"Rejected with message": "Rejected with message",
-	"Boxes List": "Boxes List",
-	"Boxes Logs": "Boxes Logs",
+	"Boxes": "Boxes",
+	"Logs": "Logs",
 	"Item Claim Boxes Logs": "Item Claim Boxes Logs",
-	"Show all tasks": "Show all tasks"
+	"Show all tasks": "Show all tasks",
+	"Log ID": "Log ID",
+	"Box": "Box",
+	"Chronoscroll": "Chronoscroll"
 }

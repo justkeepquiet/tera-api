@@ -18,6 +18,8 @@
 		<hr>
 		<%_ if (product.tradable) { _%>
 		<%= __("Can be trade with other players.") %><br>
+		<%_ } else { _%>
+		<%= __("Cannot be transferred to other players.") %><br>
 		<%_ } _%>
 		<%_ if (!product.warehouseStorable) { _%>
 		<%= __("Can't put it in the warehouse.") %><br>

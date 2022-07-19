@@ -10,6 +10,7 @@ const Op = require("sequelize").Op;
 const { query, body } = require("express-validator");
 const helpers = require("../utils/helpers");
 const PromoCodeActions = require("../actions/promoCode.actions");
+const ItemClaim = require("../actions/handlers/itemClaim");
 
 const { validationHandler, authSessionHandler, shopStatusHandler, resultJson } = require("../middlewares/portalShop.middlewares");
 
@@ -473,11 +474,11 @@ module.exports.GetAccountInfo = ({ logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.PurchaseAction = ({ i18n, logger, fcgi, sequelize, reportModel, shopModel }) => [
+module.exports.PurchaseAction = modules => [
 	shopStatusHandler,
-	authSessionHandler(logger),
+	authSessionHandler(modules.logger),
 	[body("productId").notEmpty().isNumeric()],
-	validationHandler(logger),
+	validationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -504,12 +505,12 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, sequelize, reportModel, s
 			*/
 
 			const items = [];
-			const shopProduct = await shopModel.products.findOne({
+			const shopProduct = await modules.shopModel.products.findOne({
 				where: {
 					id: productId,
 					active: 1,
-					validAfter: { [Op.lt]: sequelize.fn("NOW") },
-					validBefore: { [Op.gt]: sequelize.fn("NOW") }
+					validAfter: { [Op.lt]: modules.sequelize.fn("NOW") },
+					validBefore: { [Op.gt]: modules.sequelize.fn("NOW") }
 				}
 			});
 
@@ -517,12 +518,13 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, sequelize, reportModel, s
 				return resultJson(res, 2000, "product not exists");
 			}
 
-			(await shopModel.productItems.findAll({
+			(await modules.shopModel.productItems.findAll({
 				where: { productId: shopProduct.get("id") }
 			})).forEach(item =>
 				items.push({
 					item_id: item.get("boxItemId"),
-					item_count: item.get("boxItemCount")
+					item_count: item.get("boxItemCount"),
+					item_template_id: item.get("itemTemplateId")
 				})
 			);
 
@@ -530,7 +532,7 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, sequelize, reportModel, s
 				return resultJson(res, 3000, "items not exists");
 			}
 
-			const shopAccount = await shopModel.accounts.findOne({
+			const shopAccount = await modules.shopModel.accounts.findOne({
 				where: { accountDBID: req.user.accountDBID, active: 1 }
 			});
 
@@ -538,7 +540,7 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, sequelize, reportModel, s
 				return resultJson(res, 1000, "low balance");
 			}
 
-			const logResult = await reportModel.shopPay.create({
+			const logResult = await modules.reportModel.shopPay.create({
 				accountDBID: req.user.accountDBID,
 				serverId: req.user.lastLoginServer,
 				ip: req.user.lastLoginIP,
@@ -551,29 +553,32 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, sequelize, reportModel, s
 				return resultJson(res, 1, "internal error");
 			}
 
-			await sequelize.transaction(async transaction => {
-				await shopModel.accounts.decrement({
+			await modules.sequelize.transaction(async transaction => {
+				await modules.shopModel.accounts.decrement({
 					balance: shopProduct.get("price")
 				}, {
 					where: { accountDBID: shopAccount.get("accountDBID") },
 					transaction
 				});
 
-				const boxResult = await fcgi.makeBox(
-					req.user.lastLoginServer,
+				const boxResult = await (new ItemClaim(
+					transaction,
+					modules,
 					req.user.accountDBID,
-					0,
-					logResult.get("id"),
+					req.user.lastLoginServer,
 					{
-						title: i18n.__("_box_title_"),
-						content: i18n.__("_box_content_"),
-						icon: "GiftBox02.bmp",
-						days: 3650,
-						items
+						logType: 3,
+						logId: logResult.get("id")
 					}
-				);
+				)).makeBox({
+					title: modules.i18n.__("_box_title_"),
+					content: modules.i18n.__("_box_content_"),
+					icon: "GiftBox02.bmp",
+					days: 3650,
+					items
+				});
 
-				return await reportModel.shopPay.update({
+				return await modules.reportModel.shopPay.update({
 					boxId: boxResult.box_id,
 					status: "completed"
 				}, {
@@ -583,7 +588,7 @@ module.exports.PurchaseAction = ({ i18n, logger, fcgi, sequelize, reportModel, s
 
 			resultJson(res, 0);
 		} catch (err) {
-			logger.error(err);
+			modules.logger.error(err);
 			resultJson(res, 1, "internal error");
 		}
 	}
@@ -631,7 +636,7 @@ module.exports.PromoCodeAction = modules => [
 					req.user.accountDBID
 				);
 
-				return actions.execute(promocode.get("function"), promoCode).then(() =>
+				return actions.execute(promocode.get("function"), promocode.get("promoCodeId")).then(() =>
 					modules.shopModel.promoCodeActivated.create({
 						promoCodeId: promocode.get("promoCodeId"),
 						accountDBID: req.user.accountDBID

@@ -96,12 +96,12 @@ module.exports.GameAuthenticationLogin = ({ logger, sequelize, accountModel }) =
 					return resultJson(res, 50000, "account not exist");
 				}
 
-				if (account.get("banned") !== null || bannedByIp !== null) {
-					return resultJson(res, 50010, "account banned");
-				}
-
 				if (account.get("authKey") !== authKey) {
 					return resultJson(res, 50011, "authkey mismatch");
+				}
+
+				if (account.get("banned") !== null || bannedByIp !== null) {
+					return resultJson(res, 50012, "account banned");
 				}
 
 				resultJson(res, 0, "success");

@@ -283,7 +283,7 @@ var modalMedia = {
 
 function loadNotifications() {
 	$.ajax({
-		url: "/notifications",
+		url: "/api/notifications",
 		method: "get",
 		async: false,
 		success: function(data) {
@@ -298,7 +298,7 @@ function loadNotifications() {
 					data.items.forEach(function(item) {
 						$("#notifications-container").append(
 							"<li><a href=\"/tasks\" class=\"notification-item\">" +
-							"<div class=\"body-col\"><span class=\"text-danger\"><i class=\"fa fa-warning\"></i> (" + item.handler + ") " + item.message + "</span></div>" +
+							"<div class=\"body-col\"><span class=\"" + item.class + "\"><i class=\"fa " + item.icon + "\"></i> " + item.message + "</span></div>" +
 							"</a></li>"
 						);
 					});

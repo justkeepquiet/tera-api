@@ -17,6 +17,9 @@ module.exports = (sequelize, DataTypes) =>
 			autoIncrement: true,
 			allowNull: false
 		},
+		boxId: {
+			type: DataTypes.BIGINT(20)
+		},
 		accountDBID: {
 			type: DataTypes.BIGINT(20),
 			allowNull: false
@@ -25,6 +28,9 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.INTEGER(11)
 		},
 		characterId: {
+			type: DataTypes.INTEGER(11)
+		},
+		logType: {
 			type: DataTypes.INTEGER(11)
 		},
 		logId: {
