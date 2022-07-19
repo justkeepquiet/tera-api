@@ -35,6 +35,7 @@ const PlatformFunctions = require("./utils/platformFunctions");
 const FcgiFunctions = require("./utils/fcgiFunctions");
 const datasheets = require("./utils/datasheets");
 const TasksActions = require("./actions/tasks.actions");
+const ServerCheckActions = require("./actions/serverCheck.actions");
 
 const moduleLoader = new CoreLoader();
 const logger = createLogger("CL");
@@ -150,6 +151,7 @@ moduleLoader.final().then(
 	modules => {
 		const serverLoader = new CoreLoader();
 		const tasksActions = new TasksActions(modules);
+		const serverCheckActions = new ServerCheckActions(modules);
 
 		serverLoader.setPromise("arbiterApi", () => {
 			if (!process.env.API_ARBITER_LISTEN_PORT) {
@@ -249,9 +251,10 @@ moduleLoader.final().then(
 		modules.queue.setHandlers(tasksActions);
 
 		return serverLoader.final().then(() => {
-			cli.printInfo();
-			cli.printMemoryUsage();
-			cli.printReady();
+			const serversStatusCheck = () => serverCheckActions.checkAll();
+
+			setInterval(serversStatusCheck, 60000);
+			serversStatusCheck();
 
 			setInterval(() =>
 				modules.queue.start().catch(err =>
@@ -262,6 +265,10 @@ moduleLoader.final().then(
 			setInterval(() =>
 				cli.printMemoryUsage(), 60000 * 30
 			);
+
+			cli.printInfo();
+			cli.printMemoryUsage();
+			cli.printReady();
 		});
 	})
 	.catch(err => {

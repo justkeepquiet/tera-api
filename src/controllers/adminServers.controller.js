@@ -8,7 +8,6 @@
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
 const helpers = require("../utils/helpers");
-const ServerUpActions = require("../actions/serverUp.actions");
 
 const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
@@ -22,19 +21,7 @@ module.exports.index = modules => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		const serverUp = new ServerUpActions(modules);
-
 		modules.serverModel.info.findAll().then(servers => {
-			servers.forEach(server => {
-				if (/^true$/i.test(process.env.SLS_AUTO_SET_AVAILABLE) && !server.get("isAvailable")) {
-					serverUp.set(
-						server.get("serverId"),
-						server.get("loginIp"),
-						server.get("loginPort")
-					);
-				}
-			});
-
 			res.render("adminServers", {
 				layout: "adminLayout",
 				servers
