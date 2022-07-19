@@ -10,7 +10,7 @@
 				<select class="form-control boxed" name="categoryId">
 					<option value="">- <%= __("All") %> -</option>
 				<%_ categories.forEach(category => { _%>
-					<option value="<%= category.get("id") %>" <%= categoryId == category.get("id") ? 'selected' : "" %>>(<%= category.get("id") %>) <%= category.get("title") %></option>
+					<option value="<%= category.get("id") %>" <%= categoryId == category.get("id") ? 'selected' : "" %>>(<%= category.get("id") %>) <%= category.get("strings").get("title") %></option>
 				<%_ }) _%>
 				</select>
 			</div>

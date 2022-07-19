@@ -124,6 +124,7 @@ module.exports = modules => {
 	return express.Router()
 		// API
 		.get("/api/notifications", adminApiController.notifications(mod))
+		.get("/api/homeStats", adminApiController.homeStats(mod))
 		// Admin Panel Auth
 		.get("/", adminController.index(mod))
 		.get("/login", adminController.login(mod))

@@ -29,39 +29,13 @@ module.exports.home = ({ logger, datasheets, serverModel, reportModel }) => [
 				where: { isEnabled: 1 }
 			});
 
-			const activityReport = !isSteer || Object.values(req.user.functions).includes("/report_activity") ?
-				await reportModel.activity.findAll({
-					offset: 0, limit: 6,
-					order: [
-						["reportTime", "DESC"]
-					]
-				}) : null;
-
-			const cheatsReport = !isSteer || Object.values(req.user.functions).includes("/report_cheats") ?
-				await reportModel.cheats.findAll({
-					offset: 0, limit: 6,
-					order: [
-						["reportTime", "DESC"]
-					]
-				}) : null;
-
-			const payLogs = !isSteer ||
-				Object.values(req.user.functions).includes("/shop_pay_logs") ?
-				await reportModel.shopPay.findAll({
-					offset: 0, limit: 8,
-					order: [
-						["createdAt", "DESC"]
-					]
-				}) : null;
-
 			res.render("adminHome", {
 				layout: "adminLayout",
 				moment,
 				servers,
-				datasheets,
-				activityReport,
-				cheatsReport,
-				payLogs
+				activityReport: !isSteer || Object.values(req.user.functions).includes("/report_activity"),
+				cheatsReport: !isSteer || Object.values(req.user.functions).includes("/report_cheats"),
+				payLogs: !isSteer || Object.values(req.user.functions).includes("/shop_pay_logs")
 			});
 		} catch (err) {
 			logger.error(err);

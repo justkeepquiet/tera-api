@@ -1198,7 +1198,7 @@ module.exports.logs = ({ logger, serverModel, reportModel }) => [
 		reportModel.boxes.findAll({
 			where: {
 				...(accountDBID ? { accountDBID } : {}),
-				...(serverId ? { serverId } : {}),
+				...(serverId ? { [Op.or]: [{ serverId }, { serverId: null }] } : {}),
 				createdAt: {
 					[Op.gt]: from.toDate(),
 					[Op.lt]: to.toDate()

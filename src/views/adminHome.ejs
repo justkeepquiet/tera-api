@@ -19,12 +19,12 @@
 							<%_ servers.forEach(server => { _%>
 							<div class="row stats-col">
 								<div class="col-6 col-md-4 stat-col">
-									<div class="stat-icon <%= server.get("isAvailable") ? "text-success" : "text-danger" %>">
+									<div class="stat-icon <%= server.get("isAvailable") ? "text-success" : "text-danger" %>" id="isAvailable_<%= server.get("serverId") %>">
 										<i class="fa fa-desktop"></i>
 									</div>
 									<div class="stat">
-										<div class="value"><%= server.get("nameString") %></div>
-										<div class="name"><%= server.get("loginIp") %>:<%= server.get("loginPort") %></div>
+										<div class="value" id="nameString_<%= server.get("serverId") %>"><%= server.get("nameString") %></div>
+										<div class="name" id="loginIpPort_<%= server.get("serverId") %>"><%= server.get("loginIp") %>:<%= server.get("loginPort") %></div>
 									</div>
 								</div>
 								<div class="col-6 col-md-4 stat-col">
@@ -32,7 +32,7 @@
 										<i class="fa fa-users"></i>
 									</div>
 									<div class="stat">
-										<div class="value"><%= server.get("usersTotal") %></div>
+										<div class="value" id="usersTotal_<%= server.get("serverId") %>"><%= server.get("usersTotal") %></div>
 										<div class="name"><%= __("Registred Users") %></div>
 									</div>
 								</div>
@@ -41,11 +41,11 @@
 										<i class="fa fa-sitemap"></i>
 									</div>
 									<div class="stat">
-										<div class="value"><%= server.get("usersOnline") %></div>
+										<div class="value" id="usersOnline_<%= server.get("serverId") %>"><%= server.get("usersOnline") %></div>
 										<div class="name"><%= __("Online Users") %></div>
 									</div>
 									<div class="progress stat-progress">
-										<div class="progress-bar" <%- `style="width: ${Math.floor((server.get("usersOnline") / server.get("tresholdMedium")) * 100)}%;"` %>></div>
+										<div class="progress-bar" <%- `style="width: ${Math.floor((server.get("usersOnline") / server.get("tresholdMedium")) * 100)}%;"` %> id="usersOnlinePercent_<%= server.get("serverId") %>"></div>
 									</div>
 								</div>
 							</div>
@@ -72,24 +72,7 @@
 											<th><%= __("Server ID") %></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ if (activityReport.length === 0) { _%>
-										<tr><td colspan="5" class="text-center"><%= __("No data available in table") %></td></tr>
-										<%_ } else { _%>
-										<%_ activityReport.forEach(report => { _%>
-										<tr>
-											<td><%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-											<td><%= report.get("reportType") == 2 ?
-												`${__("Leave game")} (${(report.get("playTime") / 60).toFixed(2)} ${__("min.")})` :
-												__("Enter game")
-											%></td>
-											<td><%= report.get("ip") %></td>
-											<td><%= report.get("accountDBID") %></td>
-											<td><%= report.get("serverId") %></td>
-										</tr>
-										<%_ }) _%>
-										<%_ } _%>
-									</tbody>
+									<tbody id="activityReport"></tbody>
 								</table>
 							</div>
 						</div>
@@ -117,22 +100,7 @@
 											<th><%= __("Status") %></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ if (payLogs.length === 0) { _%>
-										<tr><td colspan="6" class="text-center"><%= __("No data available in table") %></td></tr>
-										<%_ } else { _%>
-										<%_ payLogs.forEach(log => { _%>
-										<tr>
-											<td><%= moment(log.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-											<td><%= log.get("accountDBID") %></td>
-											<td><%= log.get("serverId") %></td>
-											<td><a href="/shop_products/edit?id=<%= log.get("productId") %>"><%= log.get("productId") %></a></td>
-											<td><%= log.get("price") %></td>
-											<td class="text-<%= log.get("status") == "completed" ? "success" : "danger" %>"><%= __(log.get("status")) %></td>
-										</tr>
-										<%_ }) _%>
-										<%_ } _%>
-									</tbody>
+									<tbody id="payLogs"></tbody>
 								</table>
 							</div>
 						</div>
@@ -165,33 +133,7 @@
 											<th><%= __("Server ID") %></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ if (cheatsReport.length === 0) { _%>
-										<tr><td colspan="7" class="text-center"><%= __("No data available in table") %></td></tr>
-										<%_ } else { _%>
-										<%_ cheatsReport.forEach(report => { 
-											const [account, name, a, b, skill, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
-
-											const dungeon = datasheets.StrSheet_Dungeon[locale].get(Number(huntingZoneId));
-											const creature = datasheets.StrSheet_Creature[locale].find(
-												c => c.huntingZoneId == huntingZoneId && c.templateId == templateId
-											);
-										_%>
-										<tr>
-											<td><%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-											<td><%= report.get("accountDBID") %></td>
-											<td><%= name %></td>
-											<td><%= skill %> <%= a %>/<%= b %></td>
-											<td>(<%= huntingZoneId %>) <%= dungeon || huntingZoneId %><br>
-												(<%= templateId %>) <%= creature.name || templateId %><br>
-												<%= x %>, <%= y %>, <%= z %>
-											</td>
-											<td><%= report.get("ip") %></td>
-											<td><%= report.get("serverId") %></td>
-										</tr>
-										<%_ }) _%>
-										<%_ } _%>
-									</tbody>
+									<tbody id="cheatsReport"></tbody>
 								</table>
 							</div>
 						</div>
@@ -202,3 +144,85 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<script>
+	$(function() {
+		function loadHomeStats() {
+			$.ajax({
+				url: "/api/homeStats",
+				method: "get",
+				async: false,
+				success: function(data) {
+					if (data.result_code !== 0) {
+						return;
+					}
+					data.servers.forEach(function(server) {
+						if (server.isAvailable) {
+							$("#isAvailable_" + server.serverId).removeClass("text-danger").addClass("text-success");
+						} else {
+							$("#isAvailable_" + server.serverId).removeClass("text-success").addClass("text-danger")
+						}
+						$("#nameString_" + server.serverId).html(server.nameString);
+						$("#loginIpPort_" + server.serverId).html(server.loginIp + ":" + server.loginPort);
+						$("#usersTotal_" + server.serverId).html(server.usersTotal);
+						$("#usersOnline_" + server.serverId).html(server.usersOnline);
+						$("#usersOnlinePercent_" + server.serverId).css("width", server.usersOnlinePercent + "%");
+					});
+					$("#activityReport").empty();
+					if (data.activityReport.length === 0) {
+						$("#activityReport").html("<tr><td colspan=\"5\" class=\"text-center\"><%= __("No data available in table") %></td></tr>");
+					} else {
+						data.activityReport.forEach(report => {
+							$("#activityReport").append(
+								"<tr>" +
+									"<td>" + report.reportTime + "</td>" +
+									"<td>" + report.reportType + "</td>" +
+									"<td>" + report.ip + "</td>" +
+									"<td>" + report.accountDBID + "</td>" +
+									"<td>" + report.serverId + "</td>" +
+								"</tr>"
+							);
+						});
+					}
+					$("#payLogs").empty();
+					if (data.payLogs.length === 0) {
+						$("#payLogs").html("<tr><td colspan=\"6\" class=\"text-center\"><%= __("No data available in table") %></td></tr>");
+					} else {
+						data.payLogs.forEach(report => {
+							$("#payLogs").append(
+								"<tr>" +
+									"<td>" + report.createdAt + "</td>" +
+									"<td>" + report.accountDBID + "</td>" +
+									"<td>" + report.serverId + "</td>" +
+									"<td><a href=\"/shop_products/edit?id=" + report.productId + "\">" + report.productId + "</a></td>" +
+									"<td>" + report.price + "</td>" +
+									"<td class=\"text-" + (report.status == "completed" ? "success" : "danger") + "\">" + report.statusString + "</td>" +
+								"</tr>"
+							);
+						});
+					}
+					$("#cheatsReport").empty();
+					if (data.cheatsReport.length === 0) {
+						$("#cheatsReport").html("<tr><td colspan=\"7\" class=\"text-center\"><%= __("No data available in table") %></td></tr>");
+					} else {
+						data.cheatsReport.forEach(report => {
+							$("#cheatsReport").append(
+								"<tr>" +
+									"<td>" + report.reportTime + "</td>" +
+									"<td>" + report.accountDBID + "</td>" +
+									"<td>" + report.name + "</td>" +
+									"<td>" + report.skill + "</td>" +
+									"<td>" + report.dungeon + "<br>" + report.creature + "<br>" + report.coords + "</td>" +
+									"<td>" + report.ip + "</td>" +
+									"<td>" + report.serverId + "</td>" +
+								"</tr>"
+							);
+						});
+					}
+				}
+			});
+		}
+		loadHomeStats();
+		setInterval(loadHomeStats, 10000);
+	});
+</script>
