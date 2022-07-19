@@ -21,12 +21,12 @@ module.exports.index = modules => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		modules.serverModel.info.findAll().then(servers => {
+		modules.serverModel.info.findAll().then(servers =>
 			res.render("adminServers", {
 				layout: "adminLayout",
 				servers
-			});
-		}).catch(err => {
+			})
+		).catch(err => {
 			modules.logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		});

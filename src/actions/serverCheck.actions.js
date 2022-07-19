@@ -21,7 +21,7 @@ class ServerCheckActions {
 			try {
 				stat = await this.modules.fcgi.stat();
 			} catch (err) {
-				this.modules.logger.warn(err);
+				this.modules.logger.warn(`ServerCheckActions: ${err}`);
 			}
 		}
 
@@ -49,7 +49,7 @@ class ServerCheckActions {
 				});
 
 				promise.then(result => {
-					if (server.get("isAvailable") == result.isAvailable) {
+					if (result.isAvailable === !!server.get("isAvailable")) {
 						return Promise.resolve();
 					}
 
