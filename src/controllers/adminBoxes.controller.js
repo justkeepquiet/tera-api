@@ -238,8 +238,8 @@ module.exports.addAction = ({ i18n, logger, platform, sequelize, reportModel, bo
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
-								resolvedItems[itemTemplateId].get("string"),
-								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("toolTip")),
+								resolvedItems[itemTemplateId].get("strings").get("string"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings").get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								boxModel.items.create({
@@ -489,8 +489,8 @@ module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, b
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
-								resolvedItems[itemTemplateId].get("string"),
-								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("toolTip")),
+								resolvedItems[itemTemplateId].get("strings").get("string"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings").get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								boxModel.items.update({
@@ -538,8 +538,8 @@ module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, b
 										1,
 										moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 										true,
-										resolvedItems[itemTemplateId].get("string"),
-										resolvedItems[itemTemplateId].get("toolTip"),
+										resolvedItems[itemTemplateId].get("strings").get("string"),
+										resolvedItems[itemTemplateId].get("strings").get("toolTip"),
 										"1,1,1"
 									).then(boxItemId =>
 										boxModel.items.create({

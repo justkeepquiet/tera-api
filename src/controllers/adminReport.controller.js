@@ -58,35 +58,35 @@ const reportHandler = (logger, serverModel, model, view, viewData = {}) =>
 /**
  * @param {modules} modules
  */
-module.exports.activity = ({ logger, accountModel, reportModel }) => [
+module.exports.activity = ({ logger, serverModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(logger, accountModel, reportModel.activity, "adminReportActivity")
+	reportHandler(logger, serverModel, reportModel.activity, "adminReportActivity")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.characters = ({ logger, accountModel, reportModel }) => [
+module.exports.characters = ({ logger, serverModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(logger, accountModel, reportModel.characters, "adminReportCharacters")
+	reportHandler(logger, serverModel, reportModel.characters, "adminReportCharacters")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.cheats = ({ logger, datasheets, accountModel, reportModel }) => [
+module.exports.cheats = ({ logger, datasheets, serverModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(logger, accountModel, reportModel.cheats, "adminReportCheats", { datasheets })
+	reportHandler(logger, serverModel, reportModel.cheats, "adminReportCheats", { datasheets })
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.chronoscrolls = ({ logger, accountModel, reportModel }) => [
+module.exports.chronoscrolls = ({ logger, serverModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(logger, accountModel, reportModel.chronoScrolls, "adminReportChronoScrolls")
+	reportHandler(logger, serverModel, reportModel.chronoScrolls, "adminReportChronoScrolls")
 ];
