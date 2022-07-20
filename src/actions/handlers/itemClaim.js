@@ -31,7 +31,7 @@ class ItemClaim {
 			}).then(() => {
 				if (/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
 					this.modules.fcgi.boxNoti(this.serverId, this.userId, characterId || 0).catch(err =>
-						this.modules.fcgi.params.logger.warn(err.toString())
+						this.modules.logger.warn(err.toString())
 					);
 				}
 

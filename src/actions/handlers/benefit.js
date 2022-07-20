@@ -60,7 +60,7 @@ class Benefit {
 					}
 
 					this.modules.fcgi.addBenefit(this.serverId, this.userId, benefitId, totalDays).catch(err =>
-						this.modules.fcgi.params.logger.warn(err.toString())
+						this.modules.logger.warn(err.toString())
 					);
 				}
 
