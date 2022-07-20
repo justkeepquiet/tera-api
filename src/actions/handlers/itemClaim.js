@@ -30,11 +30,9 @@ class ItemClaim {
 				transaction: this.transaction
 			}).then(() => {
 				if (/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
-					this.modules.fcgi.boxNoti(this.serverId, this.userId, characterId || 0).catch(err => {
-						if (this.modules.fcgi.params.logger?.error) {
-							this.modules.fcgi.params.logger.warn(err);
-						}
-					});
+					this.modules.fcgi.boxNoti(this.serverId, this.userId, characterId || 0).catch(err =>
+						this.modules.fcgi.params.logger.warn(err.toString())
+					);
 				}
 
 				return Promise.resolve(boxId);
