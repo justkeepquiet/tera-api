@@ -1,5 +1,6 @@
 "use strict";
 
+const moment = require("moment-timezone");
 const OpMsg = require("./protobuf/opMsg").op.OpMsg;
 const PlatformError = require("./platformError");
 const PlatformConnection = require("./platformConnection");
@@ -15,15 +16,18 @@ class PlatformFunctions extends PlatformConnection {
 	// BoxAPI Functions
 	//
 
-	createBoxFromContext(context, startDate, endDate, receiverUserSN, receiverGUSID = null, receiverCharacterSN = null, externalTransactionKey = null) {
+	createBoxFromContext(boxContext, receiverUserSN, receiverGUSID = null, receiverCharacterSN = null, externalTransactionKey = null) {
+		const startDate = moment().utc().format("YYYY-MM-DD HH:mm:ss");
+		const endDate = moment().utc().add(boxContext.days, "days").format("YYYY-MM-DD HH:mm:ss");
+
 		const itemData = [];
 		const boxTagData = [
-			{ boxTagSN: 1, boxTagValue: context.content },
-			{ boxTagSN: 2, boxTagValue: context.title },
-			{ boxTagSN: 3, boxTagValue: context.icon }
+			{ boxTagSN: 1, boxTagValue: boxContext.content },
+			{ boxTagSN: 2, boxTagValue: boxContext.title },
+			{ boxTagSN: 3, boxTagValue: boxContext.icon }
 		];
 
-		context.items.forEach(item =>
+		boxContext.items.forEach(item =>
 			itemData.push({
 				serviceItemSN: item.item_id,
 				externalItemKey: 0,

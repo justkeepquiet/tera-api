@@ -22,11 +22,11 @@ class ItemClaim {
 		}
 
 		return this.modules.fcgi.makeBox(
-			this.serverId,
+			context,
 			this.userId,
+			this.serverId,
 			characterId || 0,
-			this.params.logId || 0,
-			context
+			this.params.logId || 0
 		).then(result =>
 			this.modules.reportModel.boxes.create({
 				boxId: result.box_id,

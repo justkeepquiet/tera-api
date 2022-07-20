@@ -4,8 +4,6 @@
  * @typedef {import("../app").modules} modules
  */
 
-const moment = require("moment-timezone");
-
 class TasksActions {
 	/**
 	 * @param {modules} modules
@@ -15,10 +13,7 @@ class TasksActions {
 	}
 
 	createBox(context, accountDBID, serverId = null, characterId = null, logId = null, logType = null) {
-		const startDate = moment().utc().format("YYYY-MM-DD HH:mm:ss");
-		const endDate = moment().utc().add(context.days, "days").format("YYYY-MM-DD HH:mm:ss");
-
-		return this.modules.platform.createBoxFromContext(context, startDate, endDate, accountDBID, serverId, characterId, logId).then(boxId =>
+		return this.modules.platform.createBoxFromContext(context, accountDBID, serverId, characterId, logId).then(boxId =>
 			this.modules.reportModel.boxes.create({
 				boxId,
 				accountDBID,

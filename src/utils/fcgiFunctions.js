@@ -69,7 +69,7 @@ class FcgiFunctions extends FcgiConnection {
 		);
 	}
 
-	makeBox(serverId, userId, characterId, logId, boxContext, boxNoti = true) {
+	makeBox(boxContext, userId, serverId = 0, characterId = 0, logId = 0, boxNoti = true) {
 		return this.post(["make_box.json"], {
 			svr_id: serverId,
 			user_srl: userId,
