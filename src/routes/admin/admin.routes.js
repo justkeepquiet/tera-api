@@ -51,10 +51,12 @@ module.exports = modules => {
 		done(null, user);
 	});
 
-	passport.use(new LocalStrategy({ usernameField: "login" },
-		(login, password, done) => {
+	passport.use(new LocalStrategy({ usernameField: "login", passReqToCallback: true },
+		(req, login, password, done) => {
+			const clientIP = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+
 			if (/^true$/i.test(process.env.STEER_ENABLE)) {
-				return modules.steer.checkLoginGetSessionKey(login, password, "127.0.0.1").then(({ sessionKey, userSn }) =>
+				return modules.steer.openSession(login, password, clientIP).then(({ sessionKey, userSn }) =>
 					modules.steer.getFunctionList(sessionKey).then(functions =>
 						done(null, {
 							type: "steer",

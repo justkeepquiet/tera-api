@@ -12,7 +12,11 @@ class SteerFunctions extends SteerConnection {
 		this.serviceName = serviceName;
 	}
 
-	checkLoginGetSessionKey(loginId, password, clientIp) {
+	//
+	// SteerSession Functions
+	//
+
+	openSession(loginId, password, clientIp) {
 		if (!this.connected || !this.registred) {
 			return Promise.reject(new SteerError("Not registred", 3));
 		}
@@ -55,7 +59,7 @@ class SteerFunctions extends SteerConnection {
 		return this.sendAndRecv(opMsg).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
-			if (resultCode === this.steerErrorCode.success) {
+			if (resultCode === this.steerResultCode.success) {
 				return Promise.resolve({
 					sessionKey: Buffer.from(data.sessionKey).toString(),
 					userSn: Buffer.from(data.resultScalar).toString()
@@ -66,7 +70,7 @@ class SteerFunctions extends SteerConnection {
 		});
 	}
 
-	validateSessionKey(sessionKey, clientIp) {
+	checkSession(sessionKey, clientIp) {
 		if (!this.connected || !this.registred) {
 			return Promise.reject(new SteerError("Not registred", 3));
 		}
@@ -94,7 +98,7 @@ class SteerFunctions extends SteerConnection {
 		return this.sendAndRecv(opMsg).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
-			if (resultCode === this.steerErrorCode.success) {
+			if (resultCode === this.steerResultCode.success) {
 				const resultedSessionLey = Buffer.from(data.sessionKey).toString();
 
 				if (resultedSessionLey === sessionKey) {
@@ -108,7 +112,7 @@ class SteerFunctions extends SteerConnection {
 		});
 	}
 
-	logoutSessionKey(sessionKey) {
+	closeSession(sessionKey) {
 		if (!this.connected || !this.registred) {
 			return Promise.reject(new SteerError("Not registred", 3));
 		}
@@ -125,7 +129,7 @@ class SteerFunctions extends SteerConnection {
 		return this.sendAndRecv(opMsg).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
-			if (resultCode === this.steerErrorCode.success) {
+			if (resultCode === this.steerResultCode.success) {
 				return Promise.resolve(data);
 			} else {
 				return Promise.reject(new SteerError(`Error: ${resultCode}`, data.resultCode));
@@ -133,7 +137,39 @@ class SteerFunctions extends SteerConnection {
 		});
 	}
 
-	getFunction(sessionKey, nextJobId, startPos, rowLength) {
+	//
+	// SteerMind Functions
+	//
+
+	getFunctionList(sessionKey, jobId = 2) {
+		if (!this.connected || !this.registred) {
+			return Promise.reject(new SteerError("Not registred", 3));
+		}
+
+		let nextJobId = jobId;
+
+		return this.getFunctionListBySessionAndServerType(sessionKey, nextJobId, 0, 0).then(({ totalCount }) => {
+			const promises = [];
+
+			for (let num = 0; num <= totalCount; num += 512) {
+				promises.push(this.getFunctionListBySessionAndServerType(sessionKey, ++nextJobId, num, 512));
+			}
+
+			return Promise.all(promises).then(data => {
+				const functions = {};
+
+				data[0].rows.forEach(row => {
+					if (row.values.length >= 6) {
+						functions[row.values[4].toString()] = row.values[5].toString();
+					}
+				});
+
+				return Promise.resolve(functions);
+			});
+		});
+	}
+
+	getFunctionListBySessionAndServerType(sessionKey, nextJobId, startPos, rowLength) {
 		if (!this.connected || !this.registred) {
 			return Promise.reject(new SteerError("Not registred", 3));
 		}
@@ -166,71 +202,7 @@ class SteerFunctions extends SteerConnection {
 		return this.sendAndRecv(opMsg).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
-			if (resultCode === this.steerErrorCode.success) {
-				return Promise.resolve(data.resultSets[0]);
-			} else {
-				return Promise.reject(new SteerError(`Error: ${resultCode}`, data.resultCode));
-			}
-		});
-	}
-
-	getFunctionList(sessionKey, jobId = 2) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Not registred", 3));
-		}
-
-		let nextJobId = jobId;
-
-		return this.getFunction(sessionKey, nextJobId, 0, 0).then(({ totalCount }) => {
-			const promises = [];
-
-			for (let num = 0; num <= totalCount; num += 512) {
-				promises.push(this.getFunction(sessionKey, ++nextJobId, num, 512));
-			}
-
-			return Promise.all(promises).then(data => {
-				const functions = {};
-
-				for (const row of data[0].rows) {
-					if (row.values.length >= 6) {
-						functions[row.values[4].toString()] = row.values[5].toString();
-					}
-				}
-
-				return Promise.resolve(functions);
-			});
-		});
-	}
-
-	getDisplayFunctionList(sessionKey, displayGroupType = 1) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Not registred", 3));
-		}
-
-		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steermind, 35), // getDisplayFunctionListByUserIDintForMenu
-			sessionKey: Buffer.from(sessionKey),
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steermind, 0),
-			execType: OpMsg.ExecType.EXECUTE,
-			jobType: OpMsg.JobType.REQUEST,
-
-			arguments: [
-				OpMsg.Argument.create({
-					name: Buffer.from("displayGroupType"),
-					value: Buffer.from(displayGroupType.toString())
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("serviceName"),
-					value: Buffer.from(this.serviceName)
-				})
-			]
-		});
-
-		return this.sendAndRecv(opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
-
-			if (resultCode === this.steerErrorCode.success) {
+			if (resultCode === this.steerResultCode.success) {
 				return Promise.resolve(data.resultSets[0]);
 			} else {
 				return Promise.reject(new SteerError(`Error: ${resultCode}`, data.resultCode));
@@ -276,7 +248,7 @@ class SteerFunctions extends SteerConnection {
 		return this.sendAndRecv(opMsg).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
-			if (resultCode === this.steerErrorCode.success) {
+			if (resultCode === this.steerResultCode.success) {
 				return Promise.resolve(data.resultScalar);
 			} else {
 				return Promise.reject(new SteerError(`Error: ${resultCode}`, data.resultCode));
@@ -320,7 +292,7 @@ class SteerFunctions extends SteerConnection {
 		return this.sendAndRecv(opMsg).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
-			if (resultCode === this.steerErrorCode.success) {
+			if (resultCode === this.steerResultCode.success) {
 				return Promise.resolve(resultCode);
 			} else {
 				return Promise.reject(new SteerError(`Error: ${resultCode}`, data.resultCode));

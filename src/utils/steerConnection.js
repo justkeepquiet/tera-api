@@ -47,7 +47,7 @@ class SteerConnection {
 			steereye: 35
 		};
 
-		this.steerErrorCode = {
+		this.steerResultCode = {
 			success: 0,
 			requestfail: 1,
 			unknownerror: 2,
@@ -157,7 +157,7 @@ class SteerConnection {
 		});
 
 		return this.sendAndRecv(opMsg).then(data => {
-			if (data.resultCode && this.getErrorCode(data.resultCode) === this.steerErrorCode.success) {
+			if (data.resultCode && this.getErrorCode(data.resultCode) === this.steerResultCode.success) {
 				if (this.params.logger?.info) {
 					this.params.logger.info(`Registred: category ${this.serviceId}, number ${this.uniqueServerId}`);
 				}

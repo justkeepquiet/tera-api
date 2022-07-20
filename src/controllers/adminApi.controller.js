@@ -51,7 +51,7 @@ module.exports.homeStats = ({ i18n, logger, datasheets, serverModel, reportModel
 	 */
 	async (req, res) => {
 		if (!req.isAuthenticated()) {
-			resultJson(res, 3, { msg: "access denied" });
+			return resultJson(res, 3, { msg: "access denied" });
 		}
 
 		const isSteer = req.user.type === "steer";

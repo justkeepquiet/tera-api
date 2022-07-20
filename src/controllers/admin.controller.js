@@ -162,7 +162,7 @@ module.exports.logoutAction = ({ logger, steer }) => [
 	 */
 	(req, res) => {
 		if (steer.isRegistred && req?.user?.sessionKey) {
-			steer.logoutSessionKey(req.user.sessionKey).catch(err =>
+			steer.closeSession(req.user.sessionKey).catch(err =>
 				logger.warn(err)
 			);
 		}

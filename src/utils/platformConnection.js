@@ -52,24 +52,8 @@ class PlatformConnection {
 			steereye: 35
 		};
 
-		this.platformErrorCode = {
-			success: 0,
-			requestfail: 1,
-			unknownerror: 2,
-			accessdenied: 3,
-			notconnected: 4,
-			timeout: 5,
-			unknownfunction: 6,
-			nodata: 7,
-			dbdupkey: 8,
-			invalidcallee: 9,
-			userlogined: 10,
-			invalidsession: 11,
-			sessiontimeout: 12,
-			memcachederror: 13,
-			invalidexectype: 14,
-			dboperationfail: 15,
-			invalidstate: 16
+		this.platformResultCode = {
+			success: 0
 		};
 
 		this.connectTimeout = 5000;

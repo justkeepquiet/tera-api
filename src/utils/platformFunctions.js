@@ -11,128 +11,9 @@ class PlatformFunctions extends PlatformConnection {
 		this.serviceId = serviceId;
 	}
 
-	getServiceItem(serviceItemSN) {
-		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.boxapi, 116), // GetServiceItem
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
-			execType: OpMsg.ExecType.EXECUTE,
-			jobType: OpMsg.JobType.REQUEST,
-
-			arguments: [
-				OpMsg.Argument.create({
-					name: Buffer.from("serviceItemSN"),
-					value: Buffer.from(serviceItemSN.toString())
-				})
-			]
-		});
-
-		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
-
-			if (resultCode === this.platformErrorCode.success) {
-				const resultSets = [];
-
-				data.resultSets[0].rows.forEach(row => {
-					const resultSet = {};
-
-					row.values.forEach((value, column) =>
-						resultSet[data.resultSets[0].columnNames[column].toString()] = value.toString()
-					);
-
-					resultSets.push(resultSet);
-				});
-
-				return Promise.resolve(resultSets);
-			} else {
-				return Promise.reject(new PlatformError(`Error: ${resultCode}`, data.resultCode));
-			}
-		});
-	}
-
-	createServiceItem(platformUserSN, itemMappingSN, serviceSN, startActivationTime, enableFlag = true,
-		itemName = "", itemDescription = "", tagData = null
-	) {
-		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.boxapi, 117), // CreateServiceItem
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
-			execType: OpMsg.ExecType.EXECUTE,
-			jobType: OpMsg.JobType.REQUEST,
-
-			arguments: [
-				OpMsg.Argument.create({
-					name: Buffer.from("serviceItemServiceSN"),
-					value: Buffer.from(serviceSN.toString())
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("serviceItemMappingItemSN"),
-					value: Buffer.from(itemMappingSN.toString())
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("serviceItemStartActivationDateTime"),
-					value: Buffer.from(startActivationTime.toString())
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("serviceItemEnableFlag"),
-					value: Buffer.from(enableFlag ? "1" : "0")
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("serviceItemName"),
-					value: Buffer.from(itemName.toString())
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("serviceItemDescription"),
-					value: Buffer.from(itemDescription.toString())
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("serviceItemRegisterUserSN"),
-					value: Buffer.from(platformUserSN.toString())
-				}),
-				OpMsg.Argument.create({
-					name: Buffer.from("serviceItemTagInfo"),
-					value: Buffer.from(tagData ? tagData : "0")
-				})
-			]
-		});
-
-		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
-
-			if (resultCode === this.platformErrorCode.success) {
-				return Promise.resolve(Buffer.from(data.resultScalar).toString());
-			} else {
-				return Promise.reject(new PlatformError(`Error: ${resultCode}`, data.resultCode));
-			}
-		});
-	}
-
-	removeServiceItem(serviceItemSN) {
-		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.boxapi, 118), // SetDisableServiceItem
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
-			execType: OpMsg.ExecType.EXECUTE,
-			jobType: OpMsg.JobType.REQUEST,
-
-			arguments: [
-				OpMsg.Argument.create({
-					name: Buffer.from("serviceItemSN"),
-					value: Buffer.from(serviceItemSN.toString())
-				})
-			]
-		});
-
-		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
-
-			if (resultCode === this.platformErrorCode.success) {
-				return Promise.resolve();
-			} else {
-				return Promise.reject(new PlatformError(`Error: ${resultCode}`, data.resultCode));
-			}
-		});
-	}
+	//
+	// BoxAPI Functions
+	//
 
 	createBoxFromContext(context, startDate, endDate, receiverUserSN, receiverGUSID = null, receiverCharacterSN = null, externalTransactionKey = null) {
 		const itemData = [];
@@ -164,7 +45,7 @@ class PlatformFunctions extends PlatformConnection {
 
 		const opMsg = OpMsg.create({
 			gufid: this.makeGuid(this.serverType.boxapi, 107), // CreateBox
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
+			senderGusid: this.makeGuid(this.serviceId, 0),
 			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
@@ -252,13 +133,140 @@ class PlatformFunctions extends PlatformConnection {
 		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
-			if (resultCode === this.platformErrorCode.success) {
+			if (resultCode === this.platformResultCode.success) {
 				return Promise.resolve(Buffer.from(data.resultScalar).toString());
 			} else {
 				return Promise.reject(new PlatformError(`Error: ${resultCode}`, data.resultCode));
 			}
 		});
 	}
+
+	getServiceItem(serviceItemSN) {
+		const opMsg = OpMsg.create({
+			gufid: this.makeGuid(this.serverType.boxapi, 116), // GetServiceItem
+			senderGusid: this.makeGuid(this.serviceId, 0),
+			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
+			execType: OpMsg.ExecType.EXECUTE,
+			jobType: OpMsg.JobType.REQUEST,
+
+			arguments: [
+				OpMsg.Argument.create({
+					name: Buffer.from("serviceItemSN"),
+					value: Buffer.from(serviceItemSN.toString())
+				})
+			]
+		});
+
+		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
+			const resultCode = this.getErrorCode(data.resultCode);
+
+			if (resultCode === this.platformResultCode.success) {
+				const resultSets = [];
+
+				data.resultSets[0].rows.forEach(row => {
+					const resultSet = {};
+
+					row.values.forEach((value, column) =>
+						resultSet[data.resultSets[0].columnNames[column].toString()] = value.toString()
+					);
+
+					resultSets.push(resultSet);
+				});
+
+				return Promise.resolve(resultSets);
+			} else {
+				return Promise.reject(new PlatformError(`Error: ${resultCode}`, data.resultCode));
+			}
+		});
+	}
+
+	createServiceItem(platformUserSN, itemMappingSN, serviceSN, startActivationTime, enableFlag = true,
+		itemName = "", itemDescription = "", tagData = null
+	) {
+		const opMsg = OpMsg.create({
+			gufid: this.makeGuid(this.serverType.boxapi, 117), // CreateServiceItem
+			senderGusid: this.makeGuid(this.serviceId, 0),
+			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
+			execType: OpMsg.ExecType.EXECUTE,
+			jobType: OpMsg.JobType.REQUEST,
+
+			arguments: [
+				OpMsg.Argument.create({
+					name: Buffer.from("serviceItemServiceSN"),
+					value: Buffer.from(serviceSN.toString())
+				}),
+				OpMsg.Argument.create({
+					name: Buffer.from("serviceItemMappingItemSN"),
+					value: Buffer.from(itemMappingSN.toString())
+				}),
+				OpMsg.Argument.create({
+					name: Buffer.from("serviceItemStartActivationDateTime"),
+					value: Buffer.from(startActivationTime.toString())
+				}),
+				OpMsg.Argument.create({
+					name: Buffer.from("serviceItemEnableFlag"),
+					value: Buffer.from(enableFlag ? "1" : "0")
+				}),
+				OpMsg.Argument.create({
+					name: Buffer.from("serviceItemName"),
+					value: Buffer.from(itemName.toString())
+				}),
+				OpMsg.Argument.create({
+					name: Buffer.from("serviceItemDescription"),
+					value: Buffer.from(itemDescription.toString())
+				}),
+				OpMsg.Argument.create({
+					name: Buffer.from("serviceItemRegisterUserSN"),
+					value: Buffer.from(platformUserSN.toString())
+				}),
+				OpMsg.Argument.create({
+					name: Buffer.from("serviceItemTagInfo"),
+					value: Buffer.from(tagData ? tagData : "0")
+				})
+			]
+		});
+
+		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
+			const resultCode = this.getErrorCode(data.resultCode);
+
+			if (resultCode === this.platformResultCode.success) {
+				return Promise.resolve(Buffer.from(data.resultScalar).toString());
+			} else {
+				return Promise.reject(new PlatformError(`Error: ${resultCode}`, data.resultCode));
+			}
+		});
+	}
+
+	removeServiceItem(serviceItemSN) {
+		const opMsg = OpMsg.create({
+			gufid: this.makeGuid(this.serverType.boxapi, 118), // SetDisableServiceItem
+			senderGusid: this.makeGuid(this.serviceId, 0),
+			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
+			execType: OpMsg.ExecType.EXECUTE,
+			jobType: OpMsg.JobType.REQUEST,
+
+			arguments: [
+				OpMsg.Argument.create({
+					name: Buffer.from("serviceItemSN"),
+					value: Buffer.from(serviceItemSN.toString())
+				})
+			]
+		});
+
+		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
+			const resultCode = this.getErrorCode(data.resultCode);
+
+			if (resultCode === this.platformResultCode.success) {
+				return Promise.resolve();
+			} else {
+				return Promise.reject(new PlatformError(`Error: ${resultCode}`, data.resultCode));
+			}
+		});
+	}
+
+	//
+	// Utils
+	//
 
 	convertBoxTagValue(boxTagInfoList, boxServiceItemInfoList) {
 		let boxTagInfo = "";

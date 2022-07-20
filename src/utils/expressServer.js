@@ -90,7 +90,7 @@ class ExpressServer {
 		);
 
 		return new Promise((resolve, reject) => {
-			this.app.listen(port, host, () => {
+			this.app.listen(port, host || "0.0.0.0", () => {
 				this.logger.info(`Listening at: ${!host ? "*" : host}:${port}`);
 				resolve();
 			}).on("error", err => {
