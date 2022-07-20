@@ -17,19 +17,9 @@ class ItemClaim {
 	}
 
 	makeBox(context, characterId = null) {
-		if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
-			return Promise.reject("FCGI Gateway is not configured or disabled.");
-		}
-
-		return this.modules.fcgi.makeBox(
-			context,
-			this.userId,
-			this.serverId,
-			characterId || 0,
-			this.params.logId || 0
-		).then(result =>
+		return this.modules.platform.createBoxFromContext(context, this.userId, this.serverId, characterId, this.params.logId).then(boxId =>
 			this.modules.reportModel.boxes.create({
-				boxId: result.box_id,
+				boxId,
 				accountDBID: this.userId,
 				serverId: this.serverId,
 				characterId: characterId || null,
@@ -38,9 +28,17 @@ class ItemClaim {
 				context: JSON.stringify(context)
 			}, {
 				transaction: this.transaction
-			}).then(() =>
-				Promise.resolve(result)
-			)
+			}).then(() => {
+				if (/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
+					this.modules.fcgi.boxNoti(this.serverId, this.userId, characterId || 0).catch(err => {
+						if (this.modules.fcgi.params.logger?.error) {
+							this.modules.fcgi.params.logger.warn(err);
+						}
+					});
+				}
+
+				return Promise.resolve(boxId);
+			})
 		);
 	}
 }

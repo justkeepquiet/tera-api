@@ -12,11 +12,11 @@ class TasksActions {
 		this.modules = modules;
 	}
 
-	createBox(context, accountDBID, serverId = null, characterId = null, logId = null, logType = null) {
-		return this.modules.platform.createBoxFromContext(context, accountDBID, serverId, characterId, logId).then(boxId =>
+	createBox(context, userId, serverId = null, characterId = null, logId = null, logType = null) {
+		return this.modules.platform.createBoxFromContext(context, userId, serverId, characterId, logId).then(boxId =>
 			this.modules.reportModel.boxes.create({
 				boxId,
-				accountDBID,
+				accountDBID: userId,
 				serverId: serverId || null,
 				characterId: characterId || null,
 				logType: logType || null,

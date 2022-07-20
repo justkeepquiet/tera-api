@@ -561,7 +561,7 @@ module.exports.PurchaseAction = modules => [
 					transaction
 				});
 
-				const boxResult = await (new ItemClaim(
+				const boxId = await (new ItemClaim(
 					transaction,
 					modules,
 					req.user.accountDBID,
@@ -579,7 +579,7 @@ module.exports.PurchaseAction = modules => [
 				});
 
 				return await modules.reportModel.shopPay.update({
-					boxId: boxResult.box_id,
+					boxId,
 					status: "completed"
 				}, {
 					where: { id: logResult.get("id") }
