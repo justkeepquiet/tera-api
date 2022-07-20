@@ -42,7 +42,7 @@
 										<%_ online.forEach(account => { _%>
 										<tr>
 											<td><%= moment(account.get("info").get("lastLoginTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-											<td><%= account.get("info").get("serverId") || "-" %></td>
+											<td><%= account.get("serverId") || "-" %></td>
 											<%_ if (account.get("info").get("permission") >= 256) { _%>
 											<td class="text-primary"><%= account.get("accountDBID") %> <i class="fa fa-wrench"></i></td>
 											<%_ } else if (account.get("info").get("permission") >= 1) { _%>

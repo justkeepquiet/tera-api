@@ -22,7 +22,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, shopModel }) => [
 	(req, res) => {
 		const { userNo } = req.body;
 
-		shopModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
+		shopModel.accounts.findOne({ where: { accountDBID: userNo } }).then(account => {
 			if (account === null) {
 				return resultJson(res, 50000, "account not exist");
 			}
