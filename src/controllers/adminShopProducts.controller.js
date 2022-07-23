@@ -351,8 +351,8 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, shopMod
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
-								resolvedItems[itemTemplateId].get("string"),
-								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("toolTip")),
+								resolvedItems[itemTemplateId].get("strings").get("string"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings").get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								shopModel.productItems.create({
@@ -689,8 +689,8 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
-								resolvedItems[itemTemplateId].get("string"),
-								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("toolTip")),
+								resolvedItems[itemTemplateId].get("strings").get("string"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings").get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								shopModel.productItems.update({
@@ -738,8 +738,8 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 										1,
 										moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 										true,
-										resolvedItems[itemTemplateId].get("string"),
-										resolvedItems[itemTemplateId].get("toolTip"),
+										resolvedItems[itemTemplateId].get("strings").get("string"),
+										helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings").get("toolTip")),
 										"1,1,1"
 									).then(boxItemId =>
 										shopModel.productItems.create({

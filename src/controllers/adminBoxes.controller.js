@@ -539,7 +539,7 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 										moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 										true,
 										resolvedItems[itemTemplateId].get("strings").get("string"),
-										resolvedItems[itemTemplateId].get("strings").get("toolTip"),
+										helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings").get("toolTip")),
 										"1,1,1"
 									).then(boxItemId =>
 										boxModel.items.create({
