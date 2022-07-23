@@ -327,9 +327,19 @@ class HubConnection extends EventEmitter {
 		let dataSize = buffer.length;
 
 		while (dataSize >= this.headerSize) {
-			const size = struct.unpack(this.headerFormat, buffer)[0];
+			const size = struct.unpack(this.headerFormat, Uint8Array.prototype.slice.call(buffer, 0, this.headerSize))[0];
 
-			if (dataSize < size) break;
+			if (size > this.MAX_LENGTH) {
+				if (this.params.logger?.error) {
+					this.params.logger?.error(new HubError(`Try to receive ${size} bytes whereas maximum is ${this.MAX_LENGTH}`));
+				}
+
+				break;
+			}
+
+			if (dataSize < size) {
+				break;
+			}
 
 			const dataBody = Uint8Array.prototype.slice.call(buffer, this.headerSize, size);
 			const msgId = struct.unpack(this.idFormat, dataBody)[0];
