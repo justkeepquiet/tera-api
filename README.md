@@ -15,7 +15,6 @@ Built-in admin panel for full control of all functionality and viewing API logs.
 * [TERA Retail Server](https://forum.ragezone.com/f797/) patch 92.03, 92.04 or 100.02
 * [Steer Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
 * [Box Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
-* [FCGI GW and FCGI Web API](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
 
 ## Deployment
 
@@ -54,12 +53,11 @@ The Steer Server allows you to flexibly manage permissions to certain sections o
 
 ### TERA Shop Integration
 
-1. [Install and configure](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) the Steer Server, Box Server, FCGI GW and FCGI Web API.
+1. [Install and configure](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) the Steer Server, Box Server.
 2. Go to your TERA Server **arb_gw** directory and open config **config_arb_gw.txt**.
 3. Modify the patamerer `web_shop_url` value as `http://YOUR_API_HOST/tera/ShopAuth?authKey=%s`, where `YOUR_API_HOST` specify your TERA API host.
 4. Go to your TERA Server **Bin** directory and open **DeploymentConfig.xml**.
 5. Remove or comment the line like this `<Shop url="..." />`.
 6. Open your **.env** and set the `API_PORTAL_SHOP_ENABLE` parameter to `true`.
-7. For Item Claim to work, you also need to set parameter `FCGI_GW_WEBAPI_ENABLE` to `true` and configure parameter `FCGI_GW_WEBAPI_URL`.
 
-TERA Shop products are configured through the TERA API Admin Panel. The creation of a Service Item in the Box System occurs automatically when a product is added (using the Platform Hub Gateway). Sending products to the player is carried out through the FCGI Gateway Web API.
+TERA Shop products are configured through the TERA API Admin Panel. The creation of a Service Item in the Box System occurs automatically when a product is added (using the Platform Hub).
