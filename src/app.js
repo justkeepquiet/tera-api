@@ -141,10 +141,6 @@ moduleLoader.final().then(
 	 * @param {modules} modules
 	 */
 	modules => {
-		if (!modules.hub.isRegistred) {
-			return Promise.reject("Hub connection is not registred.");
-		}
-
 		const serverLoader = new CoreLoader();
 		const tasksActions = new TasksActions(modules);
 		const serverCheckActions = new ServerCheckActions(modules);
