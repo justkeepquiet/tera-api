@@ -29,6 +29,7 @@ const cliHelper = require("./utils/cliHelper");
 const CoreLoader = require("./lib/coreLoader");
 const BackgroundQueue = require("./lib/backgroundQueue");
 const ExpressServer = require("./lib/expressServer");
+const serverCategory = require("./lib/teraPlatformGuid").serverCategory;
 const HubFunctions = require("./lib/hubFunctions");
 const SteerFunctions = require("./lib/steerFunctions");
 const TasksActions = require("./actions/tasks.actions");
@@ -49,7 +50,7 @@ moduleLoader.setPromise("hub", () => new Promise(resolve => {
 	const hub = new HubFunctions(
 		process.env.HUB_HOST,
 		process.env.HUB_PORT,
-		19, {
+		serverCategory.webcstool, {
 			logger: createLogger("Hub")
 		}
 	);
@@ -63,7 +64,7 @@ moduleLoader.setPromise("steer", () => new Promise(resolve => {
 	const steer = new SteerFunctions(
 		process.env.STEER_HOST,
 		process.env.STEER_PORT,
-		19, "WebIMSTool", {
+		serverCategory.webcstool, "WebIMSTool", {
 			logger: createLogger("Steer")
 		}
 	);
