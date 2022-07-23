@@ -151,12 +151,7 @@ class HubConnection extends EventEmitter {
 		const jobId = ++this.jobId;
 		const msgBuf = Buffer.concat([struct.pack(this.idFormat, msgId), msgData]);
 
-		const req = hub.SendMessageReq.encode({
-			jobId,
-			serverId,
-			msgBuf
-		});
-
+		const req = hub.SendMessageReq.encode({ jobId, serverId, msgBuf });
 		const msg = Buffer.concat([struct.pack(this.idFormat, 3), req.finish()]); // 3: SendMessageReq
 
 		return this.send("SendMessageReq", msg).then(() =>
@@ -267,13 +262,13 @@ class HubConnection extends EventEmitter {
 			return Promise.reject(new HubError(`Try to send ${dataLength} bytes whereas maximum is ${this.MAX_LENGTH - this.headerSize}`));
 		}
 
-		const sendData = Buffer.concat([struct.pack(this.headerFormat, size), msg]);
+		const data = Buffer.concat([struct.pack(this.headerFormat, size), msg]);
 
 		if (this.params.logger?.debug) {
-			this.params.logger.debug(`Send ${handlerName}: ${sendData.toString("hex")}`);
+			this.params.logger.debug(`Send ${handlerName}: ${msg.toString("hex")}`);
 		}
 
-		return this.socket.write(sendData).then(() =>
+		return this.socket.write(data).then(() =>
 			Promise.resolve()
 		).catch(err =>
 			Promise.reject(new HubError(`Send failed: ${err}`, 4))
@@ -299,8 +294,8 @@ class HubConnection extends EventEmitter {
 				break;
 			}
 
-			const dataBody = Uint8Array.prototype.slice.call(buffer, this.headerSize, size);
-			const msgId = struct.unpack(this.idFormat, dataBody)[0];
+			const body = Uint8Array.prototype.slice.call(buffer, this.headerSize, size);
+			const msgId = struct.unpack(this.idFormat, body)[0];
 
 			buffer = Uint8Array.prototype.slice.call(buffer, size);
 			dataSize = buffer.length;
@@ -314,10 +309,10 @@ class HubConnection extends EventEmitter {
 			}
 
 			if (this.params.logger?.debug) {
-				this.params.logger.debug(`Recv ${this.hubFunctionMap[msgId].name.slice(6)}: ${buffer.toString("hex")}`);
+				this.params.logger.debug(`Recv ${this.hubFunctionMap[msgId].name.slice(6)}: ${body.toString("hex")}`);
 			}
 
-			this.hubFunctionMap[msgId](Uint8Array.prototype.slice.call(dataBody, this.idSize));
+			this.hubFunctionMap[msgId](Uint8Array.prototype.slice.call(body, this.idSize));
 		}
 	}
 
