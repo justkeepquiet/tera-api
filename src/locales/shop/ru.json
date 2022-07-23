@@ -37,7 +37,7 @@
 	"Founder account": "Статус &laquo;Основатель&raquo;",
 	"Premium status account": "Статус &laquo;VIP&raquo;",
 	"PC Club account": "Статус &laquo;Компьютерный клуб&raquo;",
-	"_DAYS_ days left": "осталось _DAYS_ дней",
+	"%s days left": "осталось %s дней",
 	"Yes": "Да",
 	"No": "Нет",
 	"Redeem promo code": "Активация промокода",

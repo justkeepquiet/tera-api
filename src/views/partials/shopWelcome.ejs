@@ -7,12 +7,12 @@ _%>
 	<h2><%= __("Welcome!") %></h2><hr>
 	<%= __("You are playing on the server") %>: <b><%= server.get("nameString") %></b><br>
 	<%_ if (premium.length) { _%>
-	<%- __("Premium status account") %>: <b><%= __("Yes") %></b> (<%- __("_DAYS_ days left").replace("_DAYS_", `<b>${moment(benefits[premium[0]]).diff(moment(), "days")}</b>`) %>)<br>
+	<%- __("Premium status account") %>: <b><%= __("Yes") %></b> (<%- __("%s days left", `<b>${moment(benefits[premium[0]]).diff(moment(), "days")}</b>`) %>)<br>
 	<%_ } else { _%>
 	<%- __("Premium status account") %>: <b><%= __("No") %></b><br>
 	<%_ } _%>
 	<%_ if (pcClub.length) { _%>
-	<%- __("PC Club account") %>: <b><%= __("Yes") %></b> (<%- __("_DAYS_ days left").replace("_DAYS_", `<b>${moment(benefits[pcClub[0]]).diff(moment(), "days")}</b>`) %>)<br>
+	<%- __("PC Club account") %>: <b><%= __("Yes") %></b> (<%- __("%s days left", `<b>${moment(benefits[pcClub[0]]).diff(moment(), "days")}</b>`) %>)<br>
 	<%_ } else { _%>
 	<%- __("PC Club account") %>: <b><%= __("No") %></b><br>
 	<%_ } _%>
