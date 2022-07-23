@@ -7189,6 +7189,7 @@ $root.proto_oparb = (function() {
          * @property {string|null} [icon] CreateBoxReq icon
          * @property {number|Long|null} [transactionId] CreateBoxReq transactionId
          * @property {number|null} [startValid] CreateBoxReq startValid
+         * @property {number|null} [gameModeId] CreateBoxReq gameModeId
          * @property {Array.<proto_oparb.CreateBoxReq.IItemList>|null} [items] CreateBoxReq items
          */
 
@@ -7281,6 +7282,14 @@ $root.proto_oparb = (function() {
         CreateBoxReq.prototype.startValid = 0;
 
         /**
+         * CreateBoxReq gameModeId.
+         * @member {number} gameModeId
+         * @memberof proto_oparb.CreateBoxReq
+         * @instance
+         */
+        CreateBoxReq.prototype.gameModeId = 0;
+
+        /**
          * CreateBoxReq items.
          * @member {Array.<proto_oparb.CreateBoxReq.IItemList>} items
          * @memberof proto_oparb.CreateBoxReq
@@ -7329,6 +7338,8 @@ $root.proto_oparb = (function() {
                 writer.uint32(/* id 8, wireType 1 =*/65).fixed64(message.transactionId);
             if (message.startValid != null && Object.hasOwnProperty.call(message, "startValid"))
                 writer.uint32(/* id 9, wireType 0 =*/72).int32(message.startValid);
+            if (message.gameModeId != null && Object.hasOwnProperty.call(message, "gameModeId"))
+                writer.uint32(/* id 10, wireType 0 =*/80).int32(message.gameModeId);
             if (message.items != null && message.items.length)
                 for (var i = 0; i < message.items.length; ++i)
                     $root.proto_oparb.CreateBoxReq.ItemList.encode(message.items[i], writer.uint32(/* id 100, wireType 2 =*/802).fork()).ldelim();
@@ -7392,6 +7403,9 @@ $root.proto_oparb = (function() {
                     break;
                 case 9:
                     message.startValid = reader.int32();
+                    break;
+                case 10:
+                    message.gameModeId = reader.int32();
                     break;
                 case 100:
                     if (!(message.items && message.items.length))
@@ -7461,6 +7475,9 @@ $root.proto_oparb = (function() {
             if (message.startValid != null && message.hasOwnProperty("startValid"))
                 if (!$util.isInteger(message.startValid))
                     return "startValid: integer expected";
+            if (message.gameModeId != null && message.hasOwnProperty("gameModeId"))
+                if (!$util.isInteger(message.gameModeId))
+                    return "gameModeId: integer expected";
             if (message.items != null && message.hasOwnProperty("items")) {
                 if (!Array.isArray(message.items))
                     return "items: array expected";
@@ -7517,6 +7534,8 @@ $root.proto_oparb = (function() {
                     message.transactionId = new $util.LongBits(object.transactionId.low >>> 0, object.transactionId.high >>> 0).toNumber();
             if (object.startValid != null)
                 message.startValid = object.startValid | 0;
+            if (object.gameModeId != null)
+                message.gameModeId = object.gameModeId | 0;
             if (object.items) {
                 if (!Array.isArray(object.items))
                     throw TypeError(".proto_oparb.CreateBoxReq.items: array expected");
@@ -7563,6 +7582,7 @@ $root.proto_oparb = (function() {
                 } else
                     object.transactionId = options.longs === String ? "0" : 0;
                 object.startValid = 0;
+                object.gameModeId = 0;
             }
             if (message.userSrl != null && message.hasOwnProperty("userSrl"))
                 if (typeof message.userSrl === "number")
@@ -7588,6 +7608,8 @@ $root.proto_oparb = (function() {
                     object.transactionId = options.longs === String ? $util.Long.prototype.toString.call(message.transactionId) : options.longs === Number ? new $util.LongBits(message.transactionId.low >>> 0, message.transactionId.high >>> 0).toNumber() : message.transactionId;
             if (message.startValid != null && message.hasOwnProperty("startValid"))
                 object.startValid = message.startValid;
+            if (message.gameModeId != null && message.hasOwnProperty("gameModeId"))
+                object.gameModeId = message.gameModeId;
             if (message.items && message.items.length) {
                 object.items = [];
                 for (var j = 0; j < message.items.length; ++j)
@@ -9695,6 +9717,7 @@ $root.proto_oparb = (function() {
          * @property {number|Long} userSrl AddBenefitReq userSrl
          * @property {number} benefitId AddBenefitReq benefitId
          * @property {number} remainSec AddBenefitReq remainSec
+         * @property {number|null} [totalSec] AddBenefitReq totalSec
          */
 
         /**
@@ -9737,6 +9760,14 @@ $root.proto_oparb = (function() {
         AddBenefitReq.prototype.remainSec = 0;
 
         /**
+         * AddBenefitReq totalSec.
+         * @member {number} totalSec
+         * @memberof proto_oparb.AddBenefitReq
+         * @instance
+         */
+        AddBenefitReq.prototype.totalSec = 0;
+
+        /**
          * Creates a new AddBenefitReq instance using the specified properties.
          * @function create
          * @memberof proto_oparb.AddBenefitReq
@@ -9763,6 +9794,8 @@ $root.proto_oparb = (function() {
             writer.uint32(/* id 1, wireType 1 =*/9).fixed64(message.userSrl);
             writer.uint32(/* id 2, wireType 5 =*/21).fixed32(message.benefitId);
             writer.uint32(/* id 3, wireType 5 =*/29).fixed32(message.remainSec);
+            if (message.totalSec != null && Object.hasOwnProperty.call(message, "totalSec"))
+                writer.uint32(/* id 4, wireType 5 =*/37).fixed32(message.totalSec);
             return writer;
         };
 
@@ -9805,6 +9838,9 @@ $root.proto_oparb = (function() {
                     break;
                 case 3:
                     message.remainSec = reader.fixed32();
+                    break;
+                case 4:
+                    message.totalSec = reader.fixed32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -9853,6 +9889,9 @@ $root.proto_oparb = (function() {
                 return "benefitId: integer expected";
             if (!$util.isInteger(message.remainSec))
                 return "remainSec: integer expected";
+            if (message.totalSec != null && message.hasOwnProperty("totalSec"))
+                if (!$util.isInteger(message.totalSec))
+                    return "totalSec: integer expected";
             return null;
         };
 
@@ -9881,6 +9920,8 @@ $root.proto_oparb = (function() {
                 message.benefitId = object.benefitId >>> 0;
             if (object.remainSec != null)
                 message.remainSec = object.remainSec >>> 0;
+            if (object.totalSec != null)
+                message.totalSec = object.totalSec >>> 0;
             return message;
         };
 
@@ -9905,6 +9946,7 @@ $root.proto_oparb = (function() {
                     object.userSrl = options.longs === String ? "0" : 0;
                 object.benefitId = 0;
                 object.remainSec = 0;
+                object.totalSec = 0;
             }
             if (message.userSrl != null && message.hasOwnProperty("userSrl"))
                 if (typeof message.userSrl === "number")
@@ -9915,6 +9957,8 @@ $root.proto_oparb = (function() {
                 object.benefitId = message.benefitId;
             if (message.remainSec != null && message.hasOwnProperty("remainSec"))
                 object.remainSec = message.remainSec;
+            if (message.totalSec != null && message.hasOwnProperty("totalSec"))
+                object.totalSec = message.totalSec;
             return object;
         };
 
@@ -11940,6 +11984,1555 @@ $root.proto_oparb = (function() {
         })();
 
         return QueryPlayInfoAns;
+    })();
+
+    proto_oparb.AddBenefitByTimestampReq = (function() {
+
+        /**
+         * Properties of an AddBenefitByTimestampReq.
+         * @memberof proto_oparb
+         * @interface IAddBenefitByTimestampReq
+         * @property {number|Long} userSrl AddBenefitByTimestampReq userSrl
+         * @property {number} benefitId AddBenefitByTimestampReq benefitId
+         * @property {number} expireTimestamp AddBenefitByTimestampReq expireTimestamp
+         * @property {number|null} [totalSec] AddBenefitByTimestampReq totalSec
+         */
+
+        /**
+         * Constructs a new AddBenefitByTimestampReq.
+         * @memberof proto_oparb
+         * @classdesc Represents an AddBenefitByTimestampReq.
+         * @implements IAddBenefitByTimestampReq
+         * @constructor
+         * @param {proto_oparb.IAddBenefitByTimestampReq=} [properties] Properties to set
+         */
+        function AddBenefitByTimestampReq(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * AddBenefitByTimestampReq userSrl.
+         * @member {number|Long} userSrl
+         * @memberof proto_oparb.AddBenefitByTimestampReq
+         * @instance
+         */
+        AddBenefitByTimestampReq.prototype.userSrl = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+
+        /**
+         * AddBenefitByTimestampReq benefitId.
+         * @member {number} benefitId
+         * @memberof proto_oparb.AddBenefitByTimestampReq
+         * @instance
+         */
+        AddBenefitByTimestampReq.prototype.benefitId = 0;
+
+        /**
+         * AddBenefitByTimestampReq expireTimestamp.
+         * @member {number} expireTimestamp
+         * @memberof proto_oparb.AddBenefitByTimestampReq
+         * @instance
+         */
+        AddBenefitByTimestampReq.prototype.expireTimestamp = 0;
+
+        /**
+         * AddBenefitByTimestampReq totalSec.
+         * @member {number} totalSec
+         * @memberof proto_oparb.AddBenefitByTimestampReq
+         * @instance
+         */
+        AddBenefitByTimestampReq.prototype.totalSec = 0;
+
+        /**
+         * Creates a new AddBenefitByTimestampReq instance using the specified properties.
+         * @function create
+         * @memberof proto_oparb.AddBenefitByTimestampReq
+         * @static
+         * @param {proto_oparb.IAddBenefitByTimestampReq=} [properties] Properties to set
+         * @returns {proto_oparb.AddBenefitByTimestampReq} AddBenefitByTimestampReq instance
+         */
+        AddBenefitByTimestampReq.create = function create(properties) {
+            return new AddBenefitByTimestampReq(properties);
+        };
+
+        /**
+         * Encodes the specified AddBenefitByTimestampReq message. Does not implicitly {@link proto_oparb.AddBenefitByTimestampReq.verify|verify} messages.
+         * @function encode
+         * @memberof proto_oparb.AddBenefitByTimestampReq
+         * @static
+         * @param {proto_oparb.IAddBenefitByTimestampReq} message AddBenefitByTimestampReq message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        AddBenefitByTimestampReq.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            writer.uint32(/* id 1, wireType 1 =*/9).fixed64(message.userSrl);
+            writer.uint32(/* id 2, wireType 5 =*/21).fixed32(message.benefitId);
+            writer.uint32(/* id 3, wireType 5 =*/29).fixed32(message.expireTimestamp);
+            if (message.totalSec != null && Object.hasOwnProperty.call(message, "totalSec"))
+                writer.uint32(/* id 4, wireType 5 =*/37).fixed32(message.totalSec);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified AddBenefitByTimestampReq message, length delimited. Does not implicitly {@link proto_oparb.AddBenefitByTimestampReq.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof proto_oparb.AddBenefitByTimestampReq
+         * @static
+         * @param {proto_oparb.IAddBenefitByTimestampReq} message AddBenefitByTimestampReq message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        AddBenefitByTimestampReq.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes an AddBenefitByTimestampReq message from the specified reader or buffer.
+         * @function decode
+         * @memberof proto_oparb.AddBenefitByTimestampReq
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {proto_oparb.AddBenefitByTimestampReq} AddBenefitByTimestampReq
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        AddBenefitByTimestampReq.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.proto_oparb.AddBenefitByTimestampReq();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.userSrl = reader.fixed64();
+                    break;
+                case 2:
+                    message.benefitId = reader.fixed32();
+                    break;
+                case 3:
+                    message.expireTimestamp = reader.fixed32();
+                    break;
+                case 4:
+                    message.totalSec = reader.fixed32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            if (!message.hasOwnProperty("userSrl"))
+                throw $util.ProtocolError("missing required 'userSrl'", { instance: message });
+            if (!message.hasOwnProperty("benefitId"))
+                throw $util.ProtocolError("missing required 'benefitId'", { instance: message });
+            if (!message.hasOwnProperty("expireTimestamp"))
+                throw $util.ProtocolError("missing required 'expireTimestamp'", { instance: message });
+            return message;
+        };
+
+        /**
+         * Decodes an AddBenefitByTimestampReq message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof proto_oparb.AddBenefitByTimestampReq
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {proto_oparb.AddBenefitByTimestampReq} AddBenefitByTimestampReq
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        AddBenefitByTimestampReq.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies an AddBenefitByTimestampReq message.
+         * @function verify
+         * @memberof proto_oparb.AddBenefitByTimestampReq
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        AddBenefitByTimestampReq.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (!$util.isInteger(message.userSrl) && !(message.userSrl && $util.isInteger(message.userSrl.low) && $util.isInteger(message.userSrl.high)))
+                return "userSrl: integer|Long expected";
+            if (!$util.isInteger(message.benefitId))
+                return "benefitId: integer expected";
+            if (!$util.isInteger(message.expireTimestamp))
+                return "expireTimestamp: integer expected";
+            if (message.totalSec != null && message.hasOwnProperty("totalSec"))
+                if (!$util.isInteger(message.totalSec))
+                    return "totalSec: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates an AddBenefitByTimestampReq message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof proto_oparb.AddBenefitByTimestampReq
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {proto_oparb.AddBenefitByTimestampReq} AddBenefitByTimestampReq
+         */
+        AddBenefitByTimestampReq.fromObject = function fromObject(object) {
+            if (object instanceof $root.proto_oparb.AddBenefitByTimestampReq)
+                return object;
+            var message = new $root.proto_oparb.AddBenefitByTimestampReq();
+            if (object.userSrl != null)
+                if ($util.Long)
+                    (message.userSrl = $util.Long.fromValue(object.userSrl)).unsigned = false;
+                else if (typeof object.userSrl === "string")
+                    message.userSrl = parseInt(object.userSrl, 10);
+                else if (typeof object.userSrl === "number")
+                    message.userSrl = object.userSrl;
+                else if (typeof object.userSrl === "object")
+                    message.userSrl = new $util.LongBits(object.userSrl.low >>> 0, object.userSrl.high >>> 0).toNumber();
+            if (object.benefitId != null)
+                message.benefitId = object.benefitId >>> 0;
+            if (object.expireTimestamp != null)
+                message.expireTimestamp = object.expireTimestamp >>> 0;
+            if (object.totalSec != null)
+                message.totalSec = object.totalSec >>> 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from an AddBenefitByTimestampReq message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof proto_oparb.AddBenefitByTimestampReq
+         * @static
+         * @param {proto_oparb.AddBenefitByTimestampReq} message AddBenefitByTimestampReq
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        AddBenefitByTimestampReq.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults) {
+                if ($util.Long) {
+                    var long = new $util.Long(0, 0, false);
+                    object.userSrl = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.userSrl = options.longs === String ? "0" : 0;
+                object.benefitId = 0;
+                object.expireTimestamp = 0;
+                object.totalSec = 0;
+            }
+            if (message.userSrl != null && message.hasOwnProperty("userSrl"))
+                if (typeof message.userSrl === "number")
+                    object.userSrl = options.longs === String ? String(message.userSrl) : message.userSrl;
+                else
+                    object.userSrl = options.longs === String ? $util.Long.prototype.toString.call(message.userSrl) : options.longs === Number ? new $util.LongBits(message.userSrl.low >>> 0, message.userSrl.high >>> 0).toNumber() : message.userSrl;
+            if (message.benefitId != null && message.hasOwnProperty("benefitId"))
+                object.benefitId = message.benefitId;
+            if (message.expireTimestamp != null && message.hasOwnProperty("expireTimestamp"))
+                object.expireTimestamp = message.expireTimestamp;
+            if (message.totalSec != null && message.hasOwnProperty("totalSec"))
+                object.totalSec = message.totalSec;
+            return object;
+        };
+
+        /**
+         * Converts this AddBenefitByTimestampReq to JSON.
+         * @function toJSON
+         * @memberof proto_oparb.AddBenefitByTimestampReq
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        AddBenefitByTimestampReq.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return AddBenefitByTimestampReq;
+    })();
+
+    proto_oparb.AddBenefitByTimestampAns = (function() {
+
+        /**
+         * Properties of an AddBenefitByTimestampAns.
+         * @memberof proto_oparb
+         * @interface IAddBenefitByTimestampAns
+         * @property {proto_oparb.AddBenefitByTimestampAns.result_type} result AddBenefitByTimestampAns result
+         */
+
+        /**
+         * Constructs a new AddBenefitByTimestampAns.
+         * @memberof proto_oparb
+         * @classdesc Represents an AddBenefitByTimestampAns.
+         * @implements IAddBenefitByTimestampAns
+         * @constructor
+         * @param {proto_oparb.IAddBenefitByTimestampAns=} [properties] Properties to set
+         */
+        function AddBenefitByTimestampAns(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * AddBenefitByTimestampAns result.
+         * @member {proto_oparb.AddBenefitByTimestampAns.result_type} result
+         * @memberof proto_oparb.AddBenefitByTimestampAns
+         * @instance
+         */
+        AddBenefitByTimestampAns.prototype.result = 0;
+
+        /**
+         * Creates a new AddBenefitByTimestampAns instance using the specified properties.
+         * @function create
+         * @memberof proto_oparb.AddBenefitByTimestampAns
+         * @static
+         * @param {proto_oparb.IAddBenefitByTimestampAns=} [properties] Properties to set
+         * @returns {proto_oparb.AddBenefitByTimestampAns} AddBenefitByTimestampAns instance
+         */
+        AddBenefitByTimestampAns.create = function create(properties) {
+            return new AddBenefitByTimestampAns(properties);
+        };
+
+        /**
+         * Encodes the specified AddBenefitByTimestampAns message. Does not implicitly {@link proto_oparb.AddBenefitByTimestampAns.verify|verify} messages.
+         * @function encode
+         * @memberof proto_oparb.AddBenefitByTimestampAns
+         * @static
+         * @param {proto_oparb.IAddBenefitByTimestampAns} message AddBenefitByTimestampAns message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        AddBenefitByTimestampAns.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            writer.uint32(/* id 1, wireType 0 =*/8).int32(message.result);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified AddBenefitByTimestampAns message, length delimited. Does not implicitly {@link proto_oparb.AddBenefitByTimestampAns.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof proto_oparb.AddBenefitByTimestampAns
+         * @static
+         * @param {proto_oparb.IAddBenefitByTimestampAns} message AddBenefitByTimestampAns message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        AddBenefitByTimestampAns.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes an AddBenefitByTimestampAns message from the specified reader or buffer.
+         * @function decode
+         * @memberof proto_oparb.AddBenefitByTimestampAns
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {proto_oparb.AddBenefitByTimestampAns} AddBenefitByTimestampAns
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        AddBenefitByTimestampAns.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.proto_oparb.AddBenefitByTimestampAns();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.result = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            if (!message.hasOwnProperty("result"))
+                throw $util.ProtocolError("missing required 'result'", { instance: message });
+            return message;
+        };
+
+        /**
+         * Decodes an AddBenefitByTimestampAns message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof proto_oparb.AddBenefitByTimestampAns
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {proto_oparb.AddBenefitByTimestampAns} AddBenefitByTimestampAns
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        AddBenefitByTimestampAns.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies an AddBenefitByTimestampAns message.
+         * @function verify
+         * @memberof proto_oparb.AddBenefitByTimestampAns
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        AddBenefitByTimestampAns.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            switch (message.result) {
+            default:
+                return "result: enum value expected";
+            case 0:
+            case 1:
+            case 2:
+                break;
+            }
+            return null;
+        };
+
+        /**
+         * Creates an AddBenefitByTimestampAns message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof proto_oparb.AddBenefitByTimestampAns
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {proto_oparb.AddBenefitByTimestampAns} AddBenefitByTimestampAns
+         */
+        AddBenefitByTimestampAns.fromObject = function fromObject(object) {
+            if (object instanceof $root.proto_oparb.AddBenefitByTimestampAns)
+                return object;
+            var message = new $root.proto_oparb.AddBenefitByTimestampAns();
+            switch (object.result) {
+            case "SUCCESS":
+            case 0:
+                message.result = 0;
+                break;
+            case "FAILED":
+            case 1:
+                message.result = 1;
+                break;
+            case "NOT_EXIST":
+            case 2:
+                message.result = 2;
+                break;
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from an AddBenefitByTimestampAns message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof proto_oparb.AddBenefitByTimestampAns
+         * @static
+         * @param {proto_oparb.AddBenefitByTimestampAns} message AddBenefitByTimestampAns
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        AddBenefitByTimestampAns.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults)
+                object.result = options.enums === String ? "SUCCESS" : 0;
+            if (message.result != null && message.hasOwnProperty("result"))
+                object.result = options.enums === String ? $root.proto_oparb.AddBenefitByTimestampAns.result_type[message.result] : message.result;
+            return object;
+        };
+
+        /**
+         * Converts this AddBenefitByTimestampAns to JSON.
+         * @function toJSON
+         * @memberof proto_oparb.AddBenefitByTimestampAns
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        AddBenefitByTimestampAns.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * result_type enum.
+         * @name proto_oparb.AddBenefitByTimestampAns.result_type
+         * @enum {number}
+         * @property {number} SUCCESS=0 SUCCESS value
+         * @property {number} FAILED=1 FAILED value
+         * @property {number} NOT_EXIST=2 NOT_EXIST value
+         */
+        AddBenefitByTimestampAns.result_type = (function() {
+            var valuesById = {}, values = Object.create(valuesById);
+            values[valuesById[0] = "SUCCESS"] = 0;
+            values[valuesById[1] = "FAILED"] = 1;
+            values[valuesById[2] = "NOT_EXIST"] = 2;
+            return values;
+        })();
+
+        return AddBenefitByTimestampAns;
+    })();
+
+    proto_oparb.ArbiterPacketCounterReq = (function() {
+
+        /**
+         * Properties of an ArbiterPacketCounterReq.
+         * @memberof proto_oparb
+         * @interface IArbiterPacketCounterReq
+         */
+
+        /**
+         * Constructs a new ArbiterPacketCounterReq.
+         * @memberof proto_oparb
+         * @classdesc Represents an ArbiterPacketCounterReq.
+         * @implements IArbiterPacketCounterReq
+         * @constructor
+         * @param {proto_oparb.IArbiterPacketCounterReq=} [properties] Properties to set
+         */
+        function ArbiterPacketCounterReq(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * Creates a new ArbiterPacketCounterReq instance using the specified properties.
+         * @function create
+         * @memberof proto_oparb.ArbiterPacketCounterReq
+         * @static
+         * @param {proto_oparb.IArbiterPacketCounterReq=} [properties] Properties to set
+         * @returns {proto_oparb.ArbiterPacketCounterReq} ArbiterPacketCounterReq instance
+         */
+        ArbiterPacketCounterReq.create = function create(properties) {
+            return new ArbiterPacketCounterReq(properties);
+        };
+
+        /**
+         * Encodes the specified ArbiterPacketCounterReq message. Does not implicitly {@link proto_oparb.ArbiterPacketCounterReq.verify|verify} messages.
+         * @function encode
+         * @memberof proto_oparb.ArbiterPacketCounterReq
+         * @static
+         * @param {proto_oparb.IArbiterPacketCounterReq} message ArbiterPacketCounterReq message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ArbiterPacketCounterReq.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ArbiterPacketCounterReq message, length delimited. Does not implicitly {@link proto_oparb.ArbiterPacketCounterReq.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof proto_oparb.ArbiterPacketCounterReq
+         * @static
+         * @param {proto_oparb.IArbiterPacketCounterReq} message ArbiterPacketCounterReq message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ArbiterPacketCounterReq.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes an ArbiterPacketCounterReq message from the specified reader or buffer.
+         * @function decode
+         * @memberof proto_oparb.ArbiterPacketCounterReq
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {proto_oparb.ArbiterPacketCounterReq} ArbiterPacketCounterReq
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ArbiterPacketCounterReq.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.proto_oparb.ArbiterPacketCounterReq();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes an ArbiterPacketCounterReq message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof proto_oparb.ArbiterPacketCounterReq
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {proto_oparb.ArbiterPacketCounterReq} ArbiterPacketCounterReq
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ArbiterPacketCounterReq.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies an ArbiterPacketCounterReq message.
+         * @function verify
+         * @memberof proto_oparb.ArbiterPacketCounterReq
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ArbiterPacketCounterReq.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            return null;
+        };
+
+        /**
+         * Creates an ArbiterPacketCounterReq message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof proto_oparb.ArbiterPacketCounterReq
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {proto_oparb.ArbiterPacketCounterReq} ArbiterPacketCounterReq
+         */
+        ArbiterPacketCounterReq.fromObject = function fromObject(object) {
+            if (object instanceof $root.proto_oparb.ArbiterPacketCounterReq)
+                return object;
+            return new $root.proto_oparb.ArbiterPacketCounterReq();
+        };
+
+        /**
+         * Creates a plain object from an ArbiterPacketCounterReq message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof proto_oparb.ArbiterPacketCounterReq
+         * @static
+         * @param {proto_oparb.ArbiterPacketCounterReq} message ArbiterPacketCounterReq
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ArbiterPacketCounterReq.toObject = function toObject() {
+            return {};
+        };
+
+        /**
+         * Converts this ArbiterPacketCounterReq to JSON.
+         * @function toJSON
+         * @memberof proto_oparb.ArbiterPacketCounterReq
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ArbiterPacketCounterReq.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return ArbiterPacketCounterReq;
+    })();
+
+    proto_oparb.ArbiterPacketCounterAns = (function() {
+
+        /**
+         * Properties of an ArbiterPacketCounterAns.
+         * @memberof proto_oparb
+         * @interface IArbiterPacketCounterAns
+         * @property {Array.<proto_oparb.ArbiterPacketCounterAns.IPacketCounter>|null} [packetCounterList] ArbiterPacketCounterAns packetCounterList
+         */
+
+        /**
+         * Constructs a new ArbiterPacketCounterAns.
+         * @memberof proto_oparb
+         * @classdesc Represents an ArbiterPacketCounterAns.
+         * @implements IArbiterPacketCounterAns
+         * @constructor
+         * @param {proto_oparb.IArbiterPacketCounterAns=} [properties] Properties to set
+         */
+        function ArbiterPacketCounterAns(properties) {
+            this.packetCounterList = [];
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * ArbiterPacketCounterAns packetCounterList.
+         * @member {Array.<proto_oparb.ArbiterPacketCounterAns.IPacketCounter>} packetCounterList
+         * @memberof proto_oparb.ArbiterPacketCounterAns
+         * @instance
+         */
+        ArbiterPacketCounterAns.prototype.packetCounterList = $util.emptyArray;
+
+        /**
+         * Creates a new ArbiterPacketCounterAns instance using the specified properties.
+         * @function create
+         * @memberof proto_oparb.ArbiterPacketCounterAns
+         * @static
+         * @param {proto_oparb.IArbiterPacketCounterAns=} [properties] Properties to set
+         * @returns {proto_oparb.ArbiterPacketCounterAns} ArbiterPacketCounterAns instance
+         */
+        ArbiterPacketCounterAns.create = function create(properties) {
+            return new ArbiterPacketCounterAns(properties);
+        };
+
+        /**
+         * Encodes the specified ArbiterPacketCounterAns message. Does not implicitly {@link proto_oparb.ArbiterPacketCounterAns.verify|verify} messages.
+         * @function encode
+         * @memberof proto_oparb.ArbiterPacketCounterAns
+         * @static
+         * @param {proto_oparb.IArbiterPacketCounterAns} message ArbiterPacketCounterAns message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ArbiterPacketCounterAns.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            if (message.packetCounterList != null && message.packetCounterList.length)
+                for (var i = 0; i < message.packetCounterList.length; ++i)
+                    $root.proto_oparb.ArbiterPacketCounterAns.PacketCounter.encode(message.packetCounterList[i], writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            return writer;
+        };
+
+        /**
+         * Encodes the specified ArbiterPacketCounterAns message, length delimited. Does not implicitly {@link proto_oparb.ArbiterPacketCounterAns.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof proto_oparb.ArbiterPacketCounterAns
+         * @static
+         * @param {proto_oparb.IArbiterPacketCounterAns} message ArbiterPacketCounterAns message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        ArbiterPacketCounterAns.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes an ArbiterPacketCounterAns message from the specified reader or buffer.
+         * @function decode
+         * @memberof proto_oparb.ArbiterPacketCounterAns
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {proto_oparb.ArbiterPacketCounterAns} ArbiterPacketCounterAns
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ArbiterPacketCounterAns.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.proto_oparb.ArbiterPacketCounterAns();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    if (!(message.packetCounterList && message.packetCounterList.length))
+                        message.packetCounterList = [];
+                    message.packetCounterList.push($root.proto_oparb.ArbiterPacketCounterAns.PacketCounter.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Decodes an ArbiterPacketCounterAns message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof proto_oparb.ArbiterPacketCounterAns
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {proto_oparb.ArbiterPacketCounterAns} ArbiterPacketCounterAns
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        ArbiterPacketCounterAns.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies an ArbiterPacketCounterAns message.
+         * @function verify
+         * @memberof proto_oparb.ArbiterPacketCounterAns
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        ArbiterPacketCounterAns.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (message.packetCounterList != null && message.hasOwnProperty("packetCounterList")) {
+                if (!Array.isArray(message.packetCounterList))
+                    return "packetCounterList: array expected";
+                for (var i = 0; i < message.packetCounterList.length; ++i) {
+                    var error = $root.proto_oparb.ArbiterPacketCounterAns.PacketCounter.verify(message.packetCounterList[i]);
+                    if (error)
+                        return "packetCounterList." + error;
+                }
+            }
+            return null;
+        };
+
+        /**
+         * Creates an ArbiterPacketCounterAns message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof proto_oparb.ArbiterPacketCounterAns
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {proto_oparb.ArbiterPacketCounterAns} ArbiterPacketCounterAns
+         */
+        ArbiterPacketCounterAns.fromObject = function fromObject(object) {
+            if (object instanceof $root.proto_oparb.ArbiterPacketCounterAns)
+                return object;
+            var message = new $root.proto_oparb.ArbiterPacketCounterAns();
+            if (object.packetCounterList) {
+                if (!Array.isArray(object.packetCounterList))
+                    throw TypeError(".proto_oparb.ArbiterPacketCounterAns.packetCounterList: array expected");
+                message.packetCounterList = [];
+                for (var i = 0; i < object.packetCounterList.length; ++i) {
+                    if (typeof object.packetCounterList[i] !== "object")
+                        throw TypeError(".proto_oparb.ArbiterPacketCounterAns.packetCounterList: object expected");
+                    message.packetCounterList[i] = $root.proto_oparb.ArbiterPacketCounterAns.PacketCounter.fromObject(object.packetCounterList[i]);
+                }
+            }
+            return message;
+        };
+
+        /**
+         * Creates a plain object from an ArbiterPacketCounterAns message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof proto_oparb.ArbiterPacketCounterAns
+         * @static
+         * @param {proto_oparb.ArbiterPacketCounterAns} message ArbiterPacketCounterAns
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        ArbiterPacketCounterAns.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.arrays || options.defaults)
+                object.packetCounterList = [];
+            if (message.packetCounterList && message.packetCounterList.length) {
+                object.packetCounterList = [];
+                for (var j = 0; j < message.packetCounterList.length; ++j)
+                    object.packetCounterList[j] = $root.proto_oparb.ArbiterPacketCounterAns.PacketCounter.toObject(message.packetCounterList[j], options);
+            }
+            return object;
+        };
+
+        /**
+         * Converts this ArbiterPacketCounterAns to JSON.
+         * @function toJSON
+         * @memberof proto_oparb.ArbiterPacketCounterAns
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        ArbiterPacketCounterAns.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        ArbiterPacketCounterAns.PacketCounter = (function() {
+
+            /**
+             * Properties of a PacketCounter.
+             * @memberof proto_oparb.ArbiterPacketCounterAns
+             * @interface IPacketCounter
+             * @property {number} msgId PacketCounter msgId
+             * @property {number|Long} counter PacketCounter counter
+             */
+
+            /**
+             * Constructs a new PacketCounter.
+             * @memberof proto_oparb.ArbiterPacketCounterAns
+             * @classdesc Represents a PacketCounter.
+             * @implements IPacketCounter
+             * @constructor
+             * @param {proto_oparb.ArbiterPacketCounterAns.IPacketCounter=} [properties] Properties to set
+             */
+            function PacketCounter(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+
+            /**
+             * PacketCounter msgId.
+             * @member {number} msgId
+             * @memberof proto_oparb.ArbiterPacketCounterAns.PacketCounter
+             * @instance
+             */
+            PacketCounter.prototype.msgId = 0;
+
+            /**
+             * PacketCounter counter.
+             * @member {number|Long} counter
+             * @memberof proto_oparb.ArbiterPacketCounterAns.PacketCounter
+             * @instance
+             */
+            PacketCounter.prototype.counter = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+
+            /**
+             * Creates a new PacketCounter instance using the specified properties.
+             * @function create
+             * @memberof proto_oparb.ArbiterPacketCounterAns.PacketCounter
+             * @static
+             * @param {proto_oparb.ArbiterPacketCounterAns.IPacketCounter=} [properties] Properties to set
+             * @returns {proto_oparb.ArbiterPacketCounterAns.PacketCounter} PacketCounter instance
+             */
+            PacketCounter.create = function create(properties) {
+                return new PacketCounter(properties);
+            };
+
+            /**
+             * Encodes the specified PacketCounter message. Does not implicitly {@link proto_oparb.ArbiterPacketCounterAns.PacketCounter.verify|verify} messages.
+             * @function encode
+             * @memberof proto_oparb.ArbiterPacketCounterAns.PacketCounter
+             * @static
+             * @param {proto_oparb.ArbiterPacketCounterAns.IPacketCounter} message PacketCounter message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            PacketCounter.encode = function encode(message, writer) {
+                if (!writer)
+                    writer = $Writer.create();
+                writer.uint32(/* id 1, wireType 5 =*/13).fixed32(message.msgId);
+                writer.uint32(/* id 2, wireType 1 =*/17).fixed64(message.counter);
+                return writer;
+            };
+
+            /**
+             * Encodes the specified PacketCounter message, length delimited. Does not implicitly {@link proto_oparb.ArbiterPacketCounterAns.PacketCounter.verify|verify} messages.
+             * @function encodeDelimited
+             * @memberof proto_oparb.ArbiterPacketCounterAns.PacketCounter
+             * @static
+             * @param {proto_oparb.ArbiterPacketCounterAns.IPacketCounter} message PacketCounter message or plain object to encode
+             * @param {$protobuf.Writer} [writer] Writer to encode to
+             * @returns {$protobuf.Writer} Writer
+             */
+            PacketCounter.encodeDelimited = function encodeDelimited(message, writer) {
+                return this.encode(message, writer).ldelim();
+            };
+
+            /**
+             * Decodes a PacketCounter message from the specified reader or buffer.
+             * @function decode
+             * @memberof proto_oparb.ArbiterPacketCounterAns.PacketCounter
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @param {number} [length] Message length if known beforehand
+             * @returns {proto_oparb.ArbiterPacketCounterAns.PacketCounter} PacketCounter
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            PacketCounter.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.proto_oparb.ArbiterPacketCounterAns.PacketCounter();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 1:
+                        message.msgId = reader.fixed32();
+                        break;
+                    case 2:
+                        message.counter = reader.fixed64();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                if (!message.hasOwnProperty("msgId"))
+                    throw $util.ProtocolError("missing required 'msgId'", { instance: message });
+                if (!message.hasOwnProperty("counter"))
+                    throw $util.ProtocolError("missing required 'counter'", { instance: message });
+                return message;
+            };
+
+            /**
+             * Decodes a PacketCounter message from the specified reader or buffer, length delimited.
+             * @function decodeDelimited
+             * @memberof proto_oparb.ArbiterPacketCounterAns.PacketCounter
+             * @static
+             * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+             * @returns {proto_oparb.ArbiterPacketCounterAns.PacketCounter} PacketCounter
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            PacketCounter.decodeDelimited = function decodeDelimited(reader) {
+                if (!(reader instanceof $Reader))
+                    reader = new $Reader(reader);
+                return this.decode(reader, reader.uint32());
+            };
+
+            /**
+             * Verifies a PacketCounter message.
+             * @function verify
+             * @memberof proto_oparb.ArbiterPacketCounterAns.PacketCounter
+             * @static
+             * @param {Object.<string,*>} message Plain object to verify
+             * @returns {string|null} `null` if valid, otherwise the reason why it is not
+             */
+            PacketCounter.verify = function verify(message) {
+                if (typeof message !== "object" || message === null)
+                    return "object expected";
+                if (!$util.isInteger(message.msgId))
+                    return "msgId: integer expected";
+                if (!$util.isInteger(message.counter) && !(message.counter && $util.isInteger(message.counter.low) && $util.isInteger(message.counter.high)))
+                    return "counter: integer|Long expected";
+                return null;
+            };
+
+            /**
+             * Creates a PacketCounter message from a plain object. Also converts values to their respective internal types.
+             * @function fromObject
+             * @memberof proto_oparb.ArbiterPacketCounterAns.PacketCounter
+             * @static
+             * @param {Object.<string,*>} object Plain object
+             * @returns {proto_oparb.ArbiterPacketCounterAns.PacketCounter} PacketCounter
+             */
+            PacketCounter.fromObject = function fromObject(object) {
+                if (object instanceof $root.proto_oparb.ArbiterPacketCounterAns.PacketCounter)
+                    return object;
+                var message = new $root.proto_oparb.ArbiterPacketCounterAns.PacketCounter();
+                if (object.msgId != null)
+                    message.msgId = object.msgId >>> 0;
+                if (object.counter != null)
+                    if ($util.Long)
+                        (message.counter = $util.Long.fromValue(object.counter)).unsigned = false;
+                    else if (typeof object.counter === "string")
+                        message.counter = parseInt(object.counter, 10);
+                    else if (typeof object.counter === "number")
+                        message.counter = object.counter;
+                    else if (typeof object.counter === "object")
+                        message.counter = new $util.LongBits(object.counter.low >>> 0, object.counter.high >>> 0).toNumber();
+                return message;
+            };
+
+            /**
+             * Creates a plain object from a PacketCounter message. Also converts values to other types if specified.
+             * @function toObject
+             * @memberof proto_oparb.ArbiterPacketCounterAns.PacketCounter
+             * @static
+             * @param {proto_oparb.ArbiterPacketCounterAns.PacketCounter} message PacketCounter
+             * @param {$protobuf.IConversionOptions} [options] Conversion options
+             * @returns {Object.<string,*>} Plain object
+             */
+            PacketCounter.toObject = function toObject(message, options) {
+                if (!options)
+                    options = {};
+                var object = {};
+                if (options.defaults) {
+                    object.msgId = 0;
+                    if ($util.Long) {
+                        var long = new $util.Long(0, 0, false);
+                        object.counter = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                    } else
+                        object.counter = options.longs === String ? "0" : 0;
+                }
+                if (message.msgId != null && message.hasOwnProperty("msgId"))
+                    object.msgId = message.msgId;
+                if (message.counter != null && message.hasOwnProperty("counter"))
+                    if (typeof message.counter === "number")
+                        object.counter = options.longs === String ? String(message.counter) : message.counter;
+                    else
+                        object.counter = options.longs === String ? $util.Long.prototype.toString.call(message.counter) : options.longs === Number ? new $util.LongBits(message.counter.low >>> 0, message.counter.high >>> 0).toNumber() : message.counter;
+                return object;
+            };
+
+            /**
+             * Converts this PacketCounter to JSON.
+             * @function toJSON
+             * @memberof proto_oparb.ArbiterPacketCounterAns.PacketCounter
+             * @instance
+             * @returns {Object.<string,*>} JSON object
+             */
+            PacketCounter.prototype.toJSON = function toJSON() {
+                return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+            };
+
+            return PacketCounter;
+        })();
+
+        return ArbiterPacketCounterAns;
+    })();
+
+    proto_oparb.RestoreCharReq = (function() {
+
+        /**
+         * Properties of a RestoreCharReq.
+         * @memberof proto_oparb
+         * @interface IRestoreCharReq
+         * @property {number|Long} userSrl RestoreCharReq userSrl
+         * @property {number} charSrl RestoreCharReq charSrl
+         */
+
+        /**
+         * Constructs a new RestoreCharReq.
+         * @memberof proto_oparb
+         * @classdesc Represents a RestoreCharReq.
+         * @implements IRestoreCharReq
+         * @constructor
+         * @param {proto_oparb.IRestoreCharReq=} [properties] Properties to set
+         */
+        function RestoreCharReq(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * RestoreCharReq userSrl.
+         * @member {number|Long} userSrl
+         * @memberof proto_oparb.RestoreCharReq
+         * @instance
+         */
+        RestoreCharReq.prototype.userSrl = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+
+        /**
+         * RestoreCharReq charSrl.
+         * @member {number} charSrl
+         * @memberof proto_oparb.RestoreCharReq
+         * @instance
+         */
+        RestoreCharReq.prototype.charSrl = 0;
+
+        /**
+         * Creates a new RestoreCharReq instance using the specified properties.
+         * @function create
+         * @memberof proto_oparb.RestoreCharReq
+         * @static
+         * @param {proto_oparb.IRestoreCharReq=} [properties] Properties to set
+         * @returns {proto_oparb.RestoreCharReq} RestoreCharReq instance
+         */
+        RestoreCharReq.create = function create(properties) {
+            return new RestoreCharReq(properties);
+        };
+
+        /**
+         * Encodes the specified RestoreCharReq message. Does not implicitly {@link proto_oparb.RestoreCharReq.verify|verify} messages.
+         * @function encode
+         * @memberof proto_oparb.RestoreCharReq
+         * @static
+         * @param {proto_oparb.IRestoreCharReq} message RestoreCharReq message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        RestoreCharReq.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            writer.uint32(/* id 1, wireType 1 =*/9).fixed64(message.userSrl);
+            writer.uint32(/* id 2, wireType 5 =*/21).fixed32(message.charSrl);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified RestoreCharReq message, length delimited. Does not implicitly {@link proto_oparb.RestoreCharReq.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof proto_oparb.RestoreCharReq
+         * @static
+         * @param {proto_oparb.IRestoreCharReq} message RestoreCharReq message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        RestoreCharReq.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a RestoreCharReq message from the specified reader or buffer.
+         * @function decode
+         * @memberof proto_oparb.RestoreCharReq
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {proto_oparb.RestoreCharReq} RestoreCharReq
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        RestoreCharReq.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.proto_oparb.RestoreCharReq();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.userSrl = reader.fixed64();
+                    break;
+                case 2:
+                    message.charSrl = reader.fixed32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            if (!message.hasOwnProperty("userSrl"))
+                throw $util.ProtocolError("missing required 'userSrl'", { instance: message });
+            if (!message.hasOwnProperty("charSrl"))
+                throw $util.ProtocolError("missing required 'charSrl'", { instance: message });
+            return message;
+        };
+
+        /**
+         * Decodes a RestoreCharReq message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof proto_oparb.RestoreCharReq
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {proto_oparb.RestoreCharReq} RestoreCharReq
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        RestoreCharReq.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a RestoreCharReq message.
+         * @function verify
+         * @memberof proto_oparb.RestoreCharReq
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        RestoreCharReq.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            if (!$util.isInteger(message.userSrl) && !(message.userSrl && $util.isInteger(message.userSrl.low) && $util.isInteger(message.userSrl.high)))
+                return "userSrl: integer|Long expected";
+            if (!$util.isInteger(message.charSrl))
+                return "charSrl: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates a RestoreCharReq message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof proto_oparb.RestoreCharReq
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {proto_oparb.RestoreCharReq} RestoreCharReq
+         */
+        RestoreCharReq.fromObject = function fromObject(object) {
+            if (object instanceof $root.proto_oparb.RestoreCharReq)
+                return object;
+            var message = new $root.proto_oparb.RestoreCharReq();
+            if (object.userSrl != null)
+                if ($util.Long)
+                    (message.userSrl = $util.Long.fromValue(object.userSrl)).unsigned = false;
+                else if (typeof object.userSrl === "string")
+                    message.userSrl = parseInt(object.userSrl, 10);
+                else if (typeof object.userSrl === "number")
+                    message.userSrl = object.userSrl;
+                else if (typeof object.userSrl === "object")
+                    message.userSrl = new $util.LongBits(object.userSrl.low >>> 0, object.userSrl.high >>> 0).toNumber();
+            if (object.charSrl != null)
+                message.charSrl = object.charSrl >>> 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a RestoreCharReq message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof proto_oparb.RestoreCharReq
+         * @static
+         * @param {proto_oparb.RestoreCharReq} message RestoreCharReq
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        RestoreCharReq.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults) {
+                if ($util.Long) {
+                    var long = new $util.Long(0, 0, false);
+                    object.userSrl = options.longs === String ? long.toString() : options.longs === Number ? long.toNumber() : long;
+                } else
+                    object.userSrl = options.longs === String ? "0" : 0;
+                object.charSrl = 0;
+            }
+            if (message.userSrl != null && message.hasOwnProperty("userSrl"))
+                if (typeof message.userSrl === "number")
+                    object.userSrl = options.longs === String ? String(message.userSrl) : message.userSrl;
+                else
+                    object.userSrl = options.longs === String ? $util.Long.prototype.toString.call(message.userSrl) : options.longs === Number ? new $util.LongBits(message.userSrl.low >>> 0, message.userSrl.high >>> 0).toNumber() : message.userSrl;
+            if (message.charSrl != null && message.hasOwnProperty("charSrl"))
+                object.charSrl = message.charSrl;
+            return object;
+        };
+
+        /**
+         * Converts this RestoreCharReq to JSON.
+         * @function toJSON
+         * @memberof proto_oparb.RestoreCharReq
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        RestoreCharReq.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        return RestoreCharReq;
+    })();
+
+    proto_oparb.RestoreCharAns = (function() {
+
+        /**
+         * Properties of a RestoreCharAns.
+         * @memberof proto_oparb
+         * @interface IRestoreCharAns
+         * @property {proto_oparb.RestoreCharAns.result_type} result RestoreCharAns result
+         * @property {number} errorCode RestoreCharAns errorCode
+         */
+
+        /**
+         * Constructs a new RestoreCharAns.
+         * @memberof proto_oparb
+         * @classdesc Represents a RestoreCharAns.
+         * @implements IRestoreCharAns
+         * @constructor
+         * @param {proto_oparb.IRestoreCharAns=} [properties] Properties to set
+         */
+        function RestoreCharAns(properties) {
+            if (properties)
+                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                    if (properties[keys[i]] != null)
+                        this[keys[i]] = properties[keys[i]];
+        }
+
+        /**
+         * RestoreCharAns result.
+         * @member {proto_oparb.RestoreCharAns.result_type} result
+         * @memberof proto_oparb.RestoreCharAns
+         * @instance
+         */
+        RestoreCharAns.prototype.result = 0;
+
+        /**
+         * RestoreCharAns errorCode.
+         * @member {number} errorCode
+         * @memberof proto_oparb.RestoreCharAns
+         * @instance
+         */
+        RestoreCharAns.prototype.errorCode = 0;
+
+        /**
+         * Creates a new RestoreCharAns instance using the specified properties.
+         * @function create
+         * @memberof proto_oparb.RestoreCharAns
+         * @static
+         * @param {proto_oparb.IRestoreCharAns=} [properties] Properties to set
+         * @returns {proto_oparb.RestoreCharAns} RestoreCharAns instance
+         */
+        RestoreCharAns.create = function create(properties) {
+            return new RestoreCharAns(properties);
+        };
+
+        /**
+         * Encodes the specified RestoreCharAns message. Does not implicitly {@link proto_oparb.RestoreCharAns.verify|verify} messages.
+         * @function encode
+         * @memberof proto_oparb.RestoreCharAns
+         * @static
+         * @param {proto_oparb.IRestoreCharAns} message RestoreCharAns message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        RestoreCharAns.encode = function encode(message, writer) {
+            if (!writer)
+                writer = $Writer.create();
+            writer.uint32(/* id 1, wireType 0 =*/8).int32(message.result);
+            writer.uint32(/* id 2, wireType 5 =*/21).fixed32(message.errorCode);
+            return writer;
+        };
+
+        /**
+         * Encodes the specified RestoreCharAns message, length delimited. Does not implicitly {@link proto_oparb.RestoreCharAns.verify|verify} messages.
+         * @function encodeDelimited
+         * @memberof proto_oparb.RestoreCharAns
+         * @static
+         * @param {proto_oparb.IRestoreCharAns} message RestoreCharAns message or plain object to encode
+         * @param {$protobuf.Writer} [writer] Writer to encode to
+         * @returns {$protobuf.Writer} Writer
+         */
+        RestoreCharAns.encodeDelimited = function encodeDelimited(message, writer) {
+            return this.encode(message, writer).ldelim();
+        };
+
+        /**
+         * Decodes a RestoreCharAns message from the specified reader or buffer.
+         * @function decode
+         * @memberof proto_oparb.RestoreCharAns
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @param {number} [length] Message length if known beforehand
+         * @returns {proto_oparb.RestoreCharAns} RestoreCharAns
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        RestoreCharAns.decode = function decode(reader, length) {
+            if (!(reader instanceof $Reader))
+                reader = $Reader.create(reader);
+            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.proto_oparb.RestoreCharAns();
+            while (reader.pos < end) {
+                var tag = reader.uint32();
+                switch (tag >>> 3) {
+                case 1:
+                    message.result = reader.int32();
+                    break;
+                case 2:
+                    message.errorCode = reader.fixed32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+                }
+            }
+            if (!message.hasOwnProperty("result"))
+                throw $util.ProtocolError("missing required 'result'", { instance: message });
+            if (!message.hasOwnProperty("errorCode"))
+                throw $util.ProtocolError("missing required 'errorCode'", { instance: message });
+            return message;
+        };
+
+        /**
+         * Decodes a RestoreCharAns message from the specified reader or buffer, length delimited.
+         * @function decodeDelimited
+         * @memberof proto_oparb.RestoreCharAns
+         * @static
+         * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+         * @returns {proto_oparb.RestoreCharAns} RestoreCharAns
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        RestoreCharAns.decodeDelimited = function decodeDelimited(reader) {
+            if (!(reader instanceof $Reader))
+                reader = new $Reader(reader);
+            return this.decode(reader, reader.uint32());
+        };
+
+        /**
+         * Verifies a RestoreCharAns message.
+         * @function verify
+         * @memberof proto_oparb.RestoreCharAns
+         * @static
+         * @param {Object.<string,*>} message Plain object to verify
+         * @returns {string|null} `null` if valid, otherwise the reason why it is not
+         */
+        RestoreCharAns.verify = function verify(message) {
+            if (typeof message !== "object" || message === null)
+                return "object expected";
+            switch (message.result) {
+            default:
+                return "result: enum value expected";
+            case 0:
+            case 1:
+            case 2:
+                break;
+            }
+            if (!$util.isInteger(message.errorCode))
+                return "errorCode: integer expected";
+            return null;
+        };
+
+        /**
+         * Creates a RestoreCharAns message from a plain object. Also converts values to their respective internal types.
+         * @function fromObject
+         * @memberof proto_oparb.RestoreCharAns
+         * @static
+         * @param {Object.<string,*>} object Plain object
+         * @returns {proto_oparb.RestoreCharAns} RestoreCharAns
+         */
+        RestoreCharAns.fromObject = function fromObject(object) {
+            if (object instanceof $root.proto_oparb.RestoreCharAns)
+                return object;
+            var message = new $root.proto_oparb.RestoreCharAns();
+            switch (object.result) {
+            case "SUCCESS":
+            case 0:
+                message.result = 0;
+                break;
+            case "FAILED":
+            case 1:
+                message.result = 1;
+                break;
+            case "NOT_EXIST":
+            case 2:
+                message.result = 2;
+                break;
+            }
+            if (object.errorCode != null)
+                message.errorCode = object.errorCode >>> 0;
+            return message;
+        };
+
+        /**
+         * Creates a plain object from a RestoreCharAns message. Also converts values to other types if specified.
+         * @function toObject
+         * @memberof proto_oparb.RestoreCharAns
+         * @static
+         * @param {proto_oparb.RestoreCharAns} message RestoreCharAns
+         * @param {$protobuf.IConversionOptions} [options] Conversion options
+         * @returns {Object.<string,*>} Plain object
+         */
+        RestoreCharAns.toObject = function toObject(message, options) {
+            if (!options)
+                options = {};
+            var object = {};
+            if (options.defaults) {
+                object.result = options.enums === String ? "SUCCESS" : 0;
+                object.errorCode = 0;
+            }
+            if (message.result != null && message.hasOwnProperty("result"))
+                object.result = options.enums === String ? $root.proto_oparb.RestoreCharAns.result_type[message.result] : message.result;
+            if (message.errorCode != null && message.hasOwnProperty("errorCode"))
+                object.errorCode = message.errorCode;
+            return object;
+        };
+
+        /**
+         * Converts this RestoreCharAns to JSON.
+         * @function toJSON
+         * @memberof proto_oparb.RestoreCharAns
+         * @instance
+         * @returns {Object.<string,*>} JSON object
+         */
+        RestoreCharAns.prototype.toJSON = function toJSON() {
+            return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+        };
+
+        /**
+         * result_type enum.
+         * @name proto_oparb.RestoreCharAns.result_type
+         * @enum {number}
+         * @property {number} SUCCESS=0 SUCCESS value
+         * @property {number} FAILED=1 FAILED value
+         * @property {number} NOT_EXIST=2 NOT_EXIST value
+         */
+        RestoreCharAns.result_type = (function() {
+            var valuesById = {}, values = Object.create(valuesById);
+            values[valuesById[0] = "SUCCESS"] = 0;
+            values[valuesById[1] = "FAILED"] = 1;
+            values[valuesById[2] = "NOT_EXIST"] = 2;
+            return values;
+        })();
+
+        return RestoreCharAns;
     })();
 
     return proto_oparb;

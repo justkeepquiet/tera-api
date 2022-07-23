@@ -4,6 +4,7 @@ const moment = require("moment-timezone");
 const OpMsg = require("./protobuf/opMsg").op.OpMsg;
 const PlatformError = require("./platformError");
 const PlatformConnection = require("./platformConnection");
+const { gusid, serverCategory, makeGuid } = require("./teraPlatformGuid");
 
 class PlatformFunctions extends PlatformConnection {
 	constructor(platformAddr, platformPort, serviceId, params = { logger: null }) {
@@ -48,9 +49,9 @@ class PlatformFunctions extends PlatformConnection {
 		const { boxTagInfo, boxServiceItemInfo } = this.convertBoxTagValue(tagData, itemData);
 
 		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.boxapi, 107), // CreateBox
-			senderGusid: this.makeGuid(this.serviceId, 0),
-			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
+			gufid: makeGuid(serverCategory.boxapi, 107), // CreateBox
+			senderGusid: makeGuid(this.serviceId, 0),
+			receiverGusid: makeGuid(serverCategory.boxapi, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
 
@@ -134,7 +135,7 @@ class PlatformFunctions extends PlatformConnection {
 			]
 		});
 
-		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
+		return this.sendAndRecv(opMsg, gusid.boxapi).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
 			if (resultCode === this.platformResultCode.success) {
@@ -147,9 +148,9 @@ class PlatformFunctions extends PlatformConnection {
 
 	getServiceItem(serviceItemSN) {
 		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.boxapi, 116), // GetServiceItem
-			senderGusid: this.makeGuid(this.serviceId, 0),
-			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
+			gufid: makeGuid(serverCategory.boxapi, 116), // GetServiceItem
+			senderGusid: makeGuid(this.serviceId, 0),
+			receiverGusid: makeGuid(serverCategory.boxapi, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
 
@@ -161,7 +162,7 @@ class PlatformFunctions extends PlatformConnection {
 			]
 		});
 
-		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
+		return this.sendAndRecv(opMsg, gusid.boxapi).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
 			if (resultCode === this.platformResultCode.success) {
@@ -188,9 +189,9 @@ class PlatformFunctions extends PlatformConnection {
 		itemName = "", itemDescription = "", tagData = null
 	) {
 		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.boxapi, 117), // CreateServiceItem
-			senderGusid: this.makeGuid(this.serviceId, 0),
-			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
+			gufid: makeGuid(serverCategory.boxapi, 117), // CreateServiceItem
+			senderGusid: makeGuid(this.serviceId, 0),
+			receiverGusid: makeGuid(serverCategory.boxapi, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
 
@@ -230,7 +231,7 @@ class PlatformFunctions extends PlatformConnection {
 			]
 		});
 
-		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
+		return this.sendAndRecv(opMsg, gusid.boxapi).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
 			if (resultCode === this.platformResultCode.success) {
@@ -243,9 +244,9 @@ class PlatformFunctions extends PlatformConnection {
 
 	removeServiceItem(serviceItemSN) {
 		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.boxapi, 118), // SetDisableServiceItem
-			senderGusid: this.makeGuid(this.serviceId, 0),
-			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
+			gufid: makeGuid(serverCategory.boxapi, 118), // SetDisableServiceItem
+			senderGusid: makeGuid(this.serviceId, 0),
+			receiverGusid: makeGuid(serverCategory.boxapi, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
 
@@ -257,7 +258,7 @@ class PlatformFunctions extends PlatformConnection {
 			]
 		});
 
-		return this.sendAndRecv(opMsg, this.gusid.boxapi).then(data => {
+		return this.sendAndRecv(opMsg, gusid.boxapi).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
 			if (resultCode === this.platformResultCode.success) {

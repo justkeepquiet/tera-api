@@ -5,6 +5,7 @@ const opArb = require("./protobuf/opArb").proto_oparb;
 const opUent = require("./protobuf/opUent").proto_opuent;
 const HubError = require("./hubError");
 const HubConnection = require("./hubConnection");
+const { gusid, serverCategory, makeGuid } = require("./teraPlatformGuid");
 
 class HubFunctions extends HubConnection {
 	constructor(hubAddr, hubPort, serviceId, params = { logger: null }) {
@@ -55,9 +56,9 @@ class HubFunctions extends HubConnection {
 		const { boxTagInfo, boxServiceItemInfo } = this.convertBoxTagValue(tagData, itemData);
 
 		const opMsg = opArb.opmsg.create({
-			gufid: this.makeGuid(this.serverType.boxapi, 107), // CreateBox
-			senderGusid: this.makeGuid(this.serviceId, 0),
-			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
+			gufid: makeGuid(serverCategory.boxapi, 107), // CreateBox
+			senderGusid: makeGuid(this.serviceId, 0),
+			receiverGusid: makeGuid(serverCategory.boxapi, 0),
 			execType: opArb.opmsg.ExecType.EXECUTE,
 			jobType: opArb.opmsg.JobType.REQUEST,
 
@@ -141,7 +142,7 @@ class HubFunctions extends HubConnection {
 			]
 		});
 
-		return this.opMsg(opMsg, this.gusid.boxapi).then(data => {
+		return this.opMsg(opMsg, gusid.boxapi).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
 			if (resultCode === this.opMsgResultCode.success) {
@@ -154,9 +155,9 @@ class HubFunctions extends HubConnection {
 
 	getServiceItem(serviceItemSN) {
 		const opMsg = opArb.opmsg.create({
-			gufid: this.makeGuid(this.serverType.boxapi, 116), // GetServiceItem
-			senderGusid: this.makeGuid(this.serviceId, 0),
-			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
+			gufid: makeGuid(serverCategory.boxapi, 116), // GetServiceItem
+			senderGusid: makeGuid(this.serviceId, 0),
+			receiverGusid: makeGuid(serverCategory.boxapi, 0),
 			execType: opArb.opmsg.ExecType.EXECUTE,
 			jobType: opArb.opmsg.JobType.REQUEST,
 
@@ -168,7 +169,7 @@ class HubFunctions extends HubConnection {
 			]
 		});
 
-		return this.opMsg(opMsg, this.gusid.boxapi).then(data => {
+		return this.opMsg(opMsg, gusid.boxapi).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
 			if (resultCode === this.opMsgResultCode.success) {
@@ -195,9 +196,9 @@ class HubFunctions extends HubConnection {
 		itemName = "", itemDescription = "", tagData = null
 	) {
 		const opMsg = opArb.opmsg.create({
-			gufid: this.makeGuid(this.serverType.boxapi, 117), // CreateServiceItem
-			senderGusid: this.makeGuid(this.serviceId, 0),
-			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
+			gufid: makeGuid(serverCategory.boxapi, 117), // CreateServiceItem
+			senderGusid: makeGuid(this.serviceId, 0),
+			receiverGusid: makeGuid(serverCategory.boxapi, 0),
 			execType: opArb.opmsg.ExecType.EXECUTE,
 			jobType: opArb.opmsg.JobType.REQUEST,
 
@@ -237,7 +238,7 @@ class HubFunctions extends HubConnection {
 			]
 		});
 
-		return this.opMsg(opMsg, this.gusid.boxapi).then(data => {
+		return this.opMsg(opMsg, gusid.boxapi).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
 			if (resultCode === this.opMsgResultCode.success) {
@@ -250,9 +251,9 @@ class HubFunctions extends HubConnection {
 
 	removeServiceItem(serviceItemSN) {
 		const opMsg = opArb.opmsg.create({
-			gufid: this.makeGuid(this.serverType.boxapi, 118), // SetDisableServiceItem
-			senderGusid: this.makeGuid(this.serviceId, 0),
-			receiverGusid: this.makeGuid(this.serverType.boxapi, 0),
+			gufid: makeGuid(serverCategory.boxapi, 118), // SetDisableServiceItem
+			senderGusid: makeGuid(this.serviceId, 0),
+			receiverGusid: makeGuid(serverCategory.boxapi, 0),
 			execType: opArb.opmsg.ExecType.EXECUTE,
 			jobType: opArb.opmsg.JobType.REQUEST,
 
@@ -264,7 +265,7 @@ class HubFunctions extends HubConnection {
 			]
 		});
 
-		return this.opMsg(opMsg, this.gusid.boxapi).then(data => {
+		return this.opMsg(opMsg, gusid.boxapi).then(data => {
 			const resultCode = this.getErrorCode(data.resultCode);
 
 			if (resultCode === this.opMsgResultCode.success) {
@@ -367,20 +368,25 @@ class HubFunctions extends HubConnection {
 	// OpUent functions
 	//
 
-	/*
-	1 QueryUserReq
-	  2 QueryUserAns
-	3 GetServerStatReq
-	  4 GetServerStatAns
-	5 GetAllServerStatReq
-	  6 GetAllServerStatAns
-	*/
+	queryUser(userSrl, action = 0, serverId = 0) {
+		const msg = opUent.QueryUserReq.encode({ userSrl, action, serverId }).finish();
+
+		return this.sendMessage(gusid.userenter, 1, msg).then(data => { // 1: QueryUserReq
+			console.log(data);
+			if (data === null) {
+				return Promise.reject(new HubError("Fail"));
+			}
+
+			return Promise.resolve(
+				opUent.QueryUserAns.decode(data.msgBuf)
+			);
+		});
+	}
 
 	getServerStat() {
-		const gusid = 4278190080; // anycast
 		const msg = opUent.GetServerStatReq.encode().finish();
 
-		return this.sendMessage(gusid, 3, msg).then(data => { // 3: GetServerStatReq
+		return this.sendMessage(gusid.userenter, 3, msg).then(data => { // 3: GetServerStatReq
 			if (data === null) {
 				return Promise.reject(new HubError("Fail"));
 			}
@@ -391,14 +397,28 @@ class HubFunctions extends HubConnection {
 		});
 	}
 
+	getAllServerStat(serverCat) {
+		const msg = opUent.GetAllServerStatReq.encode({ serverCat }).finish();
+
+		return this.sendMessage(gusid.userenter, 5, msg).then(data => { // 5: GetAllServerStatReq
+			if (data === null) {
+				return Promise.reject(new HubError("Fail"));
+			}
+
+			return Promise.resolve(
+				opUent.GetAllServerStatAns.decode(data.msgBuf)
+			);
+		});
+	}
+
 	//
 	// OpMsg
 	//
 
-	opMsg(opMsg, gusid) {
+	opMsg(opMsg, serverId) {
 		const msg = opArb.opmsg.encode(opMsg).finish();
 
-		return this.sendMessage(gusid, 1, msg).then(data => { // 1: OpMsg
+		return this.sendMessage(serverId, 1, msg).then(data => { // 1: OpMsg
 			if (data === null) {
 				return Promise.reject(new HubError("Fail"));
 			}

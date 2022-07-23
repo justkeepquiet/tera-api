@@ -7,46 +7,10 @@ const PromiseSocket = require("promise-socket").PromiseSocket;
 const struct = require("python-struct");
 const OpMsg = require("./protobuf/opMsg").op.OpMsg;
 const SteerError = require("./steerError");
+const { serverCategory, makeGuid, readGuid } = require("./teraPlatformGuid");
 
 class SteerConnection {
 	constructor(steerAddr, steerPort, params) {
-		this.serverType = {
-			unknown: 254,
-			all: 255,
-			arbitergw: 0,
-			steerweb: 1,
-			steergw: 2,
-			steerhub: 3,
-			steermind: 4,
-			steerdb: 5,
-			gas: 6,
-			glogdb: 7,
-			steerclient: 8,
-			steercast: 9,
-			steersession: 10,
-			gameadmintool: 11,
-			steerbridge: 12,
-			hubgw: 13,
-			cardmaker: 14,
-			carddealer: 15,
-			boxapi: 16,
-			boxdm: 17,
-			dbgw: 18,
-			webcstool: 19,
-			cardsteerbridge: 20,
-			cardweb: 21,
-			carddb: 22,
-			boxdb: 23,
-			boxbridgedorian: 24,
-			scstool: 25,
-			boxweb: 26,
-			cardbridgenetmoderator: 27,
-			dicedb: 31,
-			dice: 32,
-			diceweb: 33,
-			steereye: 35
-		};
-
 		this.steerResultCode = {
 			success: 0,
 			requestfail: 1,
@@ -148,9 +112,9 @@ class SteerConnection {
 		}
 
 		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steerhub, 20), // checkRegister
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steerhub, 0),
+			gufid: makeGuid(serverCategory.steerhub, 20), // checkRegister
+			senderGusid: makeGuid(this.serviceId, this.uniqueServerId),
+			receiverGusid: makeGuid(serverCategory.steerhub, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
 			jobId: 1
@@ -225,21 +189,7 @@ class SteerConnection {
 	}
 
 	getErrorCode(resultCode) {
-		return this.readGuid(resultCode)?.value;
-	}
-
-	makeGuid(cat, num) {
-		let category = parseInt(cat);
-		let number = parseInt(num);
-
-		return (category &= 0x000000FF) << 24 | (number &= 0x00FFFFFF);
-	}
-
-	readGuid(guid) {
-		const serverType = parseInt(guid) >> 24;
-		const value = parseInt(guid) & 0x00FFFFFF;
-
-		return { serverType, value };
+		return readGuid(resultCode)?.number;
 	}
 }
 

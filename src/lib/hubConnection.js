@@ -7,55 +7,13 @@ const struct = require("python-struct");
 const EventEmitter = require("events").EventEmitter;
 const hub = require("./protobuf/hub").proto_hub;
 const HubError = require("./hubError");
+const { makeGuid, readGuid } = require("./teraPlatformGuid");
 
 class HubConnection extends EventEmitter {
 	constructor(hubAddr, hubPort, params) {
 		super();
 
 		this.MAX_LENGTH = 0xFFFF;
-
-		this.gusid = {
-			boxapi: (16 << 24) + 1, // 268435457
-			steersession: (10 << 24) + 0, // 167772160
-			steermind: (4 << 24) + 0 // 67108864
-		};
-
-		this.serverType = {
-			unknown: 254,
-			all: 255,
-			arbitergw: 0,
-			steerweb: 1,
-			steergw: 2,
-			steerhub: 3,
-			steermind: 4,
-			steerdb: 5,
-			gas: 6,
-			glogdb: 7,
-			steerclient: 8,
-			steercast: 9,
-			steersession: 10,
-			gameadmintool: 11,
-			steerbridge: 12,
-			hubgw: 13,
-			cardmaker: 14,
-			carddealer: 15,
-			boxapi: 16,
-			boxdm: 17,
-			dbgw: 18,
-			webcstool: 19,
-			cardsteerbridge: 20,
-			cardweb: 21,
-			carddb: 22,
-			boxdb: 23,
-			boxbridgedorian: 24,
-			scstool: 25,
-			boxweb: 26,
-			cardbridgenetmoderator: 27,
-			dicedb: 31,
-			dice: 32,
-			diceweb: 33,
-			steereye: 35
-		};
 
 		this.opMsgResultCode = {
 			success: 0
@@ -172,7 +130,7 @@ class HubConnection extends EventEmitter {
 		}
 
 		const req = hub.RegisterReq.encode({
-			serverId: this.makeGuid(this.serviceId, this.uniqueServerId),
+			serverId: makeGuid(this.serviceId, this.uniqueServerId),
 			eventSub: Object.keys(this.watchServerCategories)
 		});
 
@@ -364,21 +322,7 @@ class HubConnection extends EventEmitter {
 	}
 
 	getErrorCode(resultCode) {
-		return this.readGuid(resultCode)?.value;
-	}
-
-	makeGuid(cat, num) {
-		let category = parseInt(cat);
-		let number = parseInt(num);
-
-		return (category &= 0x000000FF) << 24 | (number &= 0x00FFFFFF);
-	}
-
-	readGuid(guid) {
-		const serverType = parseInt(guid) >> 24;
-		const value = parseInt(guid) & 0x00FFFFFF;
-
-		return { serverType, value };
+		return readGuid(resultCode)?.number;
 	}
 }
 

@@ -3,6 +3,7 @@
 const OpMsg = require("./protobuf/opMsg").op.OpMsg;
 const SteerError = require("./steerError");
 const SteerConnection = require("./steerConnection");
+const { serverCategory, makeGuid } = require("./teraPlatformGuid");
 
 class SteerFunctions extends SteerConnection {
 	constructor(steerAddr, steerPort, serviceId, serviceName, params = { logger: null }) {
@@ -22,9 +23,9 @@ class SteerFunctions extends SteerConnection {
 		}
 
 		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steersession, 1), // openSession
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steersession, 0),
+			gufid: makeGuid(serverCategory.steersession, 1), // openSession
+			senderGusid: makeGuid(this.serviceId, this.uniqueServerId),
+			receiverGusid: makeGuid(serverCategory.steersession, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
 
@@ -76,10 +77,10 @@ class SteerFunctions extends SteerConnection {
 		}
 
 		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steersession, 2), // checkSession
+			gufid: makeGuid(serverCategory.steersession, 2), // checkSession
 			sessionKey: Buffer.from(sessionKey),
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steersession, 0),
+			senderGusid: makeGuid(this.serviceId, this.uniqueServerId),
+			receiverGusid: makeGuid(serverCategory.steersession, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
 
@@ -118,10 +119,10 @@ class SteerFunctions extends SteerConnection {
 		}
 
 		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steersession, 3), // closeSession
+			gufid: makeGuid(serverCategory.steersession, 3), // closeSession
 			sessionKey: Buffer.from(sessionKey),
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steersession, 0),
+			senderGusid: makeGuid(this.serviceId, this.uniqueServerId),
+			receiverGusid: makeGuid(serverCategory.steersession, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST
 		});
@@ -175,10 +176,10 @@ class SteerFunctions extends SteerConnection {
 		}
 
 		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steermind, 16), // getFunctionListBySessionAndServerType
+			gufid: makeGuid(serverCategory.steermind, 16), // getFunctionListBySessionAndServerType
 			sessionKey: Buffer.from(sessionKey),
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steermind, 0),
+			senderGusid: makeGuid(this.serviceId, this.uniqueServerId),
+			receiverGusid: makeGuid(serverCategory.steermind, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
 			jobId: nextJobId,
@@ -226,10 +227,10 @@ class SteerFunctions extends SteerConnection {
 		}
 
 		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steermind, 18), // checkFunctionExecutionPrivilege
+			gufid: makeGuid(serverCategory.steermind, 18), // checkFunctionExecutionPrivilege
 			sessionKey: Buffer.from(sessionKey),
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steermind, 0),
+			senderGusid: makeGuid(this.serviceId, this.uniqueServerId),
+			receiverGusid: makeGuid(serverCategory.steermind, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
 
@@ -262,10 +263,10 @@ class SteerFunctions extends SteerConnection {
 		}
 
 		const opMsg = OpMsg.create({
-			gufid: this.makeGuid(this.serverType.steermind, 19), // notifyFunctionResult
+			gufid: makeGuid(serverCategory.steermind, 19), // notifyFunctionResult
 			sessionKey: Buffer.from(sessionKey),
-			senderGusid: this.makeGuid(this.serviceId, this.uniqueServerId),
-			receiverGusid: this.makeGuid(this.serverType.steermind, 0),
+			senderGusid: makeGuid(this.serviceId, this.uniqueServerId),
+			receiverGusid: makeGuid(serverCategory.steermind, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
 

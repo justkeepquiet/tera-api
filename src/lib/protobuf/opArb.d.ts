@@ -3109,6 +3109,9 @@ export namespace proto_oparb {
         /** CreateBoxReq startValid */
         startValid?: (number|null);
 
+        /** CreateBoxReq gameModeId */
+        gameModeId?: (number|null);
+
         /** CreateBoxReq items */
         items?: (proto_oparb.CreateBoxReq.IItemList[]|null);
     }
@@ -3148,6 +3151,9 @@ export namespace proto_oparb {
 
         /** CreateBoxReq startValid. */
         public startValid: number;
+
+        /** CreateBoxReq gameModeId. */
+        public gameModeId: number;
 
         /** CreateBoxReq items. */
         public items: proto_oparb.CreateBoxReq.IItemList[];
@@ -4105,6 +4111,9 @@ export namespace proto_oparb {
 
         /** AddBenefitReq remainSec */
         remainSec: number;
+
+        /** AddBenefitReq totalSec */
+        totalSec?: (number|null);
     }
 
     /** Represents an AddBenefitReq. */
@@ -4124,6 +4133,9 @@ export namespace proto_oparb {
 
         /** AddBenefitReq remainSec. */
         public remainSec: number;
+
+        /** AddBenefitReq totalSec. */
+        public totalSec: number;
 
         /**
          * Creates a new AddBenefitReq instance using the specified properties.
@@ -5067,6 +5079,689 @@ export namespace proto_oparb {
     }
 
     namespace QueryPlayInfoAns {
+
+        /** result_type enum. */
+        enum result_type {
+            SUCCESS = 0,
+            FAILED = 1,
+            NOT_EXIST = 2
+        }
+    }
+
+    /** Properties of an AddBenefitByTimestampReq. */
+    interface IAddBenefitByTimestampReq {
+
+        /** AddBenefitByTimestampReq userSrl */
+        userSrl: (number|Long);
+
+        /** AddBenefitByTimestampReq benefitId */
+        benefitId: number;
+
+        /** AddBenefitByTimestampReq expireTimestamp */
+        expireTimestamp: number;
+
+        /** AddBenefitByTimestampReq totalSec */
+        totalSec?: (number|null);
+    }
+
+    /** Represents an AddBenefitByTimestampReq. */
+    class AddBenefitByTimestampReq implements IAddBenefitByTimestampReq {
+
+        /**
+         * Constructs a new AddBenefitByTimestampReq.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto_oparb.IAddBenefitByTimestampReq);
+
+        /** AddBenefitByTimestampReq userSrl. */
+        public userSrl: (number|Long);
+
+        /** AddBenefitByTimestampReq benefitId. */
+        public benefitId: number;
+
+        /** AddBenefitByTimestampReq expireTimestamp. */
+        public expireTimestamp: number;
+
+        /** AddBenefitByTimestampReq totalSec. */
+        public totalSec: number;
+
+        /**
+         * Creates a new AddBenefitByTimestampReq instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns AddBenefitByTimestampReq instance
+         */
+        public static create(properties?: proto_oparb.IAddBenefitByTimestampReq): proto_oparb.AddBenefitByTimestampReq;
+
+        /**
+         * Encodes the specified AddBenefitByTimestampReq message. Does not implicitly {@link proto_oparb.AddBenefitByTimestampReq.verify|verify} messages.
+         * @param message AddBenefitByTimestampReq message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto_oparb.IAddBenefitByTimestampReq, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified AddBenefitByTimestampReq message, length delimited. Does not implicitly {@link proto_oparb.AddBenefitByTimestampReq.verify|verify} messages.
+         * @param message AddBenefitByTimestampReq message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto_oparb.IAddBenefitByTimestampReq, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an AddBenefitByTimestampReq message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns AddBenefitByTimestampReq
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto_oparb.AddBenefitByTimestampReq;
+
+        /**
+         * Decodes an AddBenefitByTimestampReq message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns AddBenefitByTimestampReq
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto_oparb.AddBenefitByTimestampReq;
+
+        /**
+         * Verifies an AddBenefitByTimestampReq message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an AddBenefitByTimestampReq message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns AddBenefitByTimestampReq
+         */
+        public static fromObject(object: { [k: string]: any }): proto_oparb.AddBenefitByTimestampReq;
+
+        /**
+         * Creates a plain object from an AddBenefitByTimestampReq message. Also converts values to other types if specified.
+         * @param message AddBenefitByTimestampReq
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto_oparb.AddBenefitByTimestampReq, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this AddBenefitByTimestampReq to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of an AddBenefitByTimestampAns. */
+    interface IAddBenefitByTimestampAns {
+
+        /** AddBenefitByTimestampAns result */
+        result: proto_oparb.AddBenefitByTimestampAns.result_type;
+    }
+
+    /** Represents an AddBenefitByTimestampAns. */
+    class AddBenefitByTimestampAns implements IAddBenefitByTimestampAns {
+
+        /**
+         * Constructs a new AddBenefitByTimestampAns.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto_oparb.IAddBenefitByTimestampAns);
+
+        /** AddBenefitByTimestampAns result. */
+        public result: proto_oparb.AddBenefitByTimestampAns.result_type;
+
+        /**
+         * Creates a new AddBenefitByTimestampAns instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns AddBenefitByTimestampAns instance
+         */
+        public static create(properties?: proto_oparb.IAddBenefitByTimestampAns): proto_oparb.AddBenefitByTimestampAns;
+
+        /**
+         * Encodes the specified AddBenefitByTimestampAns message. Does not implicitly {@link proto_oparb.AddBenefitByTimestampAns.verify|verify} messages.
+         * @param message AddBenefitByTimestampAns message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto_oparb.IAddBenefitByTimestampAns, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified AddBenefitByTimestampAns message, length delimited. Does not implicitly {@link proto_oparb.AddBenefitByTimestampAns.verify|verify} messages.
+         * @param message AddBenefitByTimestampAns message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto_oparb.IAddBenefitByTimestampAns, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an AddBenefitByTimestampAns message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns AddBenefitByTimestampAns
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto_oparb.AddBenefitByTimestampAns;
+
+        /**
+         * Decodes an AddBenefitByTimestampAns message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns AddBenefitByTimestampAns
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto_oparb.AddBenefitByTimestampAns;
+
+        /**
+         * Verifies an AddBenefitByTimestampAns message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an AddBenefitByTimestampAns message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns AddBenefitByTimestampAns
+         */
+        public static fromObject(object: { [k: string]: any }): proto_oparb.AddBenefitByTimestampAns;
+
+        /**
+         * Creates a plain object from an AddBenefitByTimestampAns message. Also converts values to other types if specified.
+         * @param message AddBenefitByTimestampAns
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto_oparb.AddBenefitByTimestampAns, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this AddBenefitByTimestampAns to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    namespace AddBenefitByTimestampAns {
+
+        /** result_type enum. */
+        enum result_type {
+            SUCCESS = 0,
+            FAILED = 1,
+            NOT_EXIST = 2
+        }
+    }
+
+    /** Properties of an ArbiterPacketCounterReq. */
+    interface IArbiterPacketCounterReq {
+    }
+
+    /** Represents an ArbiterPacketCounterReq. */
+    class ArbiterPacketCounterReq implements IArbiterPacketCounterReq {
+
+        /**
+         * Constructs a new ArbiterPacketCounterReq.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto_oparb.IArbiterPacketCounterReq);
+
+        /**
+         * Creates a new ArbiterPacketCounterReq instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns ArbiterPacketCounterReq instance
+         */
+        public static create(properties?: proto_oparb.IArbiterPacketCounterReq): proto_oparb.ArbiterPacketCounterReq;
+
+        /**
+         * Encodes the specified ArbiterPacketCounterReq message. Does not implicitly {@link proto_oparb.ArbiterPacketCounterReq.verify|verify} messages.
+         * @param message ArbiterPacketCounterReq message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto_oparb.IArbiterPacketCounterReq, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified ArbiterPacketCounterReq message, length delimited. Does not implicitly {@link proto_oparb.ArbiterPacketCounterReq.verify|verify} messages.
+         * @param message ArbiterPacketCounterReq message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto_oparb.IArbiterPacketCounterReq, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an ArbiterPacketCounterReq message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns ArbiterPacketCounterReq
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto_oparb.ArbiterPacketCounterReq;
+
+        /**
+         * Decodes an ArbiterPacketCounterReq message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns ArbiterPacketCounterReq
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto_oparb.ArbiterPacketCounterReq;
+
+        /**
+         * Verifies an ArbiterPacketCounterReq message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an ArbiterPacketCounterReq message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns ArbiterPacketCounterReq
+         */
+        public static fromObject(object: { [k: string]: any }): proto_oparb.ArbiterPacketCounterReq;
+
+        /**
+         * Creates a plain object from an ArbiterPacketCounterReq message. Also converts values to other types if specified.
+         * @param message ArbiterPacketCounterReq
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto_oparb.ArbiterPacketCounterReq, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this ArbiterPacketCounterReq to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of an ArbiterPacketCounterAns. */
+    interface IArbiterPacketCounterAns {
+
+        /** ArbiterPacketCounterAns packetCounterList */
+        packetCounterList?: (proto_oparb.ArbiterPacketCounterAns.IPacketCounter[]|null);
+    }
+
+    /** Represents an ArbiterPacketCounterAns. */
+    class ArbiterPacketCounterAns implements IArbiterPacketCounterAns {
+
+        /**
+         * Constructs a new ArbiterPacketCounterAns.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto_oparb.IArbiterPacketCounterAns);
+
+        /** ArbiterPacketCounterAns packetCounterList. */
+        public packetCounterList: proto_oparb.ArbiterPacketCounterAns.IPacketCounter[];
+
+        /**
+         * Creates a new ArbiterPacketCounterAns instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns ArbiterPacketCounterAns instance
+         */
+        public static create(properties?: proto_oparb.IArbiterPacketCounterAns): proto_oparb.ArbiterPacketCounterAns;
+
+        /**
+         * Encodes the specified ArbiterPacketCounterAns message. Does not implicitly {@link proto_oparb.ArbiterPacketCounterAns.verify|verify} messages.
+         * @param message ArbiterPacketCounterAns message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto_oparb.IArbiterPacketCounterAns, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified ArbiterPacketCounterAns message, length delimited. Does not implicitly {@link proto_oparb.ArbiterPacketCounterAns.verify|verify} messages.
+         * @param message ArbiterPacketCounterAns message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto_oparb.IArbiterPacketCounterAns, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes an ArbiterPacketCounterAns message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns ArbiterPacketCounterAns
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto_oparb.ArbiterPacketCounterAns;
+
+        /**
+         * Decodes an ArbiterPacketCounterAns message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns ArbiterPacketCounterAns
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto_oparb.ArbiterPacketCounterAns;
+
+        /**
+         * Verifies an ArbiterPacketCounterAns message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates an ArbiterPacketCounterAns message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns ArbiterPacketCounterAns
+         */
+        public static fromObject(object: { [k: string]: any }): proto_oparb.ArbiterPacketCounterAns;
+
+        /**
+         * Creates a plain object from an ArbiterPacketCounterAns message. Also converts values to other types if specified.
+         * @param message ArbiterPacketCounterAns
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto_oparb.ArbiterPacketCounterAns, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this ArbiterPacketCounterAns to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    namespace ArbiterPacketCounterAns {
+
+        /** Properties of a PacketCounter. */
+        interface IPacketCounter {
+
+            /** PacketCounter msgId */
+            msgId: number;
+
+            /** PacketCounter counter */
+            counter: (number|Long);
+        }
+
+        /** Represents a PacketCounter. */
+        class PacketCounter implements IPacketCounter {
+
+            /**
+             * Constructs a new PacketCounter.
+             * @param [properties] Properties to set
+             */
+            constructor(properties?: proto_oparb.ArbiterPacketCounterAns.IPacketCounter);
+
+            /** PacketCounter msgId. */
+            public msgId: number;
+
+            /** PacketCounter counter. */
+            public counter: (number|Long);
+
+            /**
+             * Creates a new PacketCounter instance using the specified properties.
+             * @param [properties] Properties to set
+             * @returns PacketCounter instance
+             */
+            public static create(properties?: proto_oparb.ArbiterPacketCounterAns.IPacketCounter): proto_oparb.ArbiterPacketCounterAns.PacketCounter;
+
+            /**
+             * Encodes the specified PacketCounter message. Does not implicitly {@link proto_oparb.ArbiterPacketCounterAns.PacketCounter.verify|verify} messages.
+             * @param message PacketCounter message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encode(message: proto_oparb.ArbiterPacketCounterAns.IPacketCounter, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Encodes the specified PacketCounter message, length delimited. Does not implicitly {@link proto_oparb.ArbiterPacketCounterAns.PacketCounter.verify|verify} messages.
+             * @param message PacketCounter message or plain object to encode
+             * @param [writer] Writer to encode to
+             * @returns Writer
+             */
+            public static encodeDelimited(message: proto_oparb.ArbiterPacketCounterAns.IPacketCounter, writer?: $protobuf.Writer): $protobuf.Writer;
+
+            /**
+             * Decodes a PacketCounter message from the specified reader or buffer.
+             * @param reader Reader or buffer to decode from
+             * @param [length] Message length if known beforehand
+             * @returns PacketCounter
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto_oparb.ArbiterPacketCounterAns.PacketCounter;
+
+            /**
+             * Decodes a PacketCounter message from the specified reader or buffer, length delimited.
+             * @param reader Reader or buffer to decode from
+             * @returns PacketCounter
+             * @throws {Error} If the payload is not a reader or valid buffer
+             * @throws {$protobuf.util.ProtocolError} If required fields are missing
+             */
+            public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto_oparb.ArbiterPacketCounterAns.PacketCounter;
+
+            /**
+             * Verifies a PacketCounter message.
+             * @param message Plain object to verify
+             * @returns `null` if valid, otherwise the reason why it is not
+             */
+            public static verify(message: { [k: string]: any }): (string|null);
+
+            /**
+             * Creates a PacketCounter message from a plain object. Also converts values to their respective internal types.
+             * @param object Plain object
+             * @returns PacketCounter
+             */
+            public static fromObject(object: { [k: string]: any }): proto_oparb.ArbiterPacketCounterAns.PacketCounter;
+
+            /**
+             * Creates a plain object from a PacketCounter message. Also converts values to other types if specified.
+             * @param message PacketCounter
+             * @param [options] Conversion options
+             * @returns Plain object
+             */
+            public static toObject(message: proto_oparb.ArbiterPacketCounterAns.PacketCounter, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+            /**
+             * Converts this PacketCounter to JSON.
+             * @returns JSON object
+             */
+            public toJSON(): { [k: string]: any };
+        }
+    }
+
+    /** Properties of a RestoreCharReq. */
+    interface IRestoreCharReq {
+
+        /** RestoreCharReq userSrl */
+        userSrl: (number|Long);
+
+        /** RestoreCharReq charSrl */
+        charSrl: number;
+    }
+
+    /** Represents a RestoreCharReq. */
+    class RestoreCharReq implements IRestoreCharReq {
+
+        /**
+         * Constructs a new RestoreCharReq.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto_oparb.IRestoreCharReq);
+
+        /** RestoreCharReq userSrl. */
+        public userSrl: (number|Long);
+
+        /** RestoreCharReq charSrl. */
+        public charSrl: number;
+
+        /**
+         * Creates a new RestoreCharReq instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns RestoreCharReq instance
+         */
+        public static create(properties?: proto_oparb.IRestoreCharReq): proto_oparb.RestoreCharReq;
+
+        /**
+         * Encodes the specified RestoreCharReq message. Does not implicitly {@link proto_oparb.RestoreCharReq.verify|verify} messages.
+         * @param message RestoreCharReq message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto_oparb.IRestoreCharReq, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified RestoreCharReq message, length delimited. Does not implicitly {@link proto_oparb.RestoreCharReq.verify|verify} messages.
+         * @param message RestoreCharReq message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto_oparb.IRestoreCharReq, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a RestoreCharReq message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns RestoreCharReq
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto_oparb.RestoreCharReq;
+
+        /**
+         * Decodes a RestoreCharReq message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns RestoreCharReq
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto_oparb.RestoreCharReq;
+
+        /**
+         * Verifies a RestoreCharReq message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a RestoreCharReq message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns RestoreCharReq
+         */
+        public static fromObject(object: { [k: string]: any }): proto_oparb.RestoreCharReq;
+
+        /**
+         * Creates a plain object from a RestoreCharReq message. Also converts values to other types if specified.
+         * @param message RestoreCharReq
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto_oparb.RestoreCharReq, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this RestoreCharReq to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    /** Properties of a RestoreCharAns. */
+    interface IRestoreCharAns {
+
+        /** RestoreCharAns result */
+        result: proto_oparb.RestoreCharAns.result_type;
+
+        /** RestoreCharAns errorCode */
+        errorCode: number;
+    }
+
+    /** Represents a RestoreCharAns. */
+    class RestoreCharAns implements IRestoreCharAns {
+
+        /**
+         * Constructs a new RestoreCharAns.
+         * @param [properties] Properties to set
+         */
+        constructor(properties?: proto_oparb.IRestoreCharAns);
+
+        /** RestoreCharAns result. */
+        public result: proto_oparb.RestoreCharAns.result_type;
+
+        /** RestoreCharAns errorCode. */
+        public errorCode: number;
+
+        /**
+         * Creates a new RestoreCharAns instance using the specified properties.
+         * @param [properties] Properties to set
+         * @returns RestoreCharAns instance
+         */
+        public static create(properties?: proto_oparb.IRestoreCharAns): proto_oparb.RestoreCharAns;
+
+        /**
+         * Encodes the specified RestoreCharAns message. Does not implicitly {@link proto_oparb.RestoreCharAns.verify|verify} messages.
+         * @param message RestoreCharAns message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encode(message: proto_oparb.IRestoreCharAns, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Encodes the specified RestoreCharAns message, length delimited. Does not implicitly {@link proto_oparb.RestoreCharAns.verify|verify} messages.
+         * @param message RestoreCharAns message or plain object to encode
+         * @param [writer] Writer to encode to
+         * @returns Writer
+         */
+        public static encodeDelimited(message: proto_oparb.IRestoreCharAns, writer?: $protobuf.Writer): $protobuf.Writer;
+
+        /**
+         * Decodes a RestoreCharAns message from the specified reader or buffer.
+         * @param reader Reader or buffer to decode from
+         * @param [length] Message length if known beforehand
+         * @returns RestoreCharAns
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): proto_oparb.RestoreCharAns;
+
+        /**
+         * Decodes a RestoreCharAns message from the specified reader or buffer, length delimited.
+         * @param reader Reader or buffer to decode from
+         * @returns RestoreCharAns
+         * @throws {Error} If the payload is not a reader or valid buffer
+         * @throws {$protobuf.util.ProtocolError} If required fields are missing
+         */
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): proto_oparb.RestoreCharAns;
+
+        /**
+         * Verifies a RestoreCharAns message.
+         * @param message Plain object to verify
+         * @returns `null` if valid, otherwise the reason why it is not
+         */
+        public static verify(message: { [k: string]: any }): (string|null);
+
+        /**
+         * Creates a RestoreCharAns message from a plain object. Also converts values to their respective internal types.
+         * @param object Plain object
+         * @returns RestoreCharAns
+         */
+        public static fromObject(object: { [k: string]: any }): proto_oparb.RestoreCharAns;
+
+        /**
+         * Creates a plain object from a RestoreCharAns message. Also converts values to other types if specified.
+         * @param message RestoreCharAns
+         * @param [options] Conversion options
+         * @returns Plain object
+         */
+        public static toObject(message: proto_oparb.RestoreCharAns, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+        /**
+         * Converts this RestoreCharAns to JSON.
+         * @returns JSON object
+         */
+        public toJSON(): { [k: string]: any };
+    }
+
+    namespace RestoreCharAns {
 
         /** result_type enum. */
         enum result_type {
