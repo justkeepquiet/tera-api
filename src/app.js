@@ -249,7 +249,7 @@ moduleLoader.final().then(
 		return serverLoader.final().then(() => {
 			const serversStatusCheck = () => serverCheckActions.all();
 
-			setInterval(serversStatusCheck, 60000);
+			setInterval(serversStatusCheck, 10000);
 			serversStatusCheck();
 
 			setInterval(() =>
