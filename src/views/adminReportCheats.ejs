@@ -26,8 +26,8 @@
 									<%_ reports.forEach(report => {
 										const [account, name, a, b, skill, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
 
-										const dungeon = datasheets.StrSheet_Dungeon[locale].get(Number(huntingZoneId));
-										const creature = datasheets.StrSheet_Creature[locale].find(
+										const dungeon = datasheetModel.strSheetDungeon[locale].get(Number(huntingZoneId));
+										const creature = datasheetModel.strSheetCreature[locale].find(
 											c => c.huntingZoneId == huntingZoneId && c.templateId == templateId
 										);
 									_%>

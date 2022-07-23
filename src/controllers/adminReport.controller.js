@@ -76,10 +76,10 @@ module.exports.characters = ({ logger, serverModel, reportModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.cheats = ({ logger, datasheets, serverModel, reportModel }) => [
+module.exports.cheats = ({ logger, datasheetModel, serverModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(logger, serverModel, reportModel.cheats, "adminReportCheats", { datasheets })
+	reportHandler(logger, serverModel, reportModel.cheats, "adminReportCheats", { datasheetModel })
 ];
 
 /**

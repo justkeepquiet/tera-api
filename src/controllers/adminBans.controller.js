@@ -79,7 +79,7 @@ module.exports.add = ({ i18n, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, fcgi, reportModel, accountModel }) => [
+module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -148,7 +148,7 @@ module.exports.addAction = ({ i18n, logger, fcgi, reportModel, accountModel }) =
 				description
 			}).then(() => {
 				if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
-					fcgi.kick(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
+					hub.kickUser(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
 						if (err.resultCode() !== 2) {
 							logger.warn(err);
 						}
@@ -212,7 +212,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, fcgi, reportModel, accountModel }) => [
+module.exports.editAction = ({ i18n, logger, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -266,7 +266,7 @@ module.exports.editAction = ({ i18n, logger, fcgi, reportModel, accountModel }) 
 				where: { accountDBID }
 			}).then(() => {
 				if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
-					fcgi.kick(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
+					hub.kickUser(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
 						if (err.resultCode() !== 2) {
 							logger.warn(err);
 						}

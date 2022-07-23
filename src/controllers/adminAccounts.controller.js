@@ -59,7 +59,7 @@ module.exports.index = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ i18n, datasheets }) => [
+module.exports.add = ({ i18n, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -69,7 +69,7 @@ module.exports.add = ({ i18n, datasheets }) => [
 		const benefitIds = [];
 		const availableUntils = [];
 
-		const accountBenefits = datasheets.StrSheet_AccountBenefit[i18n.getLocale()] || new Map();
+		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()] || new Map();
 
 		helpers.getInitialBenefits().forEach((benefitDays, benefitId) => {
 			benefitIds.push(benefitId);
@@ -95,7 +95,7 @@ module.exports.add = ({ i18n, datasheets }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel, datasheets }) => [
+module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -131,7 +131,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 		const errors = helpers.validationResultLog(req, logger);
 		let passwordString = passWord;
 
-		const accountBenefits = datasheets.StrSheet_AccountBenefit[i18n.getLocale()] || new Map();
+		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()] || new Map();
 
 		if (encryptPasswords) {
 			passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + passWord).digest("hex");

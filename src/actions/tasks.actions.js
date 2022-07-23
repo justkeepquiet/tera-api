@@ -12,9 +12,15 @@ class TasksActions {
 		this.modules = modules;
 	}
 
-	createBox(context, userId, serverId = null, characterId = null, logId = null, logType = null) {
-		return this.modules.platform.createBoxFromContext(context, userId, serverId, characterId, logId).then(boxId =>
-			this.modules.reportModel.boxes.create({
+	createBox(context, userId, serverId = null, characterId = null, lastLoginServer = null, logId = null, logType = null) {
+		return this.modules.hub.createBoxFromContext(context, userId, serverId, characterId, logId).then(boxId => {
+			if (lastLoginServer !== null) {
+				this.modules.hub.boxNotiUser(lastLoginServer, userId, characterId || 0).catch(err =>
+					this.modules.logger.warn(err.toString())
+				);
+			}
+
+			return this.modules.reportModel.boxes.create({
 				boxId,
 				accountDBID: userId,
 				serverId: serverId || null,
@@ -22,8 +28,8 @@ class TasksActions {
 				logType: logType || null,
 				logId: logId || null,
 				context: JSON.stringify(context)
-			})
-		);
+			});
+		});
 	}
 }
 

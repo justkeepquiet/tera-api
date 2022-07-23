@@ -45,7 +45,7 @@ module.exports.notifications = ({ logger, queue }) => [
 /**
  * @param {modules} modules
  */
-module.exports.homeStats = ({ i18n, logger, datasheets, serverModel, reportModel }) => [
+module.exports.homeStats = ({ i18n, logger, datasheetModel, serverModel, reportModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -112,8 +112,8 @@ module.exports.homeStats = ({ i18n, logger, datasheets, serverModel, reportModel
 			cheatsReport.forEach(report => {
 				const [account, name, a, b, skill, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
 
-				const dungeon = datasheets.StrSheet_Dungeon[i18n.getLocale()].get(Number(huntingZoneId));
-				const creature = datasheets.StrSheet_Creature[i18n.getLocale()].find(
+				const dungeon = datasheetModel.strSheetDungeon[i18n.getLocale()].get(Number(huntingZoneId));
+				const creature = datasheetModel.strSheetCreature[i18n.getLocale()].find(
 					c => c.huntingZoneId == huntingZoneId && c.templateId == templateId
 				);
 

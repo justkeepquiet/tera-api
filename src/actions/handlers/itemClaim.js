@@ -17,7 +17,7 @@ class ItemClaim {
 	}
 
 	makeBox(context, characterId = null) {
-		return this.modules.platform.createBoxFromContext(context, this.userId, this.serverId, characterId, this.params.logId).then(boxId =>
+		return this.modules.hub.createBoxFromContext(context, this.userId, this.serverId, characterId, this.params.logId).then(boxId =>
 			this.modules.reportModel.boxes.create({
 				boxId,
 				accountDBID: this.userId,
@@ -29,11 +29,9 @@ class ItemClaim {
 			}, {
 				transaction: this.transaction
 			}).then(() => {
-				if (/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
-					this.modules.fcgi.boxNoti(this.serverId, this.userId, characterId || 0).catch(err =>
-						this.modules.logger.warn(err.toString())
-					);
-				}
+				this.modules.hub.boxNotiUser(this.serverId, this.userId, characterId || 0).catch(err =>
+					this.modules.logger.warn(err.toString())
+				);
 
 				return Promise.resolve(boxId);
 			})

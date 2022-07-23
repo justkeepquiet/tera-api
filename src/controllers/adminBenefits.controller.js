@@ -15,7 +15,7 @@ const { accessFunctionHandler, writeOperationReport } = require("../middlewares/
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ i18n, logger, accountModel, datasheets }) => [
+module.exports.index = ({ i18n, logger, accountModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -23,7 +23,7 @@ module.exports.index = ({ i18n, logger, accountModel, datasheets }) => [
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;
-		const accountBenefits = datasheets.StrSheet_AccountBenefit[i18n.getLocale()] || new Map();
+		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()] || new Map();
 
 		if (!accountDBID) {
 			return res.render("adminBenefits", {
@@ -56,7 +56,7 @@ module.exports.index = ({ i18n, logger, accountModel, datasheets }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ i18n, accountModel, datasheets }) => [
+module.exports.add = ({ i18n, accountModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -77,7 +77,7 @@ module.exports.add = ({ i18n, accountModel, datasheets }) => [
 	 */
 	(req, res) => {
 		const { accountDBID } = req.query;
-		const accountBenefits = datasheets.StrSheet_AccountBenefit[i18n.getLocale()] || new Map();
+		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()] || new Map();
 
 		res.render("adminBenefitsAdd", {
 			layout: "adminLayout",
@@ -94,7 +94,7 @@ module.exports.add = ({ i18n, accountModel, datasheets }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, reportModel, accountModel, datasheets }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, accountModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -121,7 +121,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, datasheet
 		const { accountDBID, benefitId, availableUntil } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
-		const accountBenefits = datasheets.StrSheet_AccountBenefit[i18n.getLocale()] || new Map();
+		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()] || new Map();
 
 		if (!errors.isEmpty()) {
 			return res.render("adminBenefitsAdd", {
@@ -158,7 +158,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, datasheet
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ i18n, logger, accountModel, datasheets }) => [
+module.exports.edit = ({ i18n, logger, accountModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -166,7 +166,7 @@ module.exports.edit = ({ i18n, logger, accountModel, datasheets }) => [
 	 */
 	(req, res) => {
 		const { accountDBID, benefitId } = req.query;
-		const accountBenefits = datasheets.StrSheet_AccountBenefit[i18n.getLocale()] || new Map();
+		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()] || new Map();
 
 		if (!accountDBID || !benefitId) {
 			return res.redirect("/benefits");

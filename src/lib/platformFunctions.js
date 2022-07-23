@@ -13,7 +13,7 @@ class PlatformFunctions extends PlatformConnection {
 	}
 
 	//
-	// BoxAPI Functions
+	// BoxAPI functions
 	//
 
 	createBoxFromContext(boxContext, receiverUserSN, receiverGUSID = null, receiverCharacterSN = null, externalTransactionKey = null) {
@@ -184,7 +184,7 @@ class PlatformFunctions extends PlatformConnection {
 		});
 	}
 
-	createServiceItem(platformUserSN, itemMappingSN, serviceSN, startActivationTime, enableFlag = true,
+	createServiceItem(userSN, itemMappingSN, serviceSN, startActivationTime, enableFlag = true,
 		itemName = "", itemDescription = "", tagData = null
 	) {
 		const opMsg = OpMsg.create({
@@ -221,7 +221,7 @@ class PlatformFunctions extends PlatformConnection {
 				}),
 				OpMsg.Argument.create({
 					name: Buffer.from("serviceItemRegisterUserSN"),
-					value: Buffer.from(platformUserSN.toString())
+					value: Buffer.from(userSN.toString())
 				}),
 				OpMsg.Argument.create({
 					name: Buffer.from("serviceItemTagInfo"),

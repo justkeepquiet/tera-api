@@ -4,7 +4,7 @@ const fs = require("fs");
 const path = require("path");
 const xmljs = require("xml-js");
 
-class Loader {
+class DatasheetLoader {
 	constructor(logger) {
 		this.logger = logger;
 
@@ -15,22 +15,22 @@ class Loader {
 		this.results = {};
 	}
 
-	add(datasheet, parserFunc) {
+	add(datasheet, datasheetOrigin, parserFunc) {
 		this.results[datasheet] = {};
 
 		this.locales.forEach(locale => {
-			this.promises.push(this._parseXml(datasheet, locale).then(data => {
-				const { result, length } = parserFunc(data);
+			this.promises.push(this._parseXml(datasheetOrigin, locale).then(data => {
+				const result = parserFunc(data);
+				const elements = result.size || result.length;
+
 				this.results[datasheet][locale] = result;
 
-				this.logger.info(`Loaded: ${locale}:${datasheet}, elements count: ${length}`);
+				this.logger.info(`Loaded: ${locale}:${datasheet}, elements: ${elements}`);
 			}));
 		});
 	}
 
 	final() {
-		this.logger.info("Loading datasheets...");
-
 		return new Promise(resolve =>
 			Promise.all(this.promises)
 				.then(() => resolve({ ...this.results }))
@@ -73,4 +73,4 @@ class Loader {
 	}
 }
 
-module.exports = Loader;
+module.exports = DatasheetLoader;

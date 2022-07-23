@@ -1,6 +1,5 @@
 "use strict";
 
-const e = require("express");
 /**
  * @typedef {import("sequelize").ModelCtor<Model<any, any>>} model
  */

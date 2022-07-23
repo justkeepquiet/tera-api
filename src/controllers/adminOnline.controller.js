@@ -52,7 +52,7 @@ module.exports.index = ({ logger, accountModel, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.kickAction = ({ i18n, logger, fcgi, reportModel, accountModel, serverModel }) => [
+module.exports.kickAction = ({ i18n, logger, hub, reportModel, accountModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -87,15 +87,11 @@ module.exports.kickAction = ({ i18n, logger, fcgi, reportModel, accountModel, se
 		const errors = helpers.validationResultLog(req, logger);
 
 		try {
-			if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
-				throw "FCGI Gateway is not configured or disabled.";
-			}
-
 			if (!errors.isEmpty()) {
 				throw new Error(errors.array()[0].msg);
 			}
 
-			await fcgi.kick(serverId, accountDBID, 33);
+			await hub.kickUser(serverId, accountDBID, 33);
 
 			next();
 		} catch (err) {
@@ -115,7 +111,7 @@ module.exports.kickAction = ({ i18n, logger, fcgi, reportModel, accountModel, se
 /**
  * @param {modules} modules
  */
-module.exports.kickAllAction = ({ i18n, logger, fcgi, reportModel, serverModel }) => [
+module.exports.kickAllAction = ({ i18n, logger, hub, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -139,15 +135,11 @@ module.exports.kickAllAction = ({ i18n, logger, fcgi, reportModel, serverModel }
 		const errors = helpers.validationResultLog(req, logger);
 
 		try {
-			if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
-				throw "FCGI Gateway is not configured or disabled.";
-			}
-
 			if (!errors.isEmpty()) {
 				throw new Error(errors.array()[0].msg);
 			}
 
-			await fcgi.bulkKick(serverId, 33);
+			await hub.bulkKick(serverId, 33);
 
 			next();
 		} catch (err) {

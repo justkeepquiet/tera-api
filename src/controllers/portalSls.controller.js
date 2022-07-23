@@ -6,7 +6,7 @@
  */
 
 const Op = require("sequelize").Op;
-const SlsBuilder = require("../utils/slsBuilder");
+const SlsBuilder = require("../lib/slsBuilder");
 
 /**
  * @param {modules} modules

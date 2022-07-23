@@ -6,13 +6,12 @@
  *
  * @typedef {object} modules
  * @property {Sequelize} sequelize
- * @property {FcgiFunctions} fcgi
- * @property {PlatformFunctions} platform
+ * @property {HubFunctions} hub
  * @property {SteerFunctions} steer
  * @property {BackgroundQueue} queue
  * @property {import("./utils/logger").logger} logger
- * @property {import("./utils/expressServer").app} app
- * @property {import("./utils/datasheets").datasheets} datasheets
+ * @property {import("./lib/expressServer").app} app
+ * @property {import("./models/datasheet.model").datasheetModel} datasheetModel
  * @property {import("./models/queue.model").queueModel} queueModel
  * @property {import("./models/data.model").dataModel} dataModel
  * @property {import("./models/account.model").accountModel} accountModel
@@ -25,15 +24,13 @@
 require("dotenv").config();
 
 const { Sequelize, DataTypes } = require("sequelize");
-const CoreLoader = require("./utils/coreLoader");
-const cliHelper = require("./utils/cliHelper");
 const createLogger = require("./utils/logger").createLogger;
-const BackgroundQueue = require("./utils/backgroundQueue");
-const ExpressServer = require("./utils/expressServer");
-const SteerFunctions = require("./utils/steerFunctions");
-const PlatformFunctions = require("./utils/platformFunctions");
-const FcgiFunctions = require("./utils/fcgiFunctions");
-const datasheets = require("./utils/datasheets");
+const cliHelper = require("./utils/cliHelper");
+const CoreLoader = require("./lib/coreLoader");
+const BackgroundQueue = require("./lib/backgroundQueue");
+const ExpressServer = require("./lib/expressServer");
+const HubFunctions = require("./lib/hubFunctions");
+const SteerFunctions = require("./lib/steerFunctions");
 const TasksActions = require("./actions/tasks.actions");
 const ServerCheckActions = require("./actions/serverCheck.actions");
 
@@ -41,17 +38,6 @@ const moduleLoader = new CoreLoader();
 const logger = createLogger("CL");
 const cli = cliHelper(logger);
 
-const fcgi = new FcgiFunctions(
-	process.env.FCGI_GW_WEBAPI_URL, {
-		logger: createLogger("FCGI")
-	}
-);
-
-if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
-	fcgi.params.logger.warn("Not configured or disabled. Some features will not be available.");
-}
-
-moduleLoader.setAsync("fcgi", () => fcgi);
 moduleLoader.setAsync("logger", () => logger);
 
 moduleLoader.setAsync("queue", () => new BackgroundQueue({
@@ -59,13 +45,19 @@ moduleLoader.setAsync("queue", () => new BackgroundQueue({
 	logger: createLogger("CL: Background Queue")
 }));
 
-moduleLoader.setAsync("platform", () => new PlatformFunctions(
-	process.env.PLATFORM_HUB_GW_HOST,
-	process.env.PLATFORM_HUB_GW_PORT,
-	19, {
-		logger: createLogger("Platform")
-	}
-));
+moduleLoader.setPromise("hub", () => new Promise(resolve => {
+	const hub = new HubFunctions(
+		process.env.HUB_HOST,
+		process.env.HUB_PORT,
+		19, {
+			logger: createLogger("Hub")
+		}
+	);
+
+	return hub.connect().then(() =>
+		resolve(hub)
+	);
+}));
 
 moduleLoader.setPromise("steer", () => new Promise(resolve => {
 	const steer = new SteerFunctions(
@@ -85,6 +77,10 @@ moduleLoader.setPromise("steer", () => new Promise(resolve => {
 		resolve(steer)
 	);
 }));
+
+moduleLoader.setPromise("datasheetModel", () =>
+	require("./models/datasheet.model")(createLogger("Datasheet"))
+);
 
 moduleLoader.setPromise("sequelize", () => new Promise((resolve, reject) => {
 	if (!process.env.DB_HOST) {
@@ -140,15 +136,15 @@ moduleLoader.setPromise("sequelize", () => new Promise((resolve, reject) => {
 	});
 }));
 
-moduleLoader.setPromise("datasheets", datasheets, {
-	logger: createLogger("Datasheets")
-});
-
 moduleLoader.final().then(
 	/**
 	 * @param {modules} modules
 	 */
 	modules => {
+		if (!modules.hub.isRegistred) {
+			return Promise.reject("Hub connection is not registred.");
+		}
+
 		const serverLoader = new CoreLoader();
 		const tasksActions = new TasksActions(modules);
 		const serverCheckActions = new ServerCheckActions(modules);

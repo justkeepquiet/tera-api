@@ -17,21 +17,19 @@ class ServerCheckActions {
 	async all() {
 		let stat = null;
 
-		if (/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
-			try {
-				stat = await this.modules.fcgi.stat();
-			} catch (err) {
-				this.modules.logger.warn(`ServerCheckActions: ${err}`);
-			}
+		try {
+			stat = await this.modules.hub.getServerStat();
+		} catch (err) {
+			this.modules.logger.warn(`ServerCheckActions: ${err}`);
 		}
 
 		return this.modules.serverModel.info.findAll().then(servers =>
 			servers.forEach(server => {
 				const promise = new Promise((resolve, reject) => {
-					if (stat !== null && stat.servers) {
+					if (stat !== null && stat.serverList) {
 						resolve({
-							method: "FCGI.stat",
-							isAvailable: stat.servers[server.get("serverId")] !== undefined
+							method: "Hub",
+							isAvailable: stat.serverList.find(s => s.serverId == server.get("serverId")) !== undefined
 						});
 					} else {
 						isPortReachable(server.get("loginPort"), {

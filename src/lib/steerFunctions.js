@@ -13,7 +13,7 @@ class SteerFunctions extends SteerConnection {
 	}
 
 	//
-	// SteerSession Functions
+	// SteerSession functions
 	//
 
 	openSession(loginId, password, clientIp) {
@@ -138,7 +138,7 @@ class SteerFunctions extends SteerConnection {
 	}
 
 	//
-	// SteerMind Functions
+	// SteerMind functions
 	//
 
 	getFunctionList(sessionKey, jobId = 2) {

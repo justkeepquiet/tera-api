@@ -48,21 +48,19 @@ class Benefit {
 			}
 
 			return promise.then(() => {
-				if (/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
-					let totalDays = days;
+				let totalDays = days;
 
-					if (benefit !== null) {
-						totalDays += Math.round(
-							moment.duration(moment(benefit.get("availableUntil"))
-								.diff(moment(benefit.get("dateNow"))))
-								.asDays()
-						);
-					}
-
-					this.modules.fcgi.addBenefit(this.serverId, this.userId, benefitId, totalDays).catch(err =>
-						this.modules.logger.warn(err.toString())
+				if (benefit !== null) {
+					totalDays += Math.round(
+						moment.duration(moment(benefit.get("availableUntil"))
+							.diff(moment(benefit.get("dateNow"))))
+							.asDays()
 					);
 				}
+
+				this.modules.hub.addBenefit(this.serverId, this.userId, benefitId, totalDays * 86400).catch(err =>
+					this.modules.logger.warn(err.toString())
+				);
 
 				return Promise.resolve();
 			});

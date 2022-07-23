@@ -199,7 +199,7 @@ module.exports.add = ({ i18n, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, platform, sequelize, reportModel, shopModel, dataModel }) => [
+module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, shopModel, dataModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -345,7 +345,7 @@ module.exports.addAction = ({ i18n, logger, platform, sequelize, reportModel, sh
 				if (itemTemplateIds) {
 					itemTemplateIds.forEach((itemTemplateId, index) => {
 						if (boxItemIds[index] === "" && resolvedItems[itemTemplateId]) {
-							promises.push(platform.createServiceItem(
+							promises.push(hub.createServiceItem(
 								req.user.userSn || 0,
 								itemTemplateId,
 								1,
@@ -516,7 +516,7 @@ module.exports.edit = ({ i18n, logger, shopModel, dataModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, shopModel, dataModel }) => [
+module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopModel, dataModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -683,7 +683,7 @@ module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, s
 
 					if (itemTemplateIds[index]) {
 						if (!boxItemIds[index]) {
-							promises.push(platform.createServiceItem(
+							promises.push(hub.createServiceItem(
 								req.user.userSn || 0,
 								itemTemplateId,
 								1,
@@ -712,7 +712,7 @@ module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, s
 						}
 					} else {
 						if (productItem.get("boxItemId")) {
-							promises.push(platform.removeServiceItem(productItem.get("boxItemId")));
+							promises.push(hub.removeServiceItem(productItem.get("boxItemId")));
 						}
 
 						promises.push(shopModel.productItems.destroy({
@@ -732,7 +732,7 @@ module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, s
 						}).then(async productItem => {
 							if (productItem === null) {
 								if (!boxItemIds[index]) {
-									return platform.createServiceItem(
+									return hub.createServiceItem(
 										req.user.userSn || 0,
 										itemTemplateId,
 										1,
@@ -828,7 +828,7 @@ module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, s
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, platform, sequelize, reportModel, shopModel, boxModel }) => [
+module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, shopModel, boxModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -869,7 +869,7 @@ module.exports.deleteAction = ({ logger, platform, sequelize, reportModel, shopM
 							}
 						}).then(resultBoxItem => {
 							if (resultProductItem === null && resultBoxItem === null) {
-								promises.push(platform.removeServiceItem(productItem.get("boxItemId")));
+								promises.push(hub.removeServiceItem(productItem.get("boxItemId")));
 							}
 						})));
 

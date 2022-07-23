@@ -15,7 +15,7 @@ const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 /**
  * @param {modules} modules
  */
-module.exports.home = ({ logger, datasheets, serverModel, reportModel }) => [
+module.exports.home = ({ logger, serverModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**

@@ -486,10 +486,6 @@ module.exports.PurchaseAction = modules => [
 		const { productId } = req.body;
 
 		try {
-			if (!/^true$/i.test(process.env.FCGI_GW_WEBAPI_ENABLE)) {
-				throw "FCGI Gateway is not configured or disabled.";
-			}
-
 			/*
 			const payLog = await reportModel.shopPay.findOne({ // buying rate limits
 				where: {

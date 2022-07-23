@@ -130,7 +130,7 @@ module.exports.add = ({ logger }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, platform, sequelize, reportModel, boxModel, dataModel }) => [
+module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, boxModel, dataModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -232,7 +232,7 @@ module.exports.addAction = ({ i18n, logger, platform, sequelize, reportModel, bo
 				if (itemTemplateIds) {
 					itemTemplateIds.forEach((itemTemplateId, index) => {
 						if (boxItemIds[index] === "" && resolvedItems[itemTemplateId]) {
-							promises.push(platform.createServiceItem(
+							promises.push(hub.createServiceItem(
 								req.user.userSn || 0,
 								itemTemplateId,
 								1,
@@ -361,7 +361,7 @@ module.exports.edit = ({ i18n, logger, boxModel, dataModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, boxModel, dataModel }) => [
+module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxModel, dataModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -483,7 +483,7 @@ module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, b
 
 					if (itemTemplateIds[index]) {
 						if (!boxItemIds[index]) {
-							promises.push(platform.createServiceItem(
+							promises.push(hub.createServiceItem(
 								req.user.userSn || 0,
 								itemTemplateId,
 								1,
@@ -512,7 +512,7 @@ module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, b
 						}
 					} else {
 						if (boxItem.get("boxItemId")) {
-							promises.push(platform.removeServiceItem(boxItem.get("boxItemId")));
+							promises.push(hub.removeServiceItem(boxItem.get("boxItemId")));
 						}
 
 						promises.push(boxModel.items.destroy({
@@ -532,7 +532,7 @@ module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, b
 						}).then(boxItem => {
 							if (boxItem === null) {
 								if (!boxItemIds[index]) {
-									return platform.createServiceItem(
+									return hub.createServiceItem(
 										req.user.userSn || 0,
 										itemTemplateId,
 										1,
@@ -587,7 +587,7 @@ module.exports.editAction = ({ i18n, logger, platform, sequelize, reportModel, b
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, platform, sequelize, reportModel, shopModel, boxModel }) => [
+module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, shopModel, boxModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -626,7 +626,7 @@ module.exports.deleteAction = ({ logger, platform, sequelize, reportModel, shopM
 							}
 						}).then(resultProductItem => {
 							if (resultBoxItem === null && resultProductItem === null) {
-								promises.push(platform.removeServiceItem(boxItem.get("boxItemId")));
+								promises.push(hub.removeServiceItem(boxItem.get("boxItemId")));
 							}
 						})));
 
@@ -663,7 +663,7 @@ module.exports.deleteAction = ({ logger, platform, sequelize, reportModel, shopM
 /**
  * @param {modules} modules
  */
-module.exports.send = ({ i18n, logger, platform, serverModel, boxModel, dataModel }) => [
+module.exports.send = ({ i18n, logger, hub, serverModel, boxModel, dataModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -708,7 +708,7 @@ module.exports.send = ({ i18n, logger, platform, serverModel, boxModel, dataMode
 
 			items.forEach(item =>
 				promises.push(
-					platform.getServiceItem(item.get("boxItemId")).then(resultSet => {
+					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
 						if (resultSet.length > 0) {
 							itemChecks[item.get("boxItemId")] = true;
 						}
@@ -743,7 +743,7 @@ module.exports.send = ({ i18n, logger, platform, serverModel, boxModel, dataMode
 /**
  * @param {modules} modules
  */
-module.exports.sendAction = ({ i18n, logger, queue, platform, sequelize, serverModel, reportModel, accountModel, boxModel, dataModel }) => [
+module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportModel, accountModel, boxModel, dataModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -798,6 +798,10 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, sequelize, serverM
 				return res.redirect("/boxes");
 			}
 
+			const user = await accountModel.info.findOne({
+				where: { accountDBID }
+			});
+
 			const servers = await serverModel.info.findAll({
 				where: { isEnabled: 1 }
 			});
@@ -831,7 +835,7 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, sequelize, serverM
 
 			items.forEach(item =>
 				promises.push(
-					platform.getServiceItem(item.get("boxItemId")).then(resultSet => {
+					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
 						if (resultSet.length > 0) {
 							itemChecks[item.get("boxItemId")] = true;
 						}
@@ -873,7 +877,7 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, sequelize, serverM
 				});
 			}
 
-			// Send to accountDBID via platform hub
+			// Send to accountDBID via hub
 			queue.insert("createBox", [
 				{
 					content: box.get("content"),
@@ -889,6 +893,7 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, sequelize, serverM
 				accountDBID,
 				serverId || null,
 				characterId || null,
+				user.get("lastLoginServer"),
 				id,
 				4
 			],
@@ -912,7 +917,7 @@ module.exports.sendAction = ({ i18n, logger, queue, platform, sequelize, serverM
 /**
  * @param {modules} modules
  */
-module.exports.sendAll = ({ i18n, logger, platform, sequelize, serverModel, boxModel, dataModel }) => [
+module.exports.sendAll = ({ i18n, logger, hub, sequelize, serverModel, boxModel, dataModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -961,7 +966,7 @@ module.exports.sendAll = ({ i18n, logger, platform, sequelize, serverModel, boxM
 
 			items.forEach(item =>
 				promises.push(
-					platform.getServiceItem(item.get("boxItemId")).then(resultSet => {
+					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
 						if (resultSet.length > 0) {
 							itemChecks[item.get("boxItemId")] = true;
 						}
@@ -995,7 +1000,7 @@ module.exports.sendAll = ({ i18n, logger, platform, sequelize, serverModel, boxM
 /**
  * @param {modules} modules
  */
-module.exports.sendAllAction = ({ i18n, logger, queue, platform, sequelize, serverModel, reportModel, accountModel, boxModel, dataModel }) => [
+module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportModel, accountModel, boxModel, dataModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -1070,7 +1075,7 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, sequelize, serv
 
 			items.forEach(item =>
 				promises.push(
-					platform.getServiceItem(item.get("boxItemId")).then(resultSet => {
+					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
 						if (resultSet.length > 0) {
 							itemChecks[item.get("boxItemId")] = true;
 						}
@@ -1111,7 +1116,7 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, sequelize, serv
 				});
 			}
 
-			// Send to all users via platform hub
+			// Send to all users via hub
 			users.forEach(user =>
 				queue.insert("createBox", [
 					{
@@ -1128,6 +1133,7 @@ module.exports.sendAllAction = ({ i18n, logger, queue, platform, sequelize, serv
 					user.get("accountDBID"),
 					serverId || null,
 					null,
+					user.get("lastLoginServer"),
 					id,
 					4
 				],
