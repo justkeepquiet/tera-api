@@ -295,7 +295,7 @@ class HubFunctions extends HubConnection {
 	}
 
 	sendMsg(serverId, userSrl, message) {
-		const msg = opArb.SendMessageReq.encode({ userSrl, message }).finish();
+		const msg = opArb.SendMessageReq.encode({ userSrl, message: Buffer.from(message.toString(), "utf16le") }).finish();
 
 		return this.sendMessage(serverId, 4, msg).then(data => { // 4: SendMessageReq
 			if (data === null) {
