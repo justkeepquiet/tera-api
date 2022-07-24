@@ -36,6 +36,7 @@ class SteerConnection {
 		this.connected = false;
 		this.registred = false;
 		this.biasCount = 0;
+		this.jobId = 0;
 		this.uniqueServerId = 0;
 		this.reconnectInterval = null;
 		this.steerAddr = steerAddr;
@@ -117,7 +118,7 @@ class SteerConnection {
 			receiverGusid: makeGuid(serverCategory.steerhub, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
-			jobId: 1
+			jobId: ++this.jobId
 		});
 
 		return this.sendAndRecv(opMsg).then(data => {

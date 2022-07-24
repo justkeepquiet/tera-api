@@ -24,6 +24,7 @@ class SteerFunctions extends SteerConnection {
 			receiverGusid: makeGuid(serverCategory.steersession, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
+			jobId: ++this.jobId,
 
 			arguments: [
 				OpMsg.Argument.create({
@@ -75,6 +76,7 @@ class SteerFunctions extends SteerConnection {
 			receiverGusid: makeGuid(serverCategory.steersession, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
+			jobId: ++this.jobId,
 
 			arguments: [
 				OpMsg.Argument.create({
@@ -114,7 +116,8 @@ class SteerFunctions extends SteerConnection {
 			senderGusid: makeGuid(this.serviceId, this.uniqueServerId),
 			receiverGusid: makeGuid(serverCategory.steersession, 0),
 			execType: OpMsg.ExecType.EXECUTE,
-			jobType: OpMsg.JobType.REQUEST
+			jobType: OpMsg.JobType.REQUEST,
+			jobId: ++this.jobId
 		});
 
 		return this.sendMessage(opMsg).then(data => {
@@ -134,14 +137,12 @@ class SteerFunctions extends SteerConnection {
 	// SteerMind functions
 	//
 
-	getFunctionList(sessionKey, jobId = 2) {
-		let nextJobId = jobId;
-
-		return this.getFunctionListBySessionAndServerType(sessionKey, nextJobId, 0, 0).then(({ totalCount }) => {
+	getFunctionList(sessionKey) {
+		return this.getFunctionListBySessionAndServerType(sessionKey, 0, 0).then(({ totalCount }) => {
 			const promises = [];
 
 			for (let num = 0; num <= totalCount; num += 512) {
-				promises.push(this.getFunctionListBySessionAndServerType(sessionKey, ++nextJobId, num, 512));
+				promises.push(this.getFunctionListBySessionAndServerType(sessionKey, num, 512));
 			}
 
 			return Promise.all(promises).then(data => {
@@ -158,7 +159,7 @@ class SteerFunctions extends SteerConnection {
 		});
 	}
 
-	getFunctionListBySessionAndServerType(sessionKey, nextJobId, startPos, rowLength) {
+	getFunctionListBySessionAndServerType(sessionKey, startPos, rowLength) {
 		const opMsg = OpMsg.create({
 			gufid: makeGuid(serverCategory.steermind, 16), // getFunctionListBySessionAndServerType
 			sessionKey: Buffer.from(sessionKey),
@@ -166,7 +167,7 @@ class SteerFunctions extends SteerConnection {
 			receiverGusid: makeGuid(serverCategory.steermind, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
-			jobId: nextJobId,
+			jobId: ++this.jobId,
 
 			arguments: [
 				OpMsg.Argument.create({
@@ -215,6 +216,7 @@ class SteerFunctions extends SteerConnection {
 			receiverGusid: makeGuid(serverCategory.steermind, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
+			jobId: ++this.jobId,
 
 			arguments: [
 				OpMsg.Argument.create({
@@ -249,6 +251,7 @@ class SteerFunctions extends SteerConnection {
 			receiverGusid: makeGuid(serverCategory.steermind, 0),
 			execType: OpMsg.ExecType.EXECUTE,
 			jobType: OpMsg.JobType.REQUEST,
+			jobId: ++this.jobId,
 
 			arguments: [
 				OpMsg.Argument.create({
