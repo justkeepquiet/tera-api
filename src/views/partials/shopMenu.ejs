@@ -2,7 +2,7 @@
 	<ul class="nav nav-list">
 	<%_ categories.forEach(category => { _%>
 		<li class="<%= category.id == active ? "active" : "" %>">
-			<a href="#" data-id="<%= category.get("id") %>" class="menu_Link"><%= category.get("strings").get("title") %></a>
+			<a href="#" data-id="<%= category.get("id") %>" class="menu_Link"><%= category.get("strings")?.get("title") || __("[unknown]") %></a>
 		</li>
 	<%_ }) _%>
 	</ul>

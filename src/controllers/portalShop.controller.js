@@ -83,7 +83,8 @@ module.exports.PartialMenuHtml = ({ i18n, logger, shopModel }) => [
 			include: [{
 				as: "strings",
 				model: shopModel.categoryStrings,
-				where: { language: i18n.getLocale() }
+				where: { language: i18n.getLocale() },
+				required: false
 			}],
 			order: [
 				["sort", "DESC"]
@@ -180,7 +181,8 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 							where: {
 								...search && !product.get("strings")?.get("title") ? { string: { [Op.like]: `%${search}%` } } : {},
 								language: i18n.getLocale()
-							}
+							},
+							required: false
 						}
 					],
 					order: [
@@ -199,11 +201,11 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 
 					if (product) {
 						if (!product.title) {
-							product.title = productItem.get("strings").get("string");
+							product.title = productItem.get("strings")?.get("string");
 						}
 
 						if (!product.description) {
-							product.description = productItem.get("strings").get("toolTip");
+							product.description = productItem.get("strings")?.get("toolTip");
 						}
 
 						if (!product.icon) {
@@ -220,7 +222,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 					}
 
 					// Remove unresolved products
-					if (!product.icon || (!product.title && !product.description)) {
+					if (!product.icon) {
 						productsMap.delete(productItem.get("productId"));
 					}
 				});
@@ -289,7 +291,8 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataM
 					{
 						as: "strings",
 						model: dataModel.itemStrings,
-						where: { language: i18n.getLocale() }
+						where: { language: i18n.getLocale() },
+						required: false
 					}
 				],
 				order: [
@@ -315,7 +318,8 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataM
 							{
 								as: "strings",
 								model: dataModel.itemStrings,
-								where: { language: i18n.getLocale() }
+								where: { language: i18n.getLocale() },
+								required: false
 							}
 						]
 					}));
@@ -326,11 +330,11 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataM
 				);
 
 				if (!productObj.title) {
-					productObj.title = firstItem.get("strings").get("string");
+					productObj.title = firstItem.get("strings")?.get("string");
 				}
 
 				if (!productObj.description) {
-					productObj.description = firstItem.get("strings").get("toolTip");
+					productObj.description = firstItem.get("strings")?.get("toolTip");
 				}
 
 				if (!productObj.icon) {

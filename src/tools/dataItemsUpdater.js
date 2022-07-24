@@ -1,4 +1,4 @@
-/* eslint-disable no-empty-function */
+/* eslint-disable no-await-in-loop,no-empty-function */
 "use strict";
 
 require("dotenv").config();
@@ -9,7 +9,7 @@ const path = require("path");
 const xmljs = require("xml-js");
 
 const language = process.argv[2];
-const storageDir = path.join(__dirname, "..", "..", "share", "shopitems", language);
+const storageDir = path.join(__dirname, "..", "..", "share", "dataitems", language);
 const strSheetDirPath = path.resolve(storageDir, "StrSheet_Item");
 const dataDirPath = path.resolve(storageDir, "ItemData");
 const conversionDirPath = path.resolve(storageDir, "ItemConversion");
@@ -27,7 +27,7 @@ if (fs.existsSync(strSheetDirPath)) {
 		if (path.extname(file.name) === ".xml") {
 			const data = readXml(path.join(strSheetDirPath, file.name));
 
-			if (data) {
+			if (data && data.elements) {
 				data.elements.forEach(element => {
 					if (element.string != "") {
 						strSheetElements.push(element.attributes);
@@ -51,7 +51,7 @@ if (fs.existsSync(dataDirPath)) {
 		if (path.extname(file.name) === ".xml") {
 			const data = readXml(path.join(dataDirPath, file.name));
 
-			if (data) {
+			if (data && data.elements) {
 				data.elements.forEach(element => dataElements.set(element.attributes.id, element.attributes));
 
 				console.log("---> Loaded file", file.name, "with", data.elements.length, "elements");
@@ -71,7 +71,7 @@ if (fs.existsSync(conversionDirPath)) {
 		if (path.extname(file.name) === ".xml") {
 			const data = readXml(path.join(conversionDirPath, file.name));
 
-			if (data) {
+			if (data && data.elements) {
 				data.elements.forEach(element => {
 					if (element.elements !== undefined) {
 						element.elements.forEach(childElement => {
@@ -118,28 +118,28 @@ const sequelize = new Sequelize(
 	}
 );
 
-sequelize.authenticate().then(() => {
+sequelize.authenticate().then(async () => {
 	const dataModel = require("../models/data.model")(sequelize, DataTypes);
 
 	console.log("Adding strSheet elements...");
 	const strSheetTotal = strSheetElements.length;
 
-	strSheetElements.forEach((itemStrings, index) => {
-		dataModel.itemStrings.upsert({
+	for (const [index, itemStrings] of strSheetElements.entries()) {
+		await dataModel.itemStrings.upsert({
 			language,
 			itemTemplateId: itemStrings.id,
 			string: itemStrings.string.toString(),
 			toolTip: itemStrings.toolTip?.toString() || ""
-		}).then(() =>
-			console.log(index, "/", strSheetTotal, "Added:", itemStrings.id)
-		);
-	});
+		});
+
+		console.log(index, "/", strSheetTotal, "Added:", itemStrings.id);
+	}
 
 	console.log("Adding data elements...");
 	const dataTotal = dataElements.size;
 
-	dataElements.forEach((itemTemplate, index) =>
-		dataModel.itemTemplates.upsert({
+	for (const [index, itemTemplate] of dataElements.entries()) {
+		await dataModel.itemTemplates.upsert({
 			itemTemplateId: itemTemplate.id,
 			icon: itemTemplate.icon.split(".").at(-1).toLowerCase(),
 			rareGrade: Number(itemTemplate.rareGrade),
@@ -149,19 +149,19 @@ sequelize.authenticate().then(() => {
 			requiredRace: itemTemplate.requiredRace?.toLowerCase() || null,
 			tradable: Number(itemTemplate.tradable === "true"),
 			warehouseStorable: Number(itemTemplate.warehouseStorable === "true")
-		}).then(() =>
-			console.log(index, "/", dataTotal, "Added:", itemTemplate.id)
-		)
-	);
+		});
+
+		console.log(index, "/", dataTotal, "Added:", itemTemplate.id);
+	}
 
 	console.log("Adding conversion elements...");
 	const conversionTotal = conversionElements.length;
 
-	conversionElements.forEach((conversion, index) => {
-		dataModel.itemConversions.upsert(conversion).then(() =>
-			console.log(index, "/", conversionTotal, "Added:", conversion.itemTemplateId, conversion.fixedItemTemplateId)
-		);
-	});
+	for (const [index, conversion] of conversionElements.entries()) {
+		await dataModel.itemConversions.upsert(conversion);
+
+		console.log(index, "/", conversionTotal, "Added:", conversion.itemTemplateId, conversion.fixedItemTemplateId);
+	}
 });
 
 function readXml(file) {

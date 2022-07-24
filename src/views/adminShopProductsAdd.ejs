@@ -27,7 +27,7 @@ _%>
 								<label class="control-label" for="userName"><%= __("Category ID") %></label>
 								<select class="form-control boxed" name="categoryId">
 								<%_ categories.forEach(category => { _%>
-									<option value="<%= category.get("id") %>" <%= categoryId == category.get("id") ? 'selected' : "" %>>(<%= category.get("id") %>) <%= category.get("strings").get("title") %></option>
+									<option value="<%= category.get("id") %>" <%= categoryId == category.get("id") ? 'selected' : "" %>>(<%= category.get("id") %>) <%= category.get("strings")?.get("title") || __("[unknown]") %></option>
 								<%_ }) _%>
 								</select>
 							</div>
@@ -67,7 +67,7 @@ _%>
 													<img src="/static/images/tera-icons/icon_items/<%= resolvedItems[itemTemplateId].get("icon") %>.png" class="item-icon-grade-<%= resolvedItems[itemTemplateId].get("rareGrade") %> item-icon">
 													<img src="/static/images/icons/icon_grade_<%= resolvedItems[itemTemplateId].get("rareGrade") %>.png" class="item-icon-grade" alt="">
 												</div>
-												<small class="item-grade-<%= resolvedItems[itemTemplateId].get("rareGrade") %>">(<%= itemTemplateId %>) <%= resolvedItems[itemTemplateId].get("strings").get("string") %></small>
+												<small class="item-grade-<%= resolvedItems[itemTemplateId].get("rareGrade") %>">(<%= itemTemplateId %>) <%= resolvedItems[itemTemplateId].get("strings")?.get("string") || __("[unknown]") %></small>
 											</div>
 										</div>
 									</div>

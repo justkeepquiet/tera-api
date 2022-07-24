@@ -10,7 +10,7 @@
 				<select class="form-control boxed" name="categoryId" onchange="submit();">
 					<option value="">- <%= __("All") %> -</option>
 				<%_ categories.forEach(category => { _%>
-					<option value="<%= category.get("id") %>" <%= categoryId == category.get("id") ? 'selected' : "" %>>(<%= category.get("id") %>) <%= category.get("strings").get("title") %></option>
+					<option value="<%= category.get("id") %>" <%= categoryId == category.get("id") ? 'selected' : "" %>>(<%= category.get("id") %>) <%= category.get("strings")?.get("title") || "-" %></option>
 				<%_ }) _%>
 				</select>
 			</div>
@@ -51,7 +51,7 @@
 													<img src="/static/images/icons/icon_grade_<%= product.rareGrade %>.png" class="item-icon-grade" alt="">
 												</div>
 											</td>
-											<td><a class="item-grade-<%= product.rareGrade %>" href="/shop_products/edit?id=<%= id %>&amp;fromCategoryId=<%= categoryId %>"><%= product.title %></a></td>
+											<td><a class="item-grade-<%= product.rareGrade %>" href="/shop_products/edit?id=<%= id %>&amp;fromCategoryId=<%= categoryId %>"><%= product.title || __("[unknown]") %></a></td>
 											<td>(<%= product.categoryId %>) <a href="/shop_products?categoryId=<%= product.categoryId %>"><%= product.categoryTitle %></a></td>
 											<td><%= product.price %></td>
 											<td><%= product.active ? __("Yes") : __("No") %></td>

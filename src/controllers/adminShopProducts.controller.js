@@ -88,7 +88,8 @@ module.exports.index = ({ i18n, logger, shopModel, dataModel }) => [
 						{
 							as: "strings",
 							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() }
+							where: { language: i18n.getLocale() },
+							required: false
 						}
 					],
 					order: [
@@ -106,11 +107,11 @@ module.exports.index = ({ i18n, logger, shopModel, dataModel }) => [
 
 				if (product) {
 					if (!product.title) {
-						product.title = productItem.get("strings").get("string");
+						product.title = productItem.get("strings")?.get("string");
 					}
 
 					if (!product.description) {
-						product.description = productItem.get("strings").get("toolTip");
+						product.description = productItem.get("strings")?.get("toolTip");
 					}
 
 					if (!product.icon) {
@@ -290,7 +291,8 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, shopMod
 						include: [{
 							as: "strings",
 							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() }
+							where: { language: i18n.getLocale() },
+							required: false
 						}]
 					}));
 				});
@@ -345,14 +347,16 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, shopMod
 				if (itemTemplateIds) {
 					itemTemplateIds.forEach((itemTemplateId, index) => {
 						if (boxItemIds[index] === "" && resolvedItems[itemTemplateId]) {
+							if (!resolvedItems[itemTemplateId]) return;
+
 							promises.push(hub.createServiceItem(
 								req.user.userSn || 0,
 								itemTemplateId,
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
-								resolvedItems[itemTemplateId].get("strings").get("string"),
-								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings").get("toolTip")),
+								resolvedItems[itemTemplateId].get("strings")?.get("string"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")?.get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								shopModel.productItems.create({
@@ -471,7 +475,8 @@ module.exports.edit = ({ i18n, logger, shopModel, dataModel }) => [
 					include: [{
 						as: "strings",
 						model: dataModel.itemStrings,
-						where: { language: i18n.getLocale() }
+						where: { language: i18n.getLocale() },
+						required: false
 					}]
 				}));
 			});
@@ -619,7 +624,8 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 						include: [{
 							as: "strings",
 							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() }
+							where: { language: i18n.getLocale() },
+							required: false
 						}]
 					}));
 				});
@@ -683,14 +689,16 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 
 					if (itemTemplateIds[index]) {
 						if (!boxItemIds[index]) {
+							if (!resolvedItems[itemTemplateId]) return;
+
 							promises.push(hub.createServiceItem(
 								req.user.userSn || 0,
 								itemTemplateId,
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
-								resolvedItems[itemTemplateId].get("strings").get("string"),
-								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings").get("toolTip")),
+								resolvedItems[itemTemplateId].get("strings")?.get("string"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")?.get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								shopModel.productItems.update({
@@ -731,6 +739,8 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 							}
 						}).then(async productItem => {
 							if (productItem === null) {
+								if (!resolvedItems[itemTemplateId]) return;
+
 								if (!boxItemIds[index]) {
 									return hub.createServiceItem(
 										req.user.userSn || 0,
@@ -738,8 +748,8 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 										1,
 										moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 										true,
-										resolvedItems[itemTemplateId].get("strings").get("string"),
-										helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings").get("toolTip")),
+										resolvedItems[itemTemplateId].get("strings")?.get("string"),
+										helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")?.get("toolTip")),
 										"1,1,1"
 									).then(boxItemId =>
 										shopModel.productItems.create({

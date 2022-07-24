@@ -38,7 +38,7 @@ module.exports.index = ({ i18n, logger, queue, boxModel, dataModel }) => [
 					content: box.get("content"),
 					icon: box.get("icon"),
 					days: box.get("days"),
-					items: null,
+					items: [],
 					processing: false
 				});
 
@@ -52,9 +52,8 @@ module.exports.index = ({ i18n, logger, queue, boxModel, dataModel }) => [
 						{
 							as: "strings",
 							model: dataModel.itemStrings,
-							where: {
-								language: i18n.getLocale()
-							}
+							where: { language: i18n.getLocale() },
+							required: false
 						}
 					],
 					order: [
@@ -187,9 +186,8 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, boxMode
 						include: [{
 							as: "strings",
 							model: dataModel.itemStrings,
-							where: {
-								language: i18n.getLocale()
-							}
+							where: { language: i18n.getLocale() },
+							required: false
 						}]
 					}));
 				});
@@ -232,14 +230,16 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, boxMode
 				if (itemTemplateIds) {
 					itemTemplateIds.forEach((itemTemplateId, index) => {
 						if (boxItemIds[index] === "" && resolvedItems[itemTemplateId]) {
+							if (!resolvedItems[itemTemplateId]) return;
+
 							promises.push(hub.createServiceItem(
 								req.user.userSn || 0,
 								itemTemplateId,
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
-								resolvedItems[itemTemplateId].get("strings").get("string"),
-								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings").get("toolTip")),
+								resolvedItems[itemTemplateId].get("strings")?.get("string"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")?.get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								boxModel.items.create({
@@ -324,9 +324,8 @@ module.exports.edit = ({ i18n, logger, boxModel, dataModel }) => [
 					include: [{
 						as: "strings",
 						model: dataModel.itemStrings,
-						where: {
-							language: i18n.getLocale()
-						}
+						where: { language: i18n.getLocale() },
+						required: false
 					}]
 				}));
 			});
@@ -429,9 +428,8 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 						include: [{
 							as: "strings",
 							model: dataModel.itemStrings,
-							where: {
-								language: i18n.getLocale()
-							}
+							where: { language: i18n.getLocale() },
+							required: false
 						}]
 					}));
 				});
@@ -483,14 +481,16 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 
 					if (itemTemplateIds[index]) {
 						if (!boxItemIds[index]) {
+							if (!resolvedItems[itemTemplateId]) return;
+
 							promises.push(hub.createServiceItem(
 								req.user.userSn || 0,
 								itemTemplateId,
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
-								resolvedItems[itemTemplateId].get("strings").get("string"),
-								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings").get("toolTip")),
+								resolvedItems[itemTemplateId].get("strings")?.get("string"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")?.get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								boxModel.items.update({
@@ -532,14 +532,16 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 						}).then(boxItem => {
 							if (boxItem === null) {
 								if (!boxItemIds[index]) {
+									if (!resolvedItems[itemTemplateId]) return;
+
 									return hub.createServiceItem(
 										req.user.userSn || 0,
 										itemTemplateId,
 										1,
 										moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 										true,
-										resolvedItems[itemTemplateId].get("strings").get("string"),
-										helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings").get("toolTip")),
+										resolvedItems[itemTemplateId].get("strings")?.get("string"),
+										helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")?.get("toolTip")),
 										"1,1,1"
 									).then(boxItemId =>
 										boxModel.items.create({
@@ -693,9 +695,8 @@ module.exports.send = ({ i18n, logger, hub, serverModel, boxModel, dataModel }) 
 					{
 						as: "strings",
 						model: dataModel.itemStrings,
-						where: {
-							language: i18n.getLocale()
-						}
+						where: { language: i18n.getLocale() },
+						required: false
 					}
 				],
 				order: [
@@ -816,9 +817,8 @@ module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportMode
 					{
 						as: "strings",
 						model: dataModel.itemStrings,
-						where: {
-							language: i18n.getLocale()
-						}
+						where: { language: i18n.getLocale() },
+						required: false
 					}
 				],
 				order: [
@@ -947,9 +947,8 @@ module.exports.sendAll = ({ i18n, logger, hub, sequelize, serverModel, boxModel,
 					{
 						as: "strings",
 						model: dataModel.itemStrings,
-						where: {
-							language: i18n.getLocale()
-						}
+						where: { language: i18n.getLocale() },
+						required: false
 					}
 				],
 				order: [
@@ -1056,9 +1055,8 @@ module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportM
 					{
 						as: "strings",
 						model: dataModel.itemStrings,
-						where: {
-							language: i18n.getLocale()
-						}
+						where: { language: i18n.getLocale() },
+						required: false
 					}
 				],
 				order: [
