@@ -351,6 +351,8 @@ module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, accountMod
 				hub.kickUser(online.get("serverId"), accountDBID, 33).catch(err =>
 					logger.warn(err.toString())
 				);
+
+				await new Promise(resolve => setTimeout(resolve, 3000));
 			}
 
 			await sequelize.transaction(async transaction =>
