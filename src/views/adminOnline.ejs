@@ -8,7 +8,7 @@
 			<div class="form-group">
 				<label for="serverId"><%= __("Server ID") %></label>
 				<select class="form-control boxed" name="serverId" onchange="submit();">
-					<option value=""><%= __("All") %></option>
+					<option value="">- <%= __("All") %> -</option>
 				<%_ servers.forEach(s => { _%>
 					<option value="<%= s.get("serverId") %>" <%= s.get("serverId") == serverId ? "selected" : "" %>>(<%= s.get("serverId") %>) <%= s.get("nameString") %></option>
 				<%_ }) _%>

@@ -71,6 +71,8 @@
 	"Privilege field must contain a valid number.": "Поле 'Привилегии' должно содержать номерное значение.",
 	"Benefit ID field must contain a valid number.": "Поле 'ID преимущества' должно содержать номерное значение.",
 	"Account ID field must contain a valid number.": "Поле 'ID аккаунта' должно содержать номерное значение.",
+	"Added benefit already exists.": "Добавленное преимущество уже существует.",
+	"Benefit ID field contains existing benefit ID on account.": "Поле 'ID преимущества' содержит уже существующий ID на аккаунте.",
 	"Sort field must contain the value as a number.": "Поле 'Сортировка' должно содержать номерное значение.",
 	"Active field has invalid value.": "Поле 'Активно' имеет недопустимое значение.",
 	"Title field must be between 1 and 1024 characters.": "Поле 'Заголовок' должно содержать от 1 до 1024 символов.",

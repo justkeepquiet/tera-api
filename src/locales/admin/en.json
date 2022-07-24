@@ -72,6 +72,8 @@
 	"Privilege field must contain a valid number.": "Privilege field must contain a valid number.",
 	"Benefit ID field must contain a valid number.": "Benefit ID field must contain a valid number.",
 	"Account ID field must contain a valid number.": "Account ID field must contain a valid number.",
+	"Added benefit already exists.": "Added benefit already exists.",
+	"Benefit ID field contains existing benefit ID on account.": "Benefit ID field contains existing benefit ID on account.",
 	"Sort field must contain the value as a number.": "Sort field must contain the value as a number.",
 	"Active field has invalid value.": "Active field has invalid value.",
 	"Title field must be between 1 and 1024 characters.": "Title field must be between 1 and 1024 characters.",

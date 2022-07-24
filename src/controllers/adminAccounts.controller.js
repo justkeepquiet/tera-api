@@ -119,7 +119,15 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 		body("privilege")
 			.isNumeric().withMessage(i18n.__("Privilege field must contain a valid number.")),
 		body("benefitIds.*").optional()
-			.isInt({ min: 0 }).withMessage(i18n.__("Benefit ID field must contain a valid number.")),
+			.isInt({ min: 0 }).withMessage(i18n.__("Benefit ID field must contain a valid number."))
+			.custom((value, { req }) => {
+				const benefitIds = req.body.benefitIds.filter((e, i) =>
+					req.body.benefitIds.lastIndexOf(e) == i && req.body.benefitIds.indexOf(e) != i
+				);
+
+				return !benefitIds.includes(value);
+			})
+			.withMessage(i18n.__("Added benefit already exists.")),
 		body("availableUntils.*").optional()
 			.isISO8601().withMessage("Available field until must contain a valid date.")
 	],

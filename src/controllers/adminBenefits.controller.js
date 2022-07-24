@@ -94,7 +94,7 @@ module.exports.add = ({ i18n, accountModel, datasheetModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, reportModel, accountModel, datasheetModel }) => [
+module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -110,7 +110,17 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, datasheet
 				}
 			})),
 		body("benefitId")
-			.isInt({ min: 0 }).withMessage(i18n.__("Benefit ID field must contain a valid number.")),
+			.isInt({ min: 0 }).withMessage(i18n.__("Benefit ID field must contain a valid number."))
+			.custom((value, { req }) => accountModel.benefits.findOne({
+				where: {
+					accountDBID: req.body.accountDBID,
+					benefitId: req.body.benefitId
+				}
+			}).then(data => {
+				if (data !== null) {
+					return Promise.reject(i18n.__("Benefit ID field contains existing benefit ID on account."));
+				}
+			})),
 		body("availableUntil").trim()
 			.isISO8601().withMessage("Available until field must contain a valid date.")
 	],
@@ -134,6 +144,17 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, datasheet
 				availableUntil: moment.tz(availableUntil, req.user.tz)
 			});
 		}
+
+		accountModel.online.findOne({
+			where: { accountDBID }
+		}).then(online => {
+			if (online !== null && moment.tz(availableUntil, req.user.tz) > moment()) {
+				return hub.addBenefit(online.get("serverId"), online.get("accountDBID"), benefitId,
+					moment.duration(moment.tz(availableUntil, req.user.tz).diff()).asSeconds());
+			}
+		}).catch(err =>
+			logger.warn(err.toString())
+		);
 
 		accountModel.benefits.create({
 			accountDBID,
@@ -198,7 +219,7 @@ module.exports.edit = ({ i18n, logger, accountModel, datasheetModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ logger, reportModel, accountModel }) => [
+module.exports.editAction = ({ logger, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -228,6 +249,23 @@ module.exports.editAction = ({ logger, reportModel, accountModel }) => [
 			});
 		}
 
+		accountModel.online.findOne({
+			where: { accountDBID }
+		}).then(online => {
+			if (online === null) {
+				return;
+			}
+
+			return hub.removeBenefit(online.get("serverId"), online.get("accountDBID"), benefitId).then(() => {
+				if (moment.tz(availableUntil, req.user.tz) > moment()) {
+					return hub.addBenefit(online.get("serverId"), online.get("accountDBID"), benefitId,
+						moment.duration(moment.tz(availableUntil, req.user.tz).diff()).asSeconds());
+				}
+			});
+		}).catch(err =>
+			logger.warn(err.toString())
+		);
+
 		accountModel.benefits.update({
 			availableUntil: moment.tz(availableUntil, req.user.tz).toDate()
 		}, {
@@ -251,7 +289,7 @@ module.exports.editAction = ({ logger, reportModel, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
+module.exports.deleteAction = ({ logger, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -263,6 +301,16 @@ module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
 		if (!accountDBID || !benefitId) {
 			return res.redirect("/benefits");
 		}
+
+		accountModel.online.findOne({
+			where: { accountDBID }
+		}).then(online => {
+			if (online !== null) {
+				return hub.removeBenefit(online.get("serverId"), online.get("accountDBID"), benefitId);
+			}
+		}).catch(err =>
+			logger.warn(err.toString())
+		);
 
 		accountModel.benefits.destroy({ where: { benefitId, accountDBID } }).then(() =>
 			next()

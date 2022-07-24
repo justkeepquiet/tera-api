@@ -25,9 +25,8 @@
 										</tr>
 									</thead>
 									<tbody>
-										<%_ maintenances.forEach(maintenance => {
-											const active = moment(maintenance.get("startTime")) < moment() && moment(maintenance.get("endTime")) > moment();
-										_%>
+										<%_ maintenances.forEach(maintenance => { _%>
+										<%_ const active = moment(maintenance.get("startTime")) < moment() && moment(maintenance.get("endTime")) > moment(); _%>
 										<tr>
 											<td><%= maintenance.get("id") %></td>
 											<td><%= moment(maintenance.get("startTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>

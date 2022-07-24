@@ -222,7 +222,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 					}
 
 					// Remove unresolved products
-					if (!product.icon) {
+					if (!product.icon || (search && !product.title)) {
 						productsMap.delete(productItem.get("productId"));
 					}
 				});

@@ -39,5 +39,11 @@ module.exports = (sequelize, DataTypes) => {
 		as: "strings"
 	});
 
+	model.itemTemplates.hasMany(model.itemConversions, {
+		foreignKey: "itemTemplateId",
+		sourceKey: "itemTemplateId",
+		as: "conversion"
+	});
+
 	return model;
 };
