@@ -42,7 +42,7 @@
 											<td class="text-<%= server.get("isAvailable") ? "success" : "danger" %>"><%= server.get("isAvailable") ? __("Yes") : __("No") %></td>
 											<td><%= server.get("usersOnline") %></td>
 											<td><%= server.get("usersTotal") %></td>
-											<td class="text-right">
+											<td class="text-right text-nowrap">
 												<a class="btn btn-secondary btn-sm" href="/servers/edit?serverId=<%= server.get("serverId") %>"><i class="fa fa-pencil"></i></a>
 												<a class="btn btn-secondary btn-sm" href="/servers/delete?serverId=<%= server.get("serverId") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
 											</td>

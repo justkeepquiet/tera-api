@@ -128,48 +128,19 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 				validAfter: { [Op.lt]: sequelize.fn("NOW") },
 				validBefore: { [Op.gt]: sequelize.fn("NOW") }
 			},
-			include: [{
-				as: "strings",
-				model: shopModel.productStrings,
-				where: {
-					...search ? { title: { [Op.like]: `%${search}%` } } : {},
-					language: i18n.getLocale()
+			include: [
+				{
+					as: "strings",
+					model: shopModel.productStrings,
+					where: {
+						...search ? { title: { [Op.like]: `%${search}%` } } : {},
+						language: i18n.getLocale()
+					},
+					required: false
 				},
-				required: false
-			}],
-			attributes: {
-				include: [
-					[
-						sequelize.literal(`(
-							SELECT COUNT(*)
-							FROM shop_product_items AS shop_product_item
-							WHERE
-								shop_product_item.productId = shop_products.id
-						)`),
-						"itemsCount"
-					]
-				]
-			},
-			order: [
-				["sort", "DESC"]
-			]
-		}).then(products => {
-			const promises = [];
-			const productsMap = new Map();
-
-			products.forEach(product => {
-				productsMap.set(product.get("id"), {
-					price: product.get("price"),
-					title: product.get("strings")?.get("title"),
-					description: product.get("strings")?.get("description"),
-					icon: product.get("icon"),
-					rareGrade: product.get("rareGrade"),
-					itemsCount: product.get("itemsCount"),
-					itemCount: null
-				});
-
-				promises.push(shopModel.productItems.findOne({
-					where: { productId: product.get("id") },
+				{
+					as: "item",
+					model: shopModel.productItems,
 					include: [
 						{
 							as: "template",
@@ -179,7 +150,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 							as: "strings",
 							model: dataModel.itemStrings,
 							where: {
-								...search && !product.get("strings")?.get("title") ? { string: { [Op.like]: `%${search}%` } } : {},
+								...search ? { string: { [Op.like]: `%${search}%` } } : {}, //  && !product.get("strings")?.get("title")
 								language: i18n.getLocale()
 							},
 							required: false
@@ -188,47 +159,49 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 					order: [
 						["createdAt", "ASC"]
 					]
-				}));
-			});
+				}
+			],
+			order: [
+				["sort", "DESC"]
+			]
+		}).then(productsData => {
+			const products = new Map();
 
-			return Promise.all(promises).then(productItems => {
-				productItems.forEach(productItem => {
-					if (productItem === null) {
-						return;
+			productsData.forEach(product => {
+				const productInfo = {
+					price: product.get("price"),
+					title: product.get("strings")?.get("title"),
+					description: product.get("strings")?.get("description"),
+					icon: product.get("icon"),
+					rareGrade: product.get("rareGrade"),
+					itemsCount: product.get("itemsCount"),
+					itemCount: product.get("item").length
+				};
+
+				product.get("item").forEach(productItem => {
+					if (!productInfo.title) {
+						productInfo.title = productItem.get("strings")?.get("string");
 					}
-
-					const product = productsMap.get(productItem.get("productId"));
-
-					if (product) {
-						if (!product.title) {
-							product.title = productItem.get("strings")?.get("string");
-						}
-
-						if (!product.description) {
-							product.description = productItem.get("strings")?.get("toolTip");
-						}
-
-						if (!product.icon) {
-							product.icon = productItem.get("template").get("icon");
-						}
-
-						if (product.rareGrade === null) {
-							product.rareGrade = productItem.get("template").get("rareGrade");
-						}
-
-						if (!product.itemCount) {
-							product.itemCount = productItem.get("boxItemCount");
-						}
+					if (!productInfo.description) {
+						productInfo.description = productItem.get("strings")?.get("toolTip");
 					}
-
-					// Remove unresolved products
-					if (!product.icon || (search && !product.title)) {
-						productsMap.delete(productItem.get("productId"));
+					if (!productInfo.icon) {
+						productInfo.icon = productItem.get("template").get("icon");
+					}
+					if (productInfo.rareGrade === null) {
+						productInfo.rareGrade = productItem.get("template").get("rareGrade");
+					}
+					if (!productInfo.itemCount) {
+						productInfo.itemCount = productItem.get("boxItemCount");
 					}
 				});
 
-				res.render("partials/shopCatalog", { helpers, products: productsMap, search: search || "" });
+				if (productInfo.icon && (!search || (search && productInfo.title))) {
+					products.set(product.get("id"), productInfo);
+				}
 			});
+
+			res.render("partials/shopCatalog", { helpers, products, search: search || "" });
 		}).catch(err => {
 			logger.error(err);
 			res.status(500).send();

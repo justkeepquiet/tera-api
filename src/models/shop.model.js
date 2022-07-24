@@ -37,6 +37,7 @@ module.exports = (sequelize, DataTypes, modules) => {
 		promoCodeActivated: require("./shop/shopPromoCodeActivated.model")(sequelize, DataTypes)
 	};
 
+	// productItems
 	model.productItems.hasOne(modules.dataModel.itemTemplates, {
 		foreignKey: "itemTemplateId",
 		sourceKey: "itemTemplateId",
@@ -49,24 +50,34 @@ module.exports = (sequelize, DataTypes, modules) => {
 		as: "strings"
 	});
 
+	// products
 	model.products.hasOne(model.productStrings, {
 		foreignKey: "productId",
 		sourceKey: "id",
 		as: "strings"
 	});
 
+	model.products.hasMany(model.productItems, {
+		foreignKey: "productId",
+		sourceKey: "id",
+		as: "item"
+	});
+
+	// categories
 	model.categories.hasOne(model.categoryStrings, {
 		foreignKey: "categoryId",
 		sourceKey: "id",
 		as: "strings"
 	});
 
+	// promoCode
 	model.promoCodes.hasOne(model.promoCodeStrings, {
 		foreignKey: "promoCodeId",
 		sourceKey: "promoCodeId",
 		as: "strings"
 	});
 
+	// promoCodeActivated
 	model.promoCodeActivated.hasOne(model.promoCodes, {
 		foreignKey: "promoCodeId",
 		sourceKey: "promoCodeId",

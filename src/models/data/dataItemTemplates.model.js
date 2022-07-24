@@ -25,6 +25,9 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.INTEGER(11),
 			allowNull: false
 		},
+		category: {
+			type: DataTypes.TEXT(255)
+		},
 		requiredLevel: {
 			type: DataTypes.INTEGER(11)
 		},
@@ -39,6 +42,12 @@ module.exports = (sequelize, DataTypes) =>
 		},
 		tradable: {
 			type: DataTypes.TINYINT(4)
+		},
+		periodByWebAdmin: {
+			type: DataTypes.TINYINT(4)
+		},
+		periodInMinute: {
+			type: DataTypes.INTEGER(11)
 		},
 		warehouseStorable: {
 			type: DataTypes.TINYINT(4)

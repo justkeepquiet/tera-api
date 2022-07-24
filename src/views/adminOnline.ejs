@@ -51,7 +51,7 @@
 											<%_ } _%>
 											<td><%= account.get("info").get("userName") %></a></td>
 											<td><%= account.get("info").get("lastLoginIP") %></td>
-											<td class="text-right">
+											<td class="text-right text-nowrap">
 												<a class="btn btn-secondary btn-sm" href="/online/kick?accountDBID=<%= account.get("accountDBID") %>&amp;serverId=<%= account.get("serverId") %>&amp;fromServerId=<%= serverId %>"><i class="fa fa-times"></i></a>
 											</td>
 										</tr>

@@ -27,8 +27,7 @@ module.exports.index = ({ i18n, logger, shopModel, dataModel }) => [
 		const { categoryId } = req.query;
 
 		try {
-			const productsMap = new Map();
-			const promises = [];
+			const products = new Map();
 			const categoriesAssoc = {};
 
 			const categories = await shopModel.categories.findAll({
@@ -48,20 +47,39 @@ module.exports.index = ({ i18n, logger, shopModel, dataModel }) => [
 			);
 
 			(await shopModel.products.findAll({
-				where: {
-					...categoryId ? { categoryId } : {}
-				},
-				include: [{
-					as: "strings",
-					model: shopModel.productStrings,
-					where: { language: i18n.getLocale() },
-					required: false
-				}],
+				where: { ...categoryId ? { categoryId } : {} },
+				include: [
+					{
+						as: "strings",
+						model: shopModel.productStrings,
+						where: { language: i18n.getLocale() },
+						required: false
+					},
+					{
+						as: "item",
+						model: shopModel.productItems,
+						include: [
+							{
+								as: "template",
+								model: dataModel.itemTemplates
+							},
+							{
+								as: "strings",
+								model: dataModel.itemStrings,
+								where: { language: i18n.getLocale() },
+								required: false
+							}
+						],
+						order: [
+							["createdAt", "ASC"]
+						]
+					}
+				],
 				order: [
 					["sort", "DESC"]
 				]
 			})).forEach(product => {
-				productsMap.set(product.get("id"), {
+				const productInfo = {
 					sort: product.get("sort"),
 					categoryId: product.get("categoryId"),
 					categoryTitle: categoriesAssoc[product.get("categoryId")] || "",
@@ -76,63 +94,34 @@ module.exports.index = ({ i18n, logger, shopModel, dataModel }) => [
 						moment().isSameOrAfter(moment(product.get("validAfter"))) &&
 						moment().isSameOrBefore(moment(product.get("validBefore"))),
 					itemCount: null
+				};
+
+				product.get("item").forEach(productItem => {
+					if (!productInfo.title) {
+						productInfo.title = productItem.get("strings")?.get("string");
+					}
+					if (!productInfo.description) {
+						productInfo.description = productItem.get("strings")?.get("toolTip");
+					}
+					if (!productInfo.icon) {
+						productInfo.icon = productItem.get("template").get("icon");
+					}
+					if (productInfo.rareGrade === null) {
+						productInfo.rareGrade = productItem.get("template").get("rareGrade");
+					}
+					if (!productInfo.itemCount) {
+						productInfo.itemCount = productItem.get("boxItemCount");
+					}
 				});
 
-				promises.push(shopModel.productItems.findOne({
-					where: { productId: product.get("id") },
-					include: [
-						{
-							as: "template",
-							model: dataModel.itemTemplates
-						},
-						{
-							as: "strings",
-							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() },
-							required: false
-						}
-					],
-					order: [
-						["createdAt", "ASC"]
-					]
-				}));
-			});
-
-			(await Promise.all(promises)).forEach(productItem => {
-				if (productItem === null) {
-					return;
-				}
-
-				const product = productsMap.get(productItem.get("productId"));
-
-				if (product) {
-					if (!product.title) {
-						product.title = productItem.get("strings")?.get("string");
-					}
-
-					if (!product.description) {
-						product.description = productItem.get("strings")?.get("toolTip");
-					}
-
-					if (!product.icon) {
-						product.icon = productItem.get("template").get("icon");
-					}
-
-					if (product.rareGrade === null) {
-						product.rareGrade = productItem.get("template").get("rareGrade");
-					}
-
-					if (!product.itemCount) {
-						product.itemCount = productItem.get("boxItemCount");
-					}
-				}
+				products.set(product.get("id"), productInfo);
 			});
 
 			res.render("adminShopProducts", {
 				layout: "adminLayout",
 				categoryId,
-				categories: categories || [],
-				products: productsMap
+				categories,
+				products
 			});
 		} catch (err) {
 			logger.error(err);

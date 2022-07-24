@@ -62,7 +62,7 @@
 											<td><%= account.get("lastLoginTime") ? moment(account.get("lastLoginTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") : "-" %></td>
 											<td><%= account.get("lastLoginServer") || "-" %></td>
 											<td><%= account.get("lastLoginIP") || "-" %></td>
-											<td class="text-right">
+											<td class="text-right text-nowrap">
 												<a class="btn btn-secondary btn-sm" href="/benefits?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-tags"></i></a>
 												<%_ if(account.get("lastLoginServer")) { _%>
 												<a class="btn btn-secondary btn-sm" href="/characters?accountDBID=<%= account.get("accountDBID") %>&amp;serverId=<%= account.get("lastLoginServer") %>"><i class="fa fa-user"></i></a>
