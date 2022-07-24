@@ -251,7 +251,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
 					userName: req.body.userName,
-					accountDBID: { [Op.not]: req.query.accountDBID }
+					accountDBID: { [Op.ne]: req.query.accountDBID }
 				}
 			}).then(data => {
 				if (data) {

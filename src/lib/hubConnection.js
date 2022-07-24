@@ -145,7 +145,7 @@ class HubConnection extends EventEmitter {
 
 	sendMessage(serverId, msgId, msgData) {
 		if (!this.connected || !this.registred) {
-			return Promise.reject(new HubError("Not registred", 3));
+			return Promise.reject(new HubError("Not registred"));
 		}
 
 		const jobId = ++this.jobId;
@@ -190,7 +190,7 @@ class HubConnection extends EventEmitter {
 			this.biasCount++;
 
 			if (this.biasCount > 10000) {
-				return Promise.reject(new HubError("Can't register server", 2));
+				return Promise.reject(new HubError("Can't register server"));
 			}
 
 			this.connect();
@@ -271,7 +271,7 @@ class HubConnection extends EventEmitter {
 		return this.socket.write(data).then(() =>
 			Promise.resolve()
 		).catch(err =>
-			Promise.reject(new HubError(`Send failed: ${err}`, 4))
+			Promise.reject(new HubError(`Send failed: ${err}`))
 		);
 	}
 
@@ -314,10 +314,6 @@ class HubConnection extends EventEmitter {
 
 			this.hubFunctionMap[msgId](Uint8Array.prototype.slice.call(body, this.idSize));
 		}
-	}
-
-	getErrorCode(resultCode) {
-		return readGuid(resultCode)?.number;
 	}
 }
 

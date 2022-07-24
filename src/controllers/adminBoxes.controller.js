@@ -617,7 +617,7 @@ module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, shopModel,
 					if (boxItem.get("boxItemId")) {
 						promises.push(boxModel.items.findOne({
 							where: {
-								id: { [Op.not]: boxItem.get("id") },
+								id: { [Op.ne]: boxItem.get("id") },
 								boxItemId: boxItem.get("boxItemId")
 							}
 						}).then(resultBoxItem => shopModel.productItems.findOne({

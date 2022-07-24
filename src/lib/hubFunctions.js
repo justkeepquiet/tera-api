@@ -5,7 +5,7 @@ const opArb = require("./protobuf/opArb").proto_oparb;
 const opUent = require("./protobuf/opUent").proto_opuent;
 const HubError = require("./hubError");
 const HubConnection = require("./hubConnection");
-const { gusid, serverCategory, makeGuid } = require("./teraPlatformGuid");
+const { gusid, serverCategory, readGuid, makeGuid } = require("./teraPlatformGuid");
 
 class HubFunctions extends HubConnection {
 	constructor(hubAddr, hubPort, serviceId, params = { logger: null }) {
@@ -21,7 +21,186 @@ class HubFunctions extends HubConnection {
 	}
 
 	//
-	// BoxAPI functions
+	// OpArb functions
+	//
+
+	opMsg(opMsg, serverId) {
+		const msgData = opArb.opmsg.encode(opMsg).finish();
+
+		return this.sendMessage(serverId, 1, msgData).then(data => { // 1: opmsg
+			if (data === null) {
+				return Promise.reject(new HubError("OpArb.opmsg: Failed"));
+			}
+
+			return Promise.resolve(
+				opArb.opmsg.decode(data.msgBuf)
+			);
+		});
+	}
+
+	kickUser(serverId, userSrl, kickCode) {
+		const msgData = opArb.KickUserReq.encode({ userSrl, kickCode }).finish();
+
+		return this.sendMessage(serverId, 2, msgData).then(data => { // 2: KickUserReq
+			if (data === null) {
+				return Promise.reject(new HubError("OpArb.KickUserReq: Failed"));
+			}
+
+			const ans = opArb.KickUserAns.decode(data.msgBuf);
+
+			if (ans.result === opArb.KickUserAns.result_type.SUCCESS) {
+				return Promise.resolve(ans);
+			} else {
+				return Promise.reject(
+					new HubError(`OpArb.KickUserAns: ${opArb.KickUserAns.result_type[ans.result]}`, ans.result)
+				);
+			}
+		});
+	}
+
+	sendMsg(serverId, userSrl, message) {
+		const msgData = opArb.SendMessageReq.encode({ userSrl, message: Buffer.from(message.toString(), "utf16le") }).finish();
+
+		return this.sendMessage(serverId, 4, msgData).then(data => { // 4: SendMessageReq
+			if (data === null) {
+				return Promise.reject(new HubError("OpArb.SendMessageReq: Failed"));
+			}
+
+			const ans = opArb.SendMessageAns.decode(data.msgBuf);
+
+			if (ans.result === opArb.SendMessageAns.result_type.SUCCESS) {
+				return Promise.resolve(ans);
+			} else {
+				return Promise.reject(
+					new HubError(`OpArb.SendMessageAns: ${opArb.SendMessageAns.result_type[ans.result]}`, ans.result)
+				);
+			}
+		});
+	}
+
+	bulkKick(serverId, kickCode, filter = 0, filterMask = 0) {
+		const msgData = opArb.BulkKickReq.encode({ kickCode, filter, filterMask }).finish();
+
+		return this.sendMessage(serverId, 6, msgData).then(data => { // 6: BulkKickReq
+			if (data === null) {
+				return Promise.reject(new HubError("OpArb.BulkKickReq: Failed"));
+			}
+
+			return Promise.resolve(
+				opArb.BulkKickAns.decode(data.msgBuf)
+			);
+		});
+	}
+
+	boxNotiUser(serverId, userSrl, charSrl = 0) {
+		const msgData = opArb.BoxNotiUserReq.encode({ serverId, userSrl, charSrl }).finish();
+
+		return this.sendMessage(serverId, 15, msgData).then(data => { // 15: BoxNotiUserReq
+			if (data === null) {
+				return Promise.reject(new HubError("OpArb.BoxNotiUserReq: Failed"));
+			}
+
+			const ans = opArb.BoxNotiUserAns.decode(data.msgBuf);
+
+			if (ans.result === opArb.BoxNotiUserAns.result_type.SUCCESS) {
+				return Promise.resolve(ans);
+			} else {
+				return Promise.reject(
+					new HubError(`OpArb.BoxNotiUserAns: ${opArb.BoxNotiUserAns.result_type[ans.result]}`, ans.result)
+				);
+			}
+		});
+	}
+
+	addBenefit(serverId, userSrl, benefitId, remainSec) {
+		const msgData = opArb.AddBenefitReq.encode({ userSrl, benefitId, remainSec }).finish();
+
+		return this.sendMessage(serverId, 38, msgData).then(data => { // 38: AddBenefitReq
+			if (data === null) {
+				return Promise.reject(new HubError("OpArb.AddBenefitReq: Failed"));
+			}
+
+			const ans = opArb.AddBenefitAns.decode(data.msgBuf);
+
+			if (ans.result === opArb.AddBenefitAns.result_type.SUCCESS) {
+				return Promise.resolve(ans);
+			} else {
+				return Promise.reject(
+					new HubError(`OpArb.AddBenefitAns: ${opArb.AddBenefitAns.result_type[ans.result]}`, ans.result)
+				);
+			}
+		});
+	}
+
+	removeBenefit(serverId, userSrl, benefitId) {
+		const msgData = opArb.RemoveBenefitReq.encode({ userSrl, benefitId }).finish();
+
+		return this.sendMessage(serverId, 40, msgData).then(data => { // 40: RemoveBenefitReq
+			if (data === null) {
+				return Promise.reject(new HubError("OpArb.RemoveBenefitReq: Failed"));
+			}
+
+			const ans = opArb.RemoveBenefitAns.decode(data.msgBuf);
+
+			if (ans.result === opArb.RemoveBenefitAns.result_type.SUCCESS) {
+				return Promise.resolve(ans);
+			} else {
+				return Promise.reject(
+					new HubError(`OpArb.RemoveBenefitAns: ${opArb.RemoveBenefitAns.result_type[ans.result]}`, ans.result)
+				);
+			}
+		});
+	}
+
+	//
+	// OpUent functions
+	//
+
+	queryUser(userSrl, action = 0, serverId = 0) {
+		const msgData = opUent.QueryUserReq.encode({ userSrl, action, serverId }).finish();
+
+		return this.sendMessage(gusid.userenter, 1, msgData).then(data => { // 1: QueryUserReq
+			console.log(data);
+			if (data === null) {
+				return Promise.reject(new HubError("OpUent.QueryUserReq: Failed"));
+			}
+
+			return Promise.resolve(
+				opUent.QueryUserAns.decode(data.msgBuf)
+			);
+		});
+	}
+
+	getServerStat() {
+		const msgData = opUent.GetServerStatReq.encode().finish();
+
+		return this.sendMessage(gusid.userenter, 3, msgData).then(data => { // 3: GetServerStatReq
+			if (data === null) {
+				return Promise.reject(new HubError("OpUent.GetServerStatReq: Failed"));
+			}
+
+			return Promise.resolve(
+				opUent.GetServerStatAns.decode(data.msgBuf)
+			);
+		});
+	}
+
+	getAllServerStat(serverCat) {
+		const msgData = opUent.GetAllServerStatReq.encode({ serverCat }).finish();
+
+		return this.sendMessage(gusid.userenter, 5, msgData).then(data => { // 5: GetAllServerStatReq
+			if (data === null) {
+				return Promise.reject(new HubError("OpUent.GetAllServerStatReq: Failed"));
+			}
+
+			return Promise.resolve(
+				opUent.GetAllServerStatAns.decode(data.msgBuf)
+			);
+		});
+	}
+
+	//
+	// OpMsg functions
 	//
 
 	createBoxFromContext(boxContext, receiverUserSN, receiverGUSID = null, receiverCharacterSN = null, externalTransactionKey = null) {
@@ -143,12 +322,14 @@ class HubFunctions extends HubConnection {
 		});
 
 		return this.opMsg(opMsg, gusid.boxapi).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
+			const resultCode = readGuid(data.resultCode);
 
-			if (resultCode === this.opMsgResultCode.success) {
+			if (resultCode.number === this.opMsgResultCode.success) {
 				return Promise.resolve(Buffer.from(data.resultScalar).toString());
 			} else {
-				return Promise.reject(new HubError(`Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(
+					new HubError(`OpMsg.CreateBox: ${resultCode.category}:${resultCode.number}`, data.resultCode)
+				);
 			}
 		});
 	}
@@ -170,9 +351,9 @@ class HubFunctions extends HubConnection {
 		});
 
 		return this.opMsg(opMsg, gusid.boxapi).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
+			const resultCode = readGuid(data.resultCode);
 
-			if (resultCode === this.opMsgResultCode.success) {
+			if (resultCode.number === this.opMsgResultCode.success) {
 				const resultSets = [];
 
 				data.resultSets[0].rows.forEach(row => {
@@ -187,7 +368,9 @@ class HubFunctions extends HubConnection {
 
 				return Promise.resolve(resultSets);
 			} else {
-				return Promise.reject(new HubError(`Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(
+					new HubError(`OpMsg.GetServiceItem: ${resultCode.category}:${resultCode.number}`, data.resultCode)
+				);
 			}
 		});
 	}
@@ -239,12 +422,14 @@ class HubFunctions extends HubConnection {
 		});
 
 		return this.opMsg(opMsg, gusid.boxapi).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
+			const resultCode = readGuid(data.resultCode);
 
-			if (resultCode === this.opMsgResultCode.success) {
+			if (resultCode.number === this.opMsgResultCode.success) {
 				return Promise.resolve(Buffer.from(data.resultScalar).toString());
 			} else {
-				return Promise.reject(new HubError(`Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(
+					new HubError(`OpMsg.CreateServiceItem: ${resultCode.category}:${resultCode.number}`, data.resultCode)
+				);
 			}
 		});
 	}
@@ -266,166 +451,15 @@ class HubFunctions extends HubConnection {
 		});
 
 		return this.opMsg(opMsg, gusid.boxapi).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
+			const resultCode = readGuid(data.resultCode);
 
-			if (resultCode === this.opMsgResultCode.success) {
+			if (resultCode.number === this.opMsgResultCode.success) {
 				return Promise.resolve();
 			} else {
-				return Promise.reject(new HubError(`Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(
+					new HubError(`OpMsg.SetDisableServiceItem: ${resultCode.category}:${resultCode.number}`, data.resultCode)
+				);
 			}
-		});
-	}
-
-	//
-	// OpArb functions
-	//
-
-	kickUser(serverId, userSrl, kickCode) {
-		const msg = opArb.KickUserReq.encode({ userSrl, kickCode }).finish();
-
-		return this.sendMessage(serverId, 2, msg).then(data => { // 2: KickUserReq
-			if (data === null) {
-				return Promise.reject(new HubError("Fail"));
-			}
-
-			return Promise.resolve(
-				opArb.KickUserAns.decode(data.msgBuf)
-			);
-		});
-	}
-
-	sendMsg(serverId, userSrl, message) {
-		const msg = opArb.SendMessageReq.encode({ userSrl, message: Buffer.from(message.toString(), "utf16le") }).finish();
-
-		return this.sendMessage(serverId, 4, msg).then(data => { // 4: SendMessageReq
-			if (data === null) {
-				return Promise.reject(new HubError("Fail"));
-			}
-
-			return Promise.resolve(
-				opArb.SendMessageAns.decode(data.msgBuf)
-			);
-		});
-	}
-
-	bulkKick(serverId, kickCode, filter = 0, filterMask = 0) {
-		const msg = opArb.BulkKickReq.encode({ kickCode, filter, filterMask }).finish();
-
-		return this.sendMessage(serverId, 6, msg).then(data => { // 6: BulkKickReq
-			if (data === null) {
-				return Promise.reject(new HubError("Fail"));
-			}
-
-			return Promise.resolve(
-				opArb.BulkKickAns.decode(data.msgBuf)
-			);
-		});
-	}
-
-	boxNotiUser(serverId, userSrl, charSrl = 0) {
-		const msg = opArb.BoxNotiUserReq.encode({ serverId, userSrl, charSrl }).finish();
-
-		return this.sendMessage(serverId, 15, msg).then(data => { // 15: BoxNotiUserReq
-			if (data === null) {
-				return Promise.reject(new HubError("Fail"));
-			}
-
-			return Promise.resolve(
-				opArb.BoxNotiUserAns.decode(data.msgBuf)
-			);
-		});
-	}
-
-	addBenefit(serverId, userSrl, benefitId, remainSec) {
-		const msg = opArb.AddBenefitReq.encode({ userSrl, benefitId, remainSec }).finish();
-
-		return this.sendMessage(serverId, 38, msg).then(data => { // 38: AddBenefitReq
-			if (data === null) {
-				return Promise.reject(new HubError("Fail"));
-			}
-
-			return Promise.resolve(
-				opArb.AddBenefitAns.decode(data.msgBuf)
-			);
-		});
-	}
-
-	removeBenefit(serverId, userSrl, benefitId) {
-		const msg = opArb.RemoveBenefitReq.encode({ userSrl, benefitId }).finish();
-
-		return this.sendMessage(serverId, 40, msg).then(data => { // 40: RemoveBenefitReq
-			if (data === null) {
-				return Promise.reject(new HubError("Fail"));
-			}
-
-			return Promise.resolve(
-				opArb.RemoveBenefitAns.decode(data.msgBuf)
-			);
-		});
-	}
-
-	//
-	// OpUent functions
-	//
-
-	queryUser(userSrl, action = 0, serverId = 0) {
-		const msg = opUent.QueryUserReq.encode({ userSrl, action, serverId }).finish();
-
-		return this.sendMessage(gusid.userenter, 1, msg).then(data => { // 1: QueryUserReq
-			console.log(data);
-			if (data === null) {
-				return Promise.reject(new HubError("Fail"));
-			}
-
-			return Promise.resolve(
-				opUent.QueryUserAns.decode(data.msgBuf)
-			);
-		});
-	}
-
-	getServerStat() {
-		const msg = opUent.GetServerStatReq.encode().finish();
-
-		return this.sendMessage(gusid.userenter, 3, msg).then(data => { // 3: GetServerStatReq
-			if (data === null) {
-				return Promise.reject(new HubError("Fail"));
-			}
-
-			return Promise.resolve(
-				opUent.GetServerStatAns.decode(data.msgBuf)
-			);
-		});
-	}
-
-	getAllServerStat(serverCat) {
-		const msg = opUent.GetAllServerStatReq.encode({ serverCat }).finish();
-
-		return this.sendMessage(gusid.userenter, 5, msg).then(data => { // 5: GetAllServerStatReq
-			if (data === null) {
-				return Promise.reject(new HubError("Fail"));
-			}
-
-			return Promise.resolve(
-				opUent.GetAllServerStatAns.decode(data.msgBuf)
-			);
-		});
-	}
-
-	//
-	// OpMsg
-	//
-
-	opMsg(opMsg, serverId) {
-		const msg = opArb.opmsg.encode(opMsg).finish();
-
-		return this.sendMessage(serverId, 1, msg).then(data => { // 1: OpMsg
-			if (data === null) {
-				return Promise.reject(new HubError("Fail"));
-			}
-
-			return Promise.resolve(
-				opArb.opmsg.decode(data.msgBuf)
-			);
 		});
 	}
 

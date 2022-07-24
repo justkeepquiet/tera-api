@@ -55,7 +55,7 @@ module.exports.restartAction = ({ logger, queue }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		queue.start().then(() =>
+		queue.start(true).then(() =>
 			res.redirect("/tasks")
 		).catch(err => {
 			logger.error(err);

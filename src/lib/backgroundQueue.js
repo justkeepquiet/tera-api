@@ -5,6 +5,7 @@
  */
 
 const Queue = require("queue-promise");
+const Op = require("sequelize").Op;
 
 class BackgroundQueue {
 	constructor(params) {
@@ -85,12 +86,14 @@ class BackgroundQueue {
 		return this.model.truncate();
 	}
 
-	start() {
+	start(rejected = false) {
 		if (this.queue.shouldRun) {
 			return Promise.resolve();
 		}
 
-		return this.model.findAll().then(tasks => {
+		return this.model.findAll({
+			where: { ...!rejected ? { status: { [Op.ne]: this.status.rejected } } : {} }
+		}).then(tasks => {
 			if (tasks === null) return;
 
 			tasks.forEach(task =>
