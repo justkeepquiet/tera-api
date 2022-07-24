@@ -1,8 +1,9 @@
 {
-	"err_1": "STEER connection error.",
-	"err_2": "Can't register STEER.",
-	"err_3": "STEER not registred.",
-	"err_4": "STEER read data error.",
+	"err_1044481": "STEER connection error.",
+	"err_1044482": "Can't register STEER.",
+	"err_1044483": "STEER not registred.",
+	"err_1044484": "STEER read data error.",
+	"err_1044485": "STEER write data error.",
 	"err_16778215": "STEER session expired. Please log in again.",
 	"err_16778216": "Cannot connect to STEER system. Please check server status.",
 	"err_16778217": "Obstacle occurred during communication. Please check server status.",

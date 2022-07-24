@@ -7,7 +7,7 @@ const PromiseSocket = require("promise-socket").PromiseSocket;
 const struct = require("python-struct");
 const OpMsg = require("./protobuf/opMsg").op.OpMsg;
 const SteerError = require("./steerError");
-const { serverCategory, makeGuid, readGuid } = require("./teraPlatformGuid");
+const { serverCategory, readGuid, makeGuid } = require("./teraPlatformGuid");
 
 class SteerConnection {
 	constructor(steerAddr, steerPort, params) {
@@ -121,7 +121,7 @@ class SteerConnection {
 		});
 
 		return this.sendAndRecv(opMsg).then(data => {
-			if (data.resultCode && this.getErrorCode(data.resultCode) === this.steerResultCode.success) {
+			if (data.resultCode && readGuid(data.resultCode).number === this.steerResultCode.success) {
 				if (this.params.logger?.info) {
 					this.params.logger.info(`Registred: category ${this.serviceId}, number ${this.uniqueServerId}`);
 				}
@@ -131,7 +131,7 @@ class SteerConnection {
 				this.biasCount++;
 
 				if (this.biasCount > 10000) {
-					return Promise.reject(new SteerError("Can't register server", 2));
+					return Promise.reject(new SteerError("Can't register server", 0x000FF002));
 				}
 
 				this.connect();
@@ -141,6 +141,14 @@ class SteerConnection {
 				this.params.logger.error(err.toString());
 			}
 		});
+	}
+
+	sendMessage(opMsg) {
+		if (!this.connected || !this.registred) {
+			return Promise.reject(new SteerError("Not registred", 0x000FF003));
+		}
+
+		return this.sendAndRecv(opMsg);
 	}
 
 	sendAndRecv(opMsg) {
@@ -171,7 +179,7 @@ class SteerConnection {
 				clearTimeout(this.readTimer);
 
 				if (data === undefined || data.length === 0) {
-					return Promise.reject(new SteerError("Receive failed (receiver down?)", 4));
+					return Promise.reject(new SteerError("Receive failed (receiver down?)", 0x000FF004));
 				}
 
 				const responseData = data.slice(prefixLength);
@@ -184,12 +192,8 @@ class SteerConnection {
 				return Promise.resolve(unserializedData);
 			})
 		).catch(err =>
-			Promise.reject(new SteerError(`Send failed: ${err}`, 4))
+			Promise.reject(new SteerError(`Send failed: ${err}`, 0x000FF005))
 		);
-	}
-
-	getErrorCode(resultCode) {
-		return readGuid(resultCode)?.number;
 	}
 }
 

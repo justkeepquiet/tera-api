@@ -3,7 +3,7 @@
 const OpMsg = require("./protobuf/opMsg").op.OpMsg;
 const SteerError = require("./steerError");
 const SteerConnection = require("./steerConnection");
-const { serverCategory, makeGuid } = require("./teraPlatformGuid");
+const { serverCategory, readGuid, makeGuid } = require("./teraPlatformGuid");
 
 class SteerFunctions extends SteerConnection {
 	constructor(steerAddr, steerPort, serviceId, serviceName, params = { logger: null }) {
@@ -18,10 +18,6 @@ class SteerFunctions extends SteerConnection {
 	//
 
 	openSession(loginId, password, clientIp) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Not registred", 3));
-		}
-
 		const opMsg = OpMsg.create({
 			gufid: makeGuid(serverCategory.steersession, 1), // openSession
 			senderGusid: makeGuid(this.serviceId, this.uniqueServerId),
@@ -57,25 +53,21 @@ class SteerFunctions extends SteerConnection {
 			]
 		});
 
-		return this.sendAndRecv(opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
+		return this.sendMessage(opMsg).then(data => {
+			const resultCode = readGuid(data.resultCode);
 
-			if (resultCode === this.steerResultCode.success) {
+			if (resultCode.number === this.steerResultCode.success) {
 				return Promise.resolve({
 					sessionKey: Buffer.from(data.sessionKey).toString(),
 					userSn: Buffer.from(data.resultScalar).toString()
 				});
 			} else {
-				return Promise.reject(new SteerError(`Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(new SteerError(`Error: ${resultCode.category}:${resultCode.number}`, data.resultCode));
 			}
 		});
 	}
 
 	checkSession(sessionKey, clientIp) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Not registred", 3));
-		}
-
 		const opMsg = OpMsg.create({
 			gufid: makeGuid(serverCategory.steersession, 2), // checkSession
 			sessionKey: Buffer.from(sessionKey),
@@ -96,10 +88,10 @@ class SteerFunctions extends SteerConnection {
 			]
 		});
 
-		return this.sendAndRecv(opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
+		return this.sendMessage(opMsg).then(data => {
+			const resultCode = readGuid(data.resultCode);
 
-			if (resultCode === this.steerResultCode.success) {
+			if (resultCode.number === this.steerResultCode.success) {
 				const resultedSessionLey = Buffer.from(data.sessionKey).toString();
 
 				if (resultedSessionLey === sessionKey) {
@@ -108,16 +100,14 @@ class SteerFunctions extends SteerConnection {
 					return Promise.reject(resultCode);
 				}
 			} else {
-				return Promise.reject(new SteerError(`Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(
+					new SteerError(`Error: ${resultCode.category}:${resultCode.number}`, data.resultCode)
+				);
 			}
 		});
 	}
 
 	closeSession(sessionKey) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Not registred", 3));
-		}
-
 		const opMsg = OpMsg.create({
 			gufid: makeGuid(serverCategory.steersession, 3), // closeSession
 			sessionKey: Buffer.from(sessionKey),
@@ -127,13 +117,15 @@ class SteerFunctions extends SteerConnection {
 			jobType: OpMsg.JobType.REQUEST
 		});
 
-		return this.sendAndRecv(opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
+		return this.sendMessage(opMsg).then(data => {
+			const resultCode = readGuid(data.resultCode);
 
-			if (resultCode === this.steerResultCode.success) {
+			if (resultCode.number === this.steerResultCode.success) {
 				return Promise.resolve(data);
 			} else {
-				return Promise.reject(new SteerError(`Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(
+					new SteerError(`Error: ${resultCode.category}:${resultCode.number}`, data.resultCode)
+				);
 			}
 		});
 	}
@@ -143,10 +135,6 @@ class SteerFunctions extends SteerConnection {
 	//
 
 	getFunctionList(sessionKey, jobId = 2) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Not registred", 3));
-		}
-
 		let nextJobId = jobId;
 
 		return this.getFunctionListBySessionAndServerType(sessionKey, nextJobId, 0, 0).then(({ totalCount }) => {
@@ -171,10 +159,6 @@ class SteerFunctions extends SteerConnection {
 	}
 
 	getFunctionListBySessionAndServerType(sessionKey, nextJobId, startPos, rowLength) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Not registred", 3));
-		}
-
 		const opMsg = OpMsg.create({
 			gufid: makeGuid(serverCategory.steermind, 16), // getFunctionListBySessionAndServerType
 			sessionKey: Buffer.from(sessionKey),
@@ -200,22 +184,20 @@ class SteerFunctions extends SteerConnection {
 			]
 		});
 
-		return this.sendAndRecv(opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
+		return this.sendMessage(opMsg).then(data => {
+			const resultCode = readGuid(data.resultCode);
 
-			if (resultCode === this.steerResultCode.success) {
+			if (resultCode.number === this.steerResultCode.success) {
 				return Promise.resolve(data.resultSets[0]);
 			} else {
-				return Promise.reject(new SteerError(`Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(
+					new SteerError(`Error: ${resultCode.category}:${resultCode.number}`, data.resultCode)
+				);
 			}
 		});
 	}
 
 	checkFunctionExecutionPrivilege(sessionKey, globalUniqueFunctionIDint, executeArguments = null) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Not registred", 3));
-		}
-
 		let strExecuteArguments = "";
 
 		if (executeArguments !== null) {
@@ -246,22 +228,20 @@ class SteerFunctions extends SteerConnection {
 			]
 		});
 
-		return this.sendAndRecv(opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
+		return this.sendMessage(opMsg).then(data => {
+			const resultCode = readGuid(data.resultCode);
 
-			if (resultCode === this.steerResultCode.success) {
+			if (resultCode.number === this.steerResultCode.success) {
 				return Promise.resolve(data.resultScalar);
 			} else {
-				return Promise.reject(new SteerError(`Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(
+					new SteerError(`Error: ${resultCode.category}:${resultCode.number}`, data.resultCode)
+				);
 			}
 		});
 	}
 
 	notifyFunctionResult(sessionKey, strTransId, result, executeComment = null) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Not registred", 3));
-		}
-
 		const opMsg = OpMsg.create({
 			gufid: makeGuid(serverCategory.steermind, 19), // notifyFunctionResult
 			sessionKey: Buffer.from(sessionKey),
@@ -290,13 +270,15 @@ class SteerFunctions extends SteerConnection {
 			]
 		});
 
-		return this.sendAndRecv(opMsg).then(data => {
-			const resultCode = this.getErrorCode(data.resultCode);
+		return this.sendMessage(opMsg).then(data => {
+			const resultCode = readGuid(data.resultCode);
 
-			if (resultCode === this.steerResultCode.success) {
+			if (resultCode.number === this.steerResultCode.success) {
 				return Promise.resolve(resultCode);
 			} else {
-				return Promise.reject(new SteerError(`Error: ${resultCode}`, data.resultCode));
+				return Promise.reject(
+					new SteerError(`Error: ${resultCode.category}:${resultCode.number}`, data.resultCode)
+				);
 			}
 		});
 	}

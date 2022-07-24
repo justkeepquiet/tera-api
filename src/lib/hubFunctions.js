@@ -29,7 +29,7 @@ class HubFunctions extends HubConnection {
 
 		return this.sendMessage(serverId, 1, msgData).then(data => { // 1: opmsg
 			if (data === null) {
-				return Promise.reject(new HubError("OpArb.opmsg: Failed"));
+				return Promise.reject(new HubError("OpArb.opmsg: Failed", 1));
 			}
 
 			return Promise.resolve(
@@ -43,7 +43,7 @@ class HubFunctions extends HubConnection {
 
 		return this.sendMessage(serverId, 2, msgData).then(data => { // 2: KickUserReq
 			if (data === null) {
-				return Promise.reject(new HubError("OpArb.KickUserReq: Failed"));
+				return Promise.reject(new HubError("OpArb.KickUserReq: Failed", 1));
 			}
 
 			const ans = opArb.KickUserAns.decode(data.msgBuf);
@@ -63,7 +63,7 @@ class HubFunctions extends HubConnection {
 
 		return this.sendMessage(serverId, 4, msgData).then(data => { // 4: SendMessageReq
 			if (data === null) {
-				return Promise.reject(new HubError("OpArb.SendMessageReq: Failed"));
+				return Promise.reject(new HubError("OpArb.SendMessageReq: Failed", 1));
 			}
 
 			const ans = opArb.SendMessageAns.decode(data.msgBuf);
@@ -83,7 +83,7 @@ class HubFunctions extends HubConnection {
 
 		return this.sendMessage(serverId, 6, msgData).then(data => { // 6: BulkKickReq
 			if (data === null) {
-				return Promise.reject(new HubError("OpArb.BulkKickReq: Failed"));
+				return Promise.reject(new HubError("OpArb.BulkKickReq: Failed", 1));
 			}
 
 			return Promise.resolve(
@@ -97,7 +97,7 @@ class HubFunctions extends HubConnection {
 
 		return this.sendMessage(serverId, 15, msgData).then(data => { // 15: BoxNotiUserReq
 			if (data === null) {
-				return Promise.reject(new HubError("OpArb.BoxNotiUserReq: Failed"));
+				return Promise.reject(new HubError("OpArb.BoxNotiUserReq: Failed", 1));
 			}
 
 			const ans = opArb.BoxNotiUserAns.decode(data.msgBuf);
@@ -117,7 +117,7 @@ class HubFunctions extends HubConnection {
 
 		return this.sendMessage(serverId, 38, msgData).then(data => { // 38: AddBenefitReq
 			if (data === null) {
-				return Promise.reject(new HubError("OpArb.AddBenefitReq: Failed"));
+				return Promise.reject(new HubError("OpArb.AddBenefitReq: Failed", 1));
 			}
 
 			const ans = opArb.AddBenefitAns.decode(data.msgBuf);
@@ -137,7 +137,7 @@ class HubFunctions extends HubConnection {
 
 		return this.sendMessage(serverId, 40, msgData).then(data => { // 40: RemoveBenefitReq
 			if (data === null) {
-				return Promise.reject(new HubError("OpArb.RemoveBenefitReq: Failed"));
+				return Promise.reject(new HubError("OpArb.RemoveBenefitReq: Failed", 1));
 			}
 
 			const ans = opArb.RemoveBenefitAns.decode(data.msgBuf);
@@ -162,7 +162,7 @@ class HubFunctions extends HubConnection {
 		return this.sendMessage(gusid.userenter, 1, msgData).then(data => { // 1: QueryUserReq
 			console.log(data);
 			if (data === null) {
-				return Promise.reject(new HubError("OpUent.QueryUserReq: Failed"));
+				return Promise.reject(new HubError("OpUent.QueryUserReq: Failed", 1));
 			}
 
 			return Promise.resolve(
@@ -176,7 +176,7 @@ class HubFunctions extends HubConnection {
 
 		return this.sendMessage(gusid.userenter, 3, msgData).then(data => { // 3: GetServerStatReq
 			if (data === null) {
-				return Promise.reject(new HubError("OpUent.GetServerStatReq: Failed"));
+				return Promise.reject(new HubError("OpUent.GetServerStatReq: Failed", 1));
 			}
 
 			return Promise.resolve(
@@ -190,7 +190,7 @@ class HubFunctions extends HubConnection {
 
 		return this.sendMessage(gusid.userenter, 5, msgData).then(data => { // 5: GetAllServerStatReq
 			if (data === null) {
-				return Promise.reject(new HubError("OpUent.GetAllServerStatReq: Failed"));
+				return Promise.reject(new HubError("OpUent.GetAllServerStatReq: Failed", 1));
 			}
 
 			return Promise.resolve(

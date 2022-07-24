@@ -7,7 +7,7 @@ const struct = require("python-struct");
 const EventEmitter = require("events").EventEmitter;
 const hub = require("./protobuf/hub").proto_hub;
 const HubError = require("./hubError");
-const { makeGuid, readGuid } = require("./teraPlatformGuid");
+const { makeGuid } = require("./teraPlatformGuid");
 
 class HubConnection extends EventEmitter {
 	constructor(hubAddr, hubPort, params) {
@@ -145,7 +145,7 @@ class HubConnection extends EventEmitter {
 
 	sendMessage(serverId, msgId, msgData) {
 		if (!this.connected || !this.registred) {
-			return Promise.reject(new HubError("Not registred"));
+			return Promise.reject(new HubError("Not registred", 0x000FE003));
 		}
 
 		const jobId = ++this.jobId;
@@ -190,7 +190,7 @@ class HubConnection extends EventEmitter {
 			this.biasCount++;
 
 			if (this.biasCount > 10000) {
-				return Promise.reject(new HubError("Can't register server"));
+				return Promise.reject(new HubError("Can't register server", 0x000FE002));
 			}
 
 			this.connect();
@@ -259,7 +259,7 @@ class HubConnection extends EventEmitter {
 		const size = this.headerSize + dataLength;
 
 		if (dataLength > this.MAX_LENGTH - this.headerSize) {
-			return Promise.reject(new HubError(`Try to send ${dataLength} bytes whereas maximum is ${this.MAX_LENGTH - this.headerSize}`));
+			return Promise.reject(new HubError(`Try to send ${dataLength} bytes whereas maximum is ${this.MAX_LENGTH - this.headerSize}`, 0x000FE006));
 		}
 
 		const data = Buffer.concat([struct.pack(this.headerFormat, size), msg]);
@@ -271,7 +271,7 @@ class HubConnection extends EventEmitter {
 		return this.socket.write(data).then(() =>
 			Promise.resolve()
 		).catch(err =>
-			Promise.reject(new HubError(`Send failed: ${err}`))
+			Promise.reject(new HubError(`Send failed: ${err}`, 0x000FE005))
 		);
 	}
 
@@ -284,7 +284,7 @@ class HubConnection extends EventEmitter {
 
 			if (size > this.MAX_LENGTH) {
 				if (this.params.logger?.error) {
-					this.params.logger?.error(new HubError(`Try to receive ${size} bytes whereas maximum is ${this.MAX_LENGTH}`));
+					this.params.logger?.error(new HubError(`Try to receive ${size} bytes whereas maximum is ${this.MAX_LENGTH}`, 0x000FE006));
 				}
 
 				break;
@@ -302,7 +302,7 @@ class HubConnection extends EventEmitter {
 
 			if (typeof this.hubFunctionMap[msgId] !== "function") {
 				if (this.params.logger?.error) {
-					this.params.logger.error(`Do not exist function received: ${msgId}`);
+					this.params.logger.error(new HubError(`Do not exist function received: ${msgId}`, 0x000FE007));
 				}
 
 				continue;
