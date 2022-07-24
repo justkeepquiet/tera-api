@@ -331,48 +331,62 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, sequelize, reportModel, accountModel, shopModel }) => [
+module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { accountDBID } = req.query;
 
-		if (!accountDBID) {
-			return res.redirect("/accounts");
-		}
+		try {
+			if (!accountDBID) {
+				return res.redirect("/accounts");
+			}
 
-		sequelize.transaction(transaction =>
-			Promise.all([
-				accountModel.info.destroy({
-					where: { accountDBID },
-					transaction
-				}),
-				accountModel.benefits.destroy({
-					where: { accountDBID },
-					transaction
-				}),
-				accountModel.characters.destroy({
-					where: { accountDBID },
-					transaction
-				}),
-				shopModel.accounts.destroy({
-					where: { accountDBID },
-					transaction
-				}),
-				shopModel.promoCodeActivated.destroy({
-					where: { accountDBID },
-					transaction
-				})
-			]).then(() =>
-				next()
-			)
-		).catch(err => {
+			const online = await accountModel.online.findOne({ where: { accountDBID } });
+
+			if (online !== null) {
+				hub.kickUser(online.get("serverId"), accountDBID, 33).catch(err =>
+					logger.warn(err.toString())
+				);
+			}
+
+			await sequelize.transaction(async transaction =>
+				await Promise.all([
+					accountModel.info.destroy({
+						where: { accountDBID },
+						transaction
+					}),
+					accountModel.benefits.destroy({
+						where: { accountDBID },
+						transaction
+					}),
+					accountModel.characters.destroy({
+						where: { accountDBID },
+						transaction
+					}),
+					accountModel.online.destroy({
+						where: { accountDBID },
+						transaction
+					}),
+					shopModel.accounts.destroy({
+						where: { accountDBID },
+						transaction
+					}),
+					shopModel.promoCodeActivated.destroy({
+						where: { accountDBID },
+						transaction
+					})
+				])
+			);
+
+			next();
+		} catch (err) {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
-		});
+		}
 	},
 	writeOperationReport(reportModel),
 	/**

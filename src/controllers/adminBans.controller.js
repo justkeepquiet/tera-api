@@ -150,7 +150,7 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 				if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
 					hub.kickUser(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
 						if (err.resultCode() !== 2) {
-							logger.warn(err);
+							logger.warn(err.toString());
 						}
 					});
 				}
@@ -268,7 +268,7 @@ module.exports.editAction = ({ i18n, logger, hub, reportModel, accountModel }) =
 				if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
 					hub.kickUser(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
 						if (err.resultCode() !== 2) {
-							logger.warn(err);
+							logger.warn(err.toString());
 						}
 					});
 				}
