@@ -82,7 +82,7 @@ module.exports = modules => {
 		res.locals.__ = i18n.__;
 		res.locals.locale = i18n.getLocale();
 
-		return next();
+		next();
 	});
 
 	const mod = { ...modules, i18n, passport };

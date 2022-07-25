@@ -112,62 +112,85 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res) => {
 		const { category, search } = req.body;
 
-		if (search !== undefined && search.length < 3) {
-			return res.render("partials/shopErrorSearch", {
-				message: i18n.__("Enter a search keyword that is at least 3 letters long.")
-			});
-		}
+		try {
+			if (search !== undefined && search.length < 3) {
+				return res.render("partials/shopErrorSearch", {
+					message: i18n.__("Enter a search keyword that is at least 3 letters long.")
+				});
+			}
 
-		shopModel.products.findAll({
-			where: {
-				...category ? { categoryId: category } : {},
-				active: 1,
-				validAfter: { [Op.lt]: sequelize.fn("NOW") },
-				validBefore: { [Op.gt]: sequelize.fn("NOW") }
-			},
-			include: [
-				{
-					as: "strings",
-					model: shopModel.productStrings,
-					where: {
-						...search ? { title: { [Op.like]: `%${search}%` } } : {},
-						language: i18n.getLocale()
-					},
-					required: false
-				},
-				{
-					as: "item",
-					model: shopModel.productItems,
-					include: [
-						{
-							as: "template",
-							model: dataModel.itemTemplates
-						},
-						{
-							as: "strings",
-							model: dataModel.itemStrings,
-							where: {
-								...search ? { string: { [Op.like]: `%${search}%` } } : {}, //  && !product.get("strings")[0]?.get("title")
-								language: i18n.getLocale()
-							},
-							required: false
-						}
-					],
-					order: [
-						["createdAt", "ASC"]
-					]
-				}
-			],
-			order: [
-				["sort", "DESC"]
-			]
-		}).then(productsData => {
 			const products = new Map();
 
-			productsData.forEach(product => {
+			const whereProduct = {
+				active: 1,
+				validAfter: { [Op.lt]: sequelize.fn("NOW") },
+				validBefore: { [Op.gt]: sequelize.fn("NOW") },
+				...category ? { categoryId: category } : {}
+			};
+
+			const whereSearch = search ? {
+				[Op.or]: [
+					sequelize.where(sequelize.fn("lower", sequelize.col("strings.title")), Op.like, `%${search}%`),
+					{ id: { [Op.in]: (await shopModel.products.findAll({
+						where: whereProduct,
+						attributes: ["id"],
+						include: [{
+							as: "item",
+							model: shopModel.productItems,
+							attributes: [],
+							include: [{
+								as: "strings",
+								model: dataModel.itemStrings,
+								attributes: [],
+								where: {
+									[Op.and]: [
+										sequelize.where(sequelize.fn("lower", sequelize.col("string")), Op.like, `%${search}%`),
+										{ language: { [Op.eq]: i18n.getLocale() } }
+									]
+								}
+							}],
+							required: true
+						}]
+					})).map(item => item.get("id")) } }
+				]
+			} : {};
+
+			(await shopModel.products.findAll({
+				where: { ...whereProduct, ...whereSearch },
+				include: [
+					{
+						as: "strings",
+						model: shopModel.productStrings,
+						where: { language: i18n.getLocale() },
+						required: false
+					},
+					{
+						as: "item",
+						model: shopModel.productItems,
+						include: [
+							{
+								as: "template",
+								model: dataModel.itemTemplates
+							},
+							{
+								as: "strings",
+								model: dataModel.itemStrings,
+								where: { language: i18n.getLocale() },
+								required: false
+							}
+						],
+						order: [
+							["createdAt", "ASC"]
+						]
+					}
+				],
+				order: [
+					["sort", "DESC"]
+				]
+			})).forEach(product => {
 				const productInfo = {
 					price: product.get("price"),
 					title: product.get("strings")[0]?.get("title"),
@@ -202,10 +225,10 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 			});
 
 			res.render("partials/shopCatalog", { helpers, products, search: search || "" });
-		}).catch(err => {
+		} catch (err) {
 			logger.error(err);
 			res.status(500).send();
-		});
+		}
 	}
 ];
 

@@ -77,6 +77,13 @@ class ExpressServer {
 	}
 
 	setStatic(endpoint, directory) {
+		if (!this.disableCache) {
+			this.app.use(endpoint, (req, res, next) => {
+				res.set("Cache-Control", "public, max-age=300");
+				next();
+			});
+		}
+
 		this.app.use(endpoint, express.static(directory));
 	}
 
