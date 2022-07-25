@@ -107,11 +107,11 @@
 </div>
 <%_ if (search) { _%>
 <script type="text/javascript">
-	var backParams = { search: "<%= search %>", scrollTop: "<%= scroll %>" };
+	var backParams = { search: "<%= search %>" };
 </script>
 <%_ } else { _%>
 <script type="text/javascript">
-	var backParams = { category: "<%= product.categoryId %>", scrollTop: "<%= scroll %>" };
+	var backParams = { category: "<%= product.categoryId %>" };
 </script>
 <%_ } _%>
 <script type="text/javascript">
@@ -134,9 +134,7 @@
 			purchaseProduct("<%= product.id %>");
 			$('#buy_available').hide();
 		});
-		$('#back').click(function() {
-			loadContent("Catalog", backParams);
-		});
+		$('#back').click(backToCatalog);
 		$('a.thumbnail').click(function(e) {
 			e.preventDefault();
 			$('#image-modal .modal-body img').attr('src', $(this).find('img').attr('src'));

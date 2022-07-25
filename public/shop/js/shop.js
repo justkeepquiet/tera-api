@@ -50,12 +50,23 @@ function loadContent(page, params = null) {
 		if (page !== "Catalog" && page !== "Product" && page !== "Error") {
 			loadMenu();
 		}
-		$("#content").html(result);
+		$("#content_product").hide();
+		$("#content").html(result).show().animate({ scrollTop: 0 }, 0);
 		$("#search_input").val("");
-		$("#content").animate({
-			scrollTop: params && params.scrollTop ? params.scrollTop : 0
-		}, 0);
 	});
+}
+
+function loadContentProduct(params = null) {
+	apiRequest("ShopPartialProduct", params, "html", function(result) {
+		$("#content").hide();
+		$("#content_product").html(result).show().animate({ scrollTop: 0 }, 0);
+		$("#search_input").val("");
+	});
+}
+
+function backToCatalog() {
+	$("#content_product").hide();
+	$("#content").show();
 }
 
 function loadPromoCodes(callback) {

@@ -34,7 +34,7 @@ _%>
 		$("#myCarousel").carousel();
 		$("#myCarousel .carousel-item").click(function () {
 			if ($(this).data("id")) {
-				loadContent("Product", { id: $(this).data("id"), back: false });
+				loadContentProduct({ id: $(this).data("id"), back: false });
 			}
 		});
 	});

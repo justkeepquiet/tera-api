@@ -145,12 +145,10 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 								as: "strings",
 								model: dataModel.itemStrings,
 								attributes: [],
-								where: {
-									[Op.and]: [
-										sequelize.where(sequelize.fn("lower", sequelize.col("string")), Op.like, `%${search}%`),
-										{ language: { [Op.eq]: i18n.getLocale() } }
-									]
-								}
+								where: [
+									sequelize.where(sequelize.fn("lower", sequelize.col("string")), Op.like, `%${search}%`),
+									{ language: { [Op.eq]: i18n.getLocale() } }
+								]
 							}],
 							required: true
 						}]
@@ -247,7 +245,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataM
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		const { id, search, scroll, back } = req.body;
+		const { id, search, back } = req.body;
 
 		shopModel.products.findOne({
 			where: {
@@ -350,7 +348,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataM
 				productObj.tradable = firstItem.get("template").get("tradable");
 				productObj.warehouseStorable = firstItem.get("template").get("warehouseStorable");
 
-				res.render("partials/shopProduct", { helpers, product: productObj, items, conversions, search, scroll, back });
+				res.render("partials/shopProduct", { helpers, product: productObj, items, conversions, search, back });
 			});
 		}).catch(err => {
 			logger.error(err);

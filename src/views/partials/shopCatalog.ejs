@@ -30,11 +30,7 @@
 <script type="text/javascript">
 	$(function() {
 		$('.buy').click(function() {
-			loadContent("Product", {
-				id: $(this).data("id"),
-				search: "<%= search %>",
-				scroll: $("#content").scrollTop()
-			});
+			loadContentProduct({ id: $(this).data("id"), search: "<%= search %>" });
 		});
 	});
 </script>
