@@ -4,16 +4,20 @@
  * @typedef {import("../app").modules} modules
  */
 
+const Box = require("../utils/boxHelper").Box;
+
 class TasksActions {
 	/**
 	 * @param {modules} modules
 	 */
 	constructor(modules) {
 		this.modules = modules;
+
+		this.box = new Box(modules);
 	}
 
 	createBox(context, userId, serverId = null, characterId = null, lastLoginServer = null, logId = null, logType = null) {
-		return this.modules.hub.createBoxFromContext(context, userId, serverId, characterId, logId).then(boxId => {
+		return this.box.create(context, userId, serverId, characterId, logId).then(boxId => {
 			if (lastLoginServer !== null) {
 				this.modules.hub.boxNotiUser(lastLoginServer, userId, characterId || 0).catch(err =>
 					this.modules.logger.warn(err.toString())

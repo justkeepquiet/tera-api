@@ -10,6 +10,7 @@ const body = require("express-validator").body;
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 const helpers = require("../utils/helpers");
+const ServiceItem = require("../utils/boxHelper").ServiceItem;
 
 const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
@@ -43,13 +44,11 @@ module.exports.index = ({ i18n, logger, queue, boxModel, dataModel }) => [
 							where: { language: i18n.getLocale() },
 							required: false
 						}
-					],
-					order: [
-						["createdAt", "ASC"]
 					]
 				}],
 				order: [
-					["id", "DESC"]
+					["id", "DESC"],
+					[{ as: "item", model: boxModel.items }, "createdAt", "ASC"]
 				]
 			})).forEach(box => {
 				boxes.set(box.get("id"), {
@@ -129,28 +128,28 @@ module.exports.add = ({ logger }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, boxModel, dataModel }) => [
+module.exports.addAction = modules => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("title").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Title must be between 1 and 1024 characters.")),
+			.isLength({ min: 1, max: 1024 }).withMessage(modules.i18n.__("Title must be between 1 and 1024 characters.")),
 		body("content").trim()
-			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Description must be between 1 and 2048 characters.")),
+			.isLength({ min: 1, max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters.")),
 		body("icon").optional().trim()
-			.isLength({ max: 2048 }).withMessage(i18n.__("Icon must be between 1 and 255 characters.")),
+			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Icon must be between 1 and 255 characters.")),
 		body("days")
-			.isInt({ min: 1, max: 4000 }).withMessage(i18n.__("Days field must contain the value as a number.")),
+			.isInt({ min: 1, max: 4000 }).withMessage(modules.i18n.__("Days field must contain the value as a number.")),
 		// Items
 		body("itemTemplateIds.*")
-			.isInt({ min: 1 }).withMessage(i18n.__("Item template ID field has invalid value."))
-			.custom(value => dataModel.itemTemplates.findOne({
+			.isInt({ min: 1 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
+			.custom(value => modules.dataModel.itemTemplates.findOne({
 				where: {
 					itemTemplateId: value
 				}
 			}).then(data => {
 				if (value && !data) {
-					return Promise.reject(`${i18n.__("A non-existent item has been added")}: ${value}`);
+					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
 				}
 			}))
 			.custom((value, { req }) => {
@@ -160,20 +159,21 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, boxMode
 
 				return !itemTemplateIds.includes(value);
 			})
-			.withMessage(i18n.__("Added item already exists.")),
+			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true })
-			.isInt({ min: 1 }).withMessage(i18n.__("Box item ID field has invalid value.")),
+			.isInt({ min: 1 }).withMessage(modules.i18n.__("Box item ID field has invalid value.")),
 		body("boxItemCounts.*")
-			.isInt({ min: 1 }).withMessage(i18n.__("Count field has invalid value.")),
+			.isInt({ min: 1 }).withMessage(modules.i18n.__("Count field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
-			.withMessage(i18n.__("No items have been added to the box."))
+			.withMessage(modules.i18n.__("No items have been added to the box."))
 	],
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { validate, title, content, icon, days, itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
+		const errors = helpers.validationResultLog(req, modules.logger);
+		const serviceItem = new ServiceItem(modules);
 
 		try {
 			const itemsPromises = [];
@@ -181,12 +181,12 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, boxMode
 
 			if (itemTemplateIds) {
 				itemTemplateIds.forEach(itemTemplateId => {
-					itemsPromises.push(dataModel.itemTemplates.findOne({
+					itemsPromises.push(modules.dataModel.itemTemplates.findOne({
 						where: { itemTemplateId },
 						include: [{
 							as: "strings",
-							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() },
+							model: modules.dataModel.itemStrings,
+							where: { language: modules.i18n.getLocale() },
 							required: false
 						}]
 					}));
@@ -215,8 +215,8 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, boxMode
 				});
 			}
 
-			await sequelize.transaction(async transaction => {
-				const box = await boxModel.info.create({
+			await modules.sequelize.transaction(async transaction => {
+				const box = await modules.boxModel.info.create({
 					title,
 					content,
 					icon,
@@ -229,38 +229,24 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, boxMode
 
 				if (itemTemplateIds) {
 					itemTemplateIds.forEach((itemTemplateId, index) => {
-						if (boxItemIds[index] === "" && resolvedItems[itemTemplateId]) {
-							if (!resolvedItems[itemTemplateId]) return;
+						if (!resolvedItems[itemTemplateId]) return;
 
-							promises.push(hub.createServiceItem(
-								req.user.userSn || 0,
-								itemTemplateId,
-								1,
-								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
-								true,
-								resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
-								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
-								"1,1,1"
-							).then(boxItemId =>
-								boxModel.items.create({
-									boxId: box.get("id"),
-									itemTemplateId,
-									boxItemId,
-									boxItemCount: boxItemCounts[index]
-								}, {
-									transaction
-								})
-							));
-						} else {
-							promises.push(boxModel.items.create({
+						promises.push(serviceItem.checkCreate(
+							boxItemIds[index],
+							itemTemplateId,
+							resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
+							helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
+							req.user.userSn || 0
+						).then(boxItemId =>
+							modules.boxModel.items.create({
 								boxId: box.get("id"),
 								itemTemplateId,
-								boxItemId: boxItemIds[index] || null,
+								boxItemId,
 								boxItemCount: boxItemCounts[index]
 							}, {
 								transaction
-							}));
-						}
+							})
+						));
 					});
 				}
 
@@ -269,11 +255,11 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, boxMode
 
 			next();
 		} catch (err) {
-			logger.error(err);
+			modules.logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
 	},
-	writeOperationReport(reportModel),
+	writeOperationReport(modules.reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -299,11 +285,11 @@ module.exports.edit = ({ i18n, logger, boxModel, dataModel }) => [
 				where: { id },
 				include: [{
 					as: "item",
-					model: boxModel.items,
-					order: [
-						["createdAt", "ASC"]
-					]
-				}]
+					model: boxModel.items
+				}],
+				order: [
+					[{ as: "item", model: boxModel.items }, "createdAt", "ASC"]
+				]
 			});
 
 			if (box === null) {
@@ -364,28 +350,28 @@ module.exports.edit = ({ i18n, logger, boxModel, dataModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxModel, dataModel }) => [
+module.exports.editAction = modules => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("title").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Title must be between 1 and 1024 characters.")),
+			.isLength({ min: 1, max: 1024 }).withMessage(modules.i18n.__("Title must be between 1 and 1024 characters.")),
 		body("content").trim()
-			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Description must be between 1 and 2048 characters.")),
+			.isLength({ min: 1, max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters.")),
 		body("icon").optional().trim()
-			.isLength({ max: 2048 }).withMessage(i18n.__("Icon must be between 1 and 255 characters.")),
+			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Icon must be between 1 and 255 characters.")),
 		body("days")
-			.isInt({ min: 1, max: 4000 }).withMessage(i18n.__("Days field must contain the value as a number.")),
+			.isInt({ min: 1, max: 4000 }).withMessage(modules.i18n.__("Days field must contain the value as a number.")),
 		// Items
 		body("itemTemplateIds.*")
-			.isInt({ min: 1 }).withMessage(i18n.__("Item template ID field has invalid value."))
-			.custom(value => dataModel.itemTemplates.findOne({
+			.isInt({ min: 1 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
+			.custom(value => modules.dataModel.itemTemplates.findOne({
 				where: {
 					itemTemplateId: value
 				}
 			}).then(data => {
 				if (value && !data) {
-					return Promise.reject(`${i18n.__("A non-existent item has been added")}: ${value}`);
+					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
 				}
 			}))
 			.custom((value, { req }) => {
@@ -395,13 +381,13 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 
 				return !itemTemplateIds.includes(value);
 			})
-			.withMessage(i18n.__("Added item already exists.")),
+			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true })
-			.isInt({ min: 1 }).withMessage(i18n.__("Box item ID field has invalid value.")),
+			.isInt({ min: 1 }).withMessage(modules.i18n.__("Box item ID field has invalid value.")),
 		body("boxItemCounts.*")
-			.isInt({ min: 1 }).withMessage(i18n.__("Count field has invalid value.")),
+			.isInt({ min: 1 }).withMessage(modules.i18n.__("Count field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
-			.withMessage(i18n.__("No items have been added to the box."))
+			.withMessage(modules.i18n.__("No items have been added to the box."))
 	],
 	/**
 	 * @type {RequestHandler}
@@ -409,22 +395,23 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 	async (req, res, next) => {
 		const { id } = req.query;
 		const { validate, title, content, icon, days, itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
+		const errors = helpers.validationResultLog(req, modules.logger);
+		const serviceItem = new ServiceItem(modules);
 
 		try {
 			if (!id) {
 				return res.redirect("/boxes");
 			}
 
-			const box = await boxModel.info.findOne({
+			const box = await modules.boxModel.info.findOne({
 				where: { id },
 				include: [{
 					as: "item",
-					model: boxModel.items,
-					order: [
-						["createdAt", "ASC"]
-					]
-				}]
+					model: modules.boxModel.items
+				}],
+				order: [
+					[{ as: "item", model: modules.boxModel.items }, "createdAt", "ASC"]
+				]
 			});
 
 			if (box === null) {
@@ -436,12 +423,12 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 
 			if (itemTemplateIds) {
 				itemTemplateIds.forEach(itemTemplateId => {
-					items.push(dataModel.itemTemplates.findOne({
+					items.push(modules.dataModel.itemTemplates.findOne({
 						where: { itemTemplateId },
 						include: [{
 							as: "strings",
-							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() },
+							model: modules.dataModel.itemStrings,
+							where: { language: modules.i18n.getLocale() },
 							required: false
 						}]
 					}));
@@ -471,9 +458,9 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 				});
 			}
 
-			await sequelize.transaction(async transaction => {
+			await modules.sequelize.transaction(async transaction => {
 				const promises = [
-					boxModel.info.update({
+					modules.boxModel.info.update({
 						icon,
 						title,
 						content,
@@ -489,20 +476,15 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 					const index = Object.keys(itemTemplateIds).find(k => itemTemplateIds[k] == itemTemplateId);
 
 					if (itemTemplateIds[index]) {
-						if (!boxItemIds[index]) {
-							if (!resolvedItems[itemTemplateId]) return;
-
-							promises.push(hub.createServiceItem(
-								req.user.userSn || 0,
+						if (boxItemIds[index] != boxItem.get("boxItemId")) {
+							promises.push(serviceItem.checkCreate(
+								boxItemIds[index],
 								itemTemplateId,
-								1,
-								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
-								true,
 								resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
 								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
-								"1,1,1"
+								req.user.userSn || 0
 							).then(boxItemId =>
-								boxModel.items.update({
+								modules.boxModel.items.update({
 									boxItemId,
 									boxItemCount: boxItemCounts[index] || 1
 								}, {
@@ -510,69 +492,56 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 									transaction
 								})
 							));
-						} else {
-							promises.push(boxModel.items.update({
-								boxItemId: boxItemIds[index] || null,
-								boxItemCount: boxItemCounts[index] || 1
-							}, {
-								where: { id: boxItem.get("id") },
-								transaction
-							}));
 						}
 					} else {
-						if (boxItem.get("boxItemId")) {
-							promises.push(hub.removeServiceItem(boxItem.get("boxItemId")));
-						}
-
-						promises.push(boxModel.items.destroy({
+						promises.push(modules.boxModel.items.destroy({
 							where: { id: boxItem.get("id") },
 							transaction
 						}));
+
+						promises.push(modules.boxModel.items.findOne({
+							where: {
+								id: { [Op.ne]: boxItem.get("id") },
+								boxItemId: boxItem.get("boxItemId")
+							}
+						}).then(resultBoxItem => modules.shopModel.productItems.findOne({
+							where: {
+								boxItemId: boxItem.get("boxItemId")
+							}
+						}).then(resultProductItem => {
+							if (resultBoxItem === null && resultProductItem === null) {
+								promises.push(serviceItem.remove(boxItem.get("boxItemId")));
+							}
+						})));
 					}
 				});
 
 				if (itemTemplateIds) {
 					itemTemplateIds.forEach((itemTemplateId, index) =>
-						promises.push(boxModel.items.findOne({
+						promises.push(modules.boxModel.items.findOne({
 							where: {
 								boxId: box.get("id"),
 								itemTemplateId
 							}
 						}).then(boxItem => {
-							if (boxItem === null) {
-								if (!boxItemIds[index]) {
-									if (!resolvedItems[itemTemplateId]) return;
+							if (boxItem !== null || !resolvedItems[itemTemplateId]) return;
 
-									return hub.createServiceItem(
-										req.user.userSn || 0,
-										itemTemplateId,
-										1,
-										moment().utc().format("YYYY-MM-DD HH:mm:ss"),
-										true,
-										resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
-										helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
-										"1,1,1"
-									).then(boxItemId =>
-										boxModel.items.create({
-											boxId: box.get("id"),
-											itemTemplateId,
-											boxItemId,
-											boxItemCount: boxItemCounts[index] || 1
-										}, {
-											transaction
-										})
-									);
-								} else {
-									return boxModel.items.create({
-										boxId: box.get("id"),
-										itemTemplateId,
-										boxItemId: boxItemIds[index] || null,
-										boxItemCount: boxItemCounts[index] || 1
-									}, {
-										transaction
-									});
-								}
-							}
+							return serviceItem.checkCreate(
+								boxItemIds[index],
+								itemTemplateId,
+								resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
+								req.user.userSn || 0
+							).then(boxItemId =>
+								modules.boxModel.items.create({
+									boxId: box.get("id"),
+									itemTemplateId,
+									boxItemId,
+									boxItemCount: boxItemCounts[index] || 1
+								}, {
+									transaction
+								})
+							);
 						}))
 					);
 				}
@@ -582,11 +551,11 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 
 			next();
 		} catch (err) {
-			logger.error(err);
+			modules.logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
 	},
-	writeOperationReport(reportModel),
+	writeOperationReport(modules.reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -598,7 +567,7 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, shopModel, boxModel }) => [
+module.exports.deleteAction = modules => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -606,19 +575,20 @@ module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, shopModel,
 	 */
 	async (req, res, next) => {
 		const { id } = req.query;
+		const serviceItem = new ServiceItem(modules);
 
 		try {
 			if (!id) {
 				return res.redirect("/boxes");
 			}
 
-			const boxItems = await boxModel.items.findAll({
+			const boxItems = await modules.boxModel.items.findAll({
 				where: { boxId: id }
 			});
 
-			await sequelize.transaction(async transaction => {
+			await modules.sequelize.transaction(async transaction => {
 				const promises = [
-					boxModel.info.destroy({
+					modules.boxModel.info.destroy({
 						where: { id },
 						transaction
 					})
@@ -626,27 +596,27 @@ module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, shopModel,
 
 				boxItems.forEach(boxItem => {
 					if (boxItem.get("boxItemId")) {
-						promises.push(boxModel.items.findOne({
+						promises.push(modules.boxModel.items.findOne({
 							where: {
 								id: { [Op.ne]: boxItem.get("id") },
 								boxItemId: boxItem.get("boxItemId")
 							}
-						}).then(resultBoxItem => shopModel.productItems.findOne({
+						}).then(resultBoxItem => modules.shopModel.productItems.findOne({
 							where: {
 								boxItemId: boxItem.get("boxItemId")
 							}
 						}).then(resultProductItem => {
 							if (resultBoxItem === null && resultProductItem === null) {
-								promises.push(hub.removeServiceItem(boxItem.get("boxItemId")));
+								promises.push(serviceItem.remove(boxItem.get("boxItemId")));
 							}
 						})));
 
-						promises.push(boxModel.items.destroy({
+						promises.push(modules.boxModel.items.destroy({
 							where: { id: boxItem.get("id") },
 							transaction
 						}));
 					} else {
-						promises.push(boxModel.items.destroy({
+						promises.push(modules.boxModel.items.destroy({
 							where: { id: boxItem.get("id") },
 							transaction
 						}));
@@ -658,11 +628,11 @@ module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, shopModel,
 
 			next();
 		} catch (err) {
-			logger.error(err);
+			modules.logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
 	},
-	writeOperationReport(reportModel),
+	writeOperationReport(modules.reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -674,7 +644,7 @@ module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, shopModel,
 /**
  * @param {modules} modules
  */
-module.exports.send = ({ i18n, logger, hub, serverModel, boxModel, dataModel }) => [
+module.exports.send = modules => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -682,47 +652,48 @@ module.exports.send = ({ i18n, logger, hub, serverModel, boxModel, dataModel }) 
 	 */
 	async (req, res) => {
 		const { id } = req.query;
+		const serviceItem = new ServiceItem(modules);
 
 		try {
-			const box = await boxModel.info.findOne({
+			const box = await modules.boxModel.info.findOne({
 				where: { id },
 				include: [{
 					as: "item",
-					model: boxModel.items,
+					model: modules.boxModel.items,
 					include: [
 						{
 							as: "template",
-							model: dataModel.itemTemplates
+							model: modules.dataModel.itemTemplates
 						},
 						{
 							as: "strings",
-							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() },
+							model: modules.dataModel.itemStrings,
+							where: { language: modules.i18n.getLocale() },
 							required: false
 						}
-					],
-					order: [
-						["createdAt", "ASC"]
 					]
-				}]
+				}],
+				order: [
+					[{ as: "item", model: modules.boxModel.items }, "createdAt", "ASC"]
+				]
 			});
 
 			if (box === null || box.get("item").length === 0) {
 				return res.redirect("/boxes");
 			}
 
-			const servers = await serverModel.info.findAll({
+			const servers = await modules.serverModel.info.findAll({
 				where: { isEnabled: 1 }
 			});
 
 			const promises = [];
-			const itemChecks = {};
+			const itemChecks = new Set();
 
 			box.get("item").forEach(item =>
 				promises.push(
-					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
-						if (resultSet.length > 0) {
-							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);
+					serviceItem.checkExists(item.get("boxItemId")).then(exists => {
+						if (exists) {
+							itemChecks.add(item.get("boxItemId"));
 						}
 					})
 				)
@@ -746,7 +717,7 @@ module.exports.send = ({ i18n, logger, hub, serverModel, boxModel, dataModel }) 
 				itemChecks
 			});
 		} catch (err) {
-			logger.error(err);
+			modules.logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
 	}
@@ -755,35 +726,35 @@ module.exports.send = ({ i18n, logger, hub, serverModel, boxModel, dataModel }) 
 /**
  * @param {modules} modules
  */
-module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportModel, accountModel, boxModel, dataModel }) => [
+module.exports.sendAction = modules => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("serverId").optional({ checkFalsy: true })
-			.isInt().withMessage(i18n.__("Server ID field must contain a valid number."))
-			.custom((value, { req }) => serverModel.info.findOne({
+			.isInt().withMessage(modules.i18n.__("Server ID field must contain a valid number."))
+			.custom((value, { req }) => modules.serverModel.info.findOne({
 				where: {
 					...req.body.serverId ? { serverId: req.body.serverId } : {}
 				}
 			}).then(data => {
 				if (data === null) {
-					return Promise.reject(i18n.__("Server ID field contains not existing server ID."));
+					return Promise.reject(modules.i18n.__("Server ID field contains not existing server ID."));
 				}
 			})),
 		body("accountDBID")
-			.isInt().withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.info.findOne({
+			.isInt().withMessage(modules.i18n.__("Account ID field must contain a valid number."))
+			.custom((value, { req }) => modules.accountModel.info.findOne({
 				where: {
 					accountDBID: req.body.accountDBID
 				}
 			}).then(data => {
 				if (req.body.accountDBID && data === null) {
-					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
+					return Promise.reject(modules.i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
 		body("characterId").optional({ checkFalsy: true })
-			.isInt().withMessage(i18n.__("Character ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.characters.findOne({
+			.isInt().withMessage(modules.i18n.__("Character ID field must contain a valid number."))
+			.custom((value, { req }) => modules.accountModel.characters.findOne({
 				where: {
 					characterId: req.body.characterId,
 					serverId: req.body.serverId,
@@ -791,7 +762,7 @@ module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportMode
 				}
 			}).then(data => {
 				if (req.body.characterId && data === null) {
-					return Promise.reject(i18n.__("Character ID field contains not existing character ID."));
+					return Promise.reject(modules.i18n.__("Character ID field contains not existing character ID."));
 				}
 			}))
 	],
@@ -801,52 +772,53 @@ module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportMode
 	async (req, res, next) => {
 		const { id } = req.query;
 		const { serverId, accountDBID, characterId } = req.body;
-		const errors = helpers.validationResultLog(req, logger).array();
+		const errors = helpers.validationResultLog(req, modules.logger).array();
+		const serviceItem = new ServiceItem(modules);
 
 		try {
-			const box = await boxModel.info.findOne({
+			const box = await modules.boxModel.info.findOne({
 				where: { id },
 				include: [{
 					as: "item",
-					model: boxModel.items,
+					model: modules.boxModel.items,
 					include: [
 						{
 							as: "template",
-							model: dataModel.itemTemplates
+							model: modules.dataModel.itemTemplates
 						},
 						{
 							as: "strings",
-							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() },
+							model: modules.dataModel.itemStrings,
+							where: { language: modules.i18n.getLocale() },
 							required: false
 						}
-					],
-					order: [
-						["createdAt", "ASC"]
 					]
-				}]
+				}],
+				order: [
+					[{ as: "item", model: modules.boxModel.items }, "createdAt", "ASC"]
+				]
 			});
 
 			if (box === null || box.get("item").length === 0) {
 				return res.redirect("/boxes");
 			}
 
-			const user = await accountModel.info.findOne({
+			const user = await modules.accountModel.info.findOne({
 				where: { accountDBID }
 			});
 
-			const servers = await serverModel.info.findAll({
+			const servers = await modules.serverModel.info.findAll({
 				where: { isEnabled: 1 }
 			});
 
 			const promises = [];
-			const itemChecks = {};
+			const itemChecks = new Set();
 
 			box.get("item").forEach(item =>
 				promises.push(
-					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
-						if (resultSet.length > 0) {
-							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);
+					serviceItem.checkExists(item.get("boxItemId")).then(exists => {
+						if (exists) {
+							itemChecks.add(item.get("boxItemId"));
 						}
 					})
 				)
@@ -854,17 +826,17 @@ module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportMode
 
 			await Promise.all(promises);
 
-			if (box.get("item").length !== Object.keys(itemChecks).length) {
+			if (box.get("item").length !== itemChecks.size) {
 				errors.push({
-					msg: i18n.__("There are no Service Items for the specified box item IDs.")
+					msg: modules.i18n.__("There are no Service Items for the specified box item IDs.")
 				});
 			}
 
-			const task = await queue.findByTag("createBox", id, 1);
+			const task = await modules.queue.findByTag("createBox", id, 1);
 
 			if (task.length > 0) {
 				errors.push({
-					msg: i18n.__("Task with this box ID is already running. Check tasks queue.")
+					msg: modules.i18n.__("Task with this box ID is already running. Check tasks queue.")
 				});
 			}
 
@@ -887,7 +859,7 @@ module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportMode
 			}
 
 			// Send to accountDBID via hub
-			queue.insert("createBox", [
+			modules.queue.insert("createBox", [
 				{
 					content: box.get("content"),
 					title: box.get("title"),
@@ -910,11 +882,11 @@ module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportMode
 
 			next();
 		} catch (err) {
-			logger.error(err);
+			modules.logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
 	},
-	writeOperationReport(reportModel),
+	writeOperationReport(modules.reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -926,7 +898,7 @@ module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportMode
 /**
  * @param {modules} modules
  */
-module.exports.sendAll = ({ i18n, logger, hub, sequelize, serverModel, boxModel, dataModel }) => [
+module.exports.sendAll = modules => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -934,47 +906,48 @@ module.exports.sendAll = ({ i18n, logger, hub, sequelize, serverModel, boxModel,
 	 */
 	async (req, res) => {
 		const { id } = req.query;
+		const serviceItem = new ServiceItem(modules);
 
 		try {
-			const box = await boxModel.info.findOne({
+			const box = await modules.boxModel.info.findOne({
 				where: { id },
 				include: [{
 					as: "item",
-					model: boxModel.items,
+					model: modules.boxModel.items,
 					include: [
 						{
 							as: "template",
-							model: dataModel.itemTemplates
+							model: modules.dataModel.itemTemplates
 						},
 						{
 							as: "strings",
-							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() },
+							model: modules.dataModel.itemStrings,
+							where: { language: modules.i18n.getLocale() },
 							required: false
 						}
-					],
-					order: [
-						["createdAt", "ASC"]
 					]
-				}]
+				}],
+				order: [
+					[{ as: "item", model: modules.boxModel.items }, "createdAt", "ASC"]
+				]
 			});
 
 			if (box === null || box.get("item").length === 0) {
 				return res.redirect("/boxes");
 			}
 
-			const servers = await serverModel.info.findAll({
+			const servers = await modules.serverModel.info.findAll({
 				where: { isEnabled: 1 }
 			});
 
 			const promises = [];
-			const itemChecks = {};
+			const itemChecks = new Set();
 
 			box.get("item").forEach(item =>
 				promises.push(
-					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
-						if (resultSet.length > 0) {
-							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);
+					serviceItem.checkExists(item.get("boxItemId")).then(exists => {
+						if (exists) {
+							itemChecks.add(item.get("boxItemId"));
 						}
 					})
 				)
@@ -997,7 +970,7 @@ module.exports.sendAll = ({ i18n, logger, hub, sequelize, serverModel, boxModel,
 				itemChecks
 			});
 		} catch (err) {
-			logger.error(err);
+			modules.logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
 	}
@@ -1006,23 +979,23 @@ module.exports.sendAll = ({ i18n, logger, hub, sequelize, serverModel, boxModel,
 /**
  * @param {modules} modules
  */
-module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportModel, accountModel, boxModel, dataModel }) => [
+module.exports.sendAllAction = modules => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("serverId").optional({ checkFalsy: true })
-			.isInt().withMessage(i18n.__("Server ID field must contain a valid number."))
-			.custom((value, { req }) => serverModel.info.findOne({
+			.isInt().withMessage(modules.i18n.__("Server ID field must contain a valid number."))
+			.custom((value, { req }) => modules.serverModel.info.findOne({
 				where: {
 					...req.body.serverId ? { serverId: req.body.serverId } : {}
 				}
 			}).then(data => {
 				if (data === null) {
-					return Promise.reject(i18n.__("Server ID field contains not existing server ID."));
+					return Promise.reject(modules.i18n.__("Server ID field contains not existing server ID."));
 				}
 			})),
 		body("loginAfterTime")
-			.isISO8601().withMessage(i18n.__("Last login field must contain a valid date."))
+			.isISO8601().withMessage(modules.i18n.__("Last login field must contain a valid date."))
 	],
 	/**
 	 * @type {RequestHandler}
@@ -1030,41 +1003,42 @@ module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportM
 	async (req, res, next) => {
 		const { id } = req.query;
 		const { serverId, loginAfterTime } = req.body;
-		const errors = helpers.validationResultLog(req, logger).array();
+		const errors = helpers.validationResultLog(req, modules.logger).array();
+		const serviceItem = new ServiceItem(modules);
 
 		try {
-			const box = await boxModel.info.findOne({
+			const box = await modules.boxModel.info.findOne({
 				where: { id },
 				include: [{
 					as: "item",
-					model: boxModel.items,
+					model: modules.boxModel.items,
 					include: [
 						{
 							as: "template",
-							model: dataModel.itemTemplates
+							model: modules.dataModel.itemTemplates
 						},
 						{
 							as: "strings",
-							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() },
+							model: modules.dataModel.itemStrings,
+							where: { language: modules.i18n.getLocale() },
 							required: false
 						}
-					],
-					order: [
-						["createdAt", "ASC"]
 					]
-				}]
+				}],
+				order: [
+					[{ as: "item", model: modules.boxModel.items }, "createdAt", "ASC"]
+				]
 			});
 
 			if (box === null || box.get("item").length === 0) {
 				return res.redirect("/boxes");
 			}
 
-			const servers = await serverModel.info.findAll({
+			const servers = await modules.serverModel.info.findAll({
 				where: { isEnabled: 1 }
 			});
 
-			const users = await accountModel.info.findAll({
+			const users = await modules.accountModel.info.findAll({
 				where: {
 					...serverId ? { lastLoginServer: serverId } : {},
 					lastLoginTime: {
@@ -1074,13 +1048,13 @@ module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportM
 			});
 
 			const promises = [];
-			const itemChecks = {};
+			const itemChecks = new Set();
 
 			box.get("item").forEach(item =>
 				promises.push(
-					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
-						if (resultSet.length > 0) {
-							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);
+					serviceItem.checkExists(item.get("boxItemId")).then(exists => {
+						if (exists) {
+							itemChecks.add(item.get("boxItemId"));
 						}
 					})
 				)
@@ -1088,17 +1062,17 @@ module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportM
 
 			await Promise.all(promises);
 
-			if (box.get("item").length !== Object.keys(itemChecks).length) {
+			if (box.get("item").length !== itemChecks.size) {
 				errors.push({
-					msg: i18n.__("There are no Service Items for the specified box item IDs.")
+					msg: modules.i18n.__("There are no Service Items for the specified box item IDs.")
 				});
 			}
 
-			const task = await queue.findByTag("createBox", id, 1);
+			const task = await modules.queue.findByTag("createBox", id, 1);
 
 			if (task.length > 0) {
 				errors.push({
-					msg: i18n.__("Task with this box ID is already running. Check tasks queue.")
+					msg: modules.i18n.__("Task with this box ID is already running. Check tasks queue.")
 				});
 			}
 
@@ -1121,7 +1095,7 @@ module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportM
 
 			// Send to all users via hub
 			users.forEach(user =>
-				queue.insert("createBox", [
+				modules.queue.insert("createBox", [
 					{
 						content: box.get("content"),
 						title: box.get("title"),
@@ -1145,11 +1119,11 @@ module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportM
 
 			next();
 		} catch (err) {
-			logger.error(err);
+			modules.logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
 		}
 	},
-	writeOperationReport(reportModel),
+	writeOperationReport(modules.reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */

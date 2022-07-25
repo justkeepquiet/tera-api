@@ -98,7 +98,7 @@
 									<input type="text" class="form-control boxed" value="<%= item.get("boxItemId") %>" disabled>
 								</div>
 								<div class="col-sm-1">
-									<%_ if (itemChecks[item.get("boxItemId")]) { _%>
+									<%_ if (itemChecks.has(item.get("boxItemId"))) { _%>
 									<i class="mt-2 fa fa-check text-success"></i>
 									<%_ } else { _%>
 									<i class="mt-2 fa fa-times text-danger"></i>

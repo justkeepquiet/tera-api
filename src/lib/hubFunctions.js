@@ -1,6 +1,5 @@
 "use strict";
 
-const moment = require("moment-timezone");
 const opArb = require("./protobuf/opArb").proto_oparb;
 const opUent = require("./protobuf/opUent").proto_opuent;
 const HubError = require("./hubError");
@@ -202,32 +201,6 @@ class HubFunctions extends HubConnection {
 	//
 	// OpMsg functions
 	//
-
-	createBoxFromContext(boxContext, receiverUserSN, receiverGUSID = null, receiverCharacterSN = null, externalTransactionKey = null) {
-		const startDate = moment().utc().format("YYYY-MM-DD HH:mm:ss");
-		const endDate = moment().utc().add(boxContext.days, "days").format("YYYY-MM-DD HH:mm:ss");
-
-		const itemData = [];
-		const boxTagData = [
-			{ boxTagSN: 1, boxTagValue: boxContext.content },
-			{ boxTagSN: 2, boxTagValue: boxContext.title },
-			{ boxTagSN: 3, boxTagValue: boxContext.icon }
-		];
-
-		boxContext.items.forEach(item =>
-			itemData.push({
-				serviceItemSN: item.item_id,
-				externalItemKey: 0,
-				serviceItemTag: [
-					{ serviceItemTagSN: 1, serviceItemTagValue: item.item_count }
-				]
-			})
-		);
-
-		return this.createBox(1, receiverUserSN, startDate, endDate, true, itemData, boxTagData,
-			receiverGUSID, receiverCharacterSN, null, null, externalTransactionKey
-		);
-	}
 
 	createBox(receiverServiceSN, receiverUserSN, startDate, endDate, visibleFlag, itemData, tagData,
 		receiverGUSID = null, receiverCharacterSN = null, receiverCharacterName = null, usableTimeAfterOpen = null, externalTransactionKey = null

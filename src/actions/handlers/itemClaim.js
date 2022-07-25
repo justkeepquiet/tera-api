@@ -4,6 +4,8 @@
  * @typedef {import("../../app").modules} modules
  */
 
+const Box = require("../../utils/boxHelper").Box;
+
 class ItemClaim {
 	/**
 	 * @param {modules} modules
@@ -14,10 +16,12 @@ class ItemClaim {
 		this.userId = userId;
 		this.serverId = serverId;
 		this.params = params;
+
+		this.box = new Box(modules);
 	}
 
 	makeBox(context, characterId = null) {
-		return this.modules.hub.createBoxFromContext(context, this.userId, this.serverId, characterId, this.params.logId).then(boxId =>
+		return this.box.create(context, this.userId, this.serverId, characterId, this.params.logId).then(boxId =>
 			this.modules.reportModel.boxes.create({
 				boxId,
 				accountDBID: this.userId,

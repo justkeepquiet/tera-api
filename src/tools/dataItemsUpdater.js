@@ -18,6 +18,7 @@ const strSheetElements = [];
 const dataElements = new Map();
 const conversionElements = [];
 
+/*
 console.log("Loading StrSheet files...");
 
 if (fs.existsSync(strSheetDirPath)) {
@@ -41,6 +42,7 @@ if (fs.existsSync(strSheetDirPath)) {
 } else {
 	console.error("StrSheet directory not found.");
 }
+*/
 
 console.log("Loading data files...");
 
@@ -62,6 +64,7 @@ if (fs.existsSync(dataDirPath)) {
 	console.error("Data directory not found.");
 }
 
+/*
 console.log("Loading conversion files...");
 
 if (fs.existsSync(conversionDirPath)) {
@@ -95,13 +98,14 @@ if (fs.existsSync(conversionDirPath)) {
 } else {
 	console.error("ConversionDirPath directory not found.");
 }
+*/
 
 const sequelize = new Sequelize(
 	process.env.DB_DATABASE,
 	process.env.DB_USERNAME,
 	process.env.DB_PASSWORD,
 	{
-		logging: () => {},
+		logging: false,
 		dialect: "mysql",
 		host: process.env.DB_HOST,
 		port: process.env.DB_PORT || 3306,
@@ -121,6 +125,7 @@ const sequelize = new Sequelize(
 sequelize.authenticate().then(async () => {
 	const dataModel = require("../models/data.model")(sequelize, DataTypes);
 
+	/*
 	console.log("Adding strSheet elements...");
 	const strSheetTotal = strSheetElements.length;
 
@@ -134,6 +139,7 @@ sequelize.authenticate().then(async () => {
 
 		console.log(index, "/", strSheetTotal, "Added:", itemStrings.id);
 	}
+	*/
 
 	console.log("Adding data elements...");
 	const dataTotal = dataElements.size;
@@ -141,6 +147,7 @@ sequelize.authenticate().then(async () => {
 	for (const [index, itemTemplate] of dataElements.entries()) {
 		await dataModel.itemTemplates.upsert({
 			itemTemplateId: itemTemplate.id,
+			category: itemTemplate.category || null,
 			icon: itemTemplate.icon.split(".").at(-1).toLowerCase(),
 			rareGrade: Number(itemTemplate.rareGrade),
 			requiredLevel: itemTemplate.requiredLevel || null,
@@ -148,12 +155,15 @@ sequelize.authenticate().then(async () => {
 			requiredGender: itemTemplate.requiredGender?.toLowerCase() || null,
 			requiredRace: itemTemplate.requiredRace?.toLowerCase() || null,
 			tradable: Number(itemTemplate.tradable === "true"),
+			periodByWebAdmin: Number(itemTemplate.periodByWebAdmin === "true"),
+			periodInMinute: itemTemplate.periodInMinute || null,
 			warehouseStorable: Number(itemTemplate.warehouseStorable === "true")
 		});
 
-		console.log(index, "/", dataTotal, "Added:", itemTemplate.id);
+		console.log(index, "/", dataTotal, "Added:", itemTemplate.id, itemTemplate.category);
 	}
 
+	/*
 	console.log("Adding conversion elements...");
 	const conversionTotal = conversionElements.length;
 
@@ -162,6 +172,9 @@ sequelize.authenticate().then(async () => {
 
 		console.log(index, "/", conversionTotal, "Added:", conversion.itemTemplateId, conversion.fixedItemTemplateId);
 	}
+	*/
+
+	sequelize.close();
 });
 
 function readXml(file) {

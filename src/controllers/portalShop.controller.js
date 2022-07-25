@@ -11,6 +11,7 @@ const { query, body } = require("express-validator");
 const helpers = require("../utils/helpers");
 const PromoCodeActions = require("../actions/promoCode.actions");
 const ItemClaim = require("../actions/handlers/itemClaim");
+const ServiceItem = require("../utils/boxHelper").ServiceItem;
 
 const { validationHandler, authSessionHandler, shopStatusHandler, resultJson } = require("../middlewares/portalShop.middlewares");
 
@@ -179,14 +180,13 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 								where: { language: i18n.getLocale() },
 								required: false
 							}
-						],
-						order: [
-							["createdAt", "ASC"]
 						]
 					}
 				],
 				order: [
-					["sort", "DESC"]
+					["sort", "DESC"],
+					["id", "ASC"],
+					[{ as: "item", model: shopModel.productItems }, "createdAt", "ASC"]
 				]
 			})).forEach(product => {
 				const productInfo = {
@@ -482,6 +482,7 @@ module.exports.PurchaseAction = modules => [
 	 */
 	async (req, res) => {
 		const { productId } = req.body;
+		const serviceItem = new ServiceItem(modules);
 
 		try {
 			/*
@@ -498,32 +499,27 @@ module.exports.PurchaseAction = modules => [
 			}
 			*/
 
-			const items = [];
 			const shopProduct = await modules.shopModel.products.findOne({
 				where: {
 					id: productId,
 					active: 1,
 					validAfter: { [Op.lt]: modules.sequelize.fn("NOW") },
 					validBefore: { [Op.gt]: modules.sequelize.fn("NOW") }
-				}
+				},
+				include: [{
+					as: "item",
+					model: modules.shopModel.productItems,
+					include: [{
+						// all locales
+						as: "strings",
+						model: modules.dataModel.itemStrings,
+						required: false
+					}]
+				}]
 			});
 
 			if (shopProduct === null) {
 				return resultJson(res, 2000, "product not exists");
-			}
-
-			(await modules.shopModel.productItems.findAll({
-				where: { productId: shopProduct.get("id") }
-			})).forEach(item =>
-				items.push({
-					item_id: item.get("boxItemId"),
-					item_count: item.get("boxItemCount"),
-					item_template_id: item.get("itemTemplateId")
-				})
-			);
-
-			if (items.length === 0) {
-				return resultJson(res, 3000, "items not exists");
 			}
 
 			const shopAccount = await modules.shopModel.accounts.findOne({
@@ -545,6 +541,37 @@ module.exports.PurchaseAction = modules => [
 
 			if (logResult === null) {
 				return resultJson(res, 1, "internal error");
+			}
+
+			const promises = [];
+			const items = [];
+
+			shopProduct.get("item").forEach(item =>
+				promises.push(serviceItem.checkCreate(
+					item.get("boxItemId"),
+					item.get("itemTemplateId"),
+					item.get("strings")[0]?.get("string"),
+					helpers.formatStrsheet(item.get("strings")[0]?.get("toolTip")),
+					0
+				).then(boxItemId => {
+					items.push({
+						item_id: boxItemId,
+						item_count: item.get("boxItemCount"),
+						item_template_id: item.get("itemTemplateId")
+					});
+
+					if (boxItemId != item.get("boxItemId")) {
+						return modules.shopModel.productItems.update({ boxItemId }, {
+							where: { id: item.get("id") }
+						});
+					}
+				}))
+			);
+
+			await Promise.all(promises);
+
+			if (items.length === 0) {
+				return resultJson(res, 3000, "items not exists");
 			}
 
 			await modules.sequelize.transaction(async transaction => {
