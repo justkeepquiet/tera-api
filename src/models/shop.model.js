@@ -50,6 +50,12 @@ module.exports = (sequelize, DataTypes, modules) => {
 		as: "strings"
 	});
 
+	model.productItems.hasMany(modules.dataModel.itemConversions, {
+		foreignKey: "itemTemplateId",
+		sourceKey: "itemTemplateId",
+		as: "conversion"
+	});
+
 	// products
 	model.products.hasMany(model.productStrings, {
 		foreignKey: "productId",

@@ -122,6 +122,17 @@ _%>
 									</select>
 								</div>
 							</div>
+							<div class="form-group row">
+								<div class="col-sm-6">
+									<div>
+										<%_ itemIcons.forEach(itemIcon => { _%>
+										<label>
+											<span><img src="/static/images/tera-icons/icon_items/<%= itemIcon %>.png" class="item-icon-form item-icon-grade-0 itemIcon" data-value="<%= itemIcon %>"></span>
+										</label>
+										<%_ }) _%>
+									</div>
+								</div>
+							</div>
 							<div class="form-group">
 								<label class="control-label"><%= __("Title") %></label>
 								<%_ shopLocales.forEach(shopLocale => { _%>
@@ -167,6 +178,19 @@ _%>
 <%- contentFor("scripts") %>
 <script>
 	$(function() {
+		function selectIcon() {
+			$(".itemIcon").each(function() {
+				if ($(this).css("border", "0").data("value") == $("input[name='icon']").val()) {
+					$(this).css("border", "2px solid #0075FF");
+				}
+			});
+		}
+		selectIcon();
+		$(".itemIcon").click(function() {
+			$("input[name='icon']").val($(this).data("value"));
+			selectIcon();
+		});
+		$("input[name='icon']").change(selectIcon);
 		$("#add-info-on").click(function() {
 			$("#add-info").show();
 			$("#add-info-off").show();

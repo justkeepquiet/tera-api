@@ -177,6 +177,7 @@ module.exports.add = ({ i18n, logger, shopModel }) => [
 				itemTemplateIds: [""],
 				boxItemIds: [""],
 				boxItemCounts: ["1"],
+				itemIcons: new Set(),
 				validate: 1
 			});
 		} catch (err) {
@@ -260,6 +261,7 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, shopMod
 		try {
 			const itemsPromises = [];
 			const resolvedItems = {};
+			const itemIcons = new Set();
 
 			const categories = await shopModel.categories.findAll({
 				include: [{
@@ -277,18 +279,35 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, shopMod
 				itemTemplateIds.forEach(itemTemplateId => {
 					itemsPromises.push(dataModel.itemTemplates.findOne({
 						where: { itemTemplateId },
-						include: [{
-							as: "strings",
-							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() },
-							required: false
-						}]
+						include: [
+							{
+								as: "strings",
+								model: dataModel.itemStrings,
+								where: { language: i18n.getLocale() },
+								required: false
+							},
+							{
+								as: "conversion",
+								model: dataModel.itemConversions,
+								include: [{
+									as: "template",
+									model: dataModel.itemTemplates
+								}],
+								required: false
+							}
+						]
 					}));
 				});
 			}
 
 			(await Promise.all(itemsPromises)).forEach(item => {
 				if (item) {
+					itemIcons.add(item.get("icon"));
+
+					item.get("conversion").forEach(conversion =>
+						itemIcons.add(conversion.get("template").get("icon"))
+					);
+
 					resolvedItems[item.get("itemTemplateId")] = item;
 				}
 			});
@@ -314,6 +333,7 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, shopMod
 					itemTemplateIds: itemTemplateIds || [],
 					boxItemIds: boxItemIds || [],
 					boxItemCounts: boxItemCounts || [],
+					itemIcons,
 					validate: Number(!errors.isEmpty())
 				});
 			}
@@ -421,6 +441,7 @@ module.exports.edit = ({ i18n, logger, shopModel, dataModel }) => [
 			const boxItemCounts = [];
 			const resolvedItems = {};
 			const promises = [];
+			const itemIcons = new Set();
 
 			const product = await shopModel.products.findOne({
 				where: { id },
@@ -428,13 +449,15 @@ module.exports.edit = ({ i18n, logger, shopModel, dataModel }) => [
 					{
 						as: "item",
 						model: shopModel.productItems,
+						required: false,
 						order: [
 							["createdAt", "ASC"]
 						]
 					},
 					{
 						as: "strings",
-						model: shopModel.productStrings
+						model: shopModel.productStrings,
+						required: false
 					}
 				]
 			});
@@ -469,17 +492,34 @@ module.exports.edit = ({ i18n, logger, shopModel, dataModel }) => [
 			itemTemplateIds.forEach(itemTemplateId => {
 				promises.push(dataModel.itemTemplates.findOne({
 					where: { itemTemplateId },
-					include: [{
-						as: "strings",
-						model: dataModel.itemStrings,
-						where: { language: i18n.getLocale() },
-						required: false
-					}]
+					include: [
+						{
+							as: "strings",
+							model: dataModel.itemStrings,
+							where: { language: i18n.getLocale() },
+							required: false
+						},
+						{
+							as: "conversion",
+							model: dataModel.itemConversions,
+							include: [{
+								as: "template",
+								model: dataModel.itemTemplates
+							}],
+							required: false
+						}
+					]
 				}));
 			});
 
 			(await Promise.all(promises)).forEach(item => {
 				if (item) {
+					itemIcons.add(item.get("icon"));
+
+					item.get("conversion").forEach(conversion =>
+						itemIcons.add(conversion.get("template").get("icon"))
+					);
+
 					resolvedItems[item.get("itemTemplateId")] = item;
 				}
 			});
@@ -506,6 +546,7 @@ module.exports.edit = ({ i18n, logger, shopModel, dataModel }) => [
 				itemTemplateIds,
 				boxItemIds,
 				boxItemCounts,
+				itemIcons,
 				validate: 0
 			});
 		} catch (err) {
@@ -595,18 +636,22 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 
 			const itemsPromises = [];
 			const resolvedItems = {};
+			const itemIcons = new Set();
 
 			const product = await shopModel.products.findOne({
 				where: { id },
 				include: [
 					{
-						as: "strings",
-						model: shopModel.productStrings,
+						as: "item",
+						model: shopModel.productItems,
+						order: [
+							["createdAt", "ASC"]
+						],
 						required: false
 					},
 					{
-						as: "item",
-						model: shopModel.productItems,
+						as: "strings",
+						model: shopModel.productStrings,
 						required: false
 					}
 				]
@@ -632,18 +677,35 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 				itemTemplateIds.forEach(itemTemplateId => {
 					itemsPromises.push(dataModel.itemTemplates.findOne({
 						where: { itemTemplateId },
-						include: [{
-							as: "strings",
-							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() },
-							required: false
-						}]
+						include: [
+							{
+								as: "strings",
+								model: dataModel.itemStrings,
+								where: { language: i18n.getLocale() },
+								required: false
+							},
+							{
+								as: "conversion",
+								model: dataModel.itemConversions,
+								include: [{
+									as: "template",
+									model: dataModel.itemTemplates
+								}],
+								required: false
+							}
+						]
 					}));
 				});
 			}
 
 			(await Promise.all(itemsPromises)).forEach(item => {
 				if (item) {
+					itemIcons.add(item.get("icon"));
+
+					item.get("conversion").forEach(conversion =>
+						itemIcons.add(conversion.get("template").get("icon"))
+					);
+
 					resolvedItems[item.get("itemTemplateId")] = item;
 				}
 			});
@@ -671,6 +733,7 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 					itemTemplateIds: itemTemplateIds || [],
 					boxItemIds: boxItemIds || [],
 					boxItemCounts: boxItemCounts || [],
+					itemIcons,
 					validate: Number(!errors.isEmpty())
 				});
 			}

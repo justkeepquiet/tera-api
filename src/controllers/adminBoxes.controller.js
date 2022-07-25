@@ -722,7 +722,7 @@ module.exports.send = ({ i18n, logger, hub, serverModel, boxModel, dataModel }) 
 				promises.push(
 					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
 						if (resultSet.length > 0) {
-							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);;
+							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);
 						}
 					})
 				)
@@ -974,7 +974,7 @@ module.exports.sendAll = ({ i18n, logger, hub, sequelize, serverModel, boxModel,
 				promises.push(
 					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
 						if (resultSet.length > 0) {
-							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);;
+							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);
 						}
 					})
 				)
@@ -1080,7 +1080,7 @@ module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportM
 				promises.push(
 					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
 						if (resultSet.length > 0) {
-							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);;
+							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);
 						}
 					})
 				)
