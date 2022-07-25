@@ -43,7 +43,7 @@ module.exports.index = ({ i18n, logger, shopModel, dataModel }) => [
 			});
 
 			categories.forEach(category =>
-				categoriesAssoc[category.get("id")] = category.get("strings")?.get("title")
+				categoriesAssoc[category.get("id")] = category.get("strings")[0]?.get("title")
 			);
 
 			(await shopModel.products.findAll({
@@ -84,8 +84,8 @@ module.exports.index = ({ i18n, logger, shopModel, dataModel }) => [
 					categoryId: product.get("categoryId"),
 					categoryTitle: categoriesAssoc[product.get("categoryId")] || "",
 					price: product.get("price"),
-					title: product.get("strings")?.get("title"),
-					description: product.get("strings")?.get("description"),
+					title: product.get("strings")[0]?.get("title"),
+					description: product.get("strings")[0]?.get("description"),
 					icon: product.get("icon"),
 					rareGrade: product.get("rareGrade"),
 					active: product.get("active"),
@@ -98,10 +98,10 @@ module.exports.index = ({ i18n, logger, shopModel, dataModel }) => [
 
 				product.get("item").forEach(productItem => {
 					if (!productInfo.title) {
-						productInfo.title = productItem.get("strings")?.get("string");
+						productInfo.title = productItem.get("strings")[0]?.get("string");
 					}
 					if (!productInfo.description) {
-						productInfo.description = productItem.get("strings")?.get("toolTip");
+						productInfo.description = productItem.get("strings")[0]?.get("toolTip");
 					}
 					if (!productInfo.icon) {
 						productInfo.icon = productItem.get("template").get("icon");
@@ -344,8 +344,8 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, shopMod
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
-								resolvedItems[itemTemplateId].get("strings")?.get("string"),
-								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")?.get("toolTip")),
+								resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								shopModel.productItems.create({
@@ -422,7 +422,22 @@ module.exports.edit = ({ i18n, logger, shopModel, dataModel }) => [
 			const resolvedItems = {};
 			const promises = [];
 
-			const product = await shopModel.products.findOne({ where: { id } });
+			const product = await shopModel.products.findOne({
+				where: { id },
+				include: [
+					{
+						as: "item",
+						model: shopModel.productItems,
+						order: [
+							["createdAt", "ASC"]
+						]
+					},
+					{
+						as: "strings",
+						model: shopModel.productStrings
+					}
+				]
+			});
 
 			if (product === null) {
 				return res.redirect("/shop_products");
@@ -440,19 +455,12 @@ module.exports.edit = ({ i18n, logger, shopModel, dataModel }) => [
 				]
 			});
 
-			(await shopModel.productStrings.findAll({
-				where: { productId: product.get("id") }
-			})).forEach(string => {
+			product.get("strings").forEach(string => {
 				title[string.get("language")] = string.get("title");
 				description[string.get("language")] = string.get("description");
 			});
 
-			(await shopModel.productItems.findAll({
-				where: { productId: product.get("id") },
-				order: [
-					["createdAt", "ASC"]
-				]
-			})).forEach(productItem => {
+			product.get("item").forEach(productItem => {
 				itemTemplateIds.push(productItem.get("itemTemplateId"));
 				boxItemIds.push(productItem.get("boxItemId"));
 				boxItemCounts.push(productItem.get("boxItemCount"));
@@ -588,7 +596,21 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 			const itemsPromises = [];
 			const resolvedItems = {};
 
-			const product = await shopModel.products.findOne({ where: { id } });
+			const product = await shopModel.products.findOne({
+				where: { id },
+				include: [
+					{
+						as: "strings",
+						model: shopModel.productStrings,
+						required: false
+					},
+					{
+						as: "item",
+						model: shopModel.productItems,
+						required: false
+					}
+				]
+			});
 
 			if (product === null) {
 				return res.redirect("/shop_products");
@@ -670,9 +692,7 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 					})
 				];
 
-				(await shopModel.productItems.findAll({
-					where: { productId: product.get("id") }
-				})).forEach(productItem => {
+				product.get("item").forEach(productItem => {
 					const itemTemplateId = productItem.get("itemTemplateId");
 					const index = Object.keys(itemTemplateIds).find(k => itemTemplateIds[k] == itemTemplateId);
 
@@ -686,8 +706,8 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
-								resolvedItems[itemTemplateId].get("strings")?.get("string"),
-								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")?.get("toolTip")),
+								resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								shopModel.productItems.update({
@@ -737,8 +757,8 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 										1,
 										moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 										true,
-										resolvedItems[itemTemplateId].get("strings")?.get("string"),
-										helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")?.get("toolTip")),
+										resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
+										helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
 										"1,1,1"
 									).then(boxItemId =>
 										shopModel.productItems.create({
@@ -765,9 +785,7 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, shopMo
 					);
 				}
 
-				(await shopModel.productStrings.findAll({
-					where: { productId: product.get("id") }
-				})).forEach(productString => {
+				product.get("strings").forEach(productString => {
 					const language = productString.get("language");
 
 					if (title[language] || description[language]) {

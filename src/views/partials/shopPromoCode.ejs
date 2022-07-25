@@ -28,7 +28,7 @@
 				<span class="date"><%= moment.utc(promoCodeAcrivated.get("createdAt")).utcOffset(-tzOffset).format("DD.MM.YYYY HH:mm:ss") %></span> 
 			</td>
 			<td>
-				<%= promoCodeAcrivated.get("strings")?.get("description") || "Activated promocode." %>
+				<%= promoCodeAcrivated.get("strings")[0]?.get("description") || "Activated promocode." %>
 			</td>
 		</tr>
 		<%_ }) _%>

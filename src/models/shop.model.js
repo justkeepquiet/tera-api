@@ -44,14 +44,14 @@ module.exports = (sequelize, DataTypes, modules) => {
 		as: "template"
 	});
 
-	model.productItems.hasOne(modules.dataModel.itemStrings, {
+	model.productItems.hasMany(modules.dataModel.itemStrings, {
 		foreignKey: "itemTemplateId",
 		sourceKey: "itemTemplateId",
 		as: "strings"
 	});
 
 	// products
-	model.products.hasOne(model.productStrings, {
+	model.products.hasMany(model.productStrings, {
 		foreignKey: "productId",
 		sourceKey: "id",
 		as: "strings"
@@ -64,14 +64,14 @@ module.exports = (sequelize, DataTypes, modules) => {
 	});
 
 	// categories
-	model.categories.hasOne(model.categoryStrings, {
+	model.categories.hasMany(model.categoryStrings, {
 		foreignKey: "categoryId",
 		sourceKey: "id",
 		as: "strings"
 	});
 
 	// promoCode
-	model.promoCodes.hasOne(model.promoCodeStrings, {
+	model.promoCodes.hasMany(model.promoCodeStrings, {
 		foreignKey: "promoCodeId",
 		sourceKey: "promoCodeId",
 		as: "strings"
@@ -84,7 +84,7 @@ module.exports = (sequelize, DataTypes, modules) => {
 		as: "info"
 	});
 
-	model.promoCodeActivated.hasOne(model.promoCodeStrings, {
+	model.promoCodeActivated.hasMany(model.promoCodeStrings, {
 		foreignKey: "promoCodeId",
 		sourceKey: "promoCodeId",
 		as: "strings"

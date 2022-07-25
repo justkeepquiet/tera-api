@@ -21,16 +21,24 @@ module.exports = (sequelize, DataTypes, modules) => {
 		items: require("./box/boxItems.model")(sequelize, DataTypes)
 	};
 
+	// items
 	model.items.hasOne(modules.dataModel.itemTemplates, {
 		foreignKey: "itemTemplateId",
 		sourceKey: "itemTemplateId",
 		as: "template"
 	});
 
-	model.items.hasOne(modules.dataModel.itemStrings, {
+	model.items.hasMany(modules.dataModel.itemStrings, {
 		foreignKey: "itemTemplateId",
 		sourceKey: "itemTemplateId",
 		as: "strings"
+	});
+
+	// info
+	model.info.hasMany(model.items, {
+		foreignKey: "boxId",
+		sourceKey: "id",
+		as: "item"
 	});
 
 	return model;

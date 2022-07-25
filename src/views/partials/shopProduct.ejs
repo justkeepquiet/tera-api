@@ -53,7 +53,7 @@
 					</div>
 				</td>
 				<td class="name">
-					<span class="item_grade_<%= item.get("template").get("rareGrade") %>"><%- item.get("strings")?.get("string") || __("[unknown]") %></span> &ndash; <%- item.get("boxItemCount") %> <%= __("pc.") %>
+					<span class="item_grade_<%= item.get("template").get("rareGrade") %>"><%- item.get("strings")[0]?.get("string") || __("[unknown]") %></span> &ndash; <%- item.get("boxItemCount") %> <%= __("pc.") %>
 				</td>
 			</tr>
 			<%_ }) _%>
@@ -71,7 +71,7 @@
 					</div>
 				</td>
 				<td class="name">
-					<span class="item_grade_<%= conversion.get("template").get("rareGrade") %>"><%- conversion.get("strings")?.get("string") || __("[unknown]") %></span>
+					<span class="item_grade_<%= conversion.get("template").get("rareGrade") %>"><%- conversion.get("strings")[0]?.get("string") || __("[unknown]") %></span>
 				</td>
 			</tr>
 			<%_ }) _%>

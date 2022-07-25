@@ -150,7 +150,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 							as: "strings",
 							model: dataModel.itemStrings,
 							where: {
-								...search ? { string: { [Op.like]: `%${search}%` } } : {}, //  && !product.get("strings")?.get("title")
+								...search ? { string: { [Op.like]: `%${search}%` } } : {}, //  && !product.get("strings")[0]?.get("title")
 								language: i18n.getLocale()
 							},
 							required: false
@@ -170,8 +170,8 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 			productsData.forEach(product => {
 				const productInfo = {
 					price: product.get("price"),
-					title: product.get("strings")?.get("title"),
-					description: product.get("strings")?.get("description"),
+					title: product.get("strings")[0]?.get("title"),
+					description: product.get("strings")[0]?.get("description"),
 					icon: product.get("icon"),
 					rareGrade: product.get("rareGrade"),
 					itemsCount: product.get("itemsCount"),
@@ -180,10 +180,10 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 
 				product.get("item").forEach(productItem => {
 					if (!productInfo.title) {
-						productInfo.title = productItem.get("strings")?.get("string");
+						productInfo.title = productItem.get("strings")[0]?.get("string");
 					}
 					if (!productInfo.description) {
-						productInfo.description = productItem.get("strings")?.get("toolTip");
+						productInfo.description = productItem.get("strings")[0]?.get("toolTip");
 					}
 					if (!productInfo.icon) {
 						productInfo.icon = productItem.get("template").get("icon");
@@ -248,8 +248,8 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataM
 				id: product.get("id"),
 				categoryId: product.get("categoryId"),
 				price: product.get("price"),
-				title: product.get("strings")?.get("title"),
-				description: product.get("strings")?.get("description"),
+				title: product.get("strings")[0]?.get("title"),
+				description: product.get("strings")[0]?.get("description"),
 				icon: product.get("icon"),
 				rareGrade: product.get("rareGrade")
 			};
@@ -303,11 +303,11 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataM
 				);
 
 				if (!productObj.title) {
-					productObj.title = firstItem.get("strings")?.get("string");
+					productObj.title = firstItem.get("strings")[0]?.get("string");
 				}
 
 				if (!productObj.description) {
-					productObj.description = firstItem.get("strings")?.get("toolTip");
+					productObj.description = firstItem.get("strings")[0]?.get("toolTip");
 				}
 
 				if (!productObj.icon) {

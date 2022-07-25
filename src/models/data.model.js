@@ -21,19 +21,21 @@ module.exports = (sequelize, DataTypes) => {
 		itemStrings: require("./data/dataItemStrings.model")(sequelize, DataTypes)
 	};
 
+	// itemConversions
 	model.itemConversions.hasOne(model.itemTemplates, {
 		foreignKey: "itemTemplateId",
 		sourceKey: "fixedItemTemplateId",
 		as: "template"
 	});
 
-	model.itemConversions.hasOne(model.itemStrings, {
+	model.itemConversions.hasMany(model.itemStrings, {
 		foreignKey: "itemTemplateId",
 		sourceKey: "fixedItemTemplateId",
 		as: "strings"
 	});
 
-	model.itemTemplates.hasOne(model.itemStrings, {
+	// itemTemplates
+	model.itemTemplates.hasMany(model.itemStrings, {
 		foreignKey: "itemTemplateId",
 		sourceKey: "itemTemplateId",
 		as: "strings"

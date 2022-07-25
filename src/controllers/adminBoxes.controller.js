@@ -29,21 +29,9 @@ module.exports.index = ({ i18n, logger, queue, boxModel, dataModel }) => [
 			const tasks = [];
 
 			(await boxModel.info.findAll({
-				order: [
-					["id", "DESC"]
-				]
-			})).forEach(box => {
-				boxes.set(box.get("id"), {
-					title: box.get("title"),
-					content: box.get("content"),
-					icon: box.get("icon"),
-					days: box.get("days"),
-					items: [],
-					processing: false
-				});
-
-				boxItems.push(boxModel.items.findAll({
-					where: { boxId: box.get("id") },
+				include: [{
+					as: "item",
+					model: boxModel.items,
 					include: [
 						{
 							as: "template",
@@ -59,7 +47,19 @@ module.exports.index = ({ i18n, logger, queue, boxModel, dataModel }) => [
 					order: [
 						["createdAt", "ASC"]
 					]
-				}));
+				}],
+				order: [
+					["id", "DESC"]
+				]
+			})).forEach(box => {
+				boxes.set(box.get("id"), {
+					title: box.get("title"),
+					content: box.get("content"),
+					icon: box.get("icon"),
+					days: box.get("days"),
+					items: box.get("item"),
+					processing: false
+				});
 
 				boxItems.push(queue.findByTag("createBox", box.get("id"), 1));
 			});
@@ -238,8 +238,8 @@ module.exports.addAction = ({ i18n, logger, hub, sequelize, reportModel, boxMode
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
-								resolvedItems[itemTemplateId].get("strings")?.get("string"),
-								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")?.get("toolTip")),
+								resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								boxModel.items.create({
@@ -295,7 +295,16 @@ module.exports.edit = ({ i18n, logger, boxModel, dataModel }) => [
 		const { id } = req.query;
 
 		try {
-			const box = await boxModel.info.findOne({ where: { id } });
+			const box = await boxModel.info.findOne({
+				where: { id },
+				include: [{
+					as: "item",
+					model: boxModel.items,
+					order: [
+						["createdAt", "ASC"]
+					]
+				}]
+			});
 
 			if (box === null) {
 				return res.redirect("/boxes");
@@ -307,12 +316,7 @@ module.exports.edit = ({ i18n, logger, boxModel, dataModel }) => [
 			const resolvedItems = {};
 			const promises = [];
 
-			(await boxModel.items.findAll({
-				where: { boxId: box.get("id") },
-				order: [
-					["createdAt", "ASC"]
-				]
-			})).forEach(boxItem => {
+			box.get("item").forEach(boxItem => {
 				itemTemplateIds.push(boxItem.get("itemTemplateId"));
 				boxItemIds.push(boxItem.get("boxItemId"));
 				boxItemCounts.push(boxItem.get("boxItemCount"));
@@ -412,7 +416,16 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 				return res.redirect("/boxes");
 			}
 
-			const box = await boxModel.info.findOne({ where: { id } });
+			const box = await boxModel.info.findOne({
+				where: { id },
+				include: [{
+					as: "item",
+					model: boxModel.items,
+					order: [
+						["createdAt", "ASC"]
+					]
+				}]
+			});
 
 			if (box === null) {
 				return res.redirect("/boxes");
@@ -458,10 +471,6 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 				});
 			}
 
-			const boxItems = await boxModel.items.findAll({
-				where: { boxId: box.get("id") }
-			});
-
 			await sequelize.transaction(async transaction => {
 				const promises = [
 					boxModel.info.update({
@@ -475,7 +484,7 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 					})
 				];
 
-				boxItems.forEach(boxItem => {
+				box.get("item").forEach(boxItem => {
 					const itemTemplateId = boxItem.get("itemTemplateId");
 					const index = Object.keys(itemTemplateIds).find(k => itemTemplateIds[k] == itemTemplateId);
 
@@ -489,8 +498,8 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 								1,
 								moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 								true,
-								resolvedItems[itemTemplateId].get("strings")?.get("string"),
-								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")?.get("toolTip")),
+								resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
+								helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
 								"1,1,1"
 							).then(boxItemId =>
 								boxModel.items.update({
@@ -540,8 +549,8 @@ module.exports.editAction = ({ i18n, logger, hub, sequelize, reportModel, boxMod
 										1,
 										moment().utc().format("YYYY-MM-DD HH:mm:ss"),
 										true,
-										resolvedItems[itemTemplateId].get("strings")?.get("string"),
-										helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")?.get("toolTip")),
+										resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
+										helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
 										"1,1,1"
 									).then(boxItemId =>
 										boxModel.items.create({
@@ -675,9 +684,30 @@ module.exports.send = ({ i18n, logger, hub, serverModel, boxModel, dataModel }) 
 		const { id } = req.query;
 
 		try {
-			const box = await boxModel.info.findOne({ where: { id } });
+			const box = await boxModel.info.findOne({
+				where: { id },
+				include: [{
+					as: "item",
+					model: boxModel.items,
+					include: [
+						{
+							as: "template",
+							model: dataModel.itemTemplates
+						},
+						{
+							as: "strings",
+							model: dataModel.itemStrings,
+							where: { language: i18n.getLocale() },
+							required: false
+						}
+					],
+					order: [
+						["createdAt", "ASC"]
+					]
+				}]
+			});
 
-			if (box === null) {
+			if (box === null || box.get("item").length === 0) {
 				return res.redirect("/boxes");
 			}
 
@@ -685,33 +715,14 @@ module.exports.send = ({ i18n, logger, hub, serverModel, boxModel, dataModel }) 
 				where: { isEnabled: 1 }
 			});
 
-			const items = await boxModel.items.findAll({
-				where: { boxId: box.get("id") },
-				include: [
-					{
-						as: "template",
-						model: dataModel.itemTemplates
-					},
-					{
-						as: "strings",
-						model: dataModel.itemStrings,
-						where: { language: i18n.getLocale() },
-						required: false
-					}
-				],
-				order: [
-					["createdAt", "ASC"]
-				]
-			});
-
 			const promises = [];
 			const itemChecks = {};
 
-			items.forEach(item =>
+			box.get("item").forEach(item =>
 				promises.push(
 					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
 						if (resultSet.length > 0) {
-							itemChecks[item.get("boxItemId")] = true;
+							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);;
 						}
 					})
 				)
@@ -731,7 +742,7 @@ module.exports.send = ({ i18n, logger, hub, serverModel, boxModel, dataModel }) 
 				content: box.get("content"),
 				icon: box.get("icon"),
 				days: box.get("days"),
-				items,
+				items: box.get("item"),
 				itemChecks
 			});
 		} catch (err) {
@@ -793,9 +804,30 @@ module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportMode
 		const errors = helpers.validationResultLog(req, logger).array();
 
 		try {
-			const box = await boxModel.info.findOne({ where: { id } });
+			const box = await boxModel.info.findOne({
+				where: { id },
+				include: [{
+					as: "item",
+					model: boxModel.items,
+					include: [
+						{
+							as: "template",
+							model: dataModel.itemTemplates
+						},
+						{
+							as: "strings",
+							model: dataModel.itemStrings,
+							where: { language: i18n.getLocale() },
+							required: false
+						}
+					],
+					order: [
+						["createdAt", "ASC"]
+					]
+				}]
+			});
 
-			if (box === null) {
+			if (box === null || box.get("item").length === 0) {
 				return res.redirect("/boxes");
 			}
 
@@ -807,37 +839,14 @@ module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportMode
 				where: { isEnabled: 1 }
 			});
 
-			const items = await boxModel.items.findAll({
-				where: { boxId: box.get("id") },
-				include: [
-					{
-						as: "template",
-						model: dataModel.itemTemplates
-					},
-					{
-						as: "strings",
-						model: dataModel.itemStrings,
-						where: { language: i18n.getLocale() },
-						required: false
-					}
-				],
-				order: [
-					["createdAt", "ASC"]
-				]
-			});
-
-			if (items.length === 0) {
-				return res.redirect("/boxes");
-			}
-
 			const promises = [];
 			const itemChecks = {};
 
-			items.forEach(item =>
+			box.get("item").forEach(item =>
 				promises.push(
 					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
 						if (resultSet.length > 0) {
-							itemChecks[item.get("boxItemId")] = true;
+							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);
 						}
 					})
 				)
@@ -845,7 +854,7 @@ module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportMode
 
 			await Promise.all(promises);
 
-			if (items.length !== Object.keys(itemChecks).length) {
+			if (box.get("item").length !== Object.keys(itemChecks).length) {
 				errors.push({
 					msg: i18n.__("There are no Service Items for the specified box item IDs.")
 				});
@@ -872,7 +881,7 @@ module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportMode
 					content: box.get("content"),
 					icon: box.get("icon"),
 					days: box.get("days"),
-					items,
+					items: box.get("item"),
 					itemChecks
 				});
 			}
@@ -884,7 +893,7 @@ module.exports.sendAction = ({ i18n, logger, queue, hub, serverModel, reportMode
 					title: box.get("title"),
 					icon: box.get("icon"),
 					days: box.get("days"),
-					items: items.map(item => ({
+					items: box.get("item").map(item => ({
 						item_id: item.get("boxItemId"),
 						item_count: item.get("boxItemCount"),
 						item_template_id: item.get("itemTemplateId")
@@ -927,9 +936,30 @@ module.exports.sendAll = ({ i18n, logger, hub, sequelize, serverModel, boxModel,
 		const { id } = req.query;
 
 		try {
-			const box = await boxModel.info.findOne({ where: { id } });
+			const box = await boxModel.info.findOne({
+				where: { id },
+				include: [{
+					as: "item",
+					model: boxModel.items,
+					include: [
+						{
+							as: "template",
+							model: dataModel.itemTemplates
+						},
+						{
+							as: "strings",
+							model: dataModel.itemStrings,
+							where: { language: i18n.getLocale() },
+							required: false
+						}
+					],
+					order: [
+						["createdAt", "ASC"]
+					]
+				}]
+			});
 
-			if (box === null) {
+			if (box === null || box.get("item").length === 0) {
 				return res.redirect("/boxes");
 			}
 
@@ -937,37 +967,14 @@ module.exports.sendAll = ({ i18n, logger, hub, sequelize, serverModel, boxModel,
 				where: { isEnabled: 1 }
 			});
 
-			const items = await boxModel.items.findAll({
-				where: { boxId: box.get("id") },
-				include: [
-					{
-						as: "template",
-						model: dataModel.itemTemplates
-					},
-					{
-						as: "strings",
-						model: dataModel.itemStrings,
-						where: { language: i18n.getLocale() },
-						required: false
-					}
-				],
-				order: [
-					["createdAt", "ASC"]
-				]
-			});
-
-			if (items.length === 0) {
-				return res.redirect("/boxes");
-			}
-
 			const promises = [];
 			const itemChecks = {};
 
-			items.forEach(item =>
+			box.get("item").forEach(item =>
 				promises.push(
 					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
 						if (resultSet.length > 0) {
-							itemChecks[item.get("boxItemId")] = true;
+							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);;
 						}
 					})
 				)
@@ -986,7 +993,7 @@ module.exports.sendAll = ({ i18n, logger, hub, sequelize, serverModel, boxModel,
 				content: box.get("content"),
 				icon: box.get("icon"),
 				days: box.get("days"),
-				items,
+				items: box.get("item"),
 				itemChecks
 			});
 		} catch (err) {
@@ -1026,9 +1033,30 @@ module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportM
 		const errors = helpers.validationResultLog(req, logger).array();
 
 		try {
-			const box = await boxModel.info.findOne({ where: { id } });
+			const box = await boxModel.info.findOne({
+				where: { id },
+				include: [{
+					as: "item",
+					model: boxModel.items,
+					include: [
+						{
+							as: "template",
+							model: dataModel.itemTemplates
+						},
+						{
+							as: "strings",
+							model: dataModel.itemStrings,
+							where: { language: i18n.getLocale() },
+							required: false
+						}
+					],
+					order: [
+						["createdAt", "ASC"]
+					]
+				}]
+			});
 
-			if (box === null) {
+			if (box === null || box.get("item").length === 0) {
 				return res.redirect("/boxes");
 			}
 
@@ -1045,37 +1073,14 @@ module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportM
 				}
 			});
 
-			const items = await boxModel.items.findAll({
-				where: { boxId: box.get("id") },
-				include: [
-					{
-						as: "template",
-						model: dataModel.itemTemplates
-					},
-					{
-						as: "strings",
-						model: dataModel.itemStrings,
-						where: { language: i18n.getLocale() },
-						required: false
-					}
-				],
-				order: [
-					["createdAt", "ASC"]
-				]
-			});
-
-			if (items.length === 0) {
-				return res.redirect("/boxes");
-			}
-
 			const promises = [];
 			const itemChecks = {};
 
-			items.forEach(item =>
+			box.get("item").forEach(item =>
 				promises.push(
 					hub.getServiceItem(item.get("boxItemId")).then(resultSet => {
 						if (resultSet.length > 0) {
-							itemChecks[item.get("boxItemId")] = true;
+							itemChecks[item.get("boxItemId")] = !!parseInt(resultSet[0].serviceItemEnableFlag);;
 						}
 					})
 				)
@@ -1083,7 +1088,7 @@ module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportM
 
 			await Promise.all(promises);
 
-			if (items.length !== Object.keys(itemChecks).length) {
+			if (box.get("item").length !== Object.keys(itemChecks).length) {
 				errors.push({
 					msg: i18n.__("There are no Service Items for the specified box item IDs.")
 				});
@@ -1109,7 +1114,7 @@ module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportM
 					content: box.get("content"),
 					icon: box.get("icon"),
 					days: box.get("days"),
-					items,
+					items: box.get("item"),
 					itemChecks
 				});
 			}
@@ -1122,7 +1127,7 @@ module.exports.sendAllAction = ({ i18n, logger, queue, hub, serverModel, reportM
 						title: box.get("title"),
 						icon: box.get("icon"),
 						days: box.get("days"),
-						items: items.map(item => ({
+						items: box.get("item").map(item => ({
 							item_id: item.get("boxItemId"),
 							item_count: item.get("boxItemCount"),
 							item_template_id: item.get("itemTemplateId")
