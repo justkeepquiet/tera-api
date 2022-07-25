@@ -24,7 +24,8 @@ function loadAccountInfo() {
 
 function catalogSearchAction(search) {
 	return apiRequest("ShopPartialCatalog", { search: search }, "html", function(result) {
-		$("#content").html(result);
+		$("#content_product").empty().hide();
+		$("#content").html(result).show();
 		loadMenu();
 	});
 }
@@ -50,7 +51,7 @@ function loadContent(page, params = null) {
 		if (page !== "Catalog" && page !== "Product" && page !== "Error") {
 			loadMenu();
 		}
-		$("#content_product").hide();
+		$("#content_product").empty().hide();
 		$("#content").html(result).show().animate({ scrollTop: 0 }, 0);
 		$("#search_input").val("");
 	});
