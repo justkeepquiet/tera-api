@@ -39,13 +39,13 @@ _%>
 		<h1 class="title"><%= __("Characters Report") %></h1>
 	</div>
 	<%- include("partials/adminReportForm", { servers, from, to, serverId, accountDBID }) -%>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
-							<table class="table table-hover data-table-desc mt-5">
+							<table class="table table-hover data-table-json mt-5">
 								<thead>
 									<tr>
 										<th><%= __("Report time") %></th>
@@ -60,22 +60,6 @@ _%>
 										<th><%= __("Server ID") %></th>
 									</tr>
 								</thead>
-								<tbody>
-									<%_ reports.forEach(report => { _%>
-									<tr>
-										<td><%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
-										<td><%= reportType[report.get("reportType")] %></td>
-										<td><%= report.get("characterId") %></td>
-										<td><%= report.get("name") || "-" %></td>
-										<td><%= report.get("level") || "-" %></td>
-										<td><%= raceId[report.get("raceId") == 4 && report.get("genderId") == 1 ? 6 : report.get("raceId")] || "-" %></td>
-										<td><%= genderId[report.get("genderId")] || "-" %></td>
-										<td><%= classId[report.get("classId")] || "-" %></td>
-										<td><%= report.get("accountDBID") %></td>
-										<td><%= report.get("serverId") %></td>
-									</tr>
-									<%_ }) _%>
-								</tbody>
 							</table>
 						</section>
 					</div>
@@ -84,3 +68,35 @@ _%>
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+reports.forEach(report => {
+	tableData.push([
+			moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
+			reportType[report.get("reportType")],
+			report.get("characterId"),
+			report.get("name") || "-",
+			report.get("level") || "-",
+			raceId[report.get("raceId") == 4 && report.get("genderId") == 1 ? 6 : report.get("raceId")] || "-",
+			genderId[report.get("genderId")] || "-",
+			classId[report.get("classId")] || "-",
+			report.get("accountDBID"),
+			report.get("serverId"),
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

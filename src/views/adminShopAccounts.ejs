@@ -20,14 +20,14 @@
 			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
 		</form>
 	</section>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-							<table class="table table-hover data-table-nosort mt-5">
+							<table class="table table-hover data-table-json mt-5">
 								<thead>
 									<tr>
 										<th><%= __("Account ID") %></th>
@@ -37,20 +37,6 @@
 										<th></th>
 									</tr>
 								</thead>
-								<tbody>
-									<%_ accounts.forEach(account => { _%>
-									<tr>
-										<td><%= account.get("accountDBID") %></td>
-										<td><%= account.get("balance") %></td>
-										<td><%= account.get("active") ? __("Yes") : __("No") %></td>
-										<td><%= moment(account.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-										<td class="text-right text-nowrap">
-											<a class="btn btn-secondary btn-sm" href="/shop_accounts/edit?accountDBID=<%= account.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
-											<a class="btn btn-secondary btn-sm" href="/shop_accounts/delete?accountDBID=<%= account.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-										</td>
-									</tr>
-									<%_ }) _%>
-								</tbody>
 							</table>
 							</div>
 						</section>
@@ -60,3 +46,32 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+accounts.forEach(account => {
+	tableData.push([
+		account.get("accountDBID"),
+		account.get("balance"),
+		account.get("active") ? __("Yes") : __("No"),
+		moment(account.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
+		`<a class="btn btn-secondary btn-sm" href="/shop_accounts/edit?accountDBID=${account.get("accountDBID")}"><i class="fa fa-pencil"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/shop_accounts/delete?accountDBID=${account.get("accountDBID")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

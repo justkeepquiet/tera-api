@@ -4,13 +4,13 @@
 		<h1 class="title"><%= __("Item Claim Boxes Logs") %></h1>
 	</div>
 	<%- include("partials/adminReportForm", { servers, from, to, serverId, accountDBID }) -%>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
-							<table class="table table-hover data-table-desc mt-5">
+							<table class="table table-hover data-table-json mt-5">
 								<thead>
 									<tr>
 										<th><%= __("Log time") %></th>
@@ -25,23 +25,6 @@
 										<th><%= __("Item template ID") %></th>
 									</tr>
 								</thead>
-								<tbody>
-									<%_ logs.forEach(log => { _%>
-									<%_ const context = JSON.parse(log.get("context")) _%>
-									<tr>
-										<td><%= moment(log.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
-										<td><%= log.get("boxId") || "-" %></td>
-										<td><%= log.get("logType") ? __({ 1: "Chronoscroll", 2: "Promo code", 3: "Shop", 4: "Box" }[log.get("logType")]) : "-" %></td>
-										<td><%= log.get("logId") || "-" %></td>
-										<td><%= log.get("accountDBID") %></td>
-										<td><%= log.get("serverId") || __("All") %></td>
-										<td><%= log.get("characterId") || __("All") %></td>
-										<td><%= context.title %></td>
-										<td><%= context.days %></td>
-										<td><%= context.items.map(item => item.item_template_id ? `${item.item_template_id} (${item.item_count})` : null).join(", ") || "-" %></td>
-									</tr>
-									<%_ }) _%>
-								</tbody>
 							</table>
 						</section>
 					</div>
@@ -50,3 +33,37 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+logs.forEach(log => {
+	const context = JSON.parse(log.get("context"));
+
+	tableData.push([
+		moment(log.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
+		log.get("boxId") || "-",
+		log.get("logType") ? __({ 1: "Chronoscroll", 2: "Promo code", 3: "Shop", 4: "Box" }[log.get("logType")]) : "-",
+		log.get("logId") || "-",
+		log.get("accountDBID"),
+		log.get("serverId") || __("All"),
+		log.get("characterId") || __("All"),
+		context.title,
+		context.days,
+		context.items.map(item => item.item_template_id ? `${item.item_template_id} (${item.item_count})` : null).join(", ") || "-"
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

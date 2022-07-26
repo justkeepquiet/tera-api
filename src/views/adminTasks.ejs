@@ -21,14 +21,14 @@
 		<a class="btn btn-warning ml-2" title="" href="/tasks/cancel_failed?handler=<%= handler %>&amp;tag=<%= tag %>" data-toggle="modal" data-target="#confirm-del-modal"><%= __("Cancel failed tasks") %></a>
 		<a class="btn btn-danger ml-2" title="" href="/tasks/cancel_all" data-toggle="modal" data-target="#confirm-del-modal"><%= __("Cancel all tasks") %></a>
 	</section>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-								<table class="table table-hover data-table-desc mt-5">
+								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
 											<th><%= __("ID") %></th>
@@ -39,18 +39,6 @@
 											<th><%= __("Message") %></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ tasks.forEach(task => { _%>
-										<tr>
-											<td><%= task.get("id") %></td>
-											<td><%= moment(task.get("updatedAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
-											<td><%= task.get("handler") %></td>
-											<td><%= task.get("tag") || "-" %></td>
-											<td class="text-<%= { "0": "primary", "1": "warning", "2": "danger"}[task.get("status")] %>"><%= __({ "0": "Created", "1": "Pending", "2": "Failed"}[task.get("status")]) %></td>
-											<td><%= task.get("message") || "-" %></td>
-										</tr>
-										<%_ }) _%>
-									</tbody>
 								</table>
 							</div>
 						</section>
@@ -60,3 +48,31 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+tasks.forEach(task => {
+	tableData.push([
+		task.get("id"),
+		moment(task.get("updatedAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
+		task.get("handler"),
+		task.get("tag") || "-",
+		`<span class="text-${{ "0": "primary", "1": "warning", "2": "danger"}[task.get("status")]}">${__({ "0": "Created", "1": "Pending", "2": "Failed"}[task.get("status")])}</span>`,
+		task.get("message") || "-",
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

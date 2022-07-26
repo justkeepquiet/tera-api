@@ -6,14 +6,14 @@
 	<section class="section">
 		<a class="btn btn-success" title="" href="/boxes/add"><%= __("Add new box") %></a>
 	</section>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-								<table class="table table-hover data-table-desc-nosort mt-5">
+								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
 											<th><%= __("ID") %></th>
@@ -25,42 +25,6 @@
 											<th></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ boxes.forEach((box, id) => { _%>
-										<tr>
-											<td><%= id %></td>
-											<td style="width:1%">
-												<div class="mw-10 item-icon-block">
-													<img src="/static/images/icons/<%= box.icon.toLowerCase() %>.png" class="item-icon" alt="">
-												</div>
-											</td>
-											<td><a href="/boxes/edit?id=<%= id %>"><%= box.title %></a></td>
-											<td><%= box.content %></td>
-											<td><%= box.days %></td>
-											<td>
-												<%_ box.items.forEach(item => { _%>
-													<div class="form-control boxed mb-1" style="overflow: hidden; background: transparent !important;">
-														<div class="item-icon-block" style="margin: -4px 10px 0 -10px;">
-															<img src="/static/images/tera-icons/icon_items/<%= item.get("template").get("icon") %>.png" class="item-icon-grade-<%= item.get("template").get("rareGrade") %> item-icon">
-															<img src="/static/images/icons/icon_grade_<%= item.get("template").get("rareGrade") %>.png" class="item-icon-grade" alt="">
-														</div>
-														<small class="item-grade-<%= item.get("template").get("rareGrade") %>"><%= item.get("strings")[0]?.get("string") || __("[unknown]") %> (<%= item.get("boxItemCount") %>)</small>
-													</div>
-												<%_ }) _%>
-											</td>
-											<td class="text-right text-nowrap">
-												<%_ if (!box.processing) { _%>
-												<a class="btn btn-secondary" href="/boxes/send?id=<%= id %>"><i class="fa fa-arrow-right"></i><i class="fa fa-user"></i></a>
-												<a class="btn btn-secondary" href="/boxes/send_all?id=<%= id %>"><i class="fa fa-arrow-right"></i><i class="fa fa-users"></i></a>
-												<%_ } else { _%>
-												<a class="btn btn-warning-outline btn-sm" href="/tasks?handler=createBox&amp;tag=<%= id %>"><i class="fa fa-tasks"></i> <i class="fa fa-refresh"></i></a>
-												<%_} _%>
-												<a class="btn btn-secondary btn-sm ml-2" href="/boxes/edit?id=<%= id %>"><i class="fa fa-pencil"></i></a>
-												<a class="btn btn-secondary btn-sm" href="/boxes/delete?id=<%= id %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-											</td>
-										</tr>
-										<%_ }) _%>
-									</tbody>
 								</table>
 							</div>
 						</section>
@@ -70,3 +34,56 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+boxes.forEach((box, id) => {
+	const items = [];
+
+	box.items.forEach(item => {
+		items.push(
+			'<div class="form-control boxed mb-1" style="overflow: hidden; background: transparent !important;">' +
+			'<div class="item-icon-block" style="margin: -4px 10px 0 -10px;">' +
+				`<img src="/static/images/tera-icons/icon_items/${item.get("template").get("icon")}.png" class="item-icon-grade-${item.get("template").get("rareGrade")} item-icon"> ` +
+				`<img src="/static/images/icons/icon_grade_${item.get("template").get("rareGrade")}.png" class="item-icon-grade" alt="">` +
+			'</div>' +
+			`<small class="item-grade-' + item.get("template").get("rareGrade") + '">${item.get("strings")[0]?.get("string") || __("[unknown]")} (${item.get("boxItemCount")})</small>` +
+			'</div>'
+		);
+	});
+
+	tableData.push([
+		id,
+		`<div class="mw-10 item-icon-block"><img src="/static/images/icons/${box.icon.toLowerCase()}.png" class="item-icon" alt=""></div>`,
+		`<a href="/boxes/edit?id=${id}">${box.title}</a>`,
+		box.content,
+		box.days,
+		items.join(""),
+		(!box.processing ?
+			`<a class="btn btn-secondary" href="/boxes/send?id=${id}"><i class="fa fa-arrow-right"></i><i class="fa fa-user"></i></a> ` +
+			`<a class="btn btn-secondary" href="/boxes/send_all?id=${id}"><i class="fa fa-arrow-right"></i><i class="fa fa-users"></i></a> ` 
+		:
+			`<a class="btn btn-warning-outline btn-sm" href="/tasks?handler=createBox&amp;tag=${id}"><i class="fa fa-tasks"></i> <i class="fa fa-refresh"></i></a> `
+		) +
+			`<a class="btn btn-secondary btn-sm ml-2" href="/boxes/edit?id=${id}"><i class="fa fa-pencil"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/boxes/delete?id=${id}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>` +
+		'</td>'
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]],
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, { width: "1%" }, null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

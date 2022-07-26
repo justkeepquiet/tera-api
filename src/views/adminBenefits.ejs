@@ -22,14 +22,14 @@
 		</div>
 	</section>
 	<%_ } else { _%>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-								<table class="table table-hover data-table-nosort mt-5">
+								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
 											<th><%= __("Account ID") %></th>
@@ -40,22 +40,6 @@
 											<th></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ benefits.forEach(benefit => { _%>
-										<%_ const active = moment(benefit.get("availableUntil")) > moment(); _%>
-										<tr>
-											<td><%= benefit.get("accountDBID") %></td>
-											<td><%= benefit.get("benefitId") %></td>
-											<td><%= accountBenefits.get(benefit.get("benefitId")) || "-" %></td>
-											<td><%= moment(benefit.get("availableUntil")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-											<td class="text-<%= active ? "success" : "danger" %>"><%= active ? __("Yes") : __("No") %></td>
-											<td class="text-right text-nowrap">
-												<a class="btn btn-secondary btn-sm" href="/benefits/edit?benefitId=<%= benefit.get("benefitId") %>&amp;accountDBID=<%= benefit.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
-												<a class="btn btn-secondary btn-sm" href="/benefits/delete?benefitId=<%= benefit.get("benefitId") %>&amp;accountDBID=<%= benefit.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-											</td>
-										</tr>
-										<%_ }) _%>
-									</tbody>
 								</table>
 							</div>
 						</section>
@@ -66,3 +50,35 @@
 	</section>
 	<%_ } _%>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+(benefits || []).forEach(benefit => {
+	const active = moment(benefit.get("availableUntil")) > moment(); 
+
+	tableData.push([
+		benefit.get("accountDBID"),
+		benefit.get("benefitId"),
+		accountBenefits.get(benefit.get("benefitId")) || "-",
+		moment(benefit.get("availableUntil")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
+		`<span class="text-${active ? "success" : "danger"}">${active ? __("Yes") : __("No")}</span>`,
+		`<a class="btn btn-secondary btn-sm" href="/benefits/edit?benefitId=${benefit.get("benefitId")}&amp;accountDBID=${benefit.get("accountDBID")}"><i class="fa fa-pencil"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/benefits/delete?benefitId=${benefit.get("benefitId")}&amp;accountDBID=${benefit.get("accountDBID")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

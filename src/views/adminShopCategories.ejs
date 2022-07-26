@@ -6,14 +6,14 @@
 	<section class="section">
 		<a class="btn btn-success" title="" href="/shop_categories/add"><%= __("Add new category") %></a>
 	</section>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-								<table class="table table-hover data-table-desc-nosort mt-5">
+								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
 											<th><%= __("Sort.") %></th>
@@ -24,21 +24,6 @@
 											<th></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ categories.forEach(category => { _%>
-										<tr>
-											<td><%= category.get("sort") %></td>
-											<td><%= category.get("id") %></td>
-											<td><%= category.get("strings")[0]?.get("title") || "-" %></td>
-											<td><%= category.get("active") ? __("Yes") : __("No") %></td>
-											<td class="text-<%= category.get("active") ? "success" : "danger" %>"><%= category.get("active") ? __("Yes") : __("No") %></td>
-											<td class="text-right">
-												<a class="btn btn-secondary btn-sm" href="/shop_categories/edit?id=<%= category.get("id") %>"><i class="fa fa-pencil"></i></a>
-												<a class="btn btn-secondary btn-sm" href="/shop_categories/delete?id=<%= category.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-											</td>
-										</tr>
-										<%_ }) _%>
-									</tbody>
 								</table>
 							</div>
 						</section>
@@ -48,3 +33,34 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+categories.forEach(category => {
+	tableData.push([
+		category.get("sort"),
+		category.get("id"),
+		category.get("strings")[0]?.get("title") || "-",
+		category.get("active") ? __("Yes") : __("No"),
+		`<span class="text-${category.get("active") ? "success" : "danger"}">${category.get("active") ? __("Yes") : __("No")}</span>`,
+		`<a class="btn btn-secondary btn-sm" href="/shop_categories/edit?id=${category.get("id")}"><i class="fa fa-pencil"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/shop_categories/delete?id=${category.get("id")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]],
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

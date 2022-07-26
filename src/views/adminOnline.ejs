@@ -19,14 +19,14 @@
 	<section class="section">
 		<a class="btn btn-danger<%- isNaN(serverId) || serverId === "" || online.length == 0 ? " disabled" : "" %>" title="" href="/online/kick_all?serverId=<%= serverId %>&amp;fromServerId=<%= serverId %>"><%= __("Kick all online players") %></a>
 	</section>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-								<table class="table table-hover data-table-desc-nosort mt-5">
+								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
 											<th><%= __("Enter game") %></th>
@@ -37,26 +37,6 @@
 											<th></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ online.forEach(account => { _%>
-										<tr>
-											<td><%= moment(account.get("info").get("lastLoginTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-											<td><%= account.get("serverId") || "-" %></td>
-											<%_ if (account.get("info").get("permission") >= 256) { _%>
-											<td class="text-primary"><%= account.get("accountDBID") %> <i class="fa fa-wrench"></i></td>
-											<%_ } else if (account.get("info").get("permission") >= 1) { _%>
-											<td class="text-success"><%= account.get("accountDBID") %> <i class="fa fa-level-up"></i></td>
-											<%_ } else { _%>
-											<td><%= account.get("accountDBID") %></td>
-											<%_ } _%>
-											<td><%= account.get("info").get("userName") %></a></td>
-											<td><%= account.get("info").get("lastLoginIP") %></td>
-											<td class="text-right text-nowrap">
-												<a class="btn btn-secondary btn-sm" href="/online/kick?accountDBID=<%= account.get("accountDBID") %>&amp;serverId=<%= account.get("serverId") %>&amp;fromServerId=<%= serverId %>"><i class="fa fa-times"></i></a>
-											</td>
-										</tr>
-										<%_ }) _%>
-									</tbody>
 								</table>
 							</div>
 						</section>
@@ -66,3 +46,39 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+online.forEach(account => {
+	tableData.push([
+		moment(account.get("info").get("lastLoginTime")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
+		account.get("serverId") || "-",
+		(account.get("info").get("permission") >= 256 ?
+			`<span class="text-primary">${account.get("accountDBID")} <i class="fa fa-wrench"></i></span>` :
+			(account.get("info").get("permission") >= 1 ?
+				`<span class="text-success">${account.get("accountDBID")} <i class="fa fa-level-up"></i></span>` :
+				account.get("accountDBID")
+			)
+		),
+		account.get("info").get("userName"),
+		account.get("info").get("lastLoginIP"),
+		`<a class="btn btn-secondary btn-sm" href="/online/kick?accountDBID=${account.get("accountDBID")}&amp;serverId=${account.get("serverId")}&amp;fromServerId=${serverId || ""}"><i class="fa fa-times"></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]],
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

@@ -6,14 +6,14 @@
 	<section class="section">
 		<a class="btn btn-success" title="" href="/servers/add"><%= __("Add new server") %></a>
 	</section>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-								<table class="table table-hover data-table-nosort mt-5">
+								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
 											<th><%= __("ID") %></th>
@@ -29,26 +29,6 @@
 											<th></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ servers.forEach(server => { _%>
-										<tr>
-											<td><%= server.get("serverId") %></td>
-											<td><a href="/servers/edit?serverId=<%= server.get("serverId") %>"><%= server.get("nameString") %></a></td>
-											<td><%= server.get("loginIp") %>:<%= server.get("loginPort") %></td>
-											<td><%= server.get("language") %></td>
-											<td><%= server.get("isPvE") ? "PvE" : "PvP" %></td>
-											<td class="text-<%= server.get("isEnabled") ? "success" : "danger" %>"><%= server.get("isEnabled") ? __("Yes") : __("No") %></td>
-											<td><%= server.get("isCrowdness") ? __("Yes") : __("No") %></td>
-											<td class="text-<%= server.get("isAvailable") ? "success" : "danger" %>"><%= server.get("isAvailable") ? __("Yes") : __("No") %></td>
-											<td><%= server.get("usersOnline") %></td>
-											<td><%= server.get("usersTotal") %></td>
-											<td class="text-right text-nowrap">
-												<a class="btn btn-secondary btn-sm" href="/servers/edit?serverId=<%= server.get("serverId") %>"><i class="fa fa-pencil"></i></a>
-												<a class="btn btn-secondary btn-sm" href="/servers/delete?serverId=<%= server.get("serverId") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-											</td>
-										</tr>
-										<%_ }) _%>
-									</tbody>
 								</table>
 							</div>
 						</section>
@@ -58,3 +38,38 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+servers.forEach(server => {
+	tableData.push([
+		server.get("serverId"),
+		`<a href="/servers/edit?serverId=${server.get("serverId")}">${server.get("nameString")}</a>`,
+		`${server.get("loginIp")}:${server.get("loginPort")}`,
+		server.get("language"),
+		server.get("isPvE") ? "PvE" : "PvP",
+		`<span class="text-${server.get("isEnabled") ? "success" : "danger"}">${server.get("isEnabled") ? __("Yes") : __("No")}</span>`,
+		server.get("isCrowdness") ? __("Yes") : __("No"),
+		`<span class="text-${server.get("isAvailable") ? "success" : "danger"}">${server.get("isAvailable") ? __("Yes") : __("No")}</span>`,
+		server.get("usersOnline"),
+		server.get("usersTotal"),
+		`<a class="btn btn-secondary btn-sm" href="/servers/edit?serverId=${server.get("serverId")}"><i class="fa fa-pencil"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/servers/delete?serverId=${server.get("serverId")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, null, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

@@ -6,14 +6,14 @@
 	<section class="section">
 		<a class="btn btn-success" title="" href="/maintenance/add"><%= __("Add new maintenance plan") %></a>
 	</section>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-								<table class="table table-hover data-table-nosort mt-5">
+								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
 											<th><%= __("ID") %></th>
@@ -24,22 +24,6 @@
 											<th></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ maintenances.forEach(maintenance => { _%>
-										<%_ const active = moment(maintenance.get("startTime")) < moment() && moment(maintenance.get("endTime")) > moment(); _%>
-										<tr>
-											<td><%= maintenance.get("id") %></td>
-											<td><%= moment(maintenance.get("startTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-											<td><%= moment(maintenance.get("endTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-											<td class="text-<%= active ? "success" : "danger" %>"><%= active ? __("Yes") : __("No") %></td>
-											<td><%= maintenance.get("description") || "-" %></td>
-											<td class="text-right text-nowrap">
-												<a class="btn btn-secondary btn-sm" href="/maintenance/edit?id=<%= maintenance.get("id") %>"><i class="fa fa-pencil"></i></a>
-												<a class="btn btn-secondary btn-sm" href="/maintenance/delete?id=<%= maintenance.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-											</td>
-										</tr>
-										<%_ }) _%>
-									</tbody>
 								</table>
 							</div>
 						</section>
@@ -49,3 +33,35 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+maintenances.forEach(maintenance => {
+	const active = moment(maintenance.get("startTime")) < moment() && moment(maintenance.get("endTime")) > moment();
+
+	tableData.push([
+		maintenance.get("id"),
+		moment(maintenance.get("startTime")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
+		moment(maintenance.get("endTime")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
+		`<span class="text-${active ? "success" : "danger"}">${active ? __("Yes") : __("No")}</span>`,
+		maintenance.get("description") || "-",
+		`<a class="btn btn-secondary btn-sm" href="/maintenance/edit?id=${maintenance.get("id")}"><i class="fa fa-pencil"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/maintenance/delete?id=${maintenance.get("id")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

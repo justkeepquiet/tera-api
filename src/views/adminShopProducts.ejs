@@ -19,7 +19,7 @@
 	<section class="section">
 		<a class="btn btn-success" title="" href="/shop_products/add?categoryId=<%= categoryId %>&amp;fromCategoryId=<%= categoryId %>"><%= __("Add new product") %></a>
 	</section>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
@@ -52,21 +52,22 @@
 <%- contentFor("scripts") %>
 <%_
 const tableData = [];
+
 products.forEach((product, id) => {
 	tableData.push([
 		product.sort,
 		id,
 		'<div class="mw-10 item-icon-block">' +
-			'<img src="/static/images/tera-icons/icon_items/' + product.icon + '.png" class="item-icon-grade-' + product.rareGrade + ' item-icon">' +
-			'<img src="/static/images/icons/icon_grade_' + product.rareGrade + '.png" class="item-icon-grade" alt="">' +
+			`<img src="/static/images/tera-icons/icon_items/${product.icon}.png" class="item-icon-grade-${product.rareGrade} item-icon">` +
+			`<img src="/static/images/icons/icon_grade_${product.rareGrade}.png" class="item-icon-grade" alt="">` +
 			'</div>',
-		'<a class="item-grade-' + product.rareGrade + '" href="/shop_products/edit?id=' + id + '&amp;fromCategoryId=' + categoryId + '">' + (product.title || __("[unknown]")) + '</a>',
-		'(' + product.categoryId + ') <a href="/shop_products?categoryId=' + product.categoryId + '">' + product.categoryTitle + '</a>',
+		`<a class="item-grade-${product.rareGrade}" href="/shop_products/edit?id=${id}&amp;fromCategoryId=${categoryId || ""}">${product.title || __("[unknown]")}</a>`,
+		`(${product.categoryId}) <a href="/shop_products?categoryId=${product.categoryId}">${product.categoryTitle}</a>`,
 		product.price,
 		product.active ? __("Yes") : __("No"),
-		'<span class="text-' + (product.published ? "success" : "danger") + '">' + (product.published ? __("Yes") : __("No")) + '</span>',
-		'<a class="btn btn-secondary btn-sm" href="/shop_products/edit?id=' + id + '&amp;fromCategoryId=' + categoryId + '"><i class="fa fa-pencil"></i></a> ' +
-			'<a class="btn btn-secondary btn-sm" href="/shop_products/delete?id=' + id + '&amp;categoryId=' + product.categoryId + '&amp;fromCategoryId=' + categoryId + '" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>'
+		`<span class="text-${product.published ? "success" : "danger"}">${product.published ? __("Yes") : __("No")}</span>`,
+		`<a class="btn btn-secondary btn-sm" href="/shop_products/edit?id=${id}&amp;fromCategoryId=${categoryId || ""}"><i class="fa fa-pencil"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/shop_products/delete?id=${id}&amp;categoryId=${product.categoryId}&amp;fromCategoryId=${categoryId || ""}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
 	]);
 });
 _%>
@@ -82,5 +83,6 @@ _%>
 		$(".dataTables_length select, .dataTables_filter input").each(function() {
 			$(this).addClass("boxed");
 		});
+		$(".section").show();
 	});
 </script>

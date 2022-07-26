@@ -6,14 +6,14 @@
 	<section class="section">
 		<a class="btn btn-success" title="" href="/bans/add"><%= __("Ban account") %></a>
 	</section>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-								<table class="table table-hover data-table-nosort mt-5">
+								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
 											<th><%= __("Account ID") %></th>
@@ -25,23 +25,6 @@
 											<th></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ bans.forEach(ban => { _%>
-										<%_ const active = moment(ban.get("startTime")) < moment() && moment(ban.get("endTime")) > moment() && ban.get("active"); _%>
-										<tr>
-											<td><%= ban.get("accountDBID") %></td>
-											<td><%= moment(ban.get("startTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-											<td><%= moment(ban.get("endTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-											<td class="text-<%= active ? "success" : "danger" %>"><%= active ? __("Yes") : __("No") %></td>
-											<td><%= ban.get("description") %></td>
-											<td><%- JSON.parse(ban.get("ip") || "[]").join("<br>") || "-" %></td>
-											<td class="text-right text-nowrap">
-												<a class="btn btn-secondary btn-sm" href="/bans/edit?accountDBID=<%= ban.get("accountDBID") %>"><i class="fa fa-pencil"></i></a>
-												<a class="btn btn-secondary btn-sm" href="/bans/delete?accountDBID=<%= ban.get("accountDBID") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-											</td>
-										</tr>
-										<%_ }) _%>
-									</tbody>
 								</table>
 							</div>
 						</section>
@@ -51,3 +34,37 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+bans.forEach(ban => {
+	const active = moment(ban.get("startTime")) < moment() && moment(ban.get("endTime")) > moment() && ban.get("active");
+
+	tableData.push([
+		ban.get("accountDBID"),
+		moment(ban.get("startTime")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
+		moment(ban.get("endTime")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
+		`<span class="text-${active ? "success" : "danger"}">${active ? __("Yes") : __("No")}</span>`,
+		ban.get("description"),
+		JSON.parse(ban.get("ip") || "[]").join("<br>") || "-",
+		`<a class="btn btn-secondary btn-sm" href="/bans/edit?accountDBID=${ban.get("accountDBID")}"><i class="fa fa-pencil"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/bans/delete?accountDBID=${ban.get("accountDBID")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]],
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

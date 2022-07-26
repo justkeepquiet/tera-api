@@ -6,14 +6,14 @@
 	<section class="section">
 		<a class="btn btn-success" title="" href="/server_strings/add"><%= __("Add new srtrings") %></a>
 	</section>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-								<table class="table table-hover data-table-nosort mt-5">
+								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
 											<th><%= __("Game language") %></th>
@@ -29,26 +29,6 @@
 											<th></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ strings.forEach(string => { _%>
-										<tr>
-											<td><%= string.get("language") %></td>
-											<td><%= string.get("categoryPvE") %></td>
-											<td><%= string.get("categoryPvP") %></td>
-											<td><%= string.get("serverOffline") %></td>
-											<td><%= string.get("serverLow") %></td>
-											<td><%= string.get("serverMedium") %></td>
-											<td><%= string.get("serverHigh") %></td>
-											<td><%= string.get("crowdNo") %></td>
-											<td><%= string.get("crowdYes") %></td>
-											<td><%= string.get("popup") %></td>
-											<td class="text-right text-nowrap">
-												<a class="btn btn-secondary btn-sm" href="/server_strings/edit?language=<%= string.get("language") %>"><i class="fa fa-pencil"></i></a>
-												<a class="btn btn-secondary btn-sm" href="/server_strings/delete?language=<%= string.get("language") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-											</td>
-										</tr>
-										<%_ }) _%>
-									</tbody>
 								</table>
 							</div>
 						</section>
@@ -58,3 +38,38 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+strings.forEach(string => {
+	tableData.push([
+		string.get("language"),
+		string.get("categoryPvE"),
+		string.get("categoryPvP"),
+		string.get("serverOffline"),
+		string.get("serverLow"),
+		string.get("serverMedium"),
+		string.get("serverHigh"),
+		string.get("crowdNo"),
+		string.get("crowdYes"),
+		string.get("popup"),
+		`<a class="btn btn-secondary btn-sm" href="/server_strings/edit?language=${string.get("language")}"><i class="fa fa-pencil"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/server_strings/delete?language=${string.get("language")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, null, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

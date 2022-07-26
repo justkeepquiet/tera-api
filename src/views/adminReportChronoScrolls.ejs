@@ -4,13 +4,13 @@
 		<h1 class="title"><%= __("Chronoscrolls Report") %></h1>
 	</div>
 	<%- include("partials/adminReportForm", { servers, from, to, serverId, accountDBID }) -%>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
-							<table class="table table-hover data-table-desc mt-5">
+							<table class="table table-hover data-table-json mt-5">
 								<thead>
 									<tr>
 										<th><%= __("Report time") %></th>
@@ -19,16 +19,6 @@
 										<th><%= __("Server ID") %></th>
 									</tr>
 								</thead>
-								<tbody>
-									<%_ reports.forEach(report => { _%>
-									<tr>
-										<td><%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
-										<td><%= report.get("chronoId") %></td>
-										<td><%= report.get("accountDBID") %></td>
-										<td><%= report.get("serverId") %></td>
-									</tr>
-									<%_ }) _%>
-								</tbody>
 							</table>
 						</section>
 					</div>
@@ -37,3 +27,29 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+reports.forEach(report => {
+	tableData.push([
+		moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
+		report.get("chronoId"),
+		report.get("accountDBID"),
+		report.get("serverId")
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

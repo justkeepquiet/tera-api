@@ -26,14 +26,14 @@
 		</div>
 	</section>
 	<%_ } else { _%>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-								<table class="table table-hover data-table-nosort mt-5">
+								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
 											<th><%= __("Activation time") %></th>
@@ -43,19 +43,6 @@
 											<th></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ promocodes.forEach(activated => { _%>
-										<tr>
-											<td><%= moment(activated.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
-											<td><%= activated.get("promoCodeId") %></td>
-											<td><%= activated.get("info").get("promoCode") %></td>
-											<td><%= activated.get("accountDBID") %></td>
-											<td class="text-right">
-												<a class="btn btn-secondary btn-sm" href="/promocodes_activated/delete?id=<%= activated.get("id") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-											</td>
-										</tr>
-										<%_ }) _%>
-									</tbody>
 								</table>
 							</div>
 						</section>
@@ -66,3 +53,31 @@
 	</section>
 	<%_ } _%>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+(promocodes || []).forEach(activated => {
+	tableData.push([
+		moment(activated.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
+		activated.get("promoCodeId"),
+		activated.get("info").get("promoCode"),
+		activated.get("accountDBID"),
+		`<a class="btn btn-secondary btn-sm" href="/promocodes_activated/delete?id=${activated.get("id")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

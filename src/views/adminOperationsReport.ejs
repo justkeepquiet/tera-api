@@ -31,13 +31,13 @@ _%>
 			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
 		</form>
 	</section>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
-							<table class="table table-hover data-table-desc-nosort mt-5">
+							<table class="table table-hover data-table-json mt-5">
 								<thead>
 									<tr>
 										<th><%= __("Report time") %></th>
@@ -48,29 +48,6 @@ _%>
 										<th></th>
 									</tr>
 								</thead>
-								<tbody>
-									<%_ reports.forEach(report => {
-										const [query, body] = JSON.parse(report.get("payload"));
-										const parameters = [];
-
-										Object.keys(query).forEach(key => {
-											if (query[key] !== "" && !/^from.+/.test(key)) {
-												parameters.push(`<span class="text-secondary">${strings[key] || key}</span>: ${query[key]}`)
-											}
-										});
-									_%>
-									<tr>
-										<td><%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
-										<td><%= report.get("userId") %></td>
-										<td><a href="/operations_report/view?id=<%= report.get("id") %>&amp;from=<%= from.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>&amp;to=<%= to.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>"><%= report.get("function") %></a></td>
-										<td><%- parameters.join("<br>") || "-" %></td>
-										<td><%= report.get("ip") %></td>
-										<td class="text-right">
-											<a class="btn btn-secondary btn-sm" href="/operations_report/view?id=<%= report.get("id") %>&amp;from=<%= from.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>&amp;to=<%= to.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>"><i class="fa fa-file-text-o"></i></a>
-										</td>
-									</tr>
-									<%_ }) _%>
-								</tbody>
 							</table>
 						</section>
 					</div>
@@ -79,3 +56,42 @@ _%>
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+reports.forEach(report => {
+	const [query, body] = JSON.parse(report.get("payload"));
+	const parameters = [];
+
+	Object.keys(query).forEach(key => {
+		if (query[key] !== "" && !/^from.+/.test(key)) {
+			parameters.push(`<span class="text-secondary">${strings[key] || key}</span>: ${query[key]}`)
+		}
+	});
+
+	tableData.push([
+		moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
+		report.get("userId"),
+		`<a href="/operations_report/view?id=${report.get("id")}&amp;from=${from.tz(user.tz).format("YYYY-MM-DDTHH:mm")}&amp;to=${to.tz(user.tz).format("YYYY-MM-DDTHH:mm")}">${report.get("function")}</a>`,
+		parameters.join("<br>") || "-",
+		report.get("ip"),
+		`<a class="btn btn-secondary btn-sm" href="/operations_report/view?id=${report.get("id")}&amp;from=${from.tz(user.tz).format("YYYY-MM-DDTHH:mm")}&amp;to=${to.tz(user.tz).format("YYYY-MM-DDTHH:mm")}"><i class="fa fa-file-text-o"></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]],
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

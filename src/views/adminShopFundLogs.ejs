@@ -20,13 +20,13 @@
 			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
 		</form>
 	</section>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
-							<table class="table table-hover data-table-desc mt-5">
+							<table class="table table-hover data-table-json mt-5">
 								<thead>
 									<tr>
 										<th><%= __("ID") %></th>
@@ -38,20 +38,6 @@
 										<th><%= __("Info") %></th>
 									</tr>
 								</thead>
-								<tbody>
-									<%_ logs.forEach(log => { _%>
-									<%_ const [type, value, info] = log.get("description").split(",") _%>
-									<tr>
-										<td><%= log.get("id") %></td>
-										<td><%= moment(log.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss") %></td>
-										<td><%= log.get("accountDBID") %></td>
-										<td><%= log.get("amount") %></td>
-										<td><%= __(type) || "-" %></td>
-										<td><%= value || "-" %></td>
-										<td><%= info || "-" %></td>
-									</tr>
-									<%_ }) _%>
-								</tbody>
 							</table>
 						</section>
 					</div>
@@ -60,3 +46,33 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+logs.forEach(log => {
+	const [type, value, info] = log.get("description").split(",");
+	tableData.push([
+		log.get("id"),
+		moment(log.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
+		log.get("accountDBID"),
+		log.get("amount"),
+		__(type) || "-",
+		value || "-",
+		info || "-"
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

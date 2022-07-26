@@ -166,6 +166,7 @@ $(function() {
 	});
 });
 
+/*
 $(function() {
 	$(".data-table").DataTable(dataTablesSettings);
 	$(".data-table-desc").DataTable($.extend({}, dataTablesSettings, {
@@ -193,6 +194,7 @@ $(function() {
 		$(this).addClass("boxed");
 	});
 });
+*/
 
 $(function() {
 	// set sortable options

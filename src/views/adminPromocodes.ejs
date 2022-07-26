@@ -6,14 +6,14 @@
 	<section class="section">
 		<a class="btn btn-success" title="" href="/promocodes/add"><%= __("Create new promo code") %></a>
 	</section>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
 							<div class="table-responsive">
-								<table class="table table-hover data-table-nosort mt-5">
+								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
 											<th><%= __("ID") %></th>
@@ -26,24 +26,6 @@
 											<th></th>
 										</tr>
 									</thead>
-									<tbody>
-										<%_ promocodes.forEach(promocode => { _%>
-										<tr>
-											<td><%= promocode.get("promoCodeId") %></td>
-											<td><%= promocode.get("promoCode") %></td>
-											<td><%= promocode.get("strings")[0]?.get("description") || "-" %></td>
-											<td><%= promocode.get("function") %></td>
-											<td><%= promocode.get("active") ? __("Yes") : __("No") %></td>
-											<td><%= moment(promocode.get("validAfter")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-											<td><%= moment(promocode.get("validBefore")).tz(user.tz).format("YYYY-MM-DD HH:mm") %></td>
-											<td class="text-right text-nowrap">
-												<!--a class="btn btn-secondary btn-sm" href="/promocode_strings?promoCodeId=<%= promocode.get("promoCodeId") %>"><i class="fa fa-bars"></i></a-->
-												<a class="btn btn-secondary btn-sm" href="/promocodes/edit?promoCodeId=<%= promocode.get("promoCodeId") %>"><i class="fa fa-pencil"></i></a>
-												<a class="btn btn-secondary btn-sm" href="/promocodes/delete?promoCodeId=<%= promocode.get("promoCodeId") %>" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>
-											</td>
-										</tr>
-										<%_ }) _%>
-									</tbody>
 								</table>
 							</div>
 						</section>
@@ -53,3 +35,36 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+promocodes.forEach(promocode => {
+	tableData.push([
+		promocode.get("promoCodeId"),
+		promocode.get("promoCode"),
+		promocode.get("strings")[0]?.get("description") || "-",
+		promocode.get("function"),
+		promocode.get("active") ? __("Yes") : __("No"),
+		moment(promocode.get("validAfter")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
+		moment(promocode.get("validBefore")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
+		`<a class="btn btn-secondary btn-sm" href="/promocodes/edit?promoCodeId=${promocode.get("promoCodeId")}"><i class="fa fa-pencil"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/promocodes/delete?promoCodeId=${promocode.get("promoCodeId")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]],
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>

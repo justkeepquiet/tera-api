@@ -57,13 +57,13 @@ _%>
 		</div>
 	</section>
 	<%_ } else { _%>
-	<section class="section">
+	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
 				<div class="card">
 					<div class="card-block">
 						<section>
-							<table class="table table-hover data-table">
+							<table class="table table-hover data-table-json">
 								<thead>
 									<tr>
 										<th><%= __("ID") %></th>
@@ -76,20 +76,6 @@ _%>
 										<th><%= __("Server ID") %></th>
 									</tr>
 								</thead>
-								<tbody>
-									<%_ characters.forEach(character => { _%>
-									<tr>
-										<td><%= character.get("characterId") %></td>
-										<td><%= character.get("name") || "-" %></td>
-										<td><%= character.get("level") || "-" %></td>
-										<td><%= raceId[character.get("raceId") == 4 && character.get("genderId") == 1 ? 6 : character.get("raceId")] || "-" %></td>
-										<td><%= genderId[character.get("genderId")] || "-" %></td>
-										<td><%= classId[character.get("classId")] || "-" %></td>
-										<td><%= character.get("accountDBID") %></td>
-										<td><%= character.get("serverId") %></td>
-									</tr>
-									<%_ }) _%>
-								</tbody>
 							</table>
 						</section>
 					</div>
@@ -99,3 +85,32 @@ _%>
 	</section>
 	<%_ } _%>
 </article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+(characters || []).forEach(character => {
+	tableData.push([
+		character.get("characterId"),
+		character.get("name") || "-",
+		character.get("level") || "-",
+		raceId[character.get("raceId") == 4 && character.get("genderId") == 1 ? 6 : character.get("raceId")] || "-",
+		genderId[character.get("genderId")] || "-",
+		classId[character.get("classId")] || "-",
+		character.get("accountDBID"),
+		character.get("serverId")
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable
+		}));
+		$(".dataTables_length select, .dataTables_filter input").each(function() {
+			$(this).addClass("boxed");
+		});
+		$(".section").show();
+	});
+</script>
