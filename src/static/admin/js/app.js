@@ -169,14 +169,17 @@ $(function() {
 /*
 $(function() {
 	$(".data-table").DataTable(dataTablesSettings);
+
 	$(".data-table-desc").DataTable($.extend({}, dataTablesSettings, {
 		order: [[0, "desc"]]
 	}));
+
 	$(".data-table-nosort").DataTable($.extend({}, dataTablesSettings, {
 		columnDefs: [
 			{ orderable: false, targets: -1 }
 		]
 	}));
+
 	$(".data-table-desc-nosort").DataTable($.extend({}, dataTablesSettings, {
 		order: [[0, "desc"]],
 		columnDefs: [
@@ -187,9 +190,11 @@ $(function() {
 	$("#sidebar-menu a").on("click", function() {
 		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort, .data-table-json").DataTable().state.clear();
 	});
+
 	$("form").on("submit", function() {
 		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort, .data-table-json").DataTable().state.clear();
 	});
+
 	$(".dataTables_length select, .dataTables_filter input").each(function() {
 		$(this).addClass("boxed");
 	});
@@ -229,10 +234,12 @@ $(function() {
 	$("#sidebar-menu, #customize-menu").metisMenu({
 		activeClass: "open"
 	});
+
 	$("#sidebar-collapse-btn").on("click", function(event) {
 		event.preventDefault();
 		$("#app").toggleClass("sidebar-open");
 	});
+
 	$("#sidebar-overlay").on("click", function() {
 		$("#app").removeClass("sidebar-open");
 	});
@@ -256,6 +263,14 @@ $(function() {
 			triggerOnTouchEnd: false
 		});
 	}
+});
+
+$(function() {
+	$("#confirm-modal, #confirm-del-modal").on("show.bs.modal", function(event) {
+		$(this).find(".modal-yes").click(function() {
+			window.location.href = $(event.relatedTarget).attr("href");
+		});
+	});
 });
 
 /*
@@ -282,6 +297,15 @@ var modalMedia = {
 	}
 };
 */
+
+$(function() {
+	loadNotifications();
+	setInterval(loadNotifications, 60000);
+
+	$("#notifications-dropdown").click(function() {
+		loadNotifications();
+	});
+});
 
 function loadNotifications() {
 	$.ajax({
@@ -311,22 +335,6 @@ function loadNotifications() {
 		}
 	});
 }
-
-$(function() {
-	loadNotifications();
-	setInterval(loadNotifications, 60000);
-	$("#notifications-dropdown").click(function() {
-		loadNotifications();
-	});
-});
-
-$(function() {
-	$("#confirm-modal, #confirm-del-modal").on("show.bs.modal", function(event) {
-		$(this).find(".modal-yes").click(function() {
-			window.location.href = $(event.relatedTarget).attr("href");
-		});
-	});
-});
 
 $(function() {
 	$("body").addClass("loaded");
