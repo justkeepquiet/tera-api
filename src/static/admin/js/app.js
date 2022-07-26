@@ -184,10 +184,10 @@ $(function() {
 	}));
 
 	$("#sidebar-menu a").on("click", function() {
-		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort").DataTable().state.clear();
+		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort, .data-table-json").DataTable().state.clear();
 	});
 	$("form").on("submit", function() {
-		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort").DataTable().state.clear();
+		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort, .data-table-json").DataTable().state.clear();
 	});
 	$(".dataTables_length select, .dataTables_filter input").each(function() {
 		$(this).addClass("boxed");

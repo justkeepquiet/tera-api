@@ -41,6 +41,7 @@ function loadMenu(active = 0) {
 }
 
 function loadContent(page, params = null) {
+	$(".item-icon").attr("src", "");
 	$(".navbar-fixed-top .nav li").removeClass("active");
 	$(".navbar-fixed-top .nav li a[data-page='" + page.split("?")[0] + "']").parent().addClass("active");
 

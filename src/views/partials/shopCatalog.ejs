@@ -6,8 +6,8 @@
 	<div class="row well well-small">
 		<div class="btn-info item-icon-block">
 			<a class="buy" data-id="<%= id %>" href="#">
-				<img src="/public/shop/images/tera-icons/icon_items/<%= product.icon %>.png" class="icon_grade_<%= product.rareGrade %> item-icon" alt="">
-				<img src="/public/shop/images/icons/icon_grade_<%= product.rareGrade %>.png" class="item-icon-grade" alt="">
+				<img data-src="/public/shop/images/tera-icons/icon_items/<%= product.icon %>.png" class="icon_grade_<%= product.rareGrade %> item-icon" alt="">
+				<img data-src="/public/shop/images/icons/icon_grade_<%= product.rareGrade %>.png" class="item-icon-grade" alt="">
 			</a>
 			<div class="text-center">
 				<span class="gold"><strong><%= product.price %></strong> <i class="fas fa-coins"></i></span>
@@ -29,7 +29,11 @@
 </div>
 <script type="text/javascript">
 	$(function() {
-		$('.buy').click(function() {
+		$("#content .item-icon, #content .item-icon-grade").lazy({
+			appendScroll: $("#content"),
+			visibleOnly: true
+		});
+		$(".buy").click(function() {
 			loadContentProduct({ id: $(this).data("id"), search: "<%= search %>" });
 		});
 	});

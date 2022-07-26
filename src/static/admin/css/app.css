@@ -1447,6 +1447,8 @@ span a {
     color: #fff;
     border-color: #0075FF;
     background-color: #0075FF; }
+  .pagination .page-link:focus {
+    box-shadow: none; }
 
 .sameheight {
   display: -webkit-box;
