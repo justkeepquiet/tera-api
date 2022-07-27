@@ -161,7 +161,7 @@ module.exports.addAction = modules => [
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true })
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Box item ID field has invalid value.")),
+			.isInt({ min: 1 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
 		body("boxItemCounts.*")
 			.isInt({ min: 1 }).withMessage(modules.i18n.__("Count field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
@@ -383,7 +383,7 @@ module.exports.editAction = modules => [
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true })
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Box item ID field has invalid value.")),
+			.isInt({ min: 1 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
 		body("boxItemCounts.*")
 			.isInt({ min: 1 }).withMessage(modules.i18n.__("Count field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
@@ -828,7 +828,7 @@ module.exports.sendAction = modules => [
 
 			if (box.get("item").length !== itemChecks.size) {
 				errors.push({
-					msg: modules.i18n.__("There are no Service Items for the specified box item IDs.")
+					msg: modules.i18n.__("There are no Service Items for the specified service item IDs.")
 				});
 			}
 
@@ -1064,7 +1064,7 @@ module.exports.sendAllAction = modules => [
 
 			if (box.get("item").length !== itemChecks.size) {
 				errors.push({
-					msg: modules.i18n.__("There are no Service Items for the specified box item IDs.")
+					msg: modules.i18n.__("There are no Service Items for the specified service item IDs.")
 				});
 			}
 

@@ -47,5 +47,12 @@ module.exports = (sequelize, DataTypes) => {
 		as: "conversion"
 	});
 
+	// itemStrings
+	model.itemStrings.hasOne(model.itemTemplates, {
+		foreignKey: "itemTemplateId",
+		sourceKey: "itemTemplateId",
+		as: "template"
+	});
+
 	return model;
 };

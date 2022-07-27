@@ -337,6 +337,59 @@ function loadNotifications() {
 }
 
 $(function() {
+	addAutocomplete();
+});
+
+function addAutocomplete() {
+	$("input[name='accountDBID'][type='text']").autocomplete({
+		serviceUrl: "/api/autocompleteAccounts",
+		width: 400,
+		noCache: true,
+		formatResult: function(suggestion, currentValue) {
+			var value = suggestion.value + " - " + suggestion.data.userName;
+
+			if (suggestion.data.email != "") {
+				value += " (" + suggestion.data.email + ")";
+			}
+
+			if (suggestion.data.character != "") {
+				value += " [" + suggestion.data.character + "]";
+			}
+
+			return $.Autocomplete.defaults.formatResult({ value: value }, currentValue);
+		}
+	});
+
+	$("input[name='characterId'][type='text']").autocomplete({
+		serviceUrl: "/api/autocompleteCharacters",
+		width: 400,
+		noCache: true,
+		formatResult: function(suggestion, currentValue) {
+			var value = suggestion.value + " - " + suggestion.data.name + " (" + suggestion.data.serverId + ")";
+
+			return $.Autocomplete.defaults.formatResult({ value: value }, currentValue);
+		}
+	});
+
+	$("input[name='itemTemplateIds\\[\\]'][type='text']").autocomplete({
+		serviceUrl: "/api/autocompleteItems",
+		width: 500,
+		forceFixPosition: true,
+		appendTo: ".content",
+		noCache: true,
+		formatResult: function(suggestion, currentValue) {
+			var value = suggestion.data.title + " (" + suggestion.value + ")";
+
+			return "<div class='item-icon-input'>" +
+				"<img src='/static/images/tera-icons/icon_items/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
+				"<img src='/static/images/icons/icon_grade_" + suggestion.data.rareGrade + ".png' class='item-icon-grade'>" +
+			"</div>" +
+			"<span class='item-grade-" + suggestion.data.rareGrade + "'>" + $.Autocomplete.defaults.formatResult({ value: value }, currentValue) + "</span>";
+		}
+	});
+}
+
+$(function() {
 	$("body").addClass("loaded");
 });
 

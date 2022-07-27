@@ -25,7 +25,11 @@ module.exports = (sequelize, DataTypes) => {
 		online: require("./account/accountOnline.model")(sequelize, DataTypes)
 	};
 
+	// info
 	model.info.hasOne(model.bans, { foreignKey: "accountDBID", as: "banned" });
+	model.info.hasMany(model.characters, { foreignKey: "accountDBID", as: "character" });
+
+	// online
 	model.online.hasOne(model.info, { foreignKey: "accountDBID", as: "info" });
 
 	return model;

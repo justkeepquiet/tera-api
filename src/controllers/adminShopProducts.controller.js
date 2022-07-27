@@ -233,7 +233,7 @@ module.exports.addAction = modules => [
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true })
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Box item ID field has invalid value.")),
+			.isInt({ min: 1 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
 		body("boxItemCounts.*")
 			.isInt({ min: 1 }).withMessage(modules.i18n.__("Count field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
@@ -591,7 +591,7 @@ module.exports.editAction = modules => [
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true })
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Box item ID field has invalid value.")),
+			.isInt({ min: 1 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
 		body("boxItemCounts.*")
 			.isInt({ min: 1 }).withMessage(modules.i18n.__("Count field has invalid value.")),
 		body("itemTemplateIds").notEmpty()

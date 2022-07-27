@@ -179,7 +179,8 @@ moduleLoader.final().then(
 			}
 
 			const es = new ExpressServer(modules, {
-				logger: createLogger("Portal API")
+				logger: createLogger("Portal API"),
+				enableCompression: true
 			});
 
 			if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
@@ -225,7 +226,8 @@ moduleLoader.final().then(
 			}
 
 			const es = new ExpressServer(modules, {
-				logger: createLogger("Admin Panel")
+				logger: createLogger("Admin Panel"),
+				enableCompression: true
 			});
 
 			es.setStatic("/static", "src/static/admin");

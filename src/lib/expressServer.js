@@ -10,6 +10,7 @@ const morgan = require("morgan");
 const morganBody = require("morgan-body");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const compression = require("compression");
 
 class ExpressServer {
 	constructor(modules, params) {
@@ -17,6 +18,8 @@ class ExpressServer {
 
 		this.logger = params.logger || console;
 		this.disableCache = !!params.disableCache;
+		this.enableCompression = params.enableCompression !== undefined ?
+			!!params.enableCompression : false;
 
 		this.modules = { ...modules, app: this.app, logger: this.logger };
 
@@ -34,6 +37,10 @@ class ExpressServer {
 			res.locals.__endpoint = req.path;
 			next();
 		});
+
+		if (this.enableCompression) {
+			this.app.use(compression());
+		}
 
 		if (this.disableCache) {
 			this.app.use((req, res, next) => {

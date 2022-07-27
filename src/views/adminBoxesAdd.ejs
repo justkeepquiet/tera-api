@@ -68,7 +68,7 @@
 									</div>
 									<input type="hidden" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
 									<%_ } else { _%>
-									<input type="number" class="form-control boxed" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
+									<input type="text" class="form-control boxed" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
 									<%_ } _%>
 								</div>
 								<div class="col-sm-2">
@@ -76,7 +76,7 @@
 									<input type="number" class="form-control boxed mt-2" name="boxItemCounts[]" value="<%= boxItemCounts[i] %>">
 								</div>
 								<div class="col-sm-4">
-									<label class="control-label" for="boxItemIds[]"><%= __("Box item ID") %></label>
+									<label class="control-label" for="boxItemIds[]"><%= __("Service item ID") %></label>
 									<input type="number" class="form-control boxed mt-2" name="boxItemIds[]" value="<%= boxItemIds[i] %>" placeholder="<%= __("optional") %>">
 								</div>
 							</div>
@@ -114,14 +114,14 @@
 				"			<%= __('Item template ID') %>" +
 				"			<a class='btn btn-secondary btn-sm remove-item' title='' href='#'><i class='fa fa-minus'></i></a>" +
 				"		</label>" +
-				"		<input type='number' class='form-control boxed' name='itemTemplateIds[]' value=''>" +
+				"		<input type='text' class='form-control boxed' name='itemTemplateIds[]' value=''>" +
 				"	</div>" +
 				"	<div class='col-sm-2'>" +
 				"		<label class='control-label' for='boxItemCounts[]'><%= __('Count') %></label>" +
 				"		<input type='number' class='form-control boxed mt-2' name='boxItemCounts[]' value='1'>" +
 				"	</div>" +
 				"	<div class='col-sm-4'>" +
-				"		<label class='control-label' for='boxItemIds[]'><%= __('Box item ID') %></label>" +
+				"		<label class='control-label' for='boxItemIds[]'><%= __('Service item ID') %></label>" +
 				"		<input type='number' class='form-control boxed mt-2' name='boxItemIds[]' value='' placeholder='<%= __('optional') %>'>" +
 				"	</div>" +
 				"</div>"
@@ -129,6 +129,7 @@
 			$(".remove-item").click(function() {
 				$(this).closest(".row").remove();
 			});
+			addAutocomplete();
 		});
 	});
 </script>

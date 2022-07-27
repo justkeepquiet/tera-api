@@ -6,6 +6,7 @@
  */
 
 const moment = require("moment-timezone");
+const Op = require("sequelize").Op;
 
 const { resultJson } = require("../middlewares/admin.middlewares");
 
@@ -162,5 +163,143 @@ module.exports.homeStats = ({ i18n, logger, datasheetModel, serverModel, reportM
 			logger.error(err);
 			resultJson(res, 1, { msg: "internal error" });
 		}
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		const { query } = req.query;
+
+		if (!query) {
+			return resultJson(res, 2, { msg: "validation error" });
+		}
+
+		accountModel.info.findAll({
+			offset: 0, limit: 6,
+			where: {
+				[Op.or]: [
+					sequelize.where(sequelize.col("account_info.accountDBID"), Op.like, `%${query}%`),
+					sequelize.where(sequelize.fn("lower", sequelize.col("userName")), Op.like, `%${query}%`),
+					sequelize.where(sequelize.fn("lower", sequelize.col("email")), Op.like, `%${query}%`),
+					sequelize.where(sequelize.fn("lower", sequelize.col("character.name")), Op.like, `%${query}%`)
+				]
+			},
+			include: [{
+				as: "character",
+				model: accountModel.characters,
+				required: false,
+				attributes: ["name"]
+			}],
+			order: [
+				["accountDBID", "ASC"]
+			]
+		}).then(accounts =>
+			resultJson(res, 0, {
+				suggestions: accounts.map(a => ({
+					value: a.accountDBID.toString(),
+					data: {
+						accountDBID: a.accountDBID,
+						userName: a.userName,
+						email: a.email,
+						character: a.character[0]?.name || ""
+					}
+				}))
+			})
+		).catch(err => {
+			logger.error(err);
+			resultJson(res, 1, { msg: "internal error" });
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.autocompleteCharacters = ({ logger, sequelize, accountModel }) => [
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		const { query } = req.query;
+
+		if (!query) {
+			return resultJson(res, 2, { msg: "validation error" });
+		}
+
+		accountModel.characters.findAll({
+			offset: 0, limit: 6,
+			where: {
+				[Op.or]: [
+					sequelize.where(sequelize.col("characterId"), Op.like, `%${query}%`),
+					sequelize.where(sequelize.fn("lower", sequelize.col("name")), Op.like, `%${query}%`)
+				]
+			}
+		}).then(accounts =>
+			resultJson(res, 0, {
+				suggestions: accounts.map(a => ({
+					value: a.characterId.toString(),
+					data: {
+						accountDBID: a.accountDBID,
+						serverId: a.serverId,
+						name: a.name
+					}
+				}))
+			})
+		).catch(err => {
+			logger.error(err);
+			resultJson(res, 1, { msg: "internal error" });
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.autocompleteItems = ({ logger, i18n, sequelize, dataModel }) => [
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		const { query } = req.query;
+
+		if (!query) {
+			return resultJson(res, 2, { msg: "validation error" });
+		}
+
+		dataModel.itemStrings.findAll({
+			offset: 0, limit: 6,
+			where: {
+				[Op.or]: [
+					sequelize.where(sequelize.col("template.itemTemplateId"), Op.like, `%${query}%`),
+					sequelize.where(sequelize.fn("lower", sequelize.col("string")), Op.like, `%${query}%`)
+				],
+				language: i18n.getLocale()
+			},
+			include: [{
+				as: "template",
+				model: dataModel.itemTemplates,
+				required: true
+			}]
+		}).then(accounts =>
+			resultJson(res, 0, {
+				suggestions: accounts.map(a => ({
+					value: a.itemTemplateId.toString(),
+					data: {
+						title: a.string,
+						icon: a.template.icon,
+						rareGrade: a.template.rareGrade
+					}
+				}))
+			})
+		).catch(err => {
+			logger.error(err);
+			resultJson(res, 1, { msg: "internal error" });
+		});
 	}
 ];
