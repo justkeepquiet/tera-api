@@ -173,7 +173,7 @@ module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res) => {
 		const { query } = req.query;
 
 		if (!req.isAuthenticated()) {
@@ -184,26 +184,36 @@ module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
 			return resultJson(res, 2, { msg: "validation error" });
 		}
 
-		accountModel.info.findAll({
-			offset: 0, limit: 6,
-			where: {
-				[Op.or]: [
-					sequelize.where(sequelize.col("account_info.accountDBID"), Op.like, `%${query}%`),
-					sequelize.where(sequelize.fn("lower", sequelize.col("userName")), Op.like, `%${query}%`),
-					sequelize.where(sequelize.fn("lower", sequelize.col("email")), Op.like, `%${query}%`),
-					sequelize.where(sequelize.fn("lower", sequelize.col("character.name")), Op.like, `%${query}%`)
+		try {
+			const accounts = await accountModel.info.findAll({
+				offset: 0, limit: 6,
+				where: {
+					[Op.or]: [
+						sequelize.where(sequelize.col("account_info.accountDBID"), Op.like, `%${query}%`),
+						sequelize.where(sequelize.fn("lower", sequelize.col("userName")), Op.like, `%${query}%`),
+						sequelize.where(sequelize.fn("lower", sequelize.col("email")), Op.like, `%${query}%`),
+						{ accountDBID: {
+							[Op.in]: (await accountModel.characters.findAll({
+								offset: 0, limit: 6,
+								where: sequelize.where(sequelize.fn("lower", sequelize.col("name")), Op.like, `%${query}%`),
+								attributes: ["accountDBID"]
+							})).map(character => character.get("accountDBID"))
+						} }
+					]
+				},
+				include: [{
+					as: "character",
+					where: sequelize.where(sequelize.fn("lower", sequelize.col("name")), Op.like, `%${query}%`),
+					model: accountModel.characters,
+					required: false,
+					attributes: ["name"]
+				}],
+				attributes: ["accountDBID", "userName", "email"],
+				order: [
+					["accountDBID", "ASC"]
 				]
-			},
-			include: [{
-				as: "character",
-				model: accountModel.characters,
-				required: false,
-				attributes: ["name"]
-			}],
-			order: [
-				["accountDBID", "ASC"]
-			]
-		}).then(accounts =>
+			});
+
 			resultJson(res, 0, {
 				suggestions: accounts.map(a => ({
 					value: a.accountDBID.toString(),
@@ -214,11 +224,12 @@ module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
 						character: a.character[0]?.name || ""
 					}
 				}))
-			})
-		).catch(err => {
+			});
+
+		} catch (err) {
 			logger.error(err);
 			resultJson(res, 1, { msg: "internal error" });
-		});
+		}
 	}
 ];
 
@@ -247,7 +258,8 @@ module.exports.autocompleteCharacters = ({ logger, sequelize, accountModel }) =>
 					sequelize.where(sequelize.col("characterId"), Op.like, `%${query}%`),
 					sequelize.where(sequelize.fn("lower", sequelize.col("name")), Op.like, `%${query}%`)
 				]
-			}
+			},
+			attributes: ["characterId", "accountDBID", "serverId", "name"]
 		}).then(accounts =>
 			resultJson(res, 0, {
 				suggestions: accounts.map(a => ({
@@ -296,8 +308,10 @@ module.exports.autocompleteItems = ({ logger, i18n, sequelize, dataModel }) => [
 			include: [{
 				as: "template",
 				model: dataModel.itemTemplates,
-				required: true
-			}]
+				required: true,
+				attributes: ["icon", "rareGrade"]
+			}],
+			attributes: ["itemTemplateId", "string"]
 		}).then(accounts =>
 			resultJson(res, 0, {
 				suggestions: accounts.map(a => ({

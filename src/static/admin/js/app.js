@@ -365,7 +365,7 @@ function addAutocomplete() {
 		width: 400,
 		noCache: true,
 		formatResult: function(suggestion, currentValue) {
-			var value = suggestion.value + " - " + suggestion.data.name + " (" + suggestion.data.serverId + ")";
+			var value = suggestion.value + " - " + suggestion.data.name + " (" + suggestion.data.accountDBID + ", " + suggestion.data.serverId + ")";
 
 			return $.Autocomplete.defaults.formatResult({ value: value }, currentValue);
 		}
