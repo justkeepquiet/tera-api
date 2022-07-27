@@ -6,9 +6,10 @@
  */
 
 const moment = require("moment-timezone");
+const query = require("express-validator").query;
 const Op = require("sequelize").Op;
 
-const { apiAccessHandler, resultJson } = require("../middlewares/admin.middlewares");
+const { apiAccessHandler, validationHandler, resultJson } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -165,27 +166,24 @@ module.exports.homeStats = ({ i18n, logger, datasheetModel, serverModel, reportM
  */
 module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
 	apiAccessHandler,
+	[query("query").notEmpty()],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
-		const { query } = req.query;
-		if (!query) {
-			return resultJson(res, 2, { msg: "validation error" });
-		}
-
 		try {
 			const accounts = await accountModel.info.findAll({
 				offset: 0, limit: 8,
 				where: {
 					[Op.or]: [
-						sequelize.where(sequelize.col("account_info.accountDBID"), Op.like, `%${query}%`),
-						sequelize.where(sequelize.fn("lower", sequelize.col("userName")), Op.like, `%${query}%`),
-						sequelize.where(sequelize.fn("lower", sequelize.col("email")), Op.like, `%${query}%`),
+						sequelize.where(sequelize.col("account_info.accountDBID"), Op.like, `%${req.query.query}%`),
+						sequelize.where(sequelize.fn("lower", sequelize.col("userName")), Op.like, `%${req.query.query}%`),
+						sequelize.where(sequelize.fn("lower", sequelize.col("email")), Op.like, `%${req.query.query}%`),
 						{ accountDBID: {
 							[Op.in]: (await accountModel.characters.findAll({
 								offset: 0, limit: 6,
-								where: sequelize.where(sequelize.fn("lower", sequelize.col("name")), Op.like, `%${query}%`),
+								where: sequelize.where(sequelize.fn("lower", sequelize.col("name")), Op.like, `%${req.query.query}%`),
 								attributes: ["accountDBID"]
 							})).map(character => character.get("accountDBID"))
 						} }
@@ -193,7 +191,7 @@ module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
 				},
 				include: [{
 					as: "character",
-					where: sequelize.where(sequelize.fn("lower", sequelize.col("name")), Op.like, `%${query}%`),
+					where: sequelize.where(sequelize.fn("lower", sequelize.col("name")), Op.like, `%${req.query.query}%`),
 					model: accountModel.characters,
 					required: false,
 					attributes: ["name"]
@@ -228,22 +226,18 @@ module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
  */
 module.exports.autocompleteCharacters = ({ logger, sequelize, accountModel }) => [
 	apiAccessHandler,
+	[query("query").notEmpty()],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		const { query } = req.query;
-
-		if (!query) {
-			return resultJson(res, 2, { msg: "validation error" });
-		}
-
 		accountModel.characters.findAll({
 			offset: 0, limit: 8,
 			where: {
 				[Op.or]: [
-					sequelize.where(sequelize.col("characterId"), Op.like, `%${query}%`),
-					sequelize.where(sequelize.fn("lower", sequelize.col("name")), Op.like, `%${query}%`)
+					sequelize.where(sequelize.col("characterId"), Op.like, `%${req.query.query}%`),
+					sequelize.where(sequelize.fn("lower", sequelize.col("name")), Op.like, `%${req.query.query}%`)
 				]
 			},
 			attributes: ["characterId", "accountDBID", "serverId", "name"]
@@ -270,22 +264,18 @@ module.exports.autocompleteCharacters = ({ logger, sequelize, accountModel }) =>
  */
 module.exports.autocompleteItems = ({ logger, i18n, sequelize, dataModel }) => [
 	apiAccessHandler,
+	[query("query").notEmpty()],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		const { query } = req.query;
-
-		if (!query) {
-			return resultJson(res, 2, { msg: "validation error" });
-		}
-
 		dataModel.itemStrings.findAll({
 			offset: 0, limit: 8,
 			where: {
 				[Op.or]: [
-					sequelize.where(sequelize.col("template.itemTemplateId"), Op.like, `%${query}%`),
-					sequelize.where(sequelize.fn("lower", sequelize.col("string")), Op.like, `%${query}%`)
+					sequelize.where(sequelize.col("template.itemTemplateId"), Op.like, `%${req.query.query}%`),
+					sequelize.where(sequelize.fn("lower", sequelize.col("string")), Op.like, `%${req.query.query}%`)
 				],
 				language: i18n.getLocale()
 			},

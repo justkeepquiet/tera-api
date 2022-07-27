@@ -5,6 +5,7 @@
  * @typedef {import("../models/report.model").reportModel} reportModel
  */
 
+const helpers = require("../utils/helpers");
 const databaseLogger = require("../utils/logger").createLogger("Database");
 
 /**
@@ -13,6 +14,19 @@ const databaseLogger = require("../utils/logger").createLogger("Database");
 const resultJson = (res, code, params = {}) => res.json({
 	result_code: code, ...params
 });
+
+module.exports.validationHandler = logger =>
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
+		if (!helpers.validationResultLog(req, logger).isEmpty()) {
+			return resultJson(res, 2, { msg: "invalid parameter" });
+		}
+
+		next();
+	}
+;
 
 /**
  * @type {RequestHandler}
