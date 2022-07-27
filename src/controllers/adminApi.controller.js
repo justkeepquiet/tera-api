@@ -176,6 +176,10 @@ module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
 	(req, res) => {
 		const { query } = req.query;
 
+		if (!req.isAuthenticated()) {
+			return resultJson(res, 3, { msg: "access denied" });
+		}
+
 		if (!query) {
 			return resultJson(res, 2, { msg: "validation error" });
 		}
@@ -228,6 +232,10 @@ module.exports.autocompleteCharacters = ({ logger, sequelize, accountModel }) =>
 	(req, res) => {
 		const { query } = req.query;
 
+		if (!req.isAuthenticated()) {
+			return resultJson(res, 3, { msg: "access denied" });
+		}
+
 		if (!query) {
 			return resultJson(res, 2, { msg: "validation error" });
 		}
@@ -267,6 +275,10 @@ module.exports.autocompleteItems = ({ logger, i18n, sequelize, dataModel }) => [
 	 */
 	(req, res) => {
 		const { query } = req.query;
+
+		if (!req.isAuthenticated()) {
+			return resultJson(res, 3, { msg: "access denied" });
+		}
 
 		if (!query) {
 			return resultJson(res, 2, { msg: "validation error" });
