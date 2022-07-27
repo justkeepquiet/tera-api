@@ -26,6 +26,11 @@
 				sortAscending: ": <%= __('activate to sort column ascending') %>",
 				sortDescending: ": <%= __('activate to sort column descending') %>"
 			}
+		},
+		fnInitComplete: function() {
+			$(".dataTables_length select, .dataTables_filter input").each(function() {
+				$(this).addClass("boxed");
+			});
 		}
 	};
 </script>

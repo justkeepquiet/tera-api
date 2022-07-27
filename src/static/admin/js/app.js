@@ -286,10 +286,6 @@ $(function() {
 		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort, .data-table-json").DataTable().state.clear();
 		$(this).closest("form").submit();
 	});
-
-	$(".dataTables_length select, .dataTables_filter input").each(function() {
-		$(this).addClass("boxed");
-	});
 });
 
 $(function() {
