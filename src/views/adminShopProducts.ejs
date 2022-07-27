@@ -7,7 +7,7 @@
 		<form class="form-inline" action="" method="GET">
 			<div class="form-group">
 				<label for="categoryId"><%= __("Category ID") %></label>
-				<select class="form-control boxed" name="categoryId" onchange="submit();">
+				<select class="form-control boxed change-submit" name="categoryId">
 					<option value="">- <%= __("All") %> -</option>
 				<%_ categories.forEach(category => { _%>
 					<option value="<%= category.get("id") %>" <%= categoryId == category.get("id") ? 'selected' : "" %>>(<%= category.get("id") %>) <%= category.get("strings")[0]?.get("title") || "-" %></option>

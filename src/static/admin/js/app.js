@@ -69,9 +69,6 @@ $(function() {
 	}, 1000);
 });
 
-/** *********************************************
-*		Animation Settings
-***********************************************/
 function animate(options) {
 	var animationName = "animated " + options.name;
 	var animationEnd = "webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend";
@@ -166,41 +163,6 @@ $(function() {
 	});
 });
 
-/*
-$(function() {
-	$(".data-table").DataTable(dataTablesSettings);
-
-	$(".data-table-desc").DataTable($.extend({}, dataTablesSettings, {
-		order: [[0, "desc"]]
-	}));
-
-	$(".data-table-nosort").DataTable($.extend({}, dataTablesSettings, {
-		columnDefs: [
-			{ orderable: false, targets: -1 }
-		]
-	}));
-
-	$(".data-table-desc-nosort").DataTable($.extend({}, dataTablesSettings, {
-		order: [[0, "desc"]],
-		columnDefs: [
-			{ orderable: false, targets: -1 }
-		]
-	}));
-
-	$("#sidebar-menu a").on("click", function() {
-		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort, .data-table-json").DataTable().state.clear();
-	});
-
-	$("form").on("submit", function() {
-		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort, .data-table-json").DataTable().state.clear();
-	});
-
-	$(".dataTables_length select, .dataTables_filter input").each(function() {
-		$(this).addClass("boxed");
-	});
-});
-*/
-
 $(function() {
 	// set sortable options
 	var sortable = new Sortable($(".images-container").get(0), {
@@ -265,14 +227,6 @@ $(function() {
 	}
 });
 
-$(function() {
-	$("#confirm-modal, #confirm-del-modal").on("show.bs.modal", function(event) {
-		$(this).find(".modal-yes").click(function() {
-			window.location.href = $(event.relatedTarget).attr("href");
-		});
-	});
-});
-
 /*
 var modalMedia = {
 	$el: $("#modal-media"),
@@ -297,6 +251,46 @@ var modalMedia = {
 	}
 };
 */
+
+$(function() {
+	/*
+	$(".data-table").DataTable(dataTablesSettings);
+
+	$(".data-table-desc").DataTable($.extend({}, dataTablesSettings, {
+		order: [[0, "desc"]]
+	}));
+
+	$(".data-table-nosort").DataTable($.extend({}, dataTablesSettings, {
+		columnDefs: [
+			{ orderable: false, targets: -1 }
+		]
+	}));
+
+	$(".data-table-desc-nosort").DataTable($.extend({}, dataTablesSettings, {
+		order: [[0, "desc"]],
+		columnDefs: [
+			{ orderable: false, targets: -1 }
+		]
+	}));
+	*/
+
+	$("#sidebar-menu a").on("click", function() {
+		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort, .data-table-json").DataTable().state.clear();
+	});
+
+	$("form").on("submit", function() {
+		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort, .data-table-json").DataTable().state.clear();
+	});
+
+	$(".change-submit").change(function() {
+		$(".data-table, .data-table-desc, .data-table-desc-nosort, .data-table-nosort, .data-table-json").DataTable().state.clear();
+		$(this).closest("form").submit();
+	});
+
+	$(".dataTables_length select, .dataTables_filter input").each(function() {
+		$(this).addClass("boxed");
+	});
+});
 
 $(function() {
 	loadNotifications();
@@ -344,7 +338,8 @@ function addAutocomplete() {
 	$("input[name='accountDBID'][type='text']").autocomplete({
 		serviceUrl: "/api/autocompleteAccounts",
 		width: 400,
-		noCache: true,
+		forceFixPosition: true,
+		appendTo: ".content",
 		formatResult: function(suggestion, currentValue) {
 			var value = suggestion.value + " - " + suggestion.data.userName;
 
@@ -363,7 +358,8 @@ function addAutocomplete() {
 	$("input[name='characterId'][type='text']").autocomplete({
 		serviceUrl: "/api/autocompleteCharacters",
 		width: 400,
-		noCache: true,
+		forceFixPosition: true,
+		appendTo: ".content",
 		formatResult: function(suggestion, currentValue) {
 			var value = suggestion.value + " - " + suggestion.data.name + " (" + suggestion.data.accountDBID + ", " + suggestion.data.serverId + ")";
 
@@ -376,7 +372,6 @@ function addAutocomplete() {
 		width: 500,
 		forceFixPosition: true,
 		appendTo: ".content",
-		noCache: true,
 		formatResult: function(suggestion, currentValue) {
 			var value = suggestion.data.title + " (" + suggestion.value + ")";
 
@@ -384,10 +379,46 @@ function addAutocomplete() {
 				"<img src='/static/images/tera-icons/icon_items/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
 				"<img src='/static/images/icons/icon_grade_" + suggestion.data.rareGrade + ".png' class='item-icon-grade'>" +
 			"</div>" +
-			"<span class='item-grade-" + suggestion.data.rareGrade + "'>" + $.Autocomplete.defaults.formatResult({ value: value }, currentValue) + "</span>";
+			"<small class='item-grade-" + suggestion.data.rareGrade + "'>" + $.Autocomplete.defaults.formatResult({ value: value }, currentValue) + "</small>";
 		}
 	});
 }
+
+$(function() {
+	if (sessionStorage.getItem("changeScroll")) {
+		$(".main-wrapper").animate({ scrollTop: sessionStorage.getItem("scrollTop") }, 10);
+		sessionStorage.removeItem("changeScroll");
+	}
+
+	$("#confirm-modal, #confirm-del-modal").on("show.bs.modal", function(event) {
+		$(this).find(".modal-yes").click(function() {
+			sessionStorage.setItem("changeScroll", true);
+			window.location.href = $(event.relatedTarget).attr("href");
+		});
+	});
+
+	if ($(".history-back").length == 0) {
+		sessionStorage.setItem("locationHref", location.href);
+		sessionStorage.setItem("scrollTop", $(this).scrollTop());
+
+		$(".main-wrapper").scroll(function() {
+			sessionStorage.setItem("scrollTop", $(this).scrollTop());
+		});
+	} else {
+		$(".history-back").click(function(e) {
+			e.preventDefault();
+
+			if (location.href != sessionStorage.getItem("locationHref")) {
+				sessionStorage.setItem("changeScroll", true);
+				location.href = sessionStorage.getItem("locationHref");
+			}
+		});
+
+		$("form").submit(function() {
+			sessionStorage.setItem("changeScroll", true);
+		});
+	}
+});
 
 $(function() {
 	$("body").addClass("loaded");

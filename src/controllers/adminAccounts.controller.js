@@ -125,7 +125,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 					req.body.benefitIds.lastIndexOf(e) == i && req.body.benefitIds.indexOf(e) != i
 				);
 
-				return !benefitIds.includes(value);
+				return benefitIds.length === 0 || !benefitIds.includes(value);
 			})
 			.withMessage(i18n.__("Added benefit already exists.")),
 		body("availableUntils.*").optional()

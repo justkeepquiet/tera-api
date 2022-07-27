@@ -17,6 +17,19 @@ const resultJson = (res, code, params = {}) => res.json({
 /**
  * @type {RequestHandler}
  */
+module.exports.apiAccessHandler = (req, res, next) => {
+	if (req.isAuthenticated()) {
+		res.locals.user = req.user;
+
+		next();
+	} else {
+		resultJson(res, 3, { msg: "access denied" });
+	}
+};
+
+/**
+ * @type {RequestHandler}
+ */
 module.exports.accessFunctionHandler = (req, res, next) => {
 	if (req.isAuthenticated()) {
 		res.locals.user = req.user;

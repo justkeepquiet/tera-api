@@ -8,20 +8,17 @@
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 
-const { resultJson } = require("../middlewares/admin.middlewares");
+const { apiAccessHandler, resultJson } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
  */
 module.exports.notifications = ({ logger, queue }) => [
+	apiAccessHandler,
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
-		if (!req.isAuthenticated()) {
-			return resultJson(res, 3, { msg: "access denied" });
-		}
-
 		queue.findByStatus(queue.status.rejected, 6).then(tasks => {
 			const items = [];
 
@@ -47,14 +44,11 @@ module.exports.notifications = ({ logger, queue }) => [
  * @param {modules} modules
  */
 module.exports.homeStats = ({ i18n, logger, datasheetModel, serverModel, reportModel }) => [
+	apiAccessHandler,
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
-		if (!req.isAuthenticated()) {
-			return resultJson(res, 3, { msg: "access denied" });
-		}
-
 		const isSteer = req.user.type === "steer";
 
 		try {
@@ -170,23 +164,19 @@ module.exports.homeStats = ({ i18n, logger, datasheetModel, serverModel, reportM
  * @param {modules} modules
  */
 module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
+	apiAccessHandler,
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		const { query } = req.query;
-
-		if (!req.isAuthenticated()) {
-			return resultJson(res, 3, { msg: "access denied" });
-		}
-
 		if (!query) {
 			return resultJson(res, 2, { msg: "validation error" });
 		}
 
 		try {
 			const accounts = await accountModel.info.findAll({
-				offset: 0, limit: 6,
+				offset: 0, limit: 8,
 				where: {
 					[Op.or]: [
 						sequelize.where(sequelize.col("account_info.accountDBID"), Op.like, `%${query}%`),
@@ -237,22 +227,19 @@ module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
  * @param {modules} modules
  */
 module.exports.autocompleteCharacters = ({ logger, sequelize, accountModel }) => [
+	apiAccessHandler,
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { query } = req.query;
 
-		if (!req.isAuthenticated()) {
-			return resultJson(res, 3, { msg: "access denied" });
-		}
-
 		if (!query) {
 			return resultJson(res, 2, { msg: "validation error" });
 		}
 
 		accountModel.characters.findAll({
-			offset: 0, limit: 6,
+			offset: 0, limit: 8,
 			where: {
 				[Op.or]: [
 					sequelize.where(sequelize.col("characterId"), Op.like, `%${query}%`),
@@ -282,22 +269,19 @@ module.exports.autocompleteCharacters = ({ logger, sequelize, accountModel }) =>
  * @param {modules} modules
  */
 module.exports.autocompleteItems = ({ logger, i18n, sequelize, dataModel }) => [
+	apiAccessHandler,
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
 		const { query } = req.query;
 
-		if (!req.isAuthenticated()) {
-			return resultJson(res, 3, { msg: "access denied" });
-		}
-
 		if (!query) {
 			return resultJson(res, 2, { msg: "validation error" });
 		}
 
 		dataModel.itemStrings.findAll({
-			offset: 0, limit: 6,
+			offset: 0, limit: 8,
 			where: {
 				[Op.or]: [
 					sequelize.where(sequelize.col("template.itemTemplateId"), Op.like, `%${query}%`),

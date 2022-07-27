@@ -7,7 +7,7 @@
 		<form class="form-inline" action="" method="GET">
 			<div class="form-group">
 				<label for="serverId"><%= __("Server ID") %></label>
-				<select class="form-control boxed" name="serverId" onchange="submit();">
+				<select class="form-control boxed change-submit" name="serverId">
 					<option value="">- <%= __("All") %> -</option>
 				<%_ servers.forEach(s => { _%>
 					<option value="<%= s.get("serverId") %>" <%= s.get("serverId") == serverId ? "selected" : "" %>>(<%= s.get("serverId") %>) <%= s.get("nameString") %></option>
