@@ -26,37 +26,26 @@ class ServerCheckActions {
 		return this.modules.serverModel.info.findAll().then(servers =>
 			servers.forEach(server => {
 				const promise = new Promise((resolve, reject) => {
-					if (stat !== null && stat.serverList) {
-						resolve({
-							method: "Hub",
-							isAvailable: stat.serverList.find(s => s.serverId == server.get("serverId")) !== undefined
-						});
-					} else {
-						isPortReachable(server.get("loginPort"), {
-							host: server.get("loginIp"),
-							timeout: 5000
-						}).then(isAvailable =>
-							resolve({
-								method: "isPortReachable",
-								isAvailable
-							})
-						).catch(err =>
-							reject(err)
-						);
+					if (stat?.serverList && stat.serverList.find(s => s.serverId == server.get("serverId")) !== undefined) {
+						resolve(true);
 					}
+
+					isPortReachable(server.get("loginPort"), { host: server.get("loginIp"), timeout: 5000 }).then(status =>
+						resolve(status)
+					).catch(err =>
+						reject(err)
+					);
 				});
 
-				promise.then(result => {
-					if (result.isAvailable === !!server.get("isAvailable")) {
+				promise.then(isAvailable => {
+					if (isAvailable === !!server.get("isAvailable")) {
 						return Promise.resolve();
 					}
 
-					return this.modules.serverModel.info.update({
-						isAvailable: result.isAvailable
-					}, {
+					return this.modules.serverModel.info.update({ isAvailable }, {
 						where: { serverId: server.get("serverId") }
 					}).then(() =>
-						this.modules.logger.info(`ServerCheckActions: Set ${result.isAvailable}, server ${server.get("serverId")}, method ${result.method}`)
+						this.modules.logger.info(`ServerCheckActions: Set ${isAvailable}, server ${server.get("serverId")}`)
 					);
 				}).catch(err =>
 					this.modules.logger.error(err)
