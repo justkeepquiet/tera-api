@@ -62,7 +62,7 @@ class Box {
 		this.modules = modules;
 	}
 
-	create(boxContext, receiverUserSN, receiverGUSID = null, receiverCharacterSN = null, externalTransactionKey = null) {
+	create(boxContext, userId, serverId = null, characterId = null, externalTransactionKey = null) {
 		const startDate = moment().utc().format("YYYY-MM-DD HH:mm:ss");
 		const endDate = moment().utc().add(boxContext.days, "days").format("YYYY-MM-DD HH:mm:ss");
 
@@ -83,9 +83,13 @@ class Box {
 			})
 		);
 
-		return this.modules.hub.createBox(1, receiverUserSN, startDate, endDate, true, itemData, boxTagData,
-			receiverGUSID, receiverCharacterSN, null, null, externalTransactionKey
+		return this.modules.hub.createBox(1, userId, startDate, endDate, true, itemData, boxTagData,
+			serverId, characterId, null, null, externalTransactionKey
 		);
+	}
+
+	notiUser(serverId, userId, characterId = null) {
+		return this.modules.hub.boxNotiUser(serverId, userId, characterId || 0);
 	}
 }
 

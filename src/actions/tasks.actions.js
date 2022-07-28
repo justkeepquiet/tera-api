@@ -19,7 +19,7 @@ class TasksActions {
 	createBox(context, userId, serverId = null, characterId = null, lastLoginServer = null, logId = null, logType = null) {
 		return this.box.create(context, userId, serverId, characterId, logId).then(boxId => {
 			if (lastLoginServer !== null) {
-				this.modules.hub.boxNotiUser(lastLoginServer, userId, characterId || 0).catch(err =>
+				this.box.notiUser(lastLoginServer, userId, characterId || 0).catch(err =>
 					this.modules.logger.warn(err.toString())
 				);
 			}

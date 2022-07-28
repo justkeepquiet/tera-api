@@ -33,7 +33,7 @@ class ItemClaim {
 			}, {
 				transaction: this.transaction
 			}).then(() => {
-				this.modules.hub.boxNotiUser(this.serverId, this.userId, characterId || 0).catch(err =>
+				this.box.notiUser(this.serverId, this.userId, characterId || 0).catch(err =>
 					this.modules.logger.warn(err.toString())
 				);
 
