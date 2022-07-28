@@ -109,12 +109,15 @@ CREATE TABLE IF NOT EXISTS `data_item_templates` (
   `itemTemplateId` bigint(20) NOT NULL,
   `icon` varchar(255) NOT NULL,
   `rareGrade` int(11) NOT NULL,
+  `category` varchar(255) DEFAULT NULL,
   `requiredLevel` int(11) DEFAULT NULL,
   `requiredClass` varchar(255) DEFAULT NULL,
   `requiredGender` varchar(255) DEFAULT NULL,
   `requiredRace` varchar(255) DEFAULT NULL,
   `warehouseStorable` tinyint(4) DEFAULT NULL,
   `tradable` tinyint(4) DEFAULT NULL,
+  `periodByWebAdmin` tinyint(4) DEFAULT NULL,
+  `periodInMinute` int(11) DEFAULT NULL,
   PRIMARY KEY (`itemTemplateId`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
