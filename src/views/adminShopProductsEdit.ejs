@@ -65,18 +65,7 @@ _%>
 										<%= __("Item template ID") %>
 										<a class="btn btn-secondary btn-sm remove-item" title="" href="#"><i class="fa fa-minus"></i></a>
 									</label>
-									<%_ if (resolvedItems[itemTemplateId]) { _%>
 									<input type="text" class="form-control boxed" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
-									<div class="autocomplete-result">
-										<div class="item-icon-input">
-											<img src="/static/images/tera-icons/icon_items/<%= resolvedItems[itemTemplateId].get("icon") %>.png" class="item-icon-grade-<%= resolvedItems[itemTemplateId].get("rareGrade") %> item-icon">
-											<img src="/static/images/icons/icon_grade_<%= resolvedItems[itemTemplateId].get("rareGrade") %>.png" class="item-icon-grade" alt="">
-										</div>
-										<small class="item-grade-<%= resolvedItems[itemTemplateId].get("rareGrade") %>">(<%= itemTemplateId %>) <%= resolvedItems[itemTemplateId].get("strings")[0]?.get("string") || __("[unknown]") %></small>
-									</div>
-									<%_ } else { _%>
-									<input type="text" class="form-control boxed" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
-									<%_ } _%>
 								</div>
 								<div class="col-sm-2">
 									<label class="control-label" for="boxItemCounts[]"><%= __("Count") %></label>

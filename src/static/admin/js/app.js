@@ -252,6 +252,80 @@ var modalMedia = {
 };
 */
 
+$.fn.loadInputData = function(endpoint, fnResultFormat) {
+	this.each(function() {
+		var input = $(this);
+
+		if (!input.val() || input.closest("form").hasClass("form-inline")) {
+			return;
+		}
+
+		$.ajax({
+			url: endpoint + "?value=" + input.val(),
+			method: "get",
+			async: false,
+			success: function(data) {
+				if (data.result_code !== 0 || data.suggestions.length === 0) {
+					return;
+				}
+
+				var suggestion = data.suggestions[0];
+				var result = fnResultFormat(suggestion);
+
+				input.after(result);
+
+				if (input.attr("disabled")) {
+					return input.next().addClass("autocomplete-disabled");
+				}
+				input.next().click(function() {
+					$(this).prev().focus();
+					$(this).hide();
+				});
+				input.change(function() {
+					$(this).next().remove();
+				});
+				input.focusout(function() {
+					$(this).next().show();
+				});
+			}
+		});
+	});
+};
+
+$.fn.addAutocomplete = function(endpoint, fnFormatResult, fnFormatOnSelect) {
+	this.autocomplete({
+		serviceUrl: endpoint,
+		width: 400,
+		forceFixPosition: true,
+		preventBadQueries: false,
+		triggerSelectOnValidInput: false,
+		appendTo: ".content",
+		formatResult: function(suggestion, currentValue) {
+			return fnFormatResult(suggestion, currentValue);
+		},
+		onSelect: function(suggestion) {
+			if ($(this).closest("form").hasClass("form-inline")) {
+				return;
+			}
+			var result = fnFormatOnSelect(suggestion);
+
+			$(this).change();
+			$(this).after(result);
+
+			result.click(function() {
+				$(this).prev().focus();
+				$(this).hide();
+			});
+			result.next().change(function() {
+				$(this).prev().remove();
+			});
+			result.next().focusout(function() {
+				$(this).prev().show();
+			});
+		}
+	});
+};
+
 $(function() {
 	/*
 	$(".data-table").DataTable(dataTablesSettings);
@@ -327,88 +401,67 @@ function loadNotifications() {
 }
 
 $(function() {
+	$("input[name='accountDBID'][type='text']").loadInputData("/api/getAccounts",
+		function(suggestion) {
+			return $("<div class='autocomplete-result'><span>" + suggestion.value + " - " + suggestion.data.userName + "</span></div>");
+		}
+	);
+
+	$("input[name='characterId'][type='text']").loadInputData("/api/getCharacters",
+		function(suggestion) {
+			return $("<div class='autocomplete-result'><span>" + suggestion.value + " - " + suggestion.data.name +
+				" (" + suggestion.data.accountDBID + ", " + suggestion.data.serverId + ")" + "</span></div>");
+		}
+	);
+
+	$("input[name='itemTemplateIds\\[\\]'][type='text']").loadInputData("/api/getItems",
+		function(suggestion) {
+			return $("<div class='autocomplete-result'>" +
+				"<div class='item-icon-input'>" +
+					"<img src='/static/images/tera-icons/icon_items/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
+					"<img src='/static/images/icons/icon_grade_" + suggestion.data.rareGrade + ".png' class='item-icon-grade'>" +
+				"</div>" +
+				"<small class='item-grade-" + suggestion.data.rareGrade + "'>(" + suggestion.value + ") " + suggestion.data.title + "</small></div>");
+		}
+	);
+
+	// bind autocomplete hooks
 	addAutocomplete();
 });
 
 function addAutocomplete() {
-	// accounts
-	$("input[name='accountDBID'][type='text']").autocomplete({
-		serviceUrl: "/api/autocompleteAccounts",
-		width: 400,
-		forceFixPosition: true,
-		preventBadQueries: false,
-		triggerSelectOnValidInput: false,
-		appendTo: ".content",
-		formatResult: function(suggestion, currentValue) {
+	$("input[name='accountDBID'][type='text']").addAutocomplete("/api/getAccounts",
+		function(suggestion, currentValue) {
 			var value = suggestion.value + " - " + suggestion.data.userName;
 
 			if (suggestion.data.email != "") {
 				value += " (" + suggestion.data.email + ")";
 			}
-
 			if (suggestion.data.character != "") {
 				value += " [" + suggestion.data.character + "]";
 			}
 
 			return $.Autocomplete.defaults.formatResult({ value: value }, currentValue);
 		},
-		onSelect: function(suggestion) {
-			if ($(this).closest("form").hasClass("form-inline")) {
-				return;
-			}
-
-			var result = $("<div class='autocomplete-result'><span>" + suggestion.value + " - " + suggestion.data.userName + "</span></div>");
-
-			$(this).change();
-			$(this).after(result);
-
-			result.click(function() {
-				$(this).remove();
-			});
+		function(suggestion) {
+			return $("<div class='autocomplete-result'><span>" + suggestion.value + " - " + suggestion.data.userName + "</span></div>");
 		}
-	});
+	);
 
-	// characters
-	$("input[name='characterId'][type='text']").autocomplete({
-		serviceUrl: "/api/autocompleteCharacters",
-		width: 400,
-		forceFixPosition: true,
-		preventBadQueries: false,
-		triggerSelectOnValidInput: false,
-		appendTo: ".content",
-		formatResult: function(suggestion, currentValue) {
+	$("input[name='characterId'][type='text']").addAutocomplete("/api/getCharacters",
+		function(suggestion, currentValue) {
 			var value = suggestion.value + " - " + suggestion.data.name + " (" + suggestion.data.accountDBID + ", " + suggestion.data.serverId + ")";
 
 			return $.Autocomplete.defaults.formatResult({ value: value }, currentValue);
 		},
-		onSelect: function(suggestion) {
-			if ($(this).closest("form").hasClass("form-inline")) {
-				return;
-			}
-
-			var result = $("<div class='autocomplete-result'><span>" + suggestion.value + " - " + suggestion.data.name +
+		function(suggestion) {
+			return $("<div class='autocomplete-result'><span>" + suggestion.value + " - " + suggestion.data.name +
 				" (" + suggestion.data.accountDBID + ", " + suggestion.data.serverId + ")" + "</span></div>");
-
-			$(this).change();
-			$(this).after(result);
-
-			result.click(function() {
-				$(this).remove();
-			});
 		}
-	});
+	);
 
-	// items
-	var itemTemplateIdsInput = $("input[name='itemTemplateIds\\[\\]'][type='text']");
-
-	itemTemplateIdsInput.autocomplete({
-		serviceUrl: "/api/autocompleteItems",
-		width: 500,
-		forceFixPosition: true,
-		preventBadQueries: false,
-		triggerSelectOnValidInput: false,
-		appendTo: ".content",
-		formatResult: function(suggestion, currentValue) {
+	$("input[name='itemTemplateIds\\[\\]'][type='text']").addAutocomplete("/api/getItems",
+		function(suggestion, currentValue) {
 			var value = suggestion.data.title + " (" + suggestion.value + ")";
 
 			return "<div class='item-icon-input'>" +
@@ -417,43 +470,23 @@ function addAutocomplete() {
 			"</div>" +
 			"<small class='item-grade-" + suggestion.data.rareGrade + "'>" + $.Autocomplete.defaults.formatResult({ value: value }, currentValue) + "</small>";
 		},
-		onSelect: function(suggestion) {
-			if ($(this).closest("form").hasClass("form-inline")) {
-				return;
-			}
-
-			var result = $("<div class='autocomplete-result'>" +
+		function(suggestion) {
+			return $("<div class='autocomplete-result'>" +
 				"<div class='item-icon-input'>" +
 					"<img src='/static/images/tera-icons/icon_items/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
 					"<img src='/static/images/icons/icon_grade_" + suggestion.data.rareGrade + ".png' class='item-icon-grade'>" +
 				"</div>" +
 				"<small class='item-grade-" + suggestion.data.rareGrade + "'>(" + suggestion.value + ") " + suggestion.data.title + "</small></div>");
-
-			$(this).change();
-			$(this).after(result);
-
-			result.click(function() {
-				$(this).remove();
-			});
 		}
-	});
-
-	itemTemplateIdsInput.next().click(function() {
-		$(this).prev().focus();
-		$(this).hide();
-	});
-	itemTemplateIdsInput.change(function() {
-		$(this).next().remove();
-	});
-	itemTemplateIdsInput.focusout(function() {
-		$(this).next().show();
-	});
+	);
 }
 
 $(function() {
 	if (sessionStorage.getItem("changeScroll")) {
-		$(".main-wrapper").animate({ scrollTop: sessionStorage.getItem("scrollTop") }, 10);
-		sessionStorage.removeItem("changeScroll");
+		if ($(".history-back").length == 0) {
+			$(".main-wrapper").animate({ scrollTop: sessionStorage.getItem("scrollTop") }, 10);
+			sessionStorage.removeItem("changeScroll");
+		}
 	}
 
 	$("#confirm-modal, #confirm-del-modal").on("show.bs.modal", function(event) {

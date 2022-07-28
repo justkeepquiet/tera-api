@@ -164,9 +164,9 @@ module.exports.homeStats = ({ i18n, logger, datasheetModel, serverModel, reportM
 /**
  * @param {modules} modules
  */
-module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
+module.exports.getAccounts = ({ logger, sequelize, accountModel }) => [
 	apiAccessHandler,
-	[query("query").notEmpty()],
+	[query("value").optional({ checkFalsy: true }).isInt()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
@@ -176,7 +176,7 @@ module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
 			const accounts = await accountModel.info.findAll({
 				offset: 0, limit: 8,
 				where: {
-					[Op.or]: [
+					[Op.or]: req.query.value ? [{ accountDBID: req.query.value }] : [
 						sequelize.where(sequelize.col("account_info.accountDBID"), Op.like, `%${req.query.query}%`),
 						sequelize.where(sequelize.fn("lower", sequelize.col("userName")), Op.like, `%${req.query.query}%`),
 						sequelize.where(sequelize.fn("lower", sequelize.col("email")), Op.like, `%${req.query.query}%`),
@@ -191,7 +191,7 @@ module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
 				},
 				include: [{
 					as: "character",
-					where: sequelize.where(sequelize.fn("lower", sequelize.col("name")), Op.like, `%${req.query.query}%`),
+					...!req.query.value ? { where: sequelize.where(sequelize.fn("lower", sequelize.col("name")), Op.like, `%${req.query.query}%`) } : [],
 					model: accountModel.characters,
 					required: false,
 					attributes: ["name"]
@@ -224,9 +224,9 @@ module.exports.autocompleteAccounts = ({ logger, sequelize, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.autocompleteCharacters = ({ logger, sequelize, accountModel }) => [
+module.exports.getCharacters = ({ logger, sequelize, accountModel }) => [
 	apiAccessHandler,
-	[query("query").notEmpty()],
+	[query("value").optional({ checkFalsy: true }).isInt()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
@@ -235,7 +235,7 @@ module.exports.autocompleteCharacters = ({ logger, sequelize, accountModel }) =>
 		accountModel.characters.findAll({
 			offset: 0, limit: 8,
 			where: {
-				[Op.or]: [
+				[Op.or]: req.query.value ? [{ characterId: req.query.value }] : [
 					sequelize.where(sequelize.col("characterId"), Op.like, `%${req.query.query}%`),
 					sequelize.where(sequelize.fn("lower", sequelize.col("name")), Op.like, `%${req.query.query}%`)
 				]
@@ -262,9 +262,9 @@ module.exports.autocompleteCharacters = ({ logger, sequelize, accountModel }) =>
 /**
  * @param {modules} modules
  */
-module.exports.autocompleteItems = ({ logger, i18n, sequelize, dataModel }) => [
+module.exports.getItems = ({ logger, i18n, sequelize, dataModel }) => [
 	apiAccessHandler,
-	[query("query").notEmpty()],
+	[query("value").optional({ checkFalsy: true }).isInt()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
@@ -273,7 +273,7 @@ module.exports.autocompleteItems = ({ logger, i18n, sequelize, dataModel }) => [
 		dataModel.itemStrings.findAll({
 			offset: 0, limit: 8,
 			where: {
-				[Op.or]: [
+				[Op.or]: req.query.value ? [{ itemTemplateId: req.query.value }] : [
 					sequelize.where(sequelize.col("template.itemTemplateId"), Op.like, `%${req.query.query}%`),
 					sequelize.where(sequelize.fn("lower", sequelize.col("string")), Op.like, `%${req.query.query}%`)
 				],

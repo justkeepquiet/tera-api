@@ -2983,3 +2983,7 @@ table.dataTable {
   .autocomplete-result span {
     margin: 6px 0 0 12px;
     display: block; }
+.autocomplete-disabled {
+  cursor: default !important;
+  background-color: #e9ecef !important;
+  opacity: 1 !important; }

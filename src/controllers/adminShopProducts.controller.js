@@ -426,7 +426,6 @@ module.exports.edit = ({ i18n, logger, shopModel, dataModel }) => [
 			const itemTemplateIds = [];
 			const boxItemIds = [];
 			const boxItemCounts = [];
-			const resolvedItems = {};
 			const promises = [];
 			const itemIcons = new Set();
 
@@ -506,8 +505,6 @@ module.exports.edit = ({ i18n, logger, shopModel, dataModel }) => [
 					item.get("conversion").forEach(conversion =>
 						itemIcons.add(conversion.get("template").get("icon"))
 					);
-
-					resolvedItems[item.get("itemTemplateId")] = item;
 				}
 			});
 
@@ -529,7 +526,6 @@ module.exports.edit = ({ i18n, logger, shopModel, dataModel }) => [
 				description,
 				icon: product.get("icon"),
 				rareGrade: product.get("rareGrade"),
-				resolvedItems,
 				itemTemplateIds,
 				boxItemIds,
 				boxItemCounts,
@@ -717,7 +713,6 @@ module.exports.editAction = modules => [
 					description,
 					icon,
 					rareGrade: rareGrade === "" ? null : Number(rareGrade),
-					resolvedItems,
 					itemTemplateIds: itemTemplateIds || [],
 					boxItemIds: boxItemIds || [],
 					boxItemCounts: boxItemCounts || [],

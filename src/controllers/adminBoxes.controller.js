@@ -271,7 +271,7 @@ module.exports.addAction = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ i18n, logger, boxModel, dataModel }) => [
+module.exports.edit = ({ logger, boxModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -299,31 +299,11 @@ module.exports.edit = ({ i18n, logger, boxModel, dataModel }) => [
 			const itemTemplateIds = [];
 			const boxItemIds = [];
 			const boxItemCounts = [];
-			const resolvedItems = {};
-			const promises = [];
 
 			box.get("item").forEach(boxItem => {
 				itemTemplateIds.push(boxItem.get("itemTemplateId"));
 				boxItemIds.push(boxItem.get("boxItemId"));
 				boxItemCounts.push(boxItem.get("boxItemCount"));
-			});
-
-			itemTemplateIds.forEach(itemTemplateId => {
-				promises.push(dataModel.itemTemplates.findOne({
-					where: { itemTemplateId },
-					include: [{
-						as: "strings",
-						model: dataModel.itemStrings,
-						where: { language: i18n.getLocale() },
-						required: false
-					}]
-				}));
-			});
-
-			(await Promise.all(promises)).forEach(item => {
-				if (item) {
-					resolvedItems[item.get("itemTemplateId")] = item;
-				}
 			});
 
 			res.render("adminBoxesEdit", {
@@ -334,7 +314,6 @@ module.exports.edit = ({ i18n, logger, boxModel, dataModel }) => [
 				content: box.get("content"),
 				icon: box.get("icon"),
 				days: box.get("days"),
-				resolvedItems,
 				itemTemplateIds,
 				boxItemIds,
 				boxItemCounts,
@@ -450,7 +429,6 @@ module.exports.editAction = modules => [
 					content,
 					icon,
 					days,
-					resolvedItems,
 					itemTemplateIds: itemTemplateIds || [],
 					boxItemIds: boxItemIds || [],
 					boxItemCounts: boxItemCounts || [],
@@ -659,19 +637,7 @@ module.exports.send = modules => [
 				where: { id },
 				include: [{
 					as: "item",
-					model: modules.boxModel.items,
-					include: [
-						{
-							as: "template",
-							model: modules.dataModel.itemTemplates
-						},
-						{
-							as: "strings",
-							model: modules.dataModel.itemStrings,
-							where: { language: modules.i18n.getLocale() },
-							required: false
-						}
-					]
+					model: modules.boxModel.items
 				}],
 				order: [
 					[{ as: "item", model: modules.boxModel.items }, "createdAt", "ASC"]
@@ -780,19 +746,7 @@ module.exports.sendAction = modules => [
 				where: { id },
 				include: [{
 					as: "item",
-					model: modules.boxModel.items,
-					include: [
-						{
-							as: "template",
-							model: modules.dataModel.itemTemplates
-						},
-						{
-							as: "strings",
-							model: modules.dataModel.itemStrings,
-							where: { language: modules.i18n.getLocale() },
-							required: false
-						}
-					]
+					model: modules.boxModel.items
 				}],
 				order: [
 					[{ as: "item", model: modules.boxModel.items }, "createdAt", "ASC"]
@@ -913,19 +867,7 @@ module.exports.sendAll = modules => [
 				where: { id },
 				include: [{
 					as: "item",
-					model: modules.boxModel.items,
-					include: [
-						{
-							as: "template",
-							model: modules.dataModel.itemTemplates
-						},
-						{
-							as: "strings",
-							model: modules.dataModel.itemStrings,
-							where: { language: modules.i18n.getLocale() },
-							required: false
-						}
-					]
+					model: modules.boxModel.items
 				}],
 				order: [
 					[{ as: "item", model: modules.boxModel.items }, "createdAt", "ASC"]
@@ -1011,19 +953,7 @@ module.exports.sendAllAction = modules => [
 				where: { id },
 				include: [{
 					as: "item",
-					model: modules.boxModel.items,
-					include: [
-						{
-							as: "template",
-							model: modules.dataModel.itemTemplates
-						},
-						{
-							as: "strings",
-							model: modules.dataModel.itemStrings,
-							where: { language: modules.i18n.getLocale() },
-							required: false
-						}
-					]
+					model: modules.boxModel.items
 				}],
 				order: [
 					[{ as: "item", model: modules.boxModel.items }, "createdAt", "ASC"]

@@ -127,9 +127,9 @@ module.exports = modules => {
 		// API
 		.get("/api/notifications", adminApiController.notifications(mod))
 		.get("/api/homeStats", adminApiController.homeStats(mod))
-		.get("/api/autocompleteAccounts", adminApiController.autocompleteAccounts(mod))
-		.get("/api/autocompleteCharacters", adminApiController.autocompleteCharacters(mod))
-		.get("/api/autocompleteItems", adminApiController.autocompleteItems(mod))
+		.get("/api/getAccounts", adminApiController.getAccounts(mod))
+		.get("/api/getCharacters", adminApiController.getCharacters(mod))
+		.get("/api/getItems", adminApiController.getItems(mod))
 		// Admin Panel Auth
 		.get("/", adminController.index(mod))
 		.get("/login", adminController.login(mod))
