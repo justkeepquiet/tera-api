@@ -336,6 +336,8 @@ function addAutocomplete() {
 		serviceUrl: "/api/autocompleteAccounts",
 		width: 400,
 		forceFixPosition: true,
+		preventBadQueries: false,
+		triggerSelectOnValidInput: false,
 		appendTo: ".content",
 		formatResult: function(suggestion, currentValue) {
 			var value = suggestion.value + " - " + suggestion.data.userName;
@@ -349,6 +351,20 @@ function addAutocomplete() {
 			}
 
 			return $.Autocomplete.defaults.formatResult({ value: value }, currentValue);
+		},
+		onSelect: function(suggestion) {
+			if ($(this).closest("form").hasClass("form-inline")) {
+				return;
+			}
+
+			var result = $("<div class='autocomplete-result'><span>" + suggestion.value + " - " + suggestion.data.userName + "</span></div>");
+
+			$(this).change();
+			$(this).after(result);
+
+			result.click(function() {
+				$(this).remove();
+			});
 		}
 	});
 
@@ -357,11 +373,28 @@ function addAutocomplete() {
 		serviceUrl: "/api/autocompleteCharacters",
 		width: 400,
 		forceFixPosition: true,
+		preventBadQueries: false,
+		triggerSelectOnValidInput: false,
 		appendTo: ".content",
 		formatResult: function(suggestion, currentValue) {
 			var value = suggestion.value + " - " + suggestion.data.name + " (" + suggestion.data.accountDBID + ", " + suggestion.data.serverId + ")";
 
 			return $.Autocomplete.defaults.formatResult({ value: value }, currentValue);
+		},
+		onSelect: function(suggestion) {
+			if ($(this).closest("form").hasClass("form-inline")) {
+				return;
+			}
+
+			var result = $("<div class='autocomplete-result'><span>" + suggestion.value + " - " + suggestion.data.name +
+				" (" + suggestion.data.accountDBID + ", " + suggestion.data.serverId + ")" + "</span></div>");
+
+			$(this).change();
+			$(this).after(result);
+
+			result.click(function() {
+				$(this).remove();
+			});
 		}
 	});
 
@@ -385,6 +418,10 @@ function addAutocomplete() {
 			"<small class='item-grade-" + suggestion.data.rareGrade + "'>" + $.Autocomplete.defaults.formatResult({ value: value }, currentValue) + "</small>";
 		},
 		onSelect: function(suggestion) {
+			if ($(this).closest("form").hasClass("form-inline")) {
+				return;
+			}
+
 			var result = $("<div class='autocomplete-result'>" +
 				"<div class='item-icon-input'>" +
 					"<img src='/static/images/tera-icons/icon_items/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
