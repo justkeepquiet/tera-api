@@ -55,18 +55,14 @@
 										<a class="btn btn-secondary btn-sm remove-item" title="" href="#"><i class="fa fa-minus"></i></a>
 									</label>
 									<%_ if (resolvedItems[itemTemplateId]) { _%>
-									<div class="row">
-										<div class="col-sm-12">
-											<div class="form-control boxed" style="overflow: hidden;">
-												<div class="item-icon-input">
-													<img src="/static/images/tera-icons/icon_items/<%= resolvedItems[itemTemplateId].get("icon") %>.png" class="item-icon-grade-<%= resolvedItems[itemTemplateId].get("rareGrade") %> item-icon">
-													<img src="/static/images/icons/icon_grade_<%= resolvedItems[itemTemplateId].get("rareGrade") %>.png" class="item-icon-grade" alt="">
-												</div>
-												<small class="item-grade-<%= resolvedItems[itemTemplateId].get("rareGrade") %>">(<%= itemTemplateId %>) <%= resolvedItems[itemTemplateId].get("strings")[0]?.get("string") || __("[unknown]") %></small>
-											</div>
+									<input type="text" class="form-control boxed" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
+									<div class="autocomplete-result">
+										<div class="item-icon-input">
+											<img src="/static/images/tera-icons/icon_items/<%= resolvedItems[itemTemplateId].get("icon") %>.png" class="item-icon-grade-<%= resolvedItems[itemTemplateId].get("rareGrade") %> item-icon">
+											<img src="/static/images/icons/icon_grade_<%= resolvedItems[itemTemplateId].get("rareGrade") %>.png" class="item-icon-grade" alt="">
 										</div>
+										<small class="item-grade-<%= resolvedItems[itemTemplateId].get("rareGrade") %>">(<%= itemTemplateId %>) <%= resolvedItems[itemTemplateId].get("strings")[0]?.get("string") || __("[unknown]") %></small>
 									</div>
-									<input type="hidden" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
 									<%_ } else { _%>
 									<input type="text" class="form-control boxed" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
 									<%_ } _%>
@@ -103,6 +99,10 @@
 			$("#validate").val("1");
 			$("#submit").html("<%= __('Validate form') %>");
 			$(this).closest(".row").remove();
+		});
+		$("input[name='itemTemplateIds\\[\\]']").change(function() {
+			$("#validate").val("1");
+			$("#submit").html("<%= __('Validate form') %>");
 		});
 		$("#add-item").click(function() {
 			$("#validate").val("1");

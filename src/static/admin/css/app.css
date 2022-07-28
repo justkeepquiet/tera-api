@@ -2966,3 +2966,17 @@ table.dataTable {
 .autocomplete-group strong {
   display: block;
   border-bottom: 1px solid #000; }
+.autocomplete-result {
+  background: #fff;
+  width: 85%;
+  height: 36px;
+  display: block;
+  margin: -37px 0 0 1px;
+  position: absolute;
+  overflow: hidden;
+  cursor: pointer; }
+  .autocomplete-result .item-icon-input {
+    margin: 2px 10px 0 2px; }
+  .autocomplete-result small {
+    margin-top: 9px;
+    display: block; }

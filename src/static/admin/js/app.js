@@ -331,6 +331,7 @@ $(function() {
 });
 
 function addAutocomplete() {
+	// accounts
 	$("input[name='accountDBID'][type='text']").autocomplete({
 		serviceUrl: "/api/autocompleteAccounts",
 		width: 400,
@@ -351,6 +352,7 @@ function addAutocomplete() {
 		}
 	});
 
+	// characters
 	$("input[name='characterId'][type='text']").autocomplete({
 		serviceUrl: "/api/autocompleteCharacters",
 		width: 400,
@@ -363,10 +365,15 @@ function addAutocomplete() {
 		}
 	});
 
-	$("input[name='itemTemplateIds\\[\\]'][type='text']").autocomplete({
+	// items
+	var itemTemplateIdsInput = $("input[name='itemTemplateIds\\[\\]'][type='text']");
+
+	itemTemplateIdsInput.autocomplete({
 		serviceUrl: "/api/autocompleteItems",
 		width: 500,
 		forceFixPosition: true,
+		preventBadQueries: false,
+		triggerSelectOnValidInput: false,
 		appendTo: ".content",
 		formatResult: function(suggestion, currentValue) {
 			var value = suggestion.data.title + " (" + suggestion.value + ")";
@@ -376,7 +383,33 @@ function addAutocomplete() {
 				"<img src='/static/images/icons/icon_grade_" + suggestion.data.rareGrade + ".png' class='item-icon-grade'>" +
 			"</div>" +
 			"<small class='item-grade-" + suggestion.data.rareGrade + "'>" + $.Autocomplete.defaults.formatResult({ value: value }, currentValue) + "</small>";
+		},
+		onSelect: function(suggestion) {
+			var result = $("<div class='autocomplete-result'>" +
+				"<div class='item-icon-input'>" +
+					"<img src='/static/images/tera-icons/icon_items/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
+					"<img src='/static/images/icons/icon_grade_" + suggestion.data.rareGrade + ".png' class='item-icon-grade'>" +
+				"</div>" +
+				"<small class='item-grade-" + suggestion.data.rareGrade + "'>(" + suggestion.value + ") " + suggestion.data.title + "</small></div>");
+
+			$(this).change();
+			$(this).after(result);
+
+			result.click(function() {
+				$(this).remove();
+			});
 		}
+	});
+
+	itemTemplateIdsInput.next().click(function() {
+		$(this).prev().focus();
+		$(this).hide();
+	});
+	itemTemplateIdsInput.change(function() {
+		$(this).next().remove();
+	});
+	itemTemplateIdsInput.focusout(function() {
+		$(this).next().show();
 	});
 }
 
