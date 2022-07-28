@@ -107,6 +107,7 @@
 	"Last login field must contain a valid date.": "Поле 'Последний вход' должно содержать верную дату.",
 	"Server ID field contains not existing server ID.": "Поле 'ID сервера' содержит несуществующий ID сервера.",
 	"Task with this box ID is already running. Check tasks queue.": "Задача с данным ID коробки уже выполняется. См. очередь задач.",
+	"Name field contains already existing name.": "Поле 'Имя' содержит уже существующее имя.",
 	"Profile": "Профиль",
 	"Logout": "Выйти",
 	"Dashboard": "Информация",

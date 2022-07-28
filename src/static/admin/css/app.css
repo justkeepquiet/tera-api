@@ -2885,6 +2885,8 @@ table.dataTable {
 
 .item-icon-input {
   margin: -4px 10px 0 -10px; }
+  .item-icon-input img {
+    text-indent: -9999px; }
 
 .item-icon-form {
   height: 32px!important;
@@ -2940,10 +2942,14 @@ table.dataTable {
   color: orange !important; }
 
 .autocomplete-suggestions {
-  margin-top: -1px;
-  border: 1px solid #ced4da;
+  /*margin-top: -1px;*/
+  border: 1px solid #767676;
   background: #fff;
-  overflow: auto; }
+  overflow: auto; 
+  -webkit-box-shadow: 5px 5px 12px -5px rgba(34, 60, 80, 0.45);
+  -moz-box-shadow: 5px 5px 12px -5px rgba(34, 60, 80, 0.45);
+  box-shadow: 5px 5px 12px -5px rgba(34, 60, 80, 0.45);
+}
 .autocomplete-suggestion {
   padding: 2px 5px;
   white-space: nowrap;
@@ -2953,14 +2959,19 @@ table.dataTable {
     width: 24px !important;
     height: 24px !important;
     margin: 5px 0 0 8px;
-    text-indent: -9999px;
-  }
+    text-indent: -9999px; }
   .autocomplete-suggestion .item-icon-input {
     margin-right: 6px;
-    margin-bottom: 1px;
-  }
-.autocomplete-selected {
-  background: #ececec; }
+    margin-bottom: 1px; }
+.autocomplete-selected,
+.autocomplete-selected .item-grade-0,
+.autocomplete-selected .item-grade-1,
+.autocomplete-selected .item-grade-2,
+.autocomplete-selected .item-grade-3,
+.autocomplete-selected .item-grade-4,
+.autocomplete-selected .item-grade-5 {
+  background: #1E90FF;
+  color: #fff !important; }
 .autocomplete-group {
   padding: 2px 5px; }
 .autocomplete-group strong {

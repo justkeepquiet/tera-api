@@ -108,6 +108,7 @@
 	"Last login field must contain a valid date.": "Last login field must contain a valid date.",
 	"Server ID field contains not existing server ID.": "Server ID field contains not existing server ID.",
 	"Task with this box ID is already running. Check tasks queue.": "Task with this box ID is already running. Check tasks queue.",
+	"Name field contains already existing name.": "Name field contains already existing name.",
 	"Profile": "Profile",
 	"Logout": "Logout",
 	"Dashboard": "Dashboard",
