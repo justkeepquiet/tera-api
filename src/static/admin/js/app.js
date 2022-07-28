@@ -307,20 +307,21 @@ $.fn.addAutocomplete = function(endpoint, fnFormatResult, fnFormatOnSelect) {
 			if ($(this).closest("form").hasClass("form-inline")) {
 				return;
 			}
+			var input = $(this);
 			var result = fnFormatOnSelect(suggestion);
 
-			$(this).change();
-			$(this).after(result);
+			input.change();
+			input.after(result);
 
 			result.click(function() {
 				$(this).prev().focus();
 				$(this).hide();
 			});
-			result.next().change(function() {
-				$(this).prev().remove();
+			input.change(function() {
+				$(this).next().remove();
 			});
-			result.next().focusout(function() {
-				$(this).prev().show();
+			input.focusout(function() {
+				$(this).next().show();
 			});
 		}
 	});
@@ -403,7 +404,13 @@ function loadNotifications() {
 $(function() {
 	$("input[name='accountDBID'][type='text']").loadInputData("/api/getAccounts",
 		function(suggestion) {
-			return $("<div class='autocomplete-result'><span>" + suggestion.value + " - " + suggestion.data.userName + "</span></div>");
+			var value = suggestion.value + " - " + suggestion.data.userName;
+
+			if (suggestion.data.email != "") {
+				value += " (" + suggestion.data.email + ")";
+			}
+
+			return $("<div class='autocomplete-result'><span>" + value + "</span></div>");
 		}
 	);
 
@@ -444,7 +451,13 @@ function addAutocomplete() {
 			return $.Autocomplete.defaults.formatResult({ value: value }, currentValue);
 		},
 		function(suggestion) {
-			return $("<div class='autocomplete-result'><span>" + suggestion.value + " - " + suggestion.data.userName + "</span></div>");
+			var value = suggestion.value + " - " + suggestion.data.userName;
+
+			if (suggestion.data.email != "") {
+				value += " (" + suggestion.data.email + ")";
+			}
+
+			return $("<div class='autocomplete-result'><span>" + value + "</span></div>");
 		}
 	);
 
