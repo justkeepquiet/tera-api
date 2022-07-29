@@ -530,6 +530,12 @@ $(function() {
 			sessionStorage.setItem("changeScroll", true);
 		});
 	}
+
+	$("#quick-action").change(function() {
+		if ($(this).val()) {
+			location.href = $(this).val();
+		}
+	});
 });
 
 $(function() {

@@ -1,10 +1,34 @@
+<%_
+const quickMenu = [
+	{ page: "/maintenance/add", name: __("Start Maintenance") },
+	{ page: "/boxes", name: __("Send Box") },
+	{ page: "/benefits/add", name: __("Add Benefit") },
+	{ page: "/bans/add", name: __("Ban Account") },
+	{ page: "/shop_products/add", name: __("Add Product") },
+	{ page: "/shop_categories/add", name: __("Add Category") }
+];
+_%>
 <header class="header">
 	<div class="header-block header-block-collapse d-lg-none d-xl-none">
 		<button class="collapse-btn" id="sidebar-collapse-btn">
 			<i class="fa fa-bars"></i>
 		</button>
 	</div>
-	<div class="header-block header-block-search"></div>
+	<div class="header-block header-block-search">
+		<form role="search">
+			<div class="input-container">
+				<select id="quick-action" class="form-control underlined">
+					<option><%= __("Quick Actions") %>...</option>
+				<%_ quickMenu.forEach(item => { _%>
+					<%_ if (user.type !== "steer" || Object.values(user.functions).includes(item.page)) { _%>
+					<option value="<%= item.page %>"><%= item.name %></option>
+					<%_ } _%>
+				<%_ }) _%>
+				</select>
+				<div class="underline"></div>
+			</div>
+		</form>
+	</div>
 	<div class="header-block header-block-buttons">
 	<%_ __quickMenu.forEach(entry => { _%>
 		<a href="<%= entry.url %>" class="btn btn-sm header-btn" target="_blank"><i class="fa fa-link"></i> <span><%= entry.name %></span></a>

@@ -2440,9 +2440,9 @@ pre {
     background-color: #ccc;
     color: #000;
     margin: 0 3px; }
-  .sidebar .label-screenful {
+  .sidebar .label-primary {
     color: #fff;
-    background-color: #6769d4; }
+    background-color: #0075FF; }
   .sidebar .sidebar-menu {
     font-size: 14px;
     list-style: none;
@@ -2946,9 +2946,9 @@ table.dataTable {
   border: 1px solid #767676;
   background: #fff;
   overflow: auto; 
-  -webkit-box-shadow: 5px 5px 12px -5px rgba(34, 60, 80, 0.45);
-  -moz-box-shadow: 5px 5px 12px -5px rgba(34, 60, 80, 0.45);
-  box-shadow: 5px 5px 12px -5px rgba(34, 60, 80, 0.45);
+  -webkit-box-shadow: 1px 1px 7px 2px rgba(34, 60, 80, 0.3);
+  -moz-box-shadow: 1px 1px 7px 2px rgba(34, 60, 80, 0.3);
+  box-shadow: 1px 1px 7px 2px rgba(34, 60, 80, 0.3);
 }
 .autocomplete-suggestion {
   padding: 2px 5px;

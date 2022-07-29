@@ -166,7 +166,7 @@ module.exports.add = ({ i18n, logger, shopModel }) => [
 				fromCategoryId,
 				categoryId,
 				validAfter: moment(),
-				validBefore: moment().add(2, "years"),
+				validBefore: moment().add(3600, "days"),
 				active: 1,
 				price: "",
 				title: "",
