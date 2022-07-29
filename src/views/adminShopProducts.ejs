@@ -58,7 +58,7 @@ products.forEach((product, id) => {
 		product.sort,
 		id,
 		'<div class="mw-10 item-icon-block">' +
-			`<img src="/static/images/tera-icons/icon_items/${product.icon}.png" class="item-icon-grade-${product.rareGrade} item-icon">` +
+			`<img src="/static/images/tera-icons/${product.icon}.png" class="item-icon-grade-${product.rareGrade} item-icon">` +
 			`<img src="/static/images/icons/icon_grade_${product.rareGrade}.png" class="item-icon-grade" alt="">` +
 			'</div>',
 		`<a class="item-grade-${product.rareGrade}" href="/shop_products/edit?id=${id}&amp;fromCategoryId=${categoryId || ""}">${product.title || __("[unknown]")}</a>`,

@@ -18,7 +18,8 @@ module.exports = (sequelize, DataTypes) => {
 	const model = {
 		itemTemplates: require("./data/dataItemTemplates.model")(sequelize, DataTypes),
 		itemConversions: require("./data/dataItemConversions.model")(sequelize, DataTypes),
-		itemStrings: require("./data/dataItemStrings.model")(sequelize, DataTypes)
+		itemStrings: require("./data/dataItemStrings.model")(sequelize, DataTypes),
+		skillIcons: require("./data/dataSkillIcons.model")(sequelize, DataTypes)
 	};
 
 	// itemConversions
@@ -45,6 +46,12 @@ module.exports = (sequelize, DataTypes) => {
 		foreignKey: "itemTemplateId",
 		sourceKey: "itemTemplateId",
 		as: "conversion"
+	});
+
+	model.itemTemplates.hasMany(model.skillIcons, {
+		foreignKey: "skillId",
+		sourceKey: "linkSkillId",
+		as: "skillIcon"
 	});
 
 	// itemStrings

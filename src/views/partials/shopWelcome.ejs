@@ -18,7 +18,7 @@ _%>
 	<%_ } _%>
 	<%- __("Founder account") %>: <b><%= founder.length ? __("Yes") : __("No") %></b>
 </div>
-<div id="myCarousel" class="carousel slide">
+<div id="carousel" class="carousel slide">
 	<div class="carousel-inner">
 		<%_ shopConfig.welcomeCarousel.forEach((item, i) => { _%>
 		<div class="item<%= i == 0 ? " active" : "" %>">
@@ -26,16 +26,19 @@ _%>
 		</div>
 		<% }) %>
 	</div>
-	<a class="left carousel-control" href="#myCarousel" data-slide="prev">&lsaquo;</a>
-	<a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
+	<a class="left carousel-control" href="#carousel" data-slide="prev" style="display: none;">&lsaquo;</a>
+	<a class="right carousel-control" href="#carousel" data-slide="next" style="display: none;">&rsaquo;</a>
 </div>
 <script type="text/javascript">
 	$(function() {
-		$("#myCarousel").carousel();
-		$("#myCarousel .carousel-item").click(function () {
+		$("#carousel").carousel();
+		$("#carousel .carousel-item").click(function () {
 			if ($(this).data("id")) {
 				loadContentProduct({ id: $(this).data("id"), back: false });
 			}
+		});
+		$("#carousel").imagesLoaded(function() {
+			$(".carousel-control").show();
 		});
 	});
 </script>

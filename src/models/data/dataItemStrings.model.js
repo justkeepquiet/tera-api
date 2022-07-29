@@ -11,12 +11,6 @@
 */
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("data_item_strings", {
-		id: {
-			type: DataTypes.INTEGER(11),
-			unique: "id",
-			autoIncrement: true,
-			allowNull: false
-		},
 		language: {
 			type: DataTypes.STRING(3),
 			primaryKey: true,

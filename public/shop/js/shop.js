@@ -25,7 +25,7 @@ function loadAccountInfo() {
 function catalogSearchAction(search) {
 	return apiRequest("ShopPartialCatalog", { search: search }, "html", function(result) {
 		$("#content_product").empty().hide();
-		$("#content").html(result).show();
+		$("#content").html(result).show().animate({ scrollTop: 0 }, 0);
 		loadMenu();
 	});
 }
@@ -41,7 +41,7 @@ function loadMenu(active = 0) {
 }
 
 function loadContent(page, params = null) {
-	$(".item-icon").attr("src", "");
+	// $(".item-icon").attr("src", "");
 	$(".navbar-fixed-top .nav li").removeClass("active");
 	$(".navbar-fixed-top .nav li a[data-page='" + page.split("?")[0] + "']").parent().addClass("active");
 

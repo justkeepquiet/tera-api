@@ -172,7 +172,8 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 						include: [
 							{
 								as: "template",
-								model: dataModel.itemTemplates
+								model: dataModel.itemTemplates,
+								required: true
 							},
 							{
 								as: "strings",
@@ -339,11 +340,13 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataM
 					productObj.rareGrade = firstItem.get("template").get("rareGrade");
 				}
 
+				console.log(firstItem.get("template").get("requiredRace"));
+
 				productObj.requiredLevel = firstItem.get("template").get("requiredLevel");
 				productObj.requiredClass = firstItem.get("template").get("requiredClass")?.split(";") || [];
 				productObj.requiredGender = firstItem.get("template").get("requiredGender");
 				productObj.requiredRace = (firstItem.get("template").get("requiredRace")?.split(";") || [])
-					.map(race => (race === "popori" && productObj.requiredGender === "female" ? "elin" : "popori"));
+					.map(race => (race === "popori" && productObj.requiredGender === "female" ? "elin" : race));
 
 				productObj.tradable = firstItem.get("template").get("tradable");
 				productObj.warehouseStorable = firstItem.get("template").get("warehouseStorable");

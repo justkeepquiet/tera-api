@@ -11,12 +11,6 @@
 */
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("data_item_conversions", {
-		id: {
-			type: DataTypes.INTEGER(11),
-			autoIncrement: true,
-			allowNull: false,
-			unique: "id"
-		},
 		itemTemplateId: {
 			type: DataTypes.BIGINT(20),
 			primaryKey: true,

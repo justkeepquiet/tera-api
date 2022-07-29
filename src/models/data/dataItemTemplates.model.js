@@ -21,6 +21,10 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.TEXT(255),
 			allowNull: false
 		},
+		name: {
+			type: DataTypes.TEXT(255),
+			allowNull: false
+		},
 		rareGrade: {
 			type: DataTypes.INTEGER(11),
 			allowNull: false
@@ -43,6 +47,9 @@ module.exports = (sequelize, DataTypes) =>
 		tradable: {
 			type: DataTypes.TINYINT(4)
 		},
+		boundType: {
+			type: DataTypes.TEXT(255)
+		},
 		periodByWebAdmin: {
 			type: DataTypes.TINYINT(4)
 		},
@@ -51,6 +58,12 @@ module.exports = (sequelize, DataTypes) =>
 		},
 		warehouseStorable: {
 			type: DataTypes.TINYINT(4)
+		},
+		linkSkillId: {
+			type: DataTypes.BIGINT(20)
+		},
+		linkSkillPeriodDay: {
+			type: DataTypes.INTEGER(11)
 		}
 	})
 ;

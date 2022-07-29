@@ -62,7 +62,8 @@ module.exports.index = ({ i18n, logger, shopModel, dataModel }) => [
 						include: [
 							{
 								as: "template",
-								model: dataModel.itemTemplates
+								model: dataModel.itemTemplates,
+								required: true
 							},
 							{
 								as: "strings",
@@ -295,6 +296,11 @@ module.exports.addAction = modules => [
 									model: modules.dataModel.itemTemplates
 								}],
 								required: false
+							},
+							{
+								as: "skillIcon",
+								model: modules.dataModel.skillIcons,
+								required: false
 							}
 						]
 					}));
@@ -307,6 +313,10 @@ module.exports.addAction = modules => [
 
 					item.get("conversion").forEach(conversion =>
 						itemIcons.add(conversion.get("template").get("icon"))
+					);
+
+					item.get("skillIcon").forEach(skillIcon =>
+						itemIcons.add(skillIcon.get("icon"))
 					);
 
 					resolvedItems[item.get("itemTemplateId")] = item;
@@ -493,6 +503,11 @@ module.exports.edit = ({ i18n, logger, shopModel, dataModel }) => [
 								model: dataModel.itemTemplates
 							}],
 							required: false
+						},
+						{
+							as: "skillIcon",
+							model: dataModel.skillIcons,
+							required: false
 						}
 					]
 				}));
@@ -504,6 +519,10 @@ module.exports.edit = ({ i18n, logger, shopModel, dataModel }) => [
 
 					item.get("conversion").forEach(conversion =>
 						itemIcons.add(conversion.get("template").get("icon"))
+					);
+
+					item.get("skillIcon").forEach(skillIcon =>
+						itemIcons.add(skillIcon.get("icon"))
 					);
 				}
 			});
@@ -676,6 +695,11 @@ module.exports.editAction = modules => [
 									model: modules.dataModel.itemTemplates
 								}],
 								required: false
+							},
+							{
+								as: "skillIcon",
+								model: modules.dataModel.skillIcons,
+								required: false
 							}
 						]
 					}));
@@ -688,6 +712,10 @@ module.exports.editAction = modules => [
 
 					item.get("conversion").forEach(conversion =>
 						itemIcons.add(conversion.get("template").get("icon"))
+					);
+
+					item.get("skillIcon").forEach(skillIcon =>
+						itemIcons.add(skillIcon.get("icon"))
 					);
 
 					resolvedItems[item.get("itemTemplateId")] = item;

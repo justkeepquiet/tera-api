@@ -45,7 +45,7 @@ boxes.forEach((box, id) => {
 		items.push(
 			'<div class="form-control boxed mb-1" style="overflow: hidden; background: transparent !important;">' +
 			'<div class="item-icon-block" style="margin: -4px 10px 0 -10px;">' +
-				`<img src="/static/images/tera-icons/icon_items/${item.get("template").get("icon")}.png" class="item-icon-grade-${item.get("template").get("rareGrade")} item-icon"> ` +
+				`<img src="/static/images/tera-icons/${item.get("template").get("icon")}.png" class="item-icon-grade-${item.get("template").get("rareGrade")} item-icon"> ` +
 				`<img src="/static/images/icons/icon_grade_${item.get("template").get("rareGrade")}.png" class="item-icon-grade" alt="">` +
 			'</div>' +
 			`<small class="item-grade-' + item.get("template").get("rareGrade") + '">${item.get("strings")[0]?.get("string") || __("[unknown]")} (${item.get("boxItemCount")})</small>` +

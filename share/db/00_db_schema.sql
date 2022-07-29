@@ -85,40 +85,49 @@ CREATE TABLE IF NOT EXISTS `box_items` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `data_item_conversions` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
   `itemTemplateId` bigint(20) NOT NULL,
   `fixedItemTemplateId` bigint(20) NOT NULL,
   `class` varchar(50) DEFAULT NULL,
   `race` varchar(50) DEFAULT NULL,
   `gender` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`itemTemplateId`,`fixedItemTemplateId`) USING BTREE,
-  UNIQUE KEY `id` (`id`) USING BTREE
+  PRIMARY KEY (`itemTemplateId`,`fixedItemTemplateId`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `data_item_strings` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
   `language` varchar(3) NOT NULL,
   `itemTemplateId` bigint(20) NOT NULL,
   `string` varchar(2048) DEFAULT NULL,
   `toolTip` varchar(4096) DEFAULT NULL,
-  PRIMARY KEY (`language`,`itemTemplateId`) USING BTREE,
-  UNIQUE KEY `id` (`id`)
+  PRIMARY KEY (`language`,`itemTemplateId`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `data_item_templates` (
   `itemTemplateId` bigint(20) NOT NULL,
   `icon` varchar(255) NOT NULL,
-  `rareGrade` int(11) NOT NULL,
+  `name` varchar(255) DEFAULT NULL,
   `category` varchar(255) DEFAULT NULL,
+  `rareGrade` int(11) NOT NULL,
   `requiredLevel` int(11) DEFAULT NULL,
   `requiredClass` varchar(255) DEFAULT NULL,
   `requiredGender` varchar(255) DEFAULT NULL,
   `requiredRace` varchar(255) DEFAULT NULL,
   `warehouseStorable` tinyint(4) DEFAULT NULL,
   `tradable` tinyint(4) DEFAULT NULL,
+  `boundType` varchar(255) DEFAULT NULL,
   `periodByWebAdmin` tinyint(4) DEFAULT NULL,
   `periodInMinute` int(11) DEFAULT NULL,
+  `linkSkillId` bigint(20) DEFAULT NULL,
+  `linkSkillPeriodDay` int(11) DEFAULT NULL,
   PRIMARY KEY (`itemTemplateId`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `data_skill_icons` (
+  `skillId` bigint(20) NOT NULL,
+  `class` varchar(255) NOT NULL,
+  `race` varchar(255) NOT NULL,
+  `gender` varchar(255) NOT NULL,
+  `icon` varchar(2048) NOT NULL,
+  PRIMARY KEY (`skillId`,`class`,`race`,`gender`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `queue_tasks` (

@@ -425,7 +425,7 @@ $(function() {
 		function(suggestion) {
 			return $("<div class='autocomplete-result'>" +
 				"<div class='item-icon-input'>" +
-					"<img src='/static/images/tera-icons/icon_items/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
+					"<img src='/static/images/tera-icons/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
 					"<img src='/static/images/icons/icon_grade_" + suggestion.data.rareGrade + ".png' class='item-icon-grade'>" +
 				"</div>" +
 				"<small class='item-grade-" + suggestion.data.rareGrade + "'>(" + suggestion.value + ") " + suggestion.data.title + "</small></div>");
@@ -478,7 +478,7 @@ function addAutocomplete() {
 			var value = suggestion.data.title + " (" + suggestion.value + ")";
 
 			return "<div class='item-icon-input'>" +
-				"<img src='/static/images/tera-icons/icon_items/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
+				"<img src='/static/images/tera-icons/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
 				"<img src='/static/images/icons/icon_grade_" + suggestion.data.rareGrade + ".png' class='item-icon-grade'>" +
 			"</div>" +
 			"<small class='item-grade-" + suggestion.data.rareGrade + "'>" + $.Autocomplete.defaults.formatResult({ value: value }, currentValue) + "</small>";
@@ -486,7 +486,7 @@ function addAutocomplete() {
 		function(suggestion) {
 			return $("<div class='autocomplete-result'>" +
 				"<div class='item-icon-input'>" +
-					"<img src='/static/images/tera-icons/icon_items/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
+					"<img src='/static/images/tera-icons/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
 					"<img src='/static/images/icons/icon_grade_" + suggestion.data.rareGrade + ".png' class='item-icon-grade'>" +
 				"</div>" +
 				"<small class='item-grade-" + suggestion.data.rareGrade + "'>(" + suggestion.value + ") " + suggestion.data.title + "</small></div>");
