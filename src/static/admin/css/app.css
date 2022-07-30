@@ -2861,6 +2861,16 @@ pre {
     .header .header-block-nav .profile-dropdown-menu {
       margin-top: 8px; } }
 
+.datetime-local-reset {
+  position: absolute;
+  display: block;
+  width: 100%;
+  margin-top: -32px;
+  padding-right: 70px;
+  text-align: right;
+  color: #000;
+}
+
 table.dataTable {
   border-collapse: collapse !important; }
   table.dataTable td .btn {

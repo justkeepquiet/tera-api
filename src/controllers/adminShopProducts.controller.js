@@ -907,6 +907,8 @@ module.exports.editAllAction = modules => [
 	[
 		body("price").optional({ checkFalsy: true })
 			.isInt({ min: 0 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
+		body("sort").optional({ checkFalsy: true })
+			.isNumeric().withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
 		body("categoryId").optional({ checkFalsy: true })
 			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
@@ -917,6 +919,10 @@ module.exports.editAllAction = modules => [
 					return Promise.reject(modules.i18n.__("Category field must contain an existing category ID."));
 				}
 			})),
+		body("validAfter").optional({ checkFalsy: true })
+			.isISO8601().withMessage(modules.i18n.__("Valid from field must contain a valid date.")),
+		body("validBefore").optional({ checkFalsy: true })
+			.isISO8601().withMessage(modules.i18n.__("Valid to field must contain a valid date.")),
 		body("active").optional({ checkFalsy: true })
 			.isIn(["on", "off"]).withMessage(modules.i18n.__("Active field has invalid value."))
 	],
@@ -925,7 +931,7 @@ module.exports.editAllAction = modules => [
 	 */
 	async (req, res, next) => {
 		const { id } = req.body;
-		const { categoryId, price, active, validate } = req.body;
+		const { categoryId, validAfter, validBefore, price, sort, active, validate } = req.body;
 		const errors = helpers.validationResultLog(req, modules.logger);
 
 		try {
@@ -962,7 +968,10 @@ module.exports.editAllAction = modules => [
 
 				await modules.shopModel.products.update({
 					...categoryId !== "" ? { categoryId } : {},
+					...validAfter !== "" ? { validAfter: moment.tz(validAfter, req.user.tz).toDate() } : {},
+					...validBefore !== "" ? { validBefore: moment.tz(validBefore, req.user.tz).toDate() } : {},
 					...price !== "" ? { price } : {},
+					...sort !== "" ? { sort } : {},
 					...active !== "" ? { active: active === "on" } : {}
 				}, {
 					where: { id: { [Op.in]: products.map(product => product.get("id")) } }
@@ -972,7 +981,10 @@ module.exports.editAllAction = modules => [
 			}
 
 			const categoryIdEqual = products.map(product => product.get("categoryId")).every((v, i, a) => v === a[0]);
+			const validAfterEqual = products.map(product => product.get("validAfter").toString()).every((v, i, a) => v === a[0]);
+			const validBeforeEqual = products.map(product => product.get("validBefore").toString()).every((v, i, a) => v === a[0]);
 			const priceEqual = products.map(product => product.get("price")).every((v, i, a) => v === a[0]);
+			const sortEqual = products.map(product => product.get("sort")).every((v, i, a) => v === a[0]);
 			const activeEqual = products.map(product => product.get("active")).every((v, i, a) => v === a[0]);
 
 			res.render("adminShopProductsEditAll", {
@@ -983,6 +995,9 @@ module.exports.editAllAction = modules => [
 				id,
 				categories,
 				categoryId: categoryIdEqual ? products[0].get("categoryId") : "",
+				validAfter: validAfterEqual ? moment.tz(products[0].get("validAfter"), req.user.tz) : "",
+				validBefore: validBeforeEqual ? moment.tz(products[0].get("validBefore"), req.user.tz) : "",
+				sort: sortEqual ? products[0].get("sort") : "",
 				price: priceEqual ? products[0].get("price") : "",
 				active: activeEqual ? !!products[0].get("active") : ""
 			});

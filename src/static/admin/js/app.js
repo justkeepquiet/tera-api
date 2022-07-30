@@ -545,6 +545,10 @@ $(function() {
 			location.href = $(this).val();
 		}
 	});
+
+	$(".datetime-local-reset").click(function() {
+		$(this).prev().val("");
+	});
 });
 
 $(function() {
