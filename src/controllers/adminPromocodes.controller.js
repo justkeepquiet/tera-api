@@ -116,7 +116,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 				validAfter: moment.tz(validAfter, req.user.tz),
 				validBefore: moment.tz(validBefore, req.user.tz),
 				active,
-				description
+				description: description || []
 			});
 		}
 
@@ -267,7 +267,7 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 					validAfter: moment.tz(validAfter, req.user.tz),
 					validBefore: moment.tz(validBefore, req.user.tz),
 					active,
-					description
+					description: description || []
 				});
 			}
 

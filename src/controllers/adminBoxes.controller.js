@@ -145,7 +145,7 @@ module.exports.addAction = modules => [
 			.isInt({ min: 1 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => modules.dataModel.itemTemplates.findOne({
 				where: {
-					itemTemplateId: value
+					itemTemplateId: value || null
 				}
 			}).then(data => {
 				if (value && !data) {
@@ -346,7 +346,7 @@ module.exports.editAction = modules => [
 			.isInt({ min: 1 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => modules.dataModel.itemTemplates.findOne({
 				where: {
-					itemTemplateId: value
+					itemTemplateId: value || null
 				}
 			}).then(data => {
 				if (value && !data) {

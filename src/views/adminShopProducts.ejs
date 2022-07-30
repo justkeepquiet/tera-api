@@ -29,14 +29,14 @@
 								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
-											<th><%= __("Sort.") %></th>
 											<th><%= __("ID") %></th>
-											<th><%= __("Icon") %></th>
+											<th></th>
 											<th><%= __("Title") %></th>
 											<th><%= __("Category ID") %></th>
 											<th><%= __("Price") %></th>
 											<th><%= __("Active") %></th>
 											<th><%= __("Published") %></th>
+											<th><%= __("Sort.") %></th>
 											<th></th>
 										</tr>
 									</thead>
@@ -55,7 +55,6 @@ const tableData = [];
 
 products.forEach((product, id) => {
 	tableData.push([
-		product.sort,
 		id,
 		'<div class="mw-10 item-icon-block">' +
 			`<img src="/static/images/tera-icons/${product.icon}.png" class="item-icon-grade-${product.rareGrade} item-icon">` +
@@ -66,6 +65,7 @@ products.forEach((product, id) => {
 		product.price,
 		product.active ? __("Yes") : __("No"),
 		`<span class="text-${product.published ? "success" : "danger"}">${product.published ? __("Yes") : __("No")}</span>`,
+		product.sort,
 		`<a class="btn btn-secondary btn-sm" href="/shop_products/edit?id=${id}&amp;fromCategoryId=${categoryId || ""}"><i class="fa fa-pencil"></i></a> ` +
 			`<a class="btn btn-secondary btn-sm" href="/shop_products/delete?id=${id}&amp;categoryId=${product.categoryId}&amp;fromCategoryId=${categoryId || ""}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
 	]);
@@ -74,12 +74,41 @@ _%>
 <script>
 	var serializedTable = <%- JSON.stringify(tableData) %>;
 	$(function() {
-		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+		var table = $(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			dom: "<'row mb-2'<'col-12 text-right'B>>" +
+				"<'row'<'col-sm-6'l><'col-sm-6'f>>" +
+				"<'row'<'col-sm-12'tr>>" +
+				"<'row'<'col-sm-6'i><'col-sm-6'p>>",
+				// "<'row'<'col-sm-2 table-action'><'col-sm-5'i><'col-sm-5'p>>",
 			data: serializedTable,
-			order: [[0, "desc"]],
-			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, null, { width: "1%" }, null, null, null, null, null, { className: "text-right text-nowrap" }]
+			order: [[7, "desc"]],
+			columnDefs: [
+				// { targets: 0, checkboxes: { selectRow: false } }
+				{ orderable: false, targets: [1, -1] },
+			],
+			columns: [null, { width: "1%" }, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
+		/*
+		$(".table-action").html(
+			'<form id="table-action" method="POST">' +
+			'	<select class="custom-select custom-select-sm form-control form-control-sm boxed mt-2">' +
+			'		<option>С отмеченными...</option>' +
+			'		<option value="/shop_products/add">Изменить</option>' +
+			'		<option value="/shop_products/_delete">Удалить</option>' +
+			'	</select>' +
+			'</form>'
+		);
+		$("#table-action").on("submit", function(){
+			$.each(table.column(0).checkboxes.selected(), function(index, rowId) {
+				$(this).append(
+					$('<input>').attr('type', 'hidden').attr('name', 'id[]').val(rowId)
+				);
+			});
+		});
+		$("#table-action select").change(function() {
+			$("#table-action").attr("action", $(this).val()).submit();
+		});
+		*/
 	});
 </script>

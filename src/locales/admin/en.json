@@ -109,6 +109,7 @@
 	"Server ID field contains not existing server ID.": "Server ID field contains not existing server ID.",
 	"Task with this box ID is already running. Check tasks queue.": "Task with this box ID is already running. Check tasks queue.",
 	"Name field contains already existing name.": "Name field contains already existing name.",
+	"Category field must contain an existing category ID.": "Category field must contain an existing category ID.",
 	"Profile": "Profile",
 	"Logout": "Logout",
 	"Dashboard": "Dashboard",

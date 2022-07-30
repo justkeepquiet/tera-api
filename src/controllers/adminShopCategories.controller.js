@@ -93,7 +93,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 				shopLocales,
 				sort,
 				active,
-				title
+				title: title || []
 			});
 		}
 
@@ -228,7 +228,7 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 					id: category.get("id"),
 					sort: category.get("sort"),
 					active,
-					title
+					title: title || []
 				});
 			}
 

@@ -200,7 +200,7 @@ module.exports.addAction = modules => [
 		body("categoryId")
 			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
-					id: req.body.categoryId
+					id: req.body.categoryId || null
 				}
 			}).then(data => {
 				if (!data) {
@@ -218,7 +218,7 @@ module.exports.addAction = modules => [
 			.isInt({ min: 1 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => modules.dataModel.itemTemplates.findOne({
 				where: {
-					itemTemplateId: value
+					itemTemplateId: value || null
 				}
 			}).then(data => {
 				if (value && !data) {
@@ -336,8 +336,8 @@ module.exports.addAction = modules => [
 					validBefore: moment.tz(validBefore, req.user.tz),
 					active,
 					price,
-					title,
-					description,
+					title: title || [],
+					description: description || [],
 					icon,
 					rareGrade: rareGrade === "" ? null : Number(rareGrade),
 					resolvedItems,
@@ -572,7 +572,7 @@ module.exports.editAction = modules => [
 		body("categoryId")
 			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
-					id: req.body.categoryId
+					id: req.body.categoryId || null
 				}
 			}).then(data => {
 				if (!data) {
@@ -590,7 +590,7 @@ module.exports.editAction = modules => [
 			.isInt({ min: 1 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => modules.dataModel.itemTemplates.findOne({
 				where: {
-					itemTemplateId: value
+					itemTemplateId: value || null
 				}
 			}).then(data => {
 				if (value && !data) {
@@ -737,8 +737,8 @@ module.exports.editAction = modules => [
 					active,
 					price,
 					sort,
-					title,
-					description,
+					title: title || [],
+					description: description || [],
 					icon,
 					rareGrade: rareGrade === "" ? null : Number(rareGrade),
 					itemTemplateIds: itemTemplateIds || [],
