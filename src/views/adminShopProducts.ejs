@@ -56,7 +56,7 @@ const tableData = [];
 products.forEach((product, id) => {
 	tableData.push([
 		id,
-		'<div class="mw-10 item-icon-block">' +
+		'<div class="item-icon-block">' +
 			`<img src="/static/images/tera-icons/${product.icon}.png" class="item-icon-grade-${product.rareGrade} item-icon">` +
 			`<img src="/static/images/icons/icon_grade_${product.rareGrade}.png" class="item-icon-grade" alt="">` +
 			'</div>',
@@ -78,37 +78,55 @@ _%>
 			dom: "<'row mb-2'<'col-12 text-right'B>>" +
 				"<'row'<'col-sm-6'l><'col-sm-6'f>>" +
 				"<'row'<'col-sm-12'tr>>" +
-				"<'row'<'col-sm-6'i><'col-sm-6'p>>",
-				// "<'row'<'col-sm-2 table-action'><'col-sm-5'i><'col-sm-5'p>>",
+				"<'row'<'col-sm-2 table-action'><'col-sm-5'i><'col-sm-5'p>>",
 			data: serializedTable,
 			order: [[7, "desc"]],
 			columnDefs: [
-				// { targets: 0, checkboxes: { selectRow: false } }
+				{
+					targets: 0,
+					render: function(data, type, row, meta) {
+						if(type === "display") {
+							data = '<label><input type="checkbox" class="dt-checkboxes checkbox"><span></span></label>';
+						}
+						return data;
+					},
+					checkboxes: {
+						selectAllPages: false,
+						selectAllRender: '<label><input type="checkbox" class="dt-checkboxes checkbox"><span></span></label>'
+					}
+				},
 				{ orderable: false, targets: [1, -1] },
 			],
 			columns: [null, { width: "1%" }, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
-		$(".section").show();
-		/*
 		$(".table-action").html(
 			'<form id="table-action" method="POST">' +
 			'	<select class="custom-select custom-select-sm form-control form-control-sm boxed mt-2">' +
-			'		<option>С отмеченными...</option>' +
-			'		<option value="/shop_products/add">Изменить</option>' +
-			'		<option value="/shop_products/_delete">Удалить</option>' +
+			'		<option value=""><%= __("With selected") %>...</option>' +
+			'		<option value="/shop_products/edit/all?fromCategoryId=<%= categoryId %>"><%= __("Edit") %></option>' +
+			'		<option value="/shop_products/delete/all?fromCategoryId=<%= categoryId %>"><%= __("Delete") %></option>' +
 			'	</select>' +
 			'</form>'
 		);
-		$("#table-action").on("submit", function(){
+		$("#table-action").on("submit", function(e){
 			$.each(table.column(0).checkboxes.selected(), function(index, rowId) {
-				$(this).append(
-					$('<input>').attr('type', 'hidden').attr('name', 'id[]').val(rowId)
+				$("#table-action").append(
+					$('<input>').attr("type", "hidden").attr("name", "id[]").val(rowId)
 				);
 			});
 		});
 		$("#table-action select").change(function() {
-			$("#table-action").attr("action", $(this).val()).submit();
+			if (table.column(0).checkboxes.selected().length !== 0 && $(this).val()) {
+				$(this).closest("form").attr("action", $(this).val());
+				if ($(this).val() == "/shop_products/delete/all?fromCategoryId=<%= categoryId %>") {
+					$("#confirm-del-modal").modal("show", $(this).closest("form"));
+				} else {
+					$(this).closest("form").submit();
+				}
+			} else {
+				$("#table-action select option:first").prop("selected", true)
+			}
 		});
-		*/
+		$(".section").show();
 	});
 </script>

@@ -901,6 +901,108 @@ module.exports.editAction = modules => [
 /**
  * @param {modules} modules
  */
+module.exports.editAllAction = modules => [
+	accessFunctionHandler,
+	expressLayouts,
+	[
+		body("price").optional({ checkFalsy: true })
+			.isInt({ min: 0 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
+		body("categoryId").optional({ checkFalsy: true })
+			.custom((value, { req }) => modules.shopModel.categories.findOne({
+				where: {
+					id: req.body.categoryId || null
+				}
+			}).then(data => {
+				if (!data) {
+					return Promise.reject(modules.i18n.__("Category field must contain an existing category ID."));
+				}
+			})),
+		body("active").optional({ checkFalsy: true })
+			.isIn(["on", "off"]).withMessage(modules.i18n.__("Active field has invalid value."))
+	],
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { id } = req.body;
+		const { categoryId, price, active, validate } = req.body;
+		const errors = helpers.validationResultLog(req, modules.logger);
+
+		try {
+			const productIds = new Set(Array.isArray(id) ? id : [id]);
+
+			if (productIds.size === 0) {
+				return res.redirect("/shop_products");
+			}
+
+			const products = await modules.shopModel.products.findAll({
+				where: { id: { [Op.in]: Array.from(productIds) } }
+			});
+
+			if (products.length === 0) {
+				return res.redirect("/shop_products");
+			}
+
+			const categories = await modules.shopModel.categories.findAll({
+				include: [{
+					as: "strings",
+					model: modules.shopModel.categoryStrings,
+					where: { language: modules.i18n.getLocale() },
+					required: false
+				}],
+				order: [
+					["sort", "DESC"]
+				]
+			});
+
+			if (validate && errors.isEmpty()) {
+				if (categoryId === "" && price === "" && active === "") {
+					return next();
+				}
+
+				await modules.shopModel.products.update({
+					...categoryId !== "" ? { categoryId } : {},
+					...price !== "" ? { price } : {},
+					...active !== "" ? { active: active === "on" } : {}
+				}, {
+					where: { id: { [Op.in]: products.map(product => product.get("id")) } }
+				});
+
+				return next();
+			}
+
+			const categoryIdEqual = products.map(product => product.get("categoryId")).every((v, i, a) => v === a[0]);
+			const priceEqual = products.map(product => product.get("price")).every((v, i, a) => v === a[0]);
+			const activeEqual = products.map(product => product.get("active")).every((v, i, a) => v === a[0]);
+
+			res.render("adminShopProductsEditAll", {
+				layout: "adminLayout",
+				errors: errors.array(),
+				moment,
+				shopLocales,
+				id,
+				categories,
+				categoryId: categoryIdEqual ? products[0].get("categoryId") : "",
+				price: priceEqual ? products[0].get("price") : "",
+				active: activeEqual ? !!products[0].get("active") : ""
+			});
+		} catch (err) {
+			modules.logger.error(err);
+			res.render("adminError", { layout: "adminLayout", err });
+		}
+	},
+	writeOperationReport(modules.reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		res.redirect(`/shop_products?categoryId=${req.query.fromCategoryId || ""}`);
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
 module.exports.deleteAction = modules => [
 	accessFunctionHandler,
 	expressLayouts,
@@ -908,59 +1010,64 @@ module.exports.deleteAction = modules => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { id } = req.query;
+		const id = req.query.id || req.body.id;
 		const serviceItem = new ServiceItem(modules);
 
 		try {
-			if (!id) {
+			const productIds = new Set(Array.isArray(id) ? id : [id]);
+
+			if (productIds.size === 0) {
 				return res.redirect("/shop_products");
 			}
 
-			await modules.sequelize.transaction(async transaction => {
-				const promises = [
-					modules.shopModel.products.destroy({
-						where: { id },
-						transaction
-					}),
-					modules.shopModel.productStrings.destroy({
-						where: { productId: id },
-						transaction
-					})
-				];
-
-				(await modules.shopModel.productItems.findAll({
-					where: { productId: id }
-				})).forEach(productItem => {
-					if (productItem.get("boxItemId")) {
-						promises.push(modules.shopModel.productItems.findOne({
-							where: {
-								id: { [Op.ne]: productItem.get("id") },
-								boxItemId: productItem.get("boxItemId")
-							}
-						}).then(resultProductItem => modules.boxModel.items.findOne({
-							where: {
-								boxItemId: productItem.get("boxItemId")
-							}
-						}).then(resultBoxItem => {
-							if (resultProductItem === null && resultBoxItem === null) {
-								promises.push(serviceItem.remove(productItem.get("boxItemId")));
-							}
-						})));
-
-						promises.push(modules.shopModel.productItems.destroy({
-							where: { id: productItem.get("id") },
+			for (const productId of productIds) {
+				// eslint-disable-next-line no-await-in-loop
+				await modules.sequelize.transaction(async transaction => {
+					const promises = [
+						modules.shopModel.products.destroy({
+							where: { id: productId },
 							transaction
-						}));
-					} else {
-						promises.push(modules.shopModel.productItems.destroy({
-							where: { id: productItem.get("id") },
+						}),
+						modules.shopModel.productStrings.destroy({
+							where: { productId },
 							transaction
-						}));
-					}
+						})
+					];
+
+					(await modules.shopModel.productItems.findAll({
+						where: { productId }
+					})).forEach(productItem => {
+						if (productItem.get("boxItemId")) {
+							promises.push(modules.shopModel.productItems.findOne({
+								where: {
+									id: { [Op.ne]: productItem.get("id") },
+									boxItemId: productItem.get("boxItemId")
+								}
+							}).then(resultProductItem => modules.boxModel.items.findOne({
+								where: {
+									boxItemId: productItem.get("boxItemId")
+								}
+							}).then(resultBoxItem => {
+								if (resultProductItem === null && resultBoxItem === null) {
+									promises.push(serviceItem.remove(productItem.get("boxItemId")));
+								}
+							})));
+
+							promises.push(modules.shopModel.productItems.destroy({
+								where: { id: productItem.get("id") },
+								transaction
+							}));
+						} else {
+							promises.push(modules.shopModel.productItems.destroy({
+								where: { id: productItem.get("id") },
+								transaction
+							}));
+						}
+					});
+
+					await Promise.all(promises);
 				});
-
-				await Promise.all(promises);
-			});
+			}
 
 			next();
 		} catch (err) {

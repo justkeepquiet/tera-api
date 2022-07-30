@@ -321,6 +321,8 @@
 	"In the Last login field, the date of the last entry into the game is specified. Box will not be sent to users who logged into the game before this date.": "В поле 'Последний вход' указыается дата последнего входа в игру. Коробка не будет оптравлена пользователям, которые последний раз заходили раньше этой даты.",
 	"Balance": "Баланс",
 	"Active": "Активно",
+	"No change": "Не изменять",
+	"Inactive": "Не активно",
 	"Created": "Создано",
 	"Enter game": "Вход",
 	"Leave game": "Выход",
@@ -450,5 +452,6 @@
 	"Log ID": "ID записи",
 	"Box": "Коробка",
 	"Chronoscroll": "VIP-предмет",
-	"[unknown]": "[неизвестно]"
+	"[unknown]": "[неизвестно]",
+	"With selected": "С отмеченными"
 }

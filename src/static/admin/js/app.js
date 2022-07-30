@@ -505,7 +505,16 @@ $(function() {
 	$("#confirm-modal, #confirm-del-modal").on("show.bs.modal", function(event) {
 		$(this).find(".modal-yes").click(function() {
 			sessionStorage.setItem("changeScroll", true);
-			window.location.href = $(event.relatedTarget).attr("href");
+			if ($(event.relatedTarget).attr("href")) {
+				window.location.href = $(event.relatedTarget).attr("href");
+			} else if ($(event.relatedTarget).is("form")) {
+				$(event.relatedTarget).submit();
+			}
+		});
+		$(this).find(".modal-no").click(function() {
+			if ($(event.relatedTarget).is("form")) {
+				$(event.relatedTarget).trigger("reset");
+			}
 		});
 	});
 

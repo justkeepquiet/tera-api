@@ -213,7 +213,9 @@ module.exports = modules => {
 		.post("/shop_products/add", adminShopProductsController.addAction(mod))
 		.get("/shop_products/edit", adminShopProductsController.edit(mod))
 		.post("/shop_products/edit", adminShopProductsController.editAction(mod))
+		.post("/shop_products/edit/all", adminShopProductsController.editAllAction(mod))
 		.get("/shop_products/delete", adminShopProductsController.deleteAction(mod))
+		.post("/shop_products/delete/all", adminShopProductsController.deleteAction(mod))
 		// Shop Logs
 		.get("/shop_fund_logs", adminShopLogsController.fund(mod))
 		.get("/shop_pay_logs", adminShopLogsController.pay(mod))

@@ -1,0 +1,59 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Edit Shop Product") %> ID <%= id.join(", ") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-secondary history-back" title="" href="#"><i class="fa fa-chevron-left"></i> <%= __("Back to list") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col form">
+				<div class="card card-block">
+					<form id="form" method="POST" action="">
+						<%- include("partials/adminFormErrors", { errors }) -%>
+						<div class="title-block">
+							<h3 class="title"><%= __("Product Information") %></h3>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="price"><%= __("Price") %></label>
+								<input type="number" class="form-control boxed" name="price" value="<%= price %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="userName"><%= __("Category ID") %></label>
+								<select class="form-control boxed" name="categoryId">
+									<option value="">- <%= __("No change") %> -</option>
+								<%_ categories.forEach(category => { _%>
+									<option value="<%= category.get("id") %>" <%= categoryId == category.get("id") ? 'selected' : "" %>>(<%= category.get("id") %>) <%= category.get("strings")[0]?.get("title") || __("[unknown]") %></option>
+								<%_ }) _%>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>
+								<input class="radio" name="active" type="radio" value="on" <%- active === true ? "checked=\"checked\"" : "" %>>
+								<span><%= __("Active") %></span>
+							</label>
+							<label>
+								<input class="radio" name="active" type="radio" value="off" <%- active === false ? "checked=\"checked\"" : "" %>>
+								<span><%= __("Inactive") %></span>
+							</label>
+							<label>
+								<input class="radio" name="active" type="radio" value="" <%- active === "" ? "checked=\"checked\"" : "" %>>
+								<span><%= __("No change") %></span>
+							</label>
+						</div>
+						<div class="form-group">
+						<%_ id.forEach(ID => { _%>
+							<input type="hidden" name="id[]" id="validate" value="<%= ID %>">
+						<%_ }) _%>
+							<input type="hidden" name="validate" id="validate" value="1">
+							<button type="submit" id="submit" class="btn btn-primary"><%= __("Save") %></button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

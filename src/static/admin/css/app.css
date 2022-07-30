@@ -2867,32 +2867,38 @@ table.dataTable {
     margin: 0 !important; }
   table.dataTable th {
     padding-bottom: 12px !important; }
+  table.dataTable thead th.dt-checkboxes-select-all,
+  table.dataTable tbody td.dt-checkboxes-cell {
+    padding-right: 0; }
+  table.dataTable tbody td .item-icon-block {
+    margin-top: -2px; }
 
-.item-icon, .item-icon-block, .item-icon-input {
+.item-icon-form {
+  height: 32px!important;
+  max-height: 32px!important;
+  max-width: 32px!important;
+  margin-right: 5px; } 
+
+.item-icon-block, .item-icon-input {
   width: 32px!important;
   height: 100%!important;
   position: relative;
   left: 0;
   top: 0;
   float: left; }
+  .item-icon-input {
+    margin: -4px 10px 0 -10px; }
+    .item-icon-input img {
+      text-indent: -9999px; }
 
 .item-icon {
   display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
   height: 32px!important;
   max-height: 32px!important;
-  max-width: 32px!important;
-  margin-right: 5px; }
-
-.item-icon-input {
-  margin: -4px 10px 0 -10px; }
-  .item-icon-input img {
-    text-indent: -9999px; }
-
-.item-icon-form {
-  height: 32px!important;
-  max-height: 32px!important;
-  max-width: 32px!important;
-  margin-right: 5px; }
+  max-width: 32px!important; }
 
 .item-icon-grade {
   position: absolute;
@@ -2958,11 +2964,14 @@ table.dataTable {
   .autocomplete-suggestion .item-icon-input img {
     width: 24px !important;
     height: 24px !important;
-    margin: 5px 0 0 8px;
+    margin: 4px 0 0 8px;
     text-indent: -9999px; }
   .autocomplete-suggestion .item-icon-input {
     margin-right: 6px;
     margin-bottom: 1px; }
+  .autocomplete-suggestion small {
+    margin-left: 28px;
+  }
 .autocomplete-selected,
 .autocomplete-selected .item-grade-0,
 .autocomplete-selected .item-grade-1,

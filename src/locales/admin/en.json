@@ -322,6 +322,8 @@
 	"In the Last login field, the date of the last entry into the game is specified. Box will not be sent to users who logged into the game before this date.": "In the Last login field, the date of the last entry into the game is specified. Box will not be sent to users who logged into the game before this date.",
 	"Balance": "Balance",
 	"Active": "Active",
+	"No change": "No change",
+	"Inactive": "Inactive",
 	"Created": "Created",
 	"Enter game": "Enter game",
 	"Leave game": "Leave game",
@@ -451,5 +453,6 @@
 	"Log ID": "Log ID",
 	"Box": "Box",
 	"Chronoscroll": "Chronoscroll",
-	"[unknown]": "[unknown]"
+	"[unknown]": "[unknown]",
+	"With selected": "With selected"
 }
