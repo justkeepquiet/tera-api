@@ -546,8 +546,8 @@ $(function() {
 		}
 	});
 
-	$(".datetime-local-reset").click(function() {
-		$(this).prev().val("");
+	$("span.datetime-local-reset i").click(function() {
+		$(this).closest("span").prev().val("");
 	});
 });
 

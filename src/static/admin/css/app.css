@@ -2868,8 +2868,11 @@ pre {
   margin-top: -32px;
   padding-right: 70px;
   text-align: right;
-  color: #000;
-}
+  background-color: transparent;
+  pointer-events: none;
+  color: #000; }
+  .datetime-local-reset i {
+    pointer-events: auto !important; }
 
 table.dataTable {
   border-collapse: collapse !important; }
