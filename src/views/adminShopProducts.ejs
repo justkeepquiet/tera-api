@@ -78,7 +78,7 @@ _%>
 			dom: "<'row mb-2'<'col-12 text-right'B>>" +
 				"<'row'<'col-sm-6'l><'col-sm-6'f>>" +
 				"<'row'<'col-sm-12'tr>>" +
-				"<'row'<'col-sm-2 table-action'><'col-sm-5'i><'col-sm-5'p>>",
+				"<'row'<'col-sm-2 dt-action'><'col-sm-5'i><'col-sm-5'p>>",
 			data: serializedTable,
 			order: [[7, "desc"]],
 			columnDefs: [
@@ -99,8 +99,8 @@ _%>
 			],
 			columns: [null, { width: "1%" }, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
-		$(".table-action").html(
-			'<form id="table-action" method="POST">' +
+		$(".dt-action").html(
+			'<form id="action-form" method="POST">' +
 			'	<select class="custom-select custom-select-sm form-control form-control-sm boxed mt-2">' +
 			'		<option value=""><%= __("With selected") %>...</option>' +
 			'		<option value="/shop_products/edit/all?fromCategoryId=<%= categoryId %>"><%= __("Edit") %></option>' +
@@ -108,14 +108,14 @@ _%>
 			'	</select>' +
 			'</form>'
 		);
-		$("#table-action").on("submit", function(e){
+		$("#action-form").on("submit", function(e){
 			$.each(table.column(0).checkboxes.selected(), function(index, rowId) {
-				$("#table-action").append(
+				$("#action-form").append(
 					$('<input>').attr("type", "hidden").attr("name", "id[]").val(rowId)
 				);
 			});
 		});
-		$("#table-action select").change(function() {
+		$("#action-form select").change(function() {
 			if (table.column(0).checkboxes.selected().length !== 0 && $(this).val()) {
 				$(this).closest("form").attr("action", $(this).val());
 				if ($(this).val() == "/shop_products/delete/all?fromCategoryId=<%= categoryId %>") {
@@ -124,8 +124,12 @@ _%>
 					$(this).closest("form").submit();
 				}
 			} else {
-				$("#table-action select option:first").prop("selected", true)
+				$("#action-form select option:first").prop("selected", true)
 			}
+		});
+		$("#action-form").find("option[value='']").html("<%= __("With selected") %> (" + table.column(0).checkboxes.selected().length + ")...");
+		$(".dt-checkboxes").change(function() {
+			$("#action-form").find("option[value='']").html("<%= __("With selected") %> (" + table.column(0).checkboxes.selected().length + ")...");
 		});
 		$(".section").show();
 	});
