@@ -13,6 +13,9 @@ CREATE TABLE IF NOT EXISTS `account_bans` (
   `description` text,
   `active` tinyint(4) NOT NULL DEFAULT '1',
   PRIMARY KEY (`accountDBID`),
+  KEY `active` (`active`),
+  KEY `startTime` (`startTime`),
+  KEY `endTime` (`endTime`),
   FULLTEXT KEY `ip` (`ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -20,7 +23,8 @@ CREATE TABLE IF NOT EXISTS `account_benefits` (
   `accountDBID` bigint(20) NOT NULL,
   `benefitId` int(11) NOT NULL,
   `availableUntil` datetime NOT NULL,
-  PRIMARY KEY (`accountDBID`,`benefitId`)
+  PRIMARY KEY (`accountDBID`,`benefitId`),
+  KEY `availableUntil` (`availableUntil`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `account_characters` (
@@ -32,7 +36,8 @@ CREATE TABLE IF NOT EXISTS `account_characters` (
   `genderId` int(11) DEFAULT NULL,
   `raceId` int(11) DEFAULT NULL,
   `level` int(11) DEFAULT NULL,
-  PRIMARY KEY (`characterId`,`serverId`,`accountDBID`) USING BTREE
+  PRIMARY KEY (`characterId`,`serverId`,`accountDBID`) USING BTREE,
+  KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `account_info` (
@@ -51,7 +56,9 @@ CREATE TABLE IF NOT EXISTS `account_info` (
   `permission` int(11) NOT NULL DEFAULT '0',
   `privilege` int(11) NOT NULL DEFAULT '0',
   `language` varchar(3) DEFAULT NULL,
-  PRIMARY KEY (`accountDBID`,`userName`) USING BTREE
+  PRIMARY KEY (`accountDBID`,`userName`) USING BTREE,
+  KEY `authKey` (`authKey`),
+  KEY `passWord` (`passWord`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE IF NOT EXISTS `account_online` (
@@ -90,7 +97,10 @@ CREATE TABLE IF NOT EXISTS `data_item_conversions` (
   `class` varchar(50) DEFAULT NULL,
   `race` varchar(50) DEFAULT NULL,
   `gender` varchar(50) DEFAULT NULL,
-  PRIMARY KEY (`itemTemplateId`,`fixedItemTemplateId`) USING BTREE
+  PRIMARY KEY (`itemTemplateId`,`fixedItemTemplateId`) USING BTREE,
+  KEY `class` (`class`) USING BTREE,
+  KEY `race` (`race`) USING BTREE,
+  KEY `gender` (`gender`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `data_item_strings` (
@@ -98,7 +108,9 @@ CREATE TABLE IF NOT EXISTS `data_item_strings` (
   `itemTemplateId` bigint(20) NOT NULL,
   `string` varchar(2048) DEFAULT NULL,
   `toolTip` varchar(4096) DEFAULT NULL,
-  PRIMARY KEY (`language`,`itemTemplateId`) USING BTREE
+  PRIMARY KEY (`language`,`itemTemplateId`) USING BTREE,
+  FULLTEXT KEY `string` (`string`),
+  FULLTEXT KEY `toolTip` (`toolTip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `data_item_templates` (
@@ -118,7 +130,8 @@ CREATE TABLE IF NOT EXISTS `data_item_templates` (
   `periodInMinute` int(11) DEFAULT NULL,
   `linkSkillId` bigint(20) DEFAULT NULL,
   `linkSkillPeriodDay` int(11) DEFAULT NULL,
-  PRIMARY KEY (`itemTemplateId`) USING BTREE
+  PRIMARY KEY (`itemTemplateId`) USING BTREE,
+  KEY `linkSkillId` (`linkSkillId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `data_skill_icons` (
@@ -140,7 +153,9 @@ CREATE TABLE IF NOT EXISTS `queue_tasks` (
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `tag` (`tag`)
+  KEY `tag` (`tag`),
+  KEY `status` (`status`),
+  KEY `handler` (`handler`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_activity` (
@@ -150,7 +165,10 @@ CREATE TABLE IF NOT EXISTS `report_activity` (
   `playTime` int(11) DEFAULT NULL,
   `reportType` int(11) DEFAULT NULL,
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  KEY `accountDBID` (`accountDBID`)
+  KEY `accountDBID` (`accountDBID`),
+  KEY `serverId` (`serverId`),
+  KEY `reportTime` (`reportTime`),
+  KEY `reportType` (`reportType`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_admin_op` (
@@ -164,7 +182,12 @@ CREATE TABLE IF NOT EXISTS `report_admin_op` (
   `payload` text,
   `reportType` int(11) DEFAULT NULL,
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `reportTime` (`reportTime`),
+  KEY `userId` (`userId`),
+  KEY `userType` (`userType`),
+  KEY `userSn` (`userSn`),
+  FULLTEXT KEY `payload` (`payload`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_boxes` (
@@ -191,7 +214,10 @@ CREATE TABLE IF NOT EXISTS `report_characters` (
   `level` int(11) DEFAULT NULL,
   `reportType` int(11) DEFAULT NULL,
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  KEY `accountDBID` (`accountDBID`)
+  KEY `accountDBID` (`accountDBID`),
+  KEY `serverId` (`serverId`),
+  KEY `characterId` (`characterId`),
+  KEY `reportTime` (`reportTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_cheats` (
@@ -201,7 +227,9 @@ CREATE TABLE IF NOT EXISTS `report_cheats` (
   `type` int(11) DEFAULT NULL,
   `cheatInfo` varchar(1024) DEFAULT NULL,
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  KEY `accountDBID` (`accountDBID`)
+  KEY `accountDBID` (`accountDBID`),
+  KEY `serverId` (`serverId`),
+  KEY `reportTime` (`reportTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_chronoscrolls` (
@@ -209,7 +237,9 @@ CREATE TABLE IF NOT EXISTS `report_chronoscrolls` (
   `serverId` int(11) DEFAULT NULL,
   `chronoId` int(11) DEFAULT NULL,
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  KEY `accountDBID` (`accountDBID`)
+  KEY `accountDBID` (`accountDBID`),
+  KEY `serverId` (`serverId`),
+  KEY `reportTime` (`reportTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_shop_fund` (
@@ -218,7 +248,9 @@ CREATE TABLE IF NOT EXISTS `report_shop_fund` (
   `amount` int(11) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `accountDBID` (`accountDBID`),
+  KEY `createdAt` (`createdAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_shop_pay` (
@@ -232,7 +264,11 @@ CREATE TABLE IF NOT EXISTS `report_shop_pay` (
   `status` varchar(16) NOT NULL,
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `accountDBID` (`accountDBID`),
+  KEY `serverId` (`serverId`),
+  KEY `updatedAt` (`updatedAt`),
+  KEY `status` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `server_info` (
@@ -259,7 +295,9 @@ CREATE TABLE IF NOT EXISTS `server_maintenance` (
   `startTime` datetime DEFAULT NULL,
   `endTime` datetime DEFAULT NULL,
   `description` text,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `startTime` (`startTime`),
+  KEY `endTime` (`endTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `server_strings` (
@@ -282,7 +320,8 @@ CREATE TABLE IF NOT EXISTS `shop_accounts` (
   `active` tinyint(4) DEFAULT '1',
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`accountDBID`) USING BTREE
+  PRIMARY KEY (`accountDBID`) USING BTREE,
+  KEY `active` (`active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `shop_categories` (
@@ -291,7 +330,8 @@ CREATE TABLE IF NOT EXISTS `shop_categories` (
   `active` tinyint(4) NOT NULL DEFAULT '1',
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`) USING BTREE
+  PRIMARY KEY (`id`) USING BTREE,
+  KEY `active` (`active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `shop_category_strings` (
@@ -316,7 +356,11 @@ CREATE TABLE IF NOT EXISTS `shop_products` (
   `active` tinyint(4) NOT NULL DEFAULT '1',
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `categoryId` (`categoryId`),
+  KEY `active` (`active`),
+  KEY `validAfter` (`validAfter`),
+  KEY `validBefore` (`validBefore`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `shop_product_items` (
@@ -338,7 +382,9 @@ CREATE TABLE IF NOT EXISTS `shop_product_strings` (
   `title` varchar(2048) DEFAULT NULL,
   `description` text,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UNIQUE` (`language`,`productId`) USING BTREE
+  UNIQUE KEY `UNIQUE` (`language`,`productId`) USING BTREE,
+  FULLTEXT KEY `title` (`title`),
+  FULLTEXT KEY `description` (`description`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `shop_promocodes` (
@@ -351,7 +397,10 @@ CREATE TABLE IF NOT EXISTS `shop_promocodes` (
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`promoCodeId`) USING BTREE,
-  UNIQUE KEY `promoCode` (`promoCode`)
+  UNIQUE KEY `promoCode` (`promoCode`),
+  KEY `validAfter` (`validAfter`),
+  KEY `validBefore` (`validBefore`),
+  KEY `active` (`active`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `shop_promocode_activated` (
