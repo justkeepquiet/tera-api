@@ -27,6 +27,13 @@
 				sortDescending: ": <%= __('activate to sort column descending') %>"
 			}
 		},
+		drawCallback: function(){
+			$("img").each(function() {
+				if ($(this).data("src")) {
+					$(this).attr("src", $(this).data("src"));
+				}
+			});
+		},
 		fnInitComplete: function() {
 			$(".dataTables_length select, .dataTables_filter input").each(function() {
 				$(this).addClass("boxed");
