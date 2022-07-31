@@ -181,6 +181,6 @@ module.exports.index = () => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		res.redirect("/home");
+		res.redirect("/login");
 	}
 ];
