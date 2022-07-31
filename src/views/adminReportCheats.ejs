@@ -35,7 +35,7 @@
 const tableData = [];
 
 reports.forEach(report => {
-	const [account, name, a, b, skill, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
+	const [account, name, a, b, skillId, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
 
 	const dungeon = datasheetModel.strSheetDungeon[locale].get(Number(huntingZoneId));
 	const creature = datasheetModel.strSheetCreature[locale].find(
@@ -46,7 +46,7 @@ reports.forEach(report => {
 		moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		report.get("accountDBID"),
 		name,
-		`${skill} ${a}/${b}`,
+		`${skillId} ${a}/${b}`,
 		`(${huntingZoneId}) ${dungeon || huntingZoneId}<br>(${templateId}) ${creature.name || templateId}<br>${x}, ${y}, ${z}`,
 		report.get("ip"),
 		report.get("serverId"),

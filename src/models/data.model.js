@@ -8,6 +8,7 @@
  * @property {import("sequelize").ModelCtor<Model<any, any>>} itemTemplates
  * @property {import("sequelize").ModelCtor<Model<any, any>>} itemConversions
  * @property {import("sequelize").ModelCtor<Model<any, any>>} itemStrings
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} skillIcons
  */
 
 /**

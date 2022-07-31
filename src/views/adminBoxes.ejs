@@ -17,7 +17,7 @@
 									<thead>
 										<tr>
 											<th><%= __("ID") %></th>
-											<th><%= __("Icon") %></th>
+											<th></th>
 											<th><%= __("Title") %></th>
 											<th><%= __("Description") %></th>
 											<th><%= __("Days") %></th>
@@ -78,7 +78,7 @@ _%>
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
 			order: [[0, "desc"]],
-			columnDefs: [{ orderable: false, targets: -1 }],
+			columnDefs: [{ orderable: false, targets: [1, -2, -1] }],
 			columns: [null, { width: "1%" }, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();

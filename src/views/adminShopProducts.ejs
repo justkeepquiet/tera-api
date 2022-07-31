@@ -93,7 +93,12 @@ _%>
 					checkboxes: {
 						stateSave: false,
 						selectAllPages: false,
-						selectAllRender: '<label><input type="checkbox" class="dt-checkboxes checkbox"><span></span></label>'
+						selectAllRender: '<label><input type="checkbox" class="dt-checkboxes checkbox"><span></span></label>',
+						selectCallback: function() {
+							$("#action-form select option:first").html(
+								"<%= __("With selected") %> (" + table.column(0).checkboxes.selected().length + ")..."
+							);
+						}
 					}
 				},
 				{ orderable: false, targets: [1, -1] },
@@ -103,16 +108,16 @@ _%>
 		$(".dt-action").html(
 			'<form id="action-form" method="POST">' +
 			'	<select class="custom-select custom-select-sm form-control form-control-sm boxed mt-2">' +
-			'		<option value=""><%= __("With selected") %>...</option>' +
+			'		<option value=""><%= __("With selected") %> (0)...</option>' +
 			'		<option value="/shop_products/edit/all?fromCategoryId=<%= categoryId %>"><%= __("Edit") %></option>' +
 			'		<option value="/shop_products/delete/all?fromCategoryId=<%= categoryId %>"><%= __("Delete") %></option>' +
 			'	</select>' +
 			'</form>'
 		);
-		$("#action-form").on("submit", function(e){
+		$("#action-form").on("submit", function() {
 			$.each(table.column(0).checkboxes.selected(), function(index, rowId) {
 				$("#action-form").append(
-					$('<input>').attr("type", "hidden").attr("name", "id[]").val(rowId)
+					$("<input>").attr("type", "hidden").attr("name", "id[]").val(rowId)
 				);
 			});
 		});
@@ -127,10 +132,6 @@ _%>
 			} else {
 				$("#action-form select option:first").prop("selected", true)
 			}
-		});
-		$("#action-form").find("option[value='']").html("<%= __("With selected") %> (" + table.column(0).checkboxes.selected().length + ")...");
-		$(".dt-checkboxes").change(function() {
-			$("#action-form").find("option[value='']").html("<%= __("With selected") %> (" + table.column(0).checkboxes.selected().length + ")...");
 		});
 		$(".section").show();
 	});

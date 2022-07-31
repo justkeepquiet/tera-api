@@ -962,10 +962,6 @@ module.exports.editAllAction = modules => [
 			});
 
 			if (validate && errors.isEmpty()) {
-				if (categoryId === "" && price === "" && active === "") {
-					return next();
-				}
-
 				await modules.shopModel.products.update({
 					...categoryId !== "" ? { categoryId } : {},
 					...validAfter !== "" ? { validAfter: moment.tz(validAfter, req.user.tz).toDate() } : {},

@@ -184,7 +184,7 @@
 	"Save": "Сохранить",
 	"Server List (SLS)": "Список серверов (SLS)",
 	"Add new server": "Добавить новый сервер",
-	"Login IP:port": "IP:port для входа",
+	"Login IP:port": "IP:порт авторизации",
 	"Name": "Имя",
 	"Language": "Язык",
 	"Type": "Тип",
