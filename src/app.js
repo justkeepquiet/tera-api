@@ -122,9 +122,9 @@ moduleLoader.setPromise("sequelize", () => new Promise((resolve, reject) => {
 
 	sequelize.authenticate().then(() => {
 		moduleLoader.setAsync("queueModel", require("./models/queue.model"), sequelize, DataTypes);
+		moduleLoader.setAsync("serverModel", require("./models/server.model"), sequelize, DataTypes);
 		moduleLoader.setAsync("dataModel", require("./models/data.model"), sequelize, DataTypes);
 		moduleLoader.setAsync("accountModel", require("./models/account.model"), sequelize, DataTypes);
-		moduleLoader.setAsync("serverModel", require("./models/server.model"), sequelize, DataTypes);
 		moduleLoader.setAsync("reportModel", require("./models/report.model"), sequelize, DataTypes);
 		moduleLoader.setAsync("shopModel", require("./models/shop.model"), sequelize, DataTypes);
 		moduleLoader.setAsync("boxModel", require("./models/box.model"), sequelize, DataTypes);

@@ -3,6 +3,7 @@
 /**
  * @typedef {import("../app").Sequelize} Sequelize
  * @typedef {import("../app").DataTypes} DataTypes
+ * @typedef {import("../app").modules} modules
  *
  * @typedef {object} accountModel
  * @property {import("sequelize").ModelCtor<Model<any, any>>} info
@@ -15,8 +16,9 @@
 /**
  * @param {Sequelize} sequelize
  * @param {DataTypes} DataTypes
+ * @param {modules} modules
  */
-module.exports = (sequelize, DataTypes) => {
+module.exports = (sequelize, DataTypes, modules) => {
 	const model = {
 		info: require("./account/accountInfo.model")(sequelize, DataTypes),
 		bans: require("./account/accountBans.model")(sequelize, DataTypes),
@@ -26,11 +28,40 @@ module.exports = (sequelize, DataTypes) => {
 	};
 
 	// info
-	model.info.hasOne(model.bans, { foreignKey: "accountDBID", as: "banned" });
-	model.info.hasMany(model.characters, { foreignKey: "accountDBID", as: "character" });
+	model.info.hasOne(model.bans, {
+		foreignKey: "accountDBID",
+		as: "banned"
+	});
+
+	model.info.hasMany(model.characters, {
+		foreignKey: "accountDBID",
+		as: "character"
+	});
+
+	model.info.hasOne(modules.serverModel.info, {
+		foreignKey: "serverId",
+		sourceKey: "lastLoginServer",
+		as: "server"
+	});
 
 	// online
-	model.online.hasOne(model.info, { foreignKey: "accountDBID", as: "info" });
+	model.online.hasOne(model.info, {
+		foreignKey: "accountDBID",
+		as: "info"
+	});
+
+	model.online.hasOne(modules.serverModel.info, {
+		foreignKey: "serverId",
+		sourceKey: "serverId",
+		as: "server"
+	});
+
+	// characters
+	model.characters.hasOne(modules.serverModel.info, {
+		foreignKey: "serverId",
+		sourceKey: "serverId",
+		as: "server"
+	});
 
 	return model;
 };

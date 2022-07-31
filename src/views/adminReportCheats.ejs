@@ -10,19 +10,21 @@
 				<div class="card">
 					<div class="card-block">
 						<section>
-							<table class="table table-hover data-table-json mt-5">
-								<thead>
-									<tr>
-										<th><%= __("Report time") %></th>
-										<th><%= __("Account ID") %></th>
-										<th><%= __("Name") %></th>
-										<th><%= __("Skill") %></th>
-										<th><%= __("Location") %></th>
-										<th><%= __("Client IP") %></th>
-										<th><%= __("Server ID") %></th>
-									</tr>
-								</thead>
-							</table>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-json mt-5">
+									<thead>
+										<tr>
+											<th><%= __("Report time") %></th>
+											<th><%= __("Account ID") %></th>
+											<th><%= __("Name") %></th>
+											<th><%= __("Skill") %></th>
+											<th><%= __("Location") %></th>
+											<th><%= __("Client IP") %></th>
+											<th><%= __("Server ID") %></th>
+										</tr>
+									</thead>
+								</table>
+							</div>
 						</section>
 					</div>
 				</div>
@@ -49,7 +51,7 @@ reports.forEach(report => {
 		`${skillId} ${a}/${b}`,
 		`(${huntingZoneId}) ${dungeon || huntingZoneId}<br>(${templateId}) ${creature.name || templateId}<br>${x}, ${y}, ${z}`,
 		report.get("ip"),
-		report.get("serverId"),
+		`(${report.get("serverId")}) ${report.get("server")?.get("nameString") || ""}`
 	]);
 });
 _%>

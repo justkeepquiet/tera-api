@@ -1117,6 +1117,12 @@ module.exports.logs = ({ logger, serverModel, reportModel }) => [
 					[Op.lt]: to.toDate()
 				}
 			},
+			include: [{
+				as: "server",
+				model: serverModel.info,
+				required: false,
+				attributes: ["nameString"]
+			}],
 			order: [
 				["createdAt", "DESC"]
 			]

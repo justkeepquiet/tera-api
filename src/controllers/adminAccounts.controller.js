@@ -18,7 +18,7 @@ const encryptPasswords = /^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWO
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, accountModel }) => [
+module.exports.index = ({ logger, accountModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -32,12 +32,20 @@ module.exports.index = ({ logger, accountModel }) => [
 				...accountDBID ? { accountDBID } : {},
 				...email ? { email } : {}
 			},
-			include: [{
-				as: "banned",
-				model: accountModel.bans,
-				where: { active: 1 },
-				required: false
-			}],
+			include: [
+				{
+					as: "banned",
+					model: accountModel.bans,
+					where: { active: 1 },
+					required: false
+				},
+				{
+					as: "server",
+					model: serverModel.info,
+					required: false,
+					attributes: ["nameString"]
+				}
+			],
 			order: [
 				["accountDBID", "ASC"]
 			]
@@ -427,7 +435,13 @@ module.exports.characters = ({ logger, accountModel, serverModel }) => [
 				where: {
 					serverId,
 					accountDBID
-				}
+				},
+				include: [{
+					as: "server",
+					model: serverModel.info,
+					required: false,
+					attributes: ["nameString"]
+				}]
 			}).then(characters => {
 				res.render("adminAccountsCharacters", {
 					layout: "adminLayout",

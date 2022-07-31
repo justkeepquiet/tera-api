@@ -10,22 +10,24 @@
 				<div class="card">
 					<div class="card-block">
 						<section>
-							<table class="table table-hover data-table-json mt-5">
-								<thead>
-									<tr>
-										<th><%= __("Log time") %></th>
-										<th><%= __("Box ID") %></th>
-										<th><%= __("Type") %></th>
-										<th><%= __("Log ID") %></th>
-										<th><%= __("Account ID") %></th>
-										<th><%= __("Server ID") %></th>
-										<th><%= __("Character ID") %></th>
-										<th><%= __("Title") %></th>
-										<th><%= __("Days") %></th>
-										<th><%= __("Item template ID") %></th>
-									</tr>
-								</thead>
-							</table>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-json mt-5">
+									<thead>
+										<tr>
+											<th><%= __("Log time") %></th>
+											<th><%= __("Box ID") %></th>
+											<th><%= __("Type") %></th>
+											<th><%= __("Log ID") %></th>
+											<th><%= __("Account ID") %></th>
+											<th><%= __("Server ID") %></th>
+											<th><%= __("Character ID") %></th>
+											<th><%= __("Title") %></th>
+											<th><%= __("Days") %></th>
+											<th><%= __("Item template ID") %></th>
+										</tr>
+									</thead>
+								</table>
+							</div>
 						</section>
 					</div>
 				</div>
@@ -46,7 +48,7 @@ logs.forEach(log => {
 		log.get("logType") ? __({ 1: "Chronoscroll", 2: "Promo code", 3: "Shop", 4: "Box" }[log.get("logType")]) : "-",
 		log.get("logId") || "-",
 		log.get("accountDBID"),
-		log.get("serverId") || __("All"),
+		log.get("serverId") ? `(${log.get("serverId")}) ${log.get("server")?.get("nameString") || ""}` : __("All"),
 		log.get("characterId") || __("All"),
 		context.title,
 		context.days,
@@ -59,7 +61,8 @@ _%>
 	$(function() {
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
-			order: [[0, "desc"]]
+			order: [[0, "desc"]],
+			columns: [{ className: "text-nowrap" }, null, null, null, null, { className: "text-nowrap" }, null, { className: "text-nowrap" }, null, null]
 		}));
 		$(".section").show();
 	});

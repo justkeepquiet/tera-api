@@ -32,6 +32,12 @@ const reportHandler = (logger, serverModel, model, view, viewData = {}) =>
 					[Op.lt]: to.toDate()
 				}
 			},
+			include: [{
+				as: "server",
+				model: serverModel.info,
+				required: false,
+				attributes: ["nameString"]
+			}],
 			order: [
 				["reportTime", "DESC"]
 			]

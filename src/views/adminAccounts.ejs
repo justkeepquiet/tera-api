@@ -72,7 +72,7 @@ accounts.forEach(account => {
 			account.get("privilege")
 		),
 		account.get("lastLoginTime") ? moment(account.get("lastLoginTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") : "-",
-		account.get("lastLoginServer") || "-",
+		account.get("lastLoginServer") ? `(${account.get("lastLoginServer")}) ${account.get("server")?.get("nameString") || ""}` : "-",
 		account.get("lastLoginIP") || "-",
 		`<a class="btn btn-secondary btn-sm" href="/benefits?accountDBID=${account.get("accountDBID")}"><i class="fa fa-tags"></i></a> ` +
 			(account.get("lastLoginServer") ?

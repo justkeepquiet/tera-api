@@ -63,20 +63,22 @@ _%>
 				<div class="card">
 					<div class="card-block">
 						<section>
-							<table class="table table-hover data-table-json">
-								<thead>
-									<tr>
-										<th><%= __("ID") %></th>
-										<th><%= __("Name") %></th>
-										<th><%= __("Level") %></th>
-										<th><%= __("Race") %></th>
-										<th><%= __("Gender") %></th>
-										<th><%= __("Class") %></th>
-										<th><%= __("Account ID") %></th>
-										<th><%= __("Server ID") %></th>
-									</tr>
-								</thead>
-							</table>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-json">
+									<thead>
+										<tr>
+											<th><%= __("ID") %></th>
+											<th><%= __("Name") %></th>
+											<th><%= __("Level") %></th>
+											<th><%= __("Race") %></th>
+											<th><%= __("Gender") %></th>
+											<th><%= __("Class") %></th>
+											<th><%= __("Account ID") %></th>
+											<th><%= __("Server ID") %></th>
+										</tr>
+									</thead>
+								</table>
+							</div>
 						</section>
 					</div>
 				</div>
@@ -98,7 +100,7 @@ const tableData = [];
 		genderId[character.get("genderId")] || "-",
 		classId[character.get("classId")] || "-",
 		character.get("accountDBID"),
-		character.get("serverId")
+		`(${character.get("serverId")}) ${character.get("server")?.get("nameString") || ""}`
 	]);
 });
 _%>
