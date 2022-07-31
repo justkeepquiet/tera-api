@@ -320,12 +320,14 @@ module.exports.getItems = ({ logger, i18n, sequelize, dataModel }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
+		const searchParts = req.query.query ? req.query.query.replace(/[-_+:\\"\\']/g, " ").split(" ") : [];
+
 		dataModel.itemStrings.findAll({
 			offset: 0, limit: 8,
 			where: {
 				[Op.or]: req.query.value ? [{ itemTemplateId: req.query.value }] : [
 					sequelize.where(sequelize.col("template.itemTemplateId"), Op.like, `%${req.query.query}%`),
-					sequelize.where(sequelize.fn("lower", sequelize.col("string")), Op.like, `%${req.query.query}%`)
+					{ [Op.and]: searchParts.map(s => sequelize.where(sequelize.fn("lower", sequelize.col("string")), Op.like, `%${s}%`)) }
 				],
 				language: i18n.getLocale()
 			},
