@@ -25,7 +25,7 @@ Built-in admin panel for full control of all functionality and viewing API logs.
 3. Open windows console and go to directory (type `cd c:\tera-api`).
 4. Run the `npm install` for install required node.js modules.
 5. Import the [database files](share/db) in file names order to your MySQL server.
-6. Unpack the [icon_items.zip](share/data) archive to **c:\tera-api\data\tera-icons** folder.
+6. Unpack the [tera-icons.zip](share/data) archive to **tera-api\data\tera-icons** folder.
 7. Copy or rename the **.env.example** file to **.env**.
 8. Configure the parameters in the **.env** file.
 9. Execute the `node src/app` command, or run the file **tera-api.bat** to start TERA API servers.
@@ -44,7 +44,7 @@ By default, the admin panel is available on all IP addresses on port 8050, like 
 4. Select the file [ExportSteerData_steeradmin_API.sef](share/steer) and confirm import.
 5. Go to **Manage user** section and select **Add user**.
 6. Create new user named like **imsadmin**.
-7. Go to **Authority connect** section ans delect **Connect user - user group**.
+7. Go to **Authority connect** section and select **Connect user - user group**.
 8. Select your user on left and click **Add user group connection** on right section.
 9. In new window select group **API_AdminPanel_Admin** and click add.
 10. Open your **.env** file and set `STEER_ENABLE` parameter to `true`.

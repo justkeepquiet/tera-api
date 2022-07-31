@@ -134,7 +134,8 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 
 			const whereSearch = search ? {
 				[Op.or]: [
-					sequelize.where(sequelize.fn("lower", sequelize.col("strings.title")), Op.like, `%${search}%`),
+					{ [Op.and]: search.split(" ").map(s =>
+						sequelize.where(sequelize.fn("lower", sequelize.col("strings.title")), Op.like, `%${s}%`)) },
 					{ id: { [Op.in]: (await shopModel.products.findAll({
 						where: whereProduct,
 						attributes: ["id"],
@@ -147,7 +148,8 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 								model: dataModel.itemStrings,
 								attributes: [],
 								where: [
-									sequelize.where(sequelize.fn("lower", sequelize.col("string")), Op.like, `%${search}%`),
+									{ [Op.and]: search.split(" ").map(s =>
+										sequelize.where(sequelize.fn("lower", sequelize.col("string")), Op.like, `%${s}%`)) },
 									{ language: { [Op.eq]: i18n.getLocale() } }
 								]
 							}],

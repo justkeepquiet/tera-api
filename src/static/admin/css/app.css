@@ -2983,8 +2983,9 @@ table.dataTable {
     margin-right: 6px;
     margin-bottom: 1px; }
   .autocomplete-suggestion small {
-    margin-left: 28px;
-  }
+    margin: 3px 0 0 28px;
+    height: 21px;
+    display: block; }
 .autocomplete-selected,
 .autocomplete-selected .item-grade-0,
 .autocomplete-selected .item-grade-1,
