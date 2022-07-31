@@ -109,6 +109,7 @@
 	"Task with this box ID is already running. Check tasks queue.": "Задача с данным ID коробки уже выполняется. См. очередь задач.",
 	"Name field contains already existing name.": "Поле 'Имя' содержит уже существующее имя.",
 	"Category field must contain an existing category ID.": "Поле 'Категория' должно содержать ID существующей категории.",
+	"Permission field must contain the value as a number.": "Поле 'Разрешения' должно содержать номерное значение.",
 	"Profile": "Профиль",
 	"Logout": "Выйти",
 	"Dashboard": "Информация",

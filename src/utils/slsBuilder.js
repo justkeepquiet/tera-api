@@ -5,6 +5,9 @@
 */
 
 const xmlbuilder = require("xmlbuilder");
+const { permissionToString } = require("./helpers");
+
+const maxPermissionValue = 2147483648; // 0x80000000
 
 class SlsBuilder {
 	constructor() {
@@ -21,17 +24,17 @@ class SlsBuilder {
 			{ sort: 1, value: strings.get("categoryPvE") } :
 			{ sort: 1, value: strings.get("categoryPvP") };
 
-		let permissionMask = "0x00000000";
+		let permissionMask = parseInt(server.get("permission") || 0, 10);
 		let open = { sort: 1, value: strings.get("serverLow"), color: "#00ff00" };
 		let crowdness = { sort: 1, value: strings.get("crowdNo") };
 
 		if (server.get("isCrowdness")) {
-			permissionMask = "0x00000001";
+			permissionMask += 1;
 			crowdness = { sort: 1, value: strings.get("crowdYes") };
 		}
 
 		if (isMaintenance) {
-			permissionMask = "0x00000100";
+			permissionMask += 256;
 		}
 
 		if (server.get("isAvailable")) {
@@ -42,7 +45,7 @@ class SlsBuilder {
 				open = { sort: 1, value: strings.get("serverHigh"), color: "#ffff00" };
 			}
 		} else {
-			permissionMask = "0x80000000";
+			permissionMask = maxPermissionValue;
 			open = { sort: 1, value: strings.get("serverOffline"), color: "#990000" };
 		}
 
@@ -55,8 +58,8 @@ class SlsBuilder {
 			rawName: server.get("descrString"),
 			crowdness,
 			open,
-			permissionMask,
-			serverStat: permissionMask,
+			permissionMask: permissionToString(permissionMask),
+			serverStat: permissionToString(permissionMask),
 			popup: strings.get("popup"),
 			language: server.get("language")
 		});

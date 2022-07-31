@@ -31,6 +31,10 @@ module.exports = (sequelize, DataTypes) =>
 		descrString: {
 			type: DataTypes.STRING(1024)
 		},
+		permission: {
+			type: DataTypes.INTEGER(11),
+			defaultValue: 0
+		},
 		tresholdLow: {
 			type: DataTypes.INTEGER(11)
 		},

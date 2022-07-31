@@ -52,6 +52,7 @@ module.exports.add = ({ i18n }) => [
 			language: i18n.getLocale(),
 			nameString: "",
 			descrString: "",
+			permission: 0,
 			tresholdLow: 100,
 			tresholdMedium: 500,
 			isPvE: 0,
@@ -91,6 +92,8 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
 		body("descrString").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field string must be between 1 and 1024 characters.")),
+		body("permission")
+			.isInt({ min: 0 }).withMessage(i18n.__("Permission field must contain the value as a number.")),
 		body("tresholdLow")
 			.isInt({ min: 0 }).withMessage(i18n.__("Treshold low field must contain the value as a number.")),
 		body("tresholdMedium")
@@ -108,7 +111,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		const { serverId, loginIp, loginPort, language, nameString, descrString,
+		const { serverId, loginIp, loginPort, language, nameString, descrString, permission,
 			tresholdLow, tresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
@@ -122,6 +125,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 				language,
 				nameString,
 				descrString,
+				permission,
 				tresholdLow,
 				tresholdMedium,
 				isPvE,
@@ -138,6 +142,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 			language,
 			nameString,
 			descrString,
+			permission,
 			tresholdLow,
 			tresholdMedium,
 			isPvE: isPvE == "on",
@@ -186,6 +191,7 @@ module.exports.edit = ({ logger, serverModel }) => [
 				language: data.get("language"),
 				nameString: data.get("nameString"),
 				descrString: data.get("descrString"),
+				permission: data.get("permission"),
 				tresholdLow: data.get("tresholdLow"),
 				tresholdMedium: data.get("tresholdMedium"),
 				isPvE: data.get("isPvE"),
@@ -218,6 +224,8 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
 		body("descrString").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description string field must be between 1 and 1024 characters.")),
+		body("permission")
+			.isInt({ min: 0 }).withMessage(i18n.__("Permission field must contain the value as a number.")),
 		body("tresholdLow")
 			.isInt({ min: 0 }).withMessage(i18n.__("Treshold low field must contain the value as a number.")),
 		body("tresholdMedium")
@@ -236,7 +244,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	 */
 	(req, res, next) => {
 		const { serverId } = req.query;
-		const { loginIp, loginPort, language, nameString, descrString,
+		const { loginIp, loginPort, language, nameString, descrString, permission,
 			tresholdLow, tresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
@@ -254,6 +262,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 				language,
 				nameString,
 				descrString,
+				permission,
 				tresholdLow,
 				tresholdMedium,
 				isPvE,
@@ -269,6 +278,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 			language,
 			nameString,
 			descrString,
+			permission,
 			tresholdLow,
 			tresholdMedium,
 			isPvE: isPvE == "on",

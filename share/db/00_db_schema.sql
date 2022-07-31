@@ -242,6 +242,7 @@ CREATE TABLE IF NOT EXISTS `server_info` (
   `language` varchar(3) DEFAULT NULL,
   `nameString` varchar(256) DEFAULT NULL,
   `descrString` varchar(1024) DEFAULT NULL,
+  `permission` int(11) DEFAULT '0',
   `tresholdLow` int(11) DEFAULT '50',
   `tresholdMedium` int(11) DEFAULT '100',
   `isPvE` tinyint(1) DEFAULT '0',

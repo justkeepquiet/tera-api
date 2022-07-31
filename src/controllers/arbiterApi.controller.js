@@ -59,14 +59,14 @@ module.exports.GetServerPermission = ({ logger, sequelize, serverModel }) => [
 				return resultJson(res, 10000, { msg: "server not exist" });
 			}
 
-			let permission = 0x00000000;
+			let permission = parseInt(server.get("permission") || 0, 10);
 
 			if (server.get("isCrowdness")) {
-				permission = 0x00000001;
+				permission += 1;
 			}
 
 			if (maintenance !== null) {
-				permission = 0x00000100;
+				permission += 256;
 			}
 
 			resultJson(res, 0, { permission });

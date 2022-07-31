@@ -110,6 +110,7 @@
 	"Task with this box ID is already running. Check tasks queue.": "Task with this box ID is already running. Check tasks queue.",
 	"Name field contains already existing name.": "Name field contains already existing name.",
 	"Category field must contain an existing category ID.": "Category field must contain an existing category ID.",
+	"Permission field must contain the value as a number.": "Permission field must contain the value as a number.",
 	"Profile": "Profile",
 	"Logout": "Logout",
 	"Dashboard": "Dashboard",

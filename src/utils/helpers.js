@@ -197,3 +197,19 @@ module.exports.unserializeRange = string =>
 module.exports.getPromocodeFunctionsNames = () =>
 	Object.keys(module.exports.requireReload("../../config/promoCode"))
 ;
+
+/**
+* @param {number} permission
+* @return {string}
+*/
+module.exports.permissionToString = permission =>
+	"0x".concat(parseInt(permission, 10).toString(16).padStart(8, "0"))
+;
+
+/**
+* @param {string} string
+* @return {number}
+*/
+module.exports.stringToPermission = string =>
+	parseInt(string, 16)
+;
