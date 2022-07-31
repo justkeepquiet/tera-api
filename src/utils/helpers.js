@@ -4,6 +4,7 @@
 * @typedef {import("sequelize").Model} Model
 * @typedef {import("express").Request} Request
 * @typedef {import("winston").Logger} Logger
+* @typedef {import("i18n").__} __
 */
 
 const validationResult = require("express-validator").validationResult;
@@ -41,6 +42,32 @@ module.exports.formatStrsheet = string =>
 		.replace(/\$value(\d{0,})/g, "X")
 		.replace(/\$time/g, "T")
 ;
+
+/**
+* @param {__} __
+* @param {number} seconds
+* @return {string}
+*/
+module.exports.secondsToDhms = (__, seconds) => {
+	const d = Math.floor(Number(seconds) / (3600 * 24));
+	const h = Math.floor(Number(seconds) % (3600 * 24) / 3600);
+	const m = Math.floor(Number(seconds) % 3600 / 60);
+	const s = Math.floor(Number(seconds) % 60);
+
+	const r = [];
+
+	if (d > 0) r.push(`${d} ${__("d.")}`);
+
+	if (r.length === 0) {
+		if (h > 0) r.push(`${h} ${__("hr.")}`);
+		if (m > 0) r.push(`${m} ${__("min.")}`);
+
+		if (r.length === 0 && s > 0)
+			r.push(`${s} ${__("sec.")}`);
+	}
+
+	return r.join(" ");
+};
 
 /**
 * @param {string} region

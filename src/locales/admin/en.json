@@ -327,7 +327,6 @@
 	"Created": "Created",
 	"Enter game": "Enter game",
 	"Leave game": "Leave game",
-	"min.": "min.",
 	"count": "count",
 	"example": "example",
 	"Shop Categories": "Shop Categories",
@@ -454,5 +453,9 @@
 	"Box": "Box",
 	"Chronoscroll": "Chronoscroll",
 	"[unknown]": "[unknown]",
-	"With selected": "With selected"
+	"With selected": "With selected",
+	"d.": "d.",
+	"hr.": "hr.",
+	"min.": "min.",
+	"sec.": "sec."
 }

@@ -8,6 +8,7 @@
 const moment = require("moment-timezone");
 const query = require("express-validator").query;
 const Op = require("sequelize").Op;
+const helpers = require("../utils/helpers");
 
 const { apiAccessHandler, validationHandler, resultJson } = require("../middlewares/admin.middlewares");
 
@@ -44,7 +45,7 @@ module.exports.notifications = ({ logger, queue }) => [
 /**
  * @param {modules} modules
  */
-module.exports.homeStats = ({ i18n, logger, datasheetModel, serverModel, reportModel }) => [
+module.exports.homeStats = ({ i18n, logger, datasheetModel, dataModel, serverModel, accountModel, reportModel }) => [
 	apiAccessHandler,
 	/**
 	 * @type {RequestHandler}
@@ -89,7 +90,7 @@ module.exports.homeStats = ({ i18n, logger, datasheetModel, serverModel, reportM
 				activityReportItems.push({
 					reportTime: moment(report.get("reportTime")).tz(req.user.tz).format("YYYY-MM-DD HH:mm"),
 					reportType: report.get("reportType") == 2 ?
-						`${i18n.__("Leave game")} (${(report.get("playTime") / 60).toFixed(2)} ${i18n.__("min.")})` :
+						`${i18n.__("Leave game")} (${helpers.secondsToDhms(i18n.__, report.get("playTime"))})` :
 						i18n.__("Enter game"),
 					ip: report.get("ip"),
 					accountDBID: report.get("accountDBID"),
@@ -105,8 +106,57 @@ module.exports.homeStats = ({ i18n, logger, datasheetModel, serverModel, reportM
 					]
 				}) : [];
 
+			/*
+			const cachedSkills = new Map();
+			const charactersPromises = [];
+
+			const classIds = [
+				"warrior",
+				"lancer",
+				"slayer",
+				"berserker",
+				"sorcerer",
+				"archer",
+				"priest",
+				"elementalist",
+				"soulless",
+				"engineer",
+				"fighter",
+				"assassin",
+				"glaiver"
+			];
+
 			cheatsReport.forEach(report => {
-				const [account, name, a, b, skill, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
+				const [account, name, a, b, skillId] = report.get("cheatInfo").split(",");
+				const key = name + skillId + report.get("accountDBID") + report.get("serverId");
+
+				if (!cachedSkills.has(key)) {
+					cachedSkills.set(key, null);
+
+					charactersPromises.push(accountModel.characters.findOne({
+						where: {
+							accountDBID: report.get("accountDBID"),
+							serverId: report.get("serverId"),
+							name
+						}
+					}).then(chatacter => {
+						if (chatacter !== null) {
+							return dataModel.skillIcons.findOne({
+								where: { skillId, class: classIds[chatacter.get("classId")] }
+							}).then(skill =>
+								cachedSkills.set(key, skill);
+							);
+						}
+					}));
+				}
+			});
+
+			await Promise.all(charactersPromises);
+			console.log(cachedSkills.entries());
+			*/
+
+			cheatsReport.forEach(report => {
+				const [account, name, a, b, skillId, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
 
 				const dungeon = datasheetModel.strSheetDungeon[i18n.getLocale()].get(Number(huntingZoneId));
 				const creature = datasheetModel.strSheetCreature[i18n.getLocale()].find(
@@ -117,7 +167,7 @@ module.exports.homeStats = ({ i18n, logger, datasheetModel, serverModel, reportM
 					reportTime: moment(report.get("reportTime")).tz(req.user.tz).format("YYYY-MM-DD HH:mm"),
 					accountDBID: report.get("accountDBID"),
 					name,
-					skill: `${skill} ${a}/${b}`,
+					skill: `${skillId} ${a}/${b}`,
 					dungeon: `(${huntingZoneId}) ${dungeon || huntingZoneId}`,
 					creature: `(${templateId}) ${creature.name || templateId}`,
 					coords: `${x}, ${y}, ${z}`,

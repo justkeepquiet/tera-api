@@ -326,7 +326,6 @@
 	"Created": "Создано",
 	"Enter game": "Вход",
 	"Leave game": "Выход",
-	"min.": "мин.",
 	"count": "кол-во",
 	"example": "пример",
 	"Shop Categories": "Категории магазина",
@@ -453,5 +452,9 @@
 	"Box": "Коробка",
 	"Chronoscroll": "VIP-предмет",
 	"[unknown]": "[неизвестно]",
-	"With selected": "С отмеченными"
+	"With selected": "С отмеченными",
+	"d.": "д.",
+	"hr.": "ч.",
+	"min.": "мин.",
+	"sec.": "сек."
 }

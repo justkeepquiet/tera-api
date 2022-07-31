@@ -8,6 +8,7 @@
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
+const helpers = require("../utils/helpers");
 
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
@@ -39,6 +40,7 @@ const reportHandler = (logger, serverModel, model, view, viewData = {}) =>
 				res.render(view, {
 					layout: "adminLayout",
 					moment,
+					helpers,
 					servers,
 					reports,
 					from,

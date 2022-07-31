@@ -36,7 +36,7 @@ reports.forEach(report => {
 	tableData.push([
 		moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
 		(report.get("reportType") == 2 ?
-			`${__("Leave game")} (${(report.get("playTime") / 60).toFixed(2)} ${__("min.")})` :
+			`${__("Leave game")} (${helpers.secondsToDhms(__, report.get("playTime"))})` :
 			__("Enter game")
 		),
 		report.get("ip"),
