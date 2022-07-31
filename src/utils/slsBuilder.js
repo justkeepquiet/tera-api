@@ -24,7 +24,7 @@ class SlsBuilder {
 			{ sort: 1, value: strings.get("categoryPvE") } :
 			{ sort: 1, value: strings.get("categoryPvP") };
 
-		let permissionMask = parseInt(server.get("permission") || 0, 10);
+		let permissionMask = server.get("permission") || 0;
 		let open = { sort: 1, value: strings.get("serverLow"), color: "#00ff00" };
 		let crowdness = { sort: 1, value: strings.get("crowdNo") };
 

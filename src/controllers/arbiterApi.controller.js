@@ -59,7 +59,7 @@ module.exports.GetServerPermission = ({ logger, sequelize, serverModel }) => [
 				return resultJson(res, 10000, { msg: "server not exist" });
 			}
 
-			let permission = parseInt(server.get("permission") || 0, 10);
+			let permission = server.get("permission") || 0;
 
 			if (server.get("isCrowdness")) {
 				permission += 1;
@@ -153,8 +153,8 @@ module.exports.GetUserInfo = ({ logger, sequelize, accountModel }) => [
 				privilege: account.get("privilege"),
 				permission: account.get("permission"),
 				last_connected_server: account.get("lastLoginServer"),
-				last_play_time: account.get("playTimeLast"),
-				logout_time_diff: account.get("playTimeTotal"),
+				last_play_time: moment(account.get("lastLoginTime")).unix(),
+				logout_time_diff: account.get("playTimeLast"),
 				char_count_info: charCountInfo,
 				benefit: benefit
 			});
