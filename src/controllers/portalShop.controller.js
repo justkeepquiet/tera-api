@@ -578,16 +578,14 @@ module.exports.PurchaseAction = modules => [
 				return resultJson(res, 3000, "items not exists");
 			}
 
-			await modules.sequelize.transaction(async transaction => {
+			await modules.sequelize.transaction(async () => {
 				await modules.shopModel.accounts.decrement({
 					balance: shopProduct.get("price")
 				}, {
-					where: { accountDBID: shopAccount.get("accountDBID") },
-					transaction
+					where: { accountDBID: shopAccount.get("accountDBID") }
 				});
 
 				const boxId = await (new ItemClaim(
-					transaction,
 					modules,
 					req.user.accountDBID,
 					req.user.lastLoginServer,

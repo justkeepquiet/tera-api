@@ -123,11 +123,11 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 		body("email").optional({ checkFalsy: true }).trim()
 			.isEmail().withMessage(i18n.__("Email field must contain a valid email.")),
 		body("permission")
-			.isNumeric().withMessage(i18n.__("Permission field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain a valid number.")),
 		body("privilege")
-			.isNumeric().withMessage(i18n.__("Privilege field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Privilege field must contain a valid number.")),
 		body("benefitIds.*").optional()
-			.isInt({ min: 0 }).withMessage(i18n.__("Benefit ID field must contain a valid number."))
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Benefit ID field must contain a valid number."))
 			.custom((value, { req }) => {
 				const benefitIds = req.body.benefitIds.filter((e, i) =>
 					req.body.benefitIds.lastIndexOf(e) == i && req.body.benefitIds.indexOf(e) != i
@@ -169,15 +169,13 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 			});
 		}
 
-		sequelize.transaction(transaction =>
+		sequelize.transaction(() =>
 			accountModel.info.create({
 				userName,
 				passWord: passwordString,
 				email,
 				permission,
 				privilege
-			}, {
-				transaction
 			}).then(account => {
 				const promises = [];
 
@@ -191,8 +189,6 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 							accountDBID: account.get("accountDBID"),
 							benefitId,
 							availableUntil: moment.tz(availableUntils[i], req.user.tz).toDate()
-						}, {
-							transaction
 						}));
 					});
 				}
@@ -279,9 +275,9 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 		body("email").trim().optional({ checkFalsy: true })
 			.isEmail().withMessage(i18n.__("Email field must contain a valid email.")),
 		body("permission")
-			.isNumeric().withMessage(i18n.__("Permission field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain a valid number.")),
 		body("privilege")
-			.isNumeric().withMessage(i18n.__("Privilege field must contain a valid number."))
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Privilege field must contain a valid number."))
 	],
 	/**
 	 * @type {RequestHandler}
@@ -363,31 +359,25 @@ module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, accountMod
 				await new Promise(resolve => setTimeout(resolve, 3000));
 			}
 
-			await sequelize.transaction(async transaction =>
+			await sequelize.transaction(async () =>
 				await Promise.all([
 					accountModel.info.destroy({
-						where: { accountDBID },
-						transaction
+						where: { accountDBID }
 					}),
 					accountModel.benefits.destroy({
-						where: { accountDBID },
-						transaction
+						where: { accountDBID }
 					}),
 					accountModel.characters.destroy({
-						where: { accountDBID },
-						transaction
+						where: { accountDBID }
 					}),
 					accountModel.online.destroy({
-						where: { accountDBID },
-						transaction
+						where: { accountDBID }
 					}),
 					shopModel.accounts.destroy({
-						where: { accountDBID },
-						transaction
+						where: { accountDBID }
 					}),
 					shopModel.promoCodeActivated.destroy({
-						where: { accountDBID },
-						transaction
+						where: { accountDBID }
 					})
 				])
 			);

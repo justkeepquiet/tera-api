@@ -24,6 +24,7 @@
 require("dotenv").config();
 
 const { Sequelize, DataTypes } = require("sequelize");
+const cls = require("cls-hooked");
 const createLogger = require("./utils/logger").createLogger;
 const cliHelper = require("./utils/cliHelper");
 const CoreLoader = require("./lib/coreLoader");
@@ -51,7 +52,7 @@ moduleLoader.setPromise("hub", () => new Promise(resolve => {
 		process.env.HUB_HOST,
 		process.env.HUB_PORT,
 		serverCategory.webcstool, {
-			logger: createLogger("Hub")
+			logger: createLogger("Hub", { colors: { debug: "magenta" } })
 		}
 	);
 
@@ -65,7 +66,7 @@ moduleLoader.setPromise("steer", () => new Promise(resolve => {
 		process.env.STEER_HOST,
 		process.env.STEER_PORT,
 		serverCategory.webcstool, "WebIMSTool", {
-			logger: createLogger("Steer")
+			logger: createLogger("Steer", { colors: { debug: "magenta" } })
 		}
 	);
 
@@ -80,7 +81,7 @@ moduleLoader.setPromise("steer", () => new Promise(resolve => {
 }));
 
 moduleLoader.setPromise("datasheetModel", () =>
-	require("./models/datasheet.model")(createLogger("Datasheet"))
+	require("./models/datasheet.model")(createLogger("Datasheet", { colors: { debug: "gray" } }))
 );
 
 moduleLoader.setPromise("sequelize", () => new Promise((resolve, reject) => {
@@ -96,7 +97,10 @@ moduleLoader.setPromise("sequelize", () => new Promise((resolve, reject) => {
 		return reject("Invalid configuration parameter: DB_USERNAME");
 	}
 
-	const sequelizeLogger = createLogger("Database");
+	const sequelizeLogger = createLogger("Database", { colors: { debug: "cyan" } });
+	const namespace = cls.createNamespace("sequelize-app");
+
+	Sequelize.useCLS(namespace);
 
 	const sequelize = new Sequelize(
 		process.env.DB_DATABASE,

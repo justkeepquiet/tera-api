@@ -1,5 +1,7 @@
 "use strict";
 
+// colors: red, orange, grey, red, yellow, cyan, magenta, blue
+
 /**
  * @typedef {object} logger
  * @property {import("winston").Logger} debug
@@ -18,44 +20,54 @@ const util = require("util");
 const winston = require("winston");
 const moment = require("moment-timezone");
 
-const logger = winston.createLogger({ level: process.env.LOG_LEVEL || "info" });
-const colorizer = winston.format.colorize();
+const fileLogger = winston.createLogger({ level: process.env.LOG_LEVEL || "info" });
 const logTimeFormat = "YYYY-MM-DD HH:mm:ss.SSS";
 
+const createCustomLogger = params => {
+	const customLogger = winston.createLogger({
+		level: process.env.LOG_LEVEL || "info", ...params.logger
+	});
+
+	customLogger.add(new winston.transports.Console({
+		format: winston.format.combine(
+			{
+				transform: (info, opts) => {
+					info.message = util.format(info.message, ...info[Symbol.for("splat")] || []);
+					return info;
+				}
+			},
+			winston.format.timestamp({ format: logTimeFormat }),
+			winston.format.printf(info =>
+				winston.format.colorize({
+					colors: { ...winston.config.npm.colors, ...params.colors }
+				}).colorize(
+					info.level, `[${info.timestamp}] (${info.level}) ${info.message}`
+				)
+			)
+		)
+	}));
+
+	return customLogger;
+};
+
+const defaultLogger = createCustomLogger({});
 let logDirectory = process.env.LOG_WRITE_DIRECTORY ? process.env.LOG_WRITE_DIRECTORY : "./logs";
 
 if (!path.isAbsolute(logDirectory)) {
 	logDirectory = path.join(__dirname, "../../", logDirectory);
 }
 
-logger.add(new winston.transports.Console({
-	format: winston.format.combine(
-		{
-			transform: (info, opts) => {
-				info.message = util.format(info.message, ...info[Symbol.for("splat")] || []);
-				return info;
-			}
-		},
-		winston.format.timestamp({ format: logTimeFormat }),
-		winston.format.printf(info =>
-			colorizer.colorize(
-				info.level, `[${info.timestamp}] (${info.level}) ${info.message}`
-			)
-		)
-	)
-}));
-
 if (/^true$/i.test(process.env.LOG_WRITE)) {
 	const logFilename = path.resolve(logDirectory,
 		`log_${moment.utc().local().format("YYYY-MM-DD_HH-mm-ss")}_${process.pid}.log`);
 
-	logger.info(`Logger: Log file: ${logFilename}`);
+	defaultLogger.info(`Logger: Log file: ${logFilename}`);
 
 	if (!fs.existsSync(path.resolve(logDirectory))) {
 		fs.mkdirSync(path.resolve(logDirectory));
 	}
 
-	logger.add(new winston.transports.File({
+	fileLogger.add(new winston.transports.File({
 		filename: logFilename,
 		format: winston.format.combine(
 			winston.format.timestamp({ format: logTimeFormat }),
@@ -66,21 +78,24 @@ if (/^true$/i.test(process.env.LOG_WRITE)) {
 	}));
 }
 
-const createLogger = category => {
+const createLogger = (category, params = {}) => {
+	const customLogger = createCustomLogger(params);
 	const categoryString = category ? `${category}: ` : "";
 	const levels = {
-		stream: logger.stream
+		stream: customLogger.stream
 	};
 
-	Object.keys(winston.config.npm.levels).forEach(level =>
-		levels[level] = (...args) => logger[level].apply(logger,
-			Object.values(args).map(a => (
-				a?.stack !== undefined ? `${categoryString}${a.toString()} ${a.stack}` : categoryString + a
-			))
-		)
-	);
+	Object.keys(winston.config.npm.levels).forEach(level => {
+		levels[level] = (...args) => [fileLogger, customLogger].forEach(logger =>
+			logger[level].apply(logger,
+				Object.values(args).map(a => (
+					a?.stack !== undefined ? `${categoryString}${a.toString()} ${a.stack}` : categoryString + a
+				))
+			)
+		);
+	});
 
 	return levels;
 };
 
-module.exports = { ...createLogger(), createLogger };
+module.exports = { ...defaultLogger, createLogger };

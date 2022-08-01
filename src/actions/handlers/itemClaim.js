@@ -10,8 +10,7 @@ class ItemClaim {
 	/**
 	 * @param {modules} modules
 	 */
-	constructor(transaction, modules, userId, serverId, params = {}) {
-		this.transaction = transaction;
+	constructor(modules, userId, serverId, params = {}) {
 		this.modules = modules;
 		this.userId = userId;
 		this.serverId = serverId;
@@ -30,8 +29,6 @@ class ItemClaim {
 				logType: this.params.logType || null,
 				logId: this.params.logId || null,
 				context: JSON.stringify(context)
-			}, {
-				transaction: this.transaction
 			}).then(() => {
 				this.box.notiUser(this.serverId, this.userId, characterId || 0).catch(err =>
 					this.modules.logger.warn(err.toString())

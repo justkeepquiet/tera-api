@@ -73,7 +73,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 	expressLayouts,
 	[
 		body("sort")
-			.isNumeric().withMessage(i18n.__("Sort field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Sort field must contain the value as a number.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
 		body("title.*")
@@ -97,12 +97,10 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 			});
 		}
 
-		sequelize.transaction(transaction =>
+		sequelize.transaction(() =>
 			shopModel.categories.create({
 				sort,
 				active: active == "on"
-			}, {
-				transaction
 			}).then(category => {
 				const promises = [];
 
@@ -112,8 +110,6 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 							categoryId: category.get("id"),
 							language,
 							title: title[language]
-						}, {
-							transaction
 						}));
 					});
 				}
@@ -193,7 +189,7 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 	expressLayouts,
 	[
 		body("sort")
-			.isNumeric().withMessage(i18n.__("Sort field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Sort field must contain the value as a number.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
 		body("title.*")
@@ -232,14 +228,13 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 				});
 			}
 
-			await sequelize.transaction(async transaction => {
+			await sequelize.transaction(async () => {
 				const promises = [
 					shopModel.categories.update({
 						sort,
 						active: active == "on"
 					}, {
-						where: { id },
-						transaction
+						where: { id }
 					})
 				];
 
@@ -258,16 +253,14 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 								where: {
 									categoryId: id,
 									language
-								},
-								transaction
+								}
 							}));
 						} else {
 							promises.push(shopModel.categoryStrings.destroy({
 								where: {
 									categoryId: id,
 									language
-								},
-								transaction
+								}
 							}));
 						}
 					});
@@ -279,8 +272,7 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 								title: title[language],
 								language
 							}, {
-								ignoreDuplicates: true,
-								transaction
+								ignoreDuplicates: true
 							}));
 						}
 					});
@@ -320,15 +312,13 @@ module.exports.deleteAction = ({ logger, sequelize, reportModel, shopModel }) =>
 			return res.redirect("/shop_categories");
 		}
 
-		sequelize.transaction(transaction =>
+		sequelize.transaction(() =>
 			Promise.all([
 				shopModel.categories.destroy({
-					where: { id },
-					transaction
+					where: { id }
 				}),
 				shopModel.categoryStrings.destroy({
-					where: { categoryId: id },
-					transaction
+					where: { categoryId: id }
 				})
 			]).then(() =>
 				next()

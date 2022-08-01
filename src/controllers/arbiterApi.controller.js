@@ -181,7 +181,7 @@ module.exports.EnterGame = ({ logger, sequelize, accountModel, serverModel, repo
 	(req, res) => {
 		const { ip, server_id, user_srl } = req.body;
 
-		sequelize.transaction(transaction => {
+		sequelize.transaction(() => {
 			const promises = [
 				accountModel.info.update({
 					lastLoginTime: moment().toDate(),
@@ -189,12 +189,10 @@ module.exports.EnterGame = ({ logger, sequelize, accountModel, serverModel, repo
 					lastLoginServer: server_id,
 					playCount: sequelize.literal("playCount + 1")
 				}, {
-					where: { accountDBID: user_srl },
-					transaction
+					where: { accountDBID: user_srl }
 				}),
 				serverModel.info.increment({ usersOnline: 1 }, {
-					where: { serverId: server_id },
-					transaction
+					where: { serverId: server_id }
 				}),
 				accountModel.online.create({
 					accountDBID: user_srl,
@@ -202,20 +200,20 @@ module.exports.EnterGame = ({ logger, sequelize, accountModel, serverModel, repo
 				})
 			];
 
-			return Promise.all(promises).then(() => {
-				if (reportActivity) {
-					reportModel.activity.create({
-						accountDBID: user_srl,
-						serverId: server_id,
-						ip,
-						reportType: 1
-					}).catch(err => {
-						logger.error(err);
-					});
-				}
+			if (reportActivity) {
+				reportModel.activity.create({
+					accountDBID: user_srl,
+					serverId: server_id,
+					ip,
+					reportType: 1
+				}).catch(err => {
+					logger.error(err);
+				});
+			}
 
-				resultJson(res, 0);
-			});
+			return Promise.all(promises).then(() =>
+				resultJson(res, 0)
+			);
 		}).catch(err => {
 			logger.error(err);
 			resultJson(res, 1, { msg: "internal error" });
@@ -238,7 +236,7 @@ module.exports.LeaveGame = ({ logger, sequelize, accountModel, serverModel, repo
 	(req, res) => {
 		const { play_time, user_srl } = req.body;
 
-		sequelize.transaction(transaction => {
+		sequelize.transaction(() => {
 			const promises = [
 				accountModel.info.findOne({
 					where: { accountDBID: user_srl }
@@ -258,16 +256,14 @@ module.exports.LeaveGame = ({ logger, sequelize, accountModel, serverModel, repo
 					}
 
 					return serverModel.info.decrement({ usersOnline: 1 }, {
-						where: { serverId: account.get("lastLoginServer") },
-						transaction
+						where: { serverId: account.get("lastLoginServer") }
 					});
 				}),
 				accountModel.info.update({
 					playTimeLast: play_time,
 					playTimeTotal: sequelize.literal(`playTimeTotal + ${play_time}`)
 				}, {
-					where: { accountDBID: user_srl },
-					transaction
+					where: { accountDBID: user_srl }
 				}),
 				accountModel.online.destroy({
 					where: { accountDBID: user_srl }
@@ -305,11 +301,10 @@ module.exports.CreateChar = ({ logger, sequelize, accountModel, serverModel, rep
 	(req, res) => {
 		const { char_name, char_srl, class_id, gender_id, level, race_id, server_id, user_srl } = req.body;
 
-		sequelize.transaction(transaction => {
+		sequelize.transaction(() => {
 			const promises = [
 				serverModel.info.increment({ usersTotal: 1 }, {
-					where: { serverId: server_id },
-					transaction
+					where: { serverId: server_id }
 				}),
 				accountModel.characters.create({
 					characterId: char_srl,
@@ -320,30 +315,28 @@ module.exports.CreateChar = ({ logger, sequelize, accountModel, serverModel, rep
 					genderId: gender_id,
 					raceId: race_id,
 					level
-				}, {
-					transaction
 				})
 			];
 
-			return Promise.all(promises).then(() => {
-				if (reportCharacters) {
-					reportModel.characters.create({
-						characterId: char_srl,
-						serverId: server_id,
-						accountDBID: user_srl,
-						name: decodeURI(char_name),
-						classId: class_id,
-						genderId: gender_id,
-						raceId: race_id,
-						level,
-						reportType: 1
-					}).catch(err => {
-						logger.error(err);
-					});
-				}
+			if (reportCharacters) {
+				reportModel.characters.create({
+					characterId: char_srl,
+					serverId: server_id,
+					accountDBID: user_srl,
+					name: decodeURI(char_name),
+					classId: class_id,
+					genderId: gender_id,
+					raceId: race_id,
+					level,
+					reportType: 1
+				}).catch(err => {
+					logger.error(err);
+				});
+			}
 
-				resultJson(res, 0);
-			});
+			return Promise.all(promises).then(() =>
+				resultJson(res, 0)
+			);
 		}).catch(err => {
 			logger.error(err);
 			resultJson(res, 1, { msg: "internal error" });
@@ -354,7 +347,7 @@ module.exports.CreateChar = ({ logger, sequelize, accountModel, serverModel, rep
 /**
  * @param {modules} modules
  */
-module.exports.ModifyChar = ({ logger, accountModel, reportModel }) => [
+module.exports.ModifyChar = ({ logger, sequelize, accountModel, reportModel }) => [
 	[
 		body("char_srl").isNumeric(),
 		body("server_id").isNumeric(),
@@ -382,13 +375,7 @@ module.exports.ModifyChar = ({ logger, accountModel, reportModel }) => [
 			return resultJson(res, 0);
 		}
 
-		accountModel.characters.update(fields, {
-			where: {
-				characterId: char_srl,
-				serverId: server_id,
-				accountDBID: user_srl
-			}
-		}).then(() => {
+		sequelize.transaction(() => {
 			if (reportCharacters) {
 				reportModel.characters.create({
 					characterId: char_srl,
@@ -401,8 +388,16 @@ module.exports.ModifyChar = ({ logger, accountModel, reportModel }) => [
 				});
 			}
 
-			resultJson(res, 0);
-		}).catch(err => {
+			return accountModel.characters.update(fields, {
+				where: {
+					characterId: char_srl,
+					serverId: server_id,
+					accountDBID: user_srl
+				}
+			});
+		}).then(() =>
+			resultJson(res, 0)
+		).catch(err => {
 			logger.error(err);
 			resultJson(res, 1, { msg: "internal error" });
 		});
@@ -425,36 +420,34 @@ module.exports.DeleteChar = ({ logger, sequelize, accountModel, serverModel, rep
 	(req, res) => {
 		const { char_srl, server_id, user_srl } = req.body;
 
-		sequelize.transaction(transaction => {
+		sequelize.transaction(() => {
 			const promises = [
 				serverModel.info.decrement({ usersTotal: 1 }, {
-					where: { serverId: server_id },
-					transaction
+					where: { serverId: server_id }
 				}),
 				accountModel.characters.destroy({
 					where: {
 						characterId: char_srl,
 						serverId: server_id,
 						accountDBID: user_srl
-					},
-					transaction
+					}
 				})
 			];
 
-			return Promise.all(promises).then(() => {
-				if (reportCharacters) {
-					reportModel.characters.create({
-						characterId: char_srl,
-						serverId: server_id,
-						accountDBID: user_srl,
-						reportType: 3
-					}).catch(err => {
-						logger.error(err);
-					});
-				}
+			if (reportCharacters) {
+				reportModel.characters.create({
+					characterId: char_srl,
+					serverId: server_id,
+					accountDBID: user_srl,
+					reportType: 3
+				}).catch(err => {
+					logger.error(err);
+				});
+			}
 
-				resultJson(res, 0);
-			});
+			return Promise.all(promises).then(() =>
+				resultJson(res, 0)
+			);
 		}).catch(err => {
 			logger.error(err);
 			resultJson(res, 1, { msg: "internal error" });

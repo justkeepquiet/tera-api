@@ -120,15 +120,13 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 			});
 		}
 
-		sequelize.transaction(transaction =>
+		sequelize.transaction(() =>
 			shopModel.promoCodes.create({
 				promoCode,
 				function: aFunction,
 				validAfter: moment.tz(validAfter, req.user.tz).toDate(),
 				validBefore: moment.tz(validBefore, req.user.tz).toDate(),
 				active: active == "on"
-			}, {
-				transaction
 			}).then(promocode => {
 				const promises = [];
 
@@ -138,8 +136,6 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 							promoCodeId: promocode.get("promoCodeId"),
 							language,
 							description: description[language]
-						}, {
-							transaction
 						}));
 					});
 				}
@@ -271,7 +267,7 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 				});
 			}
 
-			await sequelize.transaction(async transaction => {
+			await sequelize.transaction(async () => {
 				const promises = [
 					shopModel.promoCodes.update({
 						function: aFunction,
@@ -279,8 +275,7 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 						validBefore: moment.tz(validBefore, req.user.tz).toDate(),
 						active: active == "on"
 					}, {
-						where: { promoCodeId },
-						transaction
+						where: { promoCodeId }
 					})
 				];
 
@@ -299,16 +294,14 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 								where: {
 									promoCodeId,
 									language
-								},
-								transaction
+								}
 							}));
 						} else {
 							promises.push(shopModel.promoCodeStrings.destroy({
 								where: {
 									promoCodeId,
 									language
-								},
-								transaction
+								}
 							}));
 						}
 					});
@@ -320,8 +313,7 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 								description: description[language],
 								language
 							}, {
-								ignoreDuplicates: true,
-								transaction
+								ignoreDuplicates: true
 							}));
 						}
 					});
@@ -361,19 +353,16 @@ module.exports.deleteAction = ({ logger, sequelize, reportModel, shopModel }) =>
 			return res.redirect("/promocodes");
 		}
 
-		sequelize.transaction(transaction =>
+		sequelize.transaction(() =>
 			Promise.all([
 				shopModel.promoCodes.destroy({
-					where: { promoCodeId },
-					transaction
+					where: { promoCodeId }
 				}),
 				shopModel.promoCodeStrings.destroy({
-					where: { promoCodeId },
-					transaction
+					where: { promoCodeId }
 				}),
 				shopModel.promoCodeActivated.destroy({
-					where: { promoCodeId },
-					transaction
+					where: { promoCodeId }
 				})
 			]).then(() =>
 				next()

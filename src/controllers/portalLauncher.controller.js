@@ -209,13 +209,13 @@ module.exports.SignupAction = ({ logger, sequelize, accountModel }) => [
 				passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
 			}
 
-			sequelize.transaction(transaction =>
+			sequelize.transaction(() =>
 				accountModel.info.create({
 					userName: login,
 					passWord: passwordString,
 					authKey,
 					email
-				}, { transaction }).then(account => {
+				}).then(account => {
 					const promises = [];
 
 					helpers.getInitialBenefits().forEach((benefitDays, benefitId) => {
@@ -223,7 +223,7 @@ module.exports.SignupAction = ({ logger, sequelize, accountModel }) => [
 							accountDBID: account.get("accountDBID"),
 							benefitId: benefitId,
 							availableUntil: sequelize.fn("ADDDATE", sequelize.fn("NOW"), benefitDays)
-						}, { transaction }));
+						}));
 					});
 
 					return Promise.all(promises).then(() =>

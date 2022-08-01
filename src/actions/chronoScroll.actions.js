@@ -20,12 +20,11 @@ class ChronoScrollActions {
 
 		Object.keys(config).forEach(itemId => {
 			this.controller[itemId] = (...args) =>
-				modules.sequelize.transaction(transaction => {
-					require("sequelize").Transaction;
+				modules.sequelize.transaction(() => {
 					const methods = [];
 
 					config[itemId].forEach(controller => {
-						const instance = new controller[0](transaction, ...args);
+						const instance = new controller[0](...args);
 
 						Object.keys(controller[1]).forEach(method => {
 							methods.push(instance[method].bind(instance, ...controller[1][method]));

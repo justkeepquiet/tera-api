@@ -93,11 +93,11 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 		body("descrString").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field string must be between 1 and 1024 characters.")),
 		body("permission")
-			.isInt({ min: 0 }).withMessage(i18n.__("Permission field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain the value as a number.")),
 		body("tresholdLow")
-			.isInt({ min: 0 }).withMessage(i18n.__("Treshold low field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Treshold low field must contain the value as a number.")),
 		body("tresholdMedium")
-			.isInt({ min: 0 }).withMessage(i18n.__("Treshold medium field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Treshold medium field must contain the value as a number.")),
 		body("isPvE").optional()
 			.isIn(["on"]).withMessage(i18n.__("Only PvE field has invalid value.")),
 		body("isCrowdness").optional()
@@ -225,11 +225,11 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 		body("descrString").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description string field must be between 1 and 1024 characters.")),
 		body("permission")
-			.isInt({ min: 0 }).withMessage(i18n.__("Permission field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain the value as a number.")),
 		body("tresholdLow")
-			.isInt({ min: 0 }).withMessage(i18n.__("Treshold low field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Treshold low field must contain the value as a number.")),
 		body("tresholdMedium")
-			.isInt({ min: 0 }).withMessage(i18n.__("Treshold medium field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Treshold medium field must contain the value as a number.")),
 		body("isPvE").optional()
 			.isIn(["on"]).withMessage(i18n.__("Only PvE field has invalid value.")),
 		body("isCrowdness").optional()

@@ -8,8 +8,7 @@ class Shop {
 	/**
 	 * @param {modules} modules
 	 */
-	constructor(transaction, modules, userId, serverId, params = {}) {
-		this.transaction = transaction;
+	constructor(modules, userId, serverId, params = {}) {
 		this.modules = modules;
 		this.userId = userId;
 		this.serverId = serverId;
@@ -24,24 +23,19 @@ class Shop {
 				return this.modules.shopModel.accounts.increment({
 					balance: amount
 				}, {
-					where: { accountDBID: this.userId },
-					transaction: this.transaction
+					where: { accountDBID: this.userId }
 				});
 			}
 
 			return this.modules.shopModel.accounts.create({
 				accountDBID: this.userId,
 				balance: amount
-			}, {
-				transaction: this.transaction
 			});
 		}).then(() =>
 			this.modules.reportModel.shopFund.create({
 				accountDBID: this.userId,
 				amount: amount,
 				description: this.params.report
-			}, {
-				transaction: this.transaction
 			})
 		);
 	}

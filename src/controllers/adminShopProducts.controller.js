@@ -196,7 +196,7 @@ module.exports.addAction = modules => [
 	expressLayouts,
 	[
 		body("price")
-			.isInt({ min: 0 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
 		body("categoryId")
 			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
@@ -215,7 +215,7 @@ module.exports.addAction = modules => [
 			.isIn(["on"]).withMessage(modules.i18n.__("Active field has invalid value.")),
 		// Items
 		body("itemTemplateIds.*")
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => modules.dataModel.itemTemplates.findOne({
 				where: {
 					itemTemplateId: value || null
@@ -234,9 +234,9 @@ module.exports.addAction = modules => [
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true })
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
 		body("boxItemCounts.*")
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Count field has invalid value.")),
+			.isInt({ min: 1, max: 1e4 }).withMessage(modules.i18n.__("Count field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the product.")),
 		// Additional info
@@ -349,7 +349,7 @@ module.exports.addAction = modules => [
 				});
 			}
 
-			await modules.sequelize.transaction(async transaction => {
+			await modules.sequelize.transaction(async () => {
 				const product = await modules.shopModel.products.create({
 					categoryId,
 					active: active == "on",
@@ -358,8 +358,6 @@ module.exports.addAction = modules => [
 					rareGrade: rareGrade === "" ? null : rareGrade,
 					validAfter: moment.tz(validAfter, req.user.tz).toDate(),
 					validBefore: moment.tz(validBefore, req.user.tz).toDate()
-				}, {
-					transaction
 				});
 
 				const promises = [];
@@ -380,8 +378,6 @@ module.exports.addAction = modules => [
 								itemTemplateId,
 								boxItemId,
 								boxItemCount: boxItemCounts[index]
-							}, {
-								transaction
 							})
 						));
 					});
@@ -394,8 +390,6 @@ module.exports.addAction = modules => [
 							...title[language] ? { title: title[language] } : {},
 							...description[language] ? { description: description[language] } : {},
 							language
-						}, {
-							transaction
 						}))
 					);
 				}
@@ -566,9 +560,9 @@ module.exports.editAction = modules => [
 	expressLayouts,
 	[
 		body("price")
-			.isInt({ min: 0 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
 		body("sort")
-			.isNumeric().withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
 		body("categoryId")
 			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
@@ -587,7 +581,7 @@ module.exports.editAction = modules => [
 			.isIn(["on"]).withMessage(modules.i18n.__("Active field has invalid value.")),
 		// Items
 		body("itemTemplateIds.*")
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => modules.dataModel.itemTemplates.findOne({
 				where: {
 					itemTemplateId: value || null
@@ -606,9 +600,9 @@ module.exports.editAction = modules => [
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true })
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
 		body("boxItemCounts.*")
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Count field has invalid value.")),
+			.isInt({ min: 1, max: 1e4 }).withMessage(modules.i18n.__("Count field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the product.")),
 		// Additional info
@@ -749,7 +743,7 @@ module.exports.editAction = modules => [
 				});
 			}
 
-			await modules.sequelize.transaction(async transaction => {
+			await modules.sequelize.transaction(async () => {
 				const promises = [
 					modules.shopModel.products.update({
 						categoryId,
@@ -761,8 +755,7 @@ module.exports.editAction = modules => [
 						validAfter: moment.tz(validAfter, req.user.tz).toDate(),
 						validBefore: moment.tz(validBefore, req.user.tz).toDate()
 					}, {
-						where: { id: product.get("id") },
-						transaction
+						where: { id: product.get("id") }
 					})
 				];
 
@@ -783,15 +776,13 @@ module.exports.editAction = modules => [
 									boxItemId,
 									boxItemCount: boxItemCounts[index] || 1
 								}, {
-									where: { id: productItem.get("id") },
-									transaction
+									where: { id: productItem.get("id") }
 								})
 							));
 						}
 					} else {
 						promises.push(modules.shopModel.productItems.destroy({
-							where: { id: productItem.get("id") },
-							transaction
+							where: { id: productItem.get("id") }
 						}));
 
 						promises.push(modules.shopModel.productItems.findOne({
@@ -833,8 +824,6 @@ module.exports.editAction = modules => [
 									itemTemplateId,
 									boxItemId,
 									boxItemCount: boxItemCounts[index] || 1
-								}, {
-									transaction
 								})
 							);
 						}))
@@ -852,16 +841,14 @@ module.exports.editAction = modules => [
 							where: {
 								id: productString.get("id"),
 								language
-							},
-							transaction
+							}
 						}));
 					} else {
 						promises.push(modules.shopModel.productStrings.destroy({
 							where: {
 								id: productString.get("id"),
 								language
-							},
-							transaction
+							}
 						}));
 					}
 				});
@@ -874,8 +861,7 @@ module.exports.editAction = modules => [
 							description: description[language] || null,
 							language
 						}, {
-							ignoreDuplicates: true,
-							transaction
+							ignoreDuplicates: true
 						}));
 					}
 				});
@@ -906,9 +892,9 @@ module.exports.editAllAction = modules => [
 	expressLayouts,
 	[
 		body("price").optional({ checkFalsy: true })
-			.isInt({ min: 0 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
 		body("sort").optional({ checkFalsy: true })
-			.isNumeric().withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
 		body("categoryId").optional({ checkFalsy: true })
 			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
@@ -1033,15 +1019,13 @@ module.exports.deleteAction = modules => [
 
 			for (const productId of productIds) {
 				// eslint-disable-next-line no-await-in-loop
-				await modules.sequelize.transaction(async transaction => {
+				await modules.sequelize.transaction(async () => {
 					const promises = [
 						modules.shopModel.products.destroy({
-							where: { id: productId },
-							transaction
+							where: { id: productId }
 						}),
 						modules.shopModel.productStrings.destroy({
-							where: { productId },
-							transaction
+							where: { productId }
 						})
 					];
 
@@ -1065,13 +1049,11 @@ module.exports.deleteAction = modules => [
 							})));
 
 							promises.push(modules.shopModel.productItems.destroy({
-								where: { id: productItem.get("id") },
-								transaction
+								where: { id: productItem.get("id") }
 							}));
 						} else {
 							promises.push(modules.shopModel.productItems.destroy({
-								where: { id: productItem.get("id") },
-								transaction
+								where: { id: productItem.get("id") }
 							}));
 						}
 					});

@@ -9,6 +9,7 @@ const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
 const helpers = require("../utils/helpers");
+const PromoCodeActions = require("../actions/promoCode.actions");
 
 const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
@@ -94,51 +95,53 @@ module.exports.add = ({ i18n, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel }) => [
+module.exports.addAction = modules => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("promoCodeId")
-			.isInt({ min: 0 }).withMessage(i18n.__("Promo code ID field must contain a valid number."))
-			.custom((value, { req }) => shopModel.promoCodes.findOne({
+			.isInt({ min: 0 }).withMessage(modules.i18n.__("Promo code ID field must contain a valid number."))
+			.custom((value, { req }) => modules.shopModel.promoCodes.findOne({
 				where: {
 					promoCodeId: req.body.promoCodeId
 				}
 			}).then(data => {
 				if (req.body.promoCodeId && data === null) {
-					return Promise.reject(i18n.__("Promo code ID field contains not existing promo code ID."));
+					return Promise.reject(modules.i18n.__("Promo code ID field contains not existing promo code ID."));
 				}
 			})),
 		body("accountDBID")
-			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.info.findOne({
+			.isInt({ min: 0 }).withMessage(modules.i18n.__("Account ID field must contain a valid number."))
+			.custom((value, { req }) => modules.accountModel.info.findOne({
 				where: {
 					accountDBID: req.body.accountDBID
 				}
 			}).then(data => {
 				if (req.body.accountDBID && data === null) {
-					return Promise.reject(i18n.__("Account ID contains not existing account ID."));
+					return Promise.reject(modules.i18n.__("Account ID contains not existing account ID."));
 				}
 			}))
-			.custom((value, { req }) => shopModel.promoCodeActivated.findOne({
+			.custom((value, { req }) => modules.shopModel.promoCodeActivated.findOne({
 				where: {
 					promoCodeId: req.body.promoCodeId,
 					accountDBID: req.body.accountDBID
 				}
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("This promo code has already been activated on the specified account ID."));
+					return Promise.reject(modules.i18n.__("This promo code has already been activated on the specified account ID."));
 				}
 			}))
 	],
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { promoCodeId, accountDBID } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
+		const errors = helpers.validationResultLog(req, modules.logger);
 
-		shopModel.promoCodes.findAll().then(promocodes => {
+		try {
+			const promocodes = await modules.shopModel.promoCodes.findAll();
+
 			if (!errors.isEmpty()) {
 				return res.render("adminPromocodesActivatedAdd", {
 					layout: "adminLayout",
@@ -150,18 +153,34 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 				});
 			}
 
-			return shopModel.promoCodeActivated.create({
-				promoCodeId,
-				accountDBID
-			}).then(() =>
-				next()
+			const account = await modules.accountModel.info.findOne({
+				where: { accountDBID }
+			});
+
+			const promocode = await modules.shopModel.promoCodes.findOne({
+				where: { promoCodeId }
+			});
+
+			const actions = new PromoCodeActions(
+				modules,
+				account.get("lastLoginServer"),
+				account.get("accountDBID")
 			);
-		}).catch(err => {
-			logger.error(err);
+
+			await actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
+
+			await modules.shopModel.promoCodeActivated.create({
+				promoCodeId: promocode.get("promoCodeId"),
+				accountDBID: account.get("accountDBID")
+			});
+
+			next();
+		} catch (err) {
+			modules.logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
-		});
+		}
 	},
-	writeOperationReport(reportModel),
+	writeOperationReport(modules.reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */

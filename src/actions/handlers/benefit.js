@@ -10,8 +10,7 @@ class Benefit {
 	/**
 	 * @param {modules} modules
 	 */
-	constructor(transaction, modules, userId, serverId, params = {}) {
-		this.transaction = transaction;
+	constructor(modules, userId, serverId, params = {}) {
 		this.modules = modules;
 		this.userId = userId;
 		this.serverId = serverId;
@@ -31,8 +30,6 @@ class Benefit {
 					benefitId,
 					availableUntil: this.modules.sequelize.fn("ADDDATE",
 						this.modules.sequelize.fn("NOW"), days)
-				}, {
-					transaction: this.transaction
 				});
 			} else {
 				const currentDate = moment(benefit.get("dateNow")).isAfter(benefit.get("availableUntil")) ?
@@ -42,8 +39,7 @@ class Benefit {
 				promise = this.modules.accountModel.benefits.update({
 					availableUntil: this.modules.sequelize.fn("ADDDATE", currentDate, days)
 				}, {
-					where: { accountDBID: this.userId, benefitId },
-					transaction: this.transaction
+					where: { accountDBID: this.userId, benefitId }
 				});
 			}
 

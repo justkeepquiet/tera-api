@@ -54,14 +54,13 @@ module.exports.FundByUserNo = modules => [
 	(req, res) => {
 		const { userNo, transactionId, amount } = req.body;
 
-		modules.sequelize.transaction(transaction =>
+		modules.sequelize.transaction(() =>
 			modules.accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
 				if (account === null) {
 					return resultJson(res, 50000, "account not exist");
 				}
 
 				const shop = new Shop(
-					transaction,
 					modules,
 					account.get("accountDBID"),
 					null,

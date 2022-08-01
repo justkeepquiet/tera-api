@@ -142,7 +142,7 @@ module.exports.addAction = modules => [
 			.isInt({ min: 1, max: 4000 }).withMessage(modules.i18n.__("Days field must contain the value as a number.")),
 		// Items
 		body("itemTemplateIds.*")
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => modules.dataModel.itemTemplates.findOne({
 				where: {
 					itemTemplateId: value || null
@@ -161,9 +161,9 @@ module.exports.addAction = modules => [
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true })
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
 		body("boxItemCounts.*")
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Count field has invalid value.")),
+			.isInt({ min: 1, max: 1e4 }).withMessage(modules.i18n.__("Count field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the box."))
 	],
@@ -215,14 +215,12 @@ module.exports.addAction = modules => [
 				});
 			}
 
-			await modules.sequelize.transaction(async transaction => {
+			await modules.sequelize.transaction(async () => {
 				const box = await modules.boxModel.info.create({
 					title,
 					content,
 					icon,
 					days
-				}, {
-					transaction
 				});
 
 				const promises = [];
@@ -243,8 +241,6 @@ module.exports.addAction = modules => [
 								itemTemplateId,
 								boxItemId,
 								boxItemCount: boxItemCounts[index]
-							}, {
-								transaction
 							})
 						));
 					});
@@ -343,7 +339,7 @@ module.exports.editAction = modules => [
 			.isInt({ min: 1, max: 4000 }).withMessage(modules.i18n.__("Days field must contain the value as a number.")),
 		// Items
 		body("itemTemplateIds.*")
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => modules.dataModel.itemTemplates.findOne({
 				where: {
 					itemTemplateId: value || null
@@ -362,9 +358,9 @@ module.exports.editAction = modules => [
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true })
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
 		body("boxItemCounts.*")
-			.isInt({ min: 1 }).withMessage(modules.i18n.__("Count field has invalid value.")),
+			.isInt({ min: 1, max: 1e4 }).withMessage(modules.i18n.__("Count field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the box."))
 	],
@@ -436,7 +432,7 @@ module.exports.editAction = modules => [
 				});
 			}
 
-			await modules.sequelize.transaction(async transaction => {
+			await modules.sequelize.transaction(async () => {
 				const promises = [
 					modules.boxModel.info.update({
 						icon,
@@ -444,8 +440,7 @@ module.exports.editAction = modules => [
 						content,
 						days
 					}, {
-						where: { id: box.get("id") },
-						transaction
+						where: { id: box.get("id") }
 					})
 				];
 
@@ -466,15 +461,13 @@ module.exports.editAction = modules => [
 									boxItemId,
 									boxItemCount: boxItemCounts[index] || 1
 								}, {
-									where: { id: boxItem.get("id") },
-									transaction
+									where: { id: boxItem.get("id") }
 								})
 							));
 						}
 					} else {
 						promises.push(modules.boxModel.items.destroy({
-							where: { id: boxItem.get("id") },
-							transaction
+							where: { id: boxItem.get("id") }
 						}));
 
 						promises.push(modules.boxModel.items.findOne({
@@ -516,8 +509,6 @@ module.exports.editAction = modules => [
 									itemTemplateId,
 									boxItemId,
 									boxItemCount: boxItemCounts[index] || 1
-								}, {
-									transaction
 								})
 							);
 						}))
@@ -564,11 +555,10 @@ module.exports.deleteAction = modules => [
 				where: { boxId: id }
 			});
 
-			await modules.sequelize.transaction(async transaction => {
+			await modules.sequelize.transaction(async () => {
 				const promises = [
 					modules.boxModel.info.destroy({
-						where: { id },
-						transaction
+						where: { id }
 					})
 				];
 
@@ -590,13 +580,11 @@ module.exports.deleteAction = modules => [
 						})));
 
 						promises.push(modules.boxModel.items.destroy({
-							where: { id: boxItem.get("id") },
-							transaction
+							where: { id: boxItem.get("id") }
 						}));
 					} else {
 						promises.push(modules.boxModel.items.destroy({
-							where: { id: boxItem.get("id") },
-							transaction
+							where: { id: boxItem.get("id") }
 						}));
 					}
 				});
