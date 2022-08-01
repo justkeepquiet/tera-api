@@ -47,7 +47,7 @@ class HubFunctions extends HubConnection {
 
 			const ans = opArb.KickUserAns.decode(data.msgBuf);
 
-			if (ans.result === opArb.KickUserAns.result_type.SUCCESS) {
+			if (ans.result !== opArb.KickUserAns.result_type.FAILED) {
 				return Promise.resolve(ans);
 			} else {
 				return Promise.reject(
@@ -101,7 +101,7 @@ class HubFunctions extends HubConnection {
 
 			const ans = opArb.BoxNotiUserAns.decode(data.msgBuf);
 
-			if (ans.result === opArb.BoxNotiUserAns.result_type.SUCCESS) {
+			if (ans.result !== opArb.BoxNotiUserAns.result_type.FAILED) {
 				return Promise.resolve(ans);
 			} else {
 				return Promise.reject(
@@ -121,7 +121,7 @@ class HubFunctions extends HubConnection {
 
 			const ans = opArb.AddBenefitAns.decode(data.msgBuf);
 
-			if (ans.result === opArb.AddBenefitAns.result_type.SUCCESS) {
+			if (ans.result !== opArb.AddBenefitAns.result_type.FAILED) {
 				return Promise.resolve(ans);
 			} else {
 				return Promise.reject(
@@ -141,7 +141,7 @@ class HubFunctions extends HubConnection {
 
 			const ans = opArb.RemoveBenefitAns.decode(data.msgBuf);
 
-			if (ans.result === opArb.RemoveBenefitAns.result_type.SUCCESS) {
+			if (ans.result !== opArb.RemoveBenefitAns.result_type.FAILED) {
 				return Promise.resolve(ans);
 			} else {
 				return Promise.reject(
