@@ -1,6 +1,8 @@
 "use strict";
 
-// colors: red, orange, grey, red, yellow, cyan, magenta, blue
+// Font styles: bold, dim, italic, underline, inverse, hidden, strikethrough.
+// Font foreground colors: black, red, green, yellow, blue, magenta, cyan, white, gray, grey.
+// Background colors: blackBG, redBG, greenBG, yellowBG, blueBG, magentaBG, cyanBG, whiteBG.
 
 /**
  * @typedef {object} logger

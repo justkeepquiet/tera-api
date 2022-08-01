@@ -44,7 +44,7 @@ moduleLoader.setAsync("logger", () => logger);
 
 moduleLoader.setAsync("queue", () => new BackgroundQueue({
 	concurrent: 5,
-	logger: createLogger("CL: Background Queue")
+	logger: createLogger("Background Queue")
 }));
 
 moduleLoader.setPromise("hub", () => new Promise(resolve => {
@@ -66,7 +66,7 @@ moduleLoader.setPromise("steer", () => new Promise(resolve => {
 		process.env.STEER_HOST,
 		process.env.STEER_PORT,
 		serverCategory.webcstool, "WebIMSTool", {
-			logger: createLogger("Steer", { colors: { debug: "magenta" } })
+			logger: createLogger("Steer", { colors: { debug: "bold magenta" } })
 		}
 	);
 
@@ -156,7 +156,7 @@ moduleLoader.final().then(
 			}
 
 			const es = new ExpressServer(modules, {
-				logger: createLogger("Arbiter API"),
+				logger: createLogger("Arbiter API", { colors: { debug: "bold blue" } }),
 				disableCache: true
 			});
 
@@ -183,7 +183,7 @@ moduleLoader.final().then(
 			}
 
 			const es = new ExpressServer(modules, {
-				logger: createLogger("Portal API"),
+				logger: createLogger("Portal API", { colors: { debug: "blue" } }),
 				enableCompression: true
 			});
 
@@ -207,7 +207,7 @@ moduleLoader.final().then(
 			}
 
 			const es = new ExpressServer(modules, {
-				logger: createLogger("Gateway API"),
+				logger: createLogger("Gateway API", { colors: { debug: "italic blue" } }),
 				disableCache: true
 			});
 
@@ -230,7 +230,7 @@ moduleLoader.final().then(
 			}
 
 			const es = new ExpressServer(modules, {
-				logger: createLogger("Admin Panel"),
+				logger: createLogger("Admin Panel", { colors: { debug: "dim blue" } }),
 				enableCompression: true
 			});
 
