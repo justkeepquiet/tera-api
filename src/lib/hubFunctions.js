@@ -11,191 +11,103 @@ class HubFunctions extends HubConnection {
 		super(hubAddr, hubPort, params);
 
 		this.serviceId = serviceId;
-
-		this.on("message", data => {
-			if (data !== null) {
-				// handle incoming messages
-			}
-		});
 	}
 
 	//
 	// OpArb functions
 	//
 
-	opMsg(opMsg, serverId) {
-		const msgData = opArb.opmsg.encode(opMsg).finish();
+	/**
+	 * @return {Promise<opArb.opmsg>}
+	 */
+	opMsg(opMsg, serverId, funcName) {
+		return this.sendMessage(serverId, 1, opArb.opmsg, opArb.opmsg, opMsg, "OpArb", funcName).then(data => { // 1: opmsg
+			const resultCode = readGuid(data.resultCode);
 
-		return this.sendMessage(serverId, 1, msgData).then(data => { // 1: opmsg
-			if (data === null) {
-				return Promise.reject(new HubError("OpArb.opmsg: Failed", 1));
+			if (resultCode.number === this.opMsgResultCode.success) {
+				return Promise.resolve(data);
+			} else {
+				return Promise.reject(
+					new HubError(`OpArb.${opArb.opmsg.name}.${funcName}: ${resultCode.category}:${resultCode.number}`, data.resultCode)
+				);
 			}
-
-			return Promise.resolve(
-				opArb.opmsg.decode(data.msgBuf)
-			);
 		});
 	}
 
+	/**
+	 * @return {Promise<opArb.KickUserAns>}
+	 */
 	kickUser(serverId, userSrl, kickCode) {
-		const msgData = opArb.KickUserReq.encode({ userSrl, kickCode }).finish();
-
-		return this.sendMessage(serverId, 2, msgData).then(data => { // 2: KickUserReq
-			if (data === null) {
-				return Promise.reject(new HubError("OpArb.KickUserReq: Failed", 1));
-			}
-
-			const ans = opArb.KickUserAns.decode(data.msgBuf);
-
-			if (ans.result !== opArb.KickUserAns.result_type.FAILED) {
-				return Promise.resolve(ans);
-			} else {
-				return Promise.reject(
-					new HubError(`OpArb.KickUserAns: ${opArb.KickUserAns.result_type[ans.result]}`, ans.result)
-				);
-			}
-		});
+		return this.sendMessage(serverId, 2, opArb.KickUserReq, opArb.KickUserAns,
+			{ userSrl, kickCode }, "OpArb"); // 2: KickUserReq
 	}
 
+	/**
+	 * @return {Promise<opArb.SendMessageAns>}
+	 */
 	sendMsg(serverId, userSrl, message) {
-		const msgData = opArb.SendMessageReq.encode({ userSrl, message: Buffer.from(message.toString(), "utf16le") }).finish();
-
-		return this.sendMessage(serverId, 4, msgData).then(data => { // 4: SendMessageReq
-			if (data === null) {
-				return Promise.reject(new HubError("OpArb.SendMessageReq: Failed", 1));
-			}
-
-			const ans = opArb.SendMessageAns.decode(data.msgBuf);
-
-			if (ans.result === opArb.SendMessageAns.result_type.SUCCESS) {
-				return Promise.resolve(ans);
-			} else {
-				return Promise.reject(
-					new HubError(`OpArb.SendMessageAns: ${opArb.SendMessageAns.result_type[ans.result]}`, ans.result)
-				);
-			}
-		});
+		return this.sendMessage(serverId, 4, opArb.SendMessageReq, opArb.SendMessageAns,
+			{ userSrl, message: Buffer.from(message.toString(), "utf16le") }, "OpArb"); // 4: SendMessageReq
 	}
 
+	/**
+	 * @return {Promise<opArb.BulkKickAns>}
+	 */
 	bulkKick(serverId, kickCode, filter = 0, filterMask = 0) {
-		const msgData = opArb.BulkKickReq.encode({ kickCode, filter, filterMask }).finish();
-
-		return this.sendMessage(serverId, 6, msgData).then(data => { // 6: BulkKickReq
-			if (data === null) {
-				return Promise.reject(new HubError("OpArb.BulkKickReq: Failed", 1));
-			}
-
-			return Promise.resolve(
-				opArb.BulkKickAns.decode(data.msgBuf)
-			);
-		});
+		return this.sendMessage(serverId, 6, opArb.BulkKickReq, opArb.BulkKickAns,
+			{ kickCode, filter, filterMask }, "OpArb"); // 6: BulkKickReq
 	}
 
+	/**
+	 * @return {Promise<opArb.BoxNotiUserAns>}
+	 */
 	boxNotiUser(serverId, userSrl, charSrl = 0) {
-		const msgData = opArb.BoxNotiUserReq.encode({ serverId, userSrl, charSrl }).finish();
-
-		return this.sendMessage(serverId, 15, msgData).then(data => { // 15: BoxNotiUserReq
-			if (data === null) {
-				return Promise.reject(new HubError("OpArb.BoxNotiUserReq: Failed", 1));
-			}
-
-			const ans = opArb.BoxNotiUserAns.decode(data.msgBuf);
-
-			if (ans.result !== opArb.BoxNotiUserAns.result_type.FAILED) {
-				return Promise.resolve(ans);
-			} else {
-				return Promise.reject(
-					new HubError(`OpArb.BoxNotiUserAns: ${opArb.BoxNotiUserAns.result_type[ans.result]}`, ans.result)
-				);
-			}
-		});
+		return this.sendMessage(serverId, 15, opArb.BoxNotiUserReq, opArb.BoxNotiUserAns,
+			{ serverId, userSrl, charSrl }, "OpArb");// 15: BoxNotiUserReq
 	}
 
+	/**
+	 * @return {Promise<opArb.AddBenefitAns>}
+	 */
 	addBenefit(serverId, userSrl, benefitId, remainSec) {
-		const msgData = opArb.AddBenefitReq.encode({ userSrl, benefitId, remainSec }).finish();
-
-		return this.sendMessage(serverId, 38, msgData).then(data => { // 38: AddBenefitReq
-			if (data === null) {
-				return Promise.reject(new HubError("OpArb.AddBenefitReq: Failed", 1));
-			}
-
-			const ans = opArb.AddBenefitAns.decode(data.msgBuf);
-
-			if (ans.result !== opArb.AddBenefitAns.result_type.FAILED) {
-				return Promise.resolve(ans);
-			} else {
-				return Promise.reject(
-					new HubError(`OpArb.AddBenefitAns: ${opArb.AddBenefitAns.result_type[ans.result]}`, ans.result)
-				);
-			}
-		});
+		return this.sendMessage(serverId, 38, opArb.AddBenefitReq, opArb.AddBenefitAns,
+			{ userSrl, benefitId, remainSec }, "OpArb"); // 38: AddBenefitReq
 	}
 
+	/**
+	 * @return {Promise<opArb.RemoveBenefitAns>}
+	 */
 	removeBenefit(serverId, userSrl, benefitId) {
-		const msgData = opArb.RemoveBenefitReq.encode({ userSrl, benefitId }).finish();
-
-		return this.sendMessage(serverId, 40, msgData).then(data => { // 40: RemoveBenefitReq
-			if (data === null) {
-				return Promise.reject(new HubError("OpArb.RemoveBenefitReq: Failed", 1));
-			}
-
-			const ans = opArb.RemoveBenefitAns.decode(data.msgBuf);
-
-			if (ans.result !== opArb.RemoveBenefitAns.result_type.FAILED) {
-				return Promise.resolve(ans);
-			} else {
-				return Promise.reject(
-					new HubError(`OpArb.RemoveBenefitAns: ${opArb.RemoveBenefitAns.result_type[ans.result]}`, ans.result)
-				);
-			}
-		});
+		return this.sendMessage(serverId, 40, opArb.RemoveBenefitReq, opArb.RemoveBenefitAns,
+			{ userSrl, benefitId }, "OpArb"); // 40: RemoveBenefitReq
 	}
 
 	//
 	// OpUent functions
 	//
 
+	/**
+	 * @return {Promise<opUent.QueryUserAns>}
+	 */
 	queryUser(userSrl, action = 0, serverId = 0) {
-		const msgData = opUent.QueryUserReq.encode({ userSrl, action, serverId }).finish();
-
-		return this.sendMessage(gusid.userenter, 1, msgData).then(data => { // 1: QueryUserReq
-			console.log(data);
-			if (data === null) {
-				return Promise.reject(new HubError("OpUent.QueryUserReq: Failed", 1));
-			}
-
-			return Promise.resolve(
-				opUent.QueryUserAns.decode(data.msgBuf)
-			);
-		});
+		return this.sendMessage(gusid.userenter, 1, opUent.QueryUserReq, opUent.QueryUserAns,
+			{ userSrl, action, serverId }, "OpUent"); // 1: QueryUserReq
 	}
 
+	/**
+	 * @return {Promise<opUent.GetServerStatAns>}
+	 */
 	getServerStat() {
-		const msgData = opUent.GetServerStatReq.encode().finish();
-
-		return this.sendMessage(gusid.userenter, 3, msgData).then(data => { // 3: GetServerStatReq
-			if (data === null) {
-				return Promise.reject(new HubError("OpUent.GetServerStatReq: Failed", 1));
-			}
-
-			return Promise.resolve(
-				opUent.GetServerStatAns.decode(data.msgBuf)
-			);
-		});
+		return this.sendMessage(gusid.userenter, 3, opUent.GetServerStatReq, opUent.GetServerStatAns,
+			{}, "OpUent"); // 3: GetServerStatReq
 	}
 
+	/**
+	 * @return {Promise<opUent.GetAllServerStatAns>}
+	 */
 	getAllServerStat(serverCat) {
-		const msgData = opUent.GetAllServerStatReq.encode({ serverCat }).finish();
-
-		return this.sendMessage(gusid.userenter, 5, msgData).then(data => { // 5: GetAllServerStatReq
-			if (data === null) {
-				return Promise.reject(new HubError("OpUent.GetAllServerStatReq: Failed", 1));
-			}
-
-			return Promise.resolve(
-				opUent.GetAllServerStatAns.decode(data.msgBuf)
-			);
-		});
+		return this.sendMessage(gusid.userenter, 5, opUent.GetAllServerStatReq, opUent.GetAllServerStatAns,
+			{ serverCat }, "OpUent"); // 5: GetAllServerStatReq
 	}
 
 	//
@@ -294,17 +206,9 @@ class HubFunctions extends HubConnection {
 			]
 		});
 
-		return this.opMsg(opMsg, gusid.boxapi).then(data => {
-			const resultCode = readGuid(data.resultCode);
-
-			if (resultCode.number === this.opMsgResultCode.success) {
-				return Promise.resolve(Buffer.from(data.resultScalar).toString());
-			} else {
-				return Promise.reject(
-					new HubError(`OpMsg.CreateBox: ${resultCode.category}:${resultCode.number}`, data.resultCode)
-				);
-			}
-		});
+		return this.opMsg(opMsg, gusid.boxapi, "CreateBox").then(data =>
+			Promise.resolve(Buffer.from(data.resultScalar).toString())
+		);
 	}
 
 	getServiceItem(serviceItemSN) {
@@ -323,28 +227,20 @@ class HubFunctions extends HubConnection {
 			]
 		});
 
-		return this.opMsg(opMsg, gusid.boxapi).then(data => {
-			const resultCode = readGuid(data.resultCode);
+		return this.opMsg(opMsg, gusid.boxapi, "GetServiceItem").then(data => {
+			const resultSets = [];
 
-			if (resultCode.number === this.opMsgResultCode.success) {
-				const resultSets = [];
+			data.resultSets[0].rows.forEach(row => {
+				const resultSet = {};
 
-				data.resultSets[0].rows.forEach(row => {
-					const resultSet = {};
-
-					row.values.forEach((value, column) =>
-						resultSet[data.resultSets[0].columnNames[column].toString()] = value.toString()
-					);
-
-					resultSets.push(resultSet);
-				});
-
-				return Promise.resolve(resultSets);
-			} else {
-				return Promise.reject(
-					new HubError(`OpMsg.GetServiceItem: ${resultCode.category}:${resultCode.number}`, data.resultCode)
+				row.values.forEach((value, column) =>
+					resultSet[data.resultSets[0].columnNames[column].toString()] = value.toString()
 				);
-			}
+
+				resultSets.push(resultSet);
+			});
+
+			return Promise.resolve(resultSets);
 		});
 	}
 
@@ -394,17 +290,9 @@ class HubFunctions extends HubConnection {
 			]
 		});
 
-		return this.opMsg(opMsg, gusid.boxapi).then(data => {
-			const resultCode = readGuid(data.resultCode);
-
-			if (resultCode.number === this.opMsgResultCode.success) {
-				return Promise.resolve(Buffer.from(data.resultScalar).toString());
-			} else {
-				return Promise.reject(
-					new HubError(`OpMsg.CreateServiceItem: ${resultCode.category}:${resultCode.number}`, data.resultCode)
-				);
-			}
-		});
+		return this.opMsg(opMsg, gusid.boxapi, "CreateServiceItem").then(data =>
+			Promise.resolve(Buffer.from(data.resultScalar).toString())
+		);
 	}
 
 	removeServiceItem(serviceItemSN) {
@@ -423,17 +311,9 @@ class HubFunctions extends HubConnection {
 			]
 		});
 
-		return this.opMsg(opMsg, gusid.boxapi).then(data => {
-			const resultCode = readGuid(data.resultCode);
-
-			if (resultCode.number === this.opMsgResultCode.success) {
-				return Promise.resolve();
-			} else {
-				return Promise.reject(
-					new HubError(`OpMsg.SetDisableServiceItem: ${resultCode.category}:${resultCode.number}`, data.resultCode)
-				);
-			}
-		});
+		return this.opMsg(opMsg, gusid.boxapi, "SetDisableServiceItem").then(data =>
+			Promise.resolve()
+		);
 	}
 
 	//

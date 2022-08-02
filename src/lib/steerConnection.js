@@ -60,10 +60,6 @@ class SteerConnection {
 		this.reconnectInterval = setInterval(() => this.reconnect(), 10000);
 
 		this.socket.socket.on("error", err => {
-			if (this.params.logger?.error) {
-				this.params.logger.error(err.toString());
-			}
-
 			if (err.code === "ECONNRESET" || err.code === "EISCONN") {
 				this.connected = false;
 				this.registred = false;
@@ -77,7 +73,11 @@ class SteerConnection {
 		return this.socket.connect(this.steerPort, this.steerAddr).then(() => {
 			this.connected = true;
 			return this.checkRegistered();
-		}).catch(() => {});
+		}).catch(err => {
+			if (this.params.logger?.error) {
+				this.params.logger.error(err.toString());
+			}
+		});
 	}
 
 	reconnect() {
@@ -156,7 +156,7 @@ class SteerConnection {
 		const id = uuid();
 
 		if (this.params.logger?.debug) {
-			this.params.logger.debug(`Send (${id}): ${JSON.stringify(opMsg)}`);
+			this.params.logger.debug(`Send (${id}): ${JSON.stringify(this.formatJson(opMsg))}`);
 		}
 
 		const structFormat = ">HII";
@@ -187,7 +187,7 @@ class SteerConnection {
 				const unserializedData = OpMsg.decode(responseData);
 
 				if (this.params.logger?.debug) {
-					this.params.logger.debug(`Recv (${id}): ${JSON.stringify(unserializedData)}`);
+					this.params.logger.debug(`Recv (${id}): ${JSON.stringify(this.formatJson(unserializedData))}`);
 				}
 
 				return Promise.resolve(unserializedData);
@@ -195,6 +195,22 @@ class SteerConnection {
 		).catch(err =>
 			Promise.reject(new SteerError(`Send failed: ${err}`, 0x000FF005))
 		);
+	}
+
+	formatJson(inObj) {
+		const obj = { ...inObj };
+
+		for (const [key, value] of Object.entries(obj)) {
+			if (Buffer.isBuffer(value)) {
+				obj[key] = Buffer.from(value).toString();
+			} else if (typeof value === "object") {
+				obj[key] = this.formatJson(value);
+			} else {
+				obj[key] = value;
+			}
+		}
+
+		return obj;
 	}
 }
 

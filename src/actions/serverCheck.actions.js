@@ -23,7 +23,9 @@ class ServerCheckActions {
 			this.modules.logger.warn(`ServerCheckActions: ${err}`);
 		}
 
-		return this.modules.serverModel.info.findAll().then(servers =>
+		return this.modules.serverModel.info.findAll({
+			attributes: ["serverId", "loginIp", "loginPort", "isAvailable"]
+		}).then(servers =>
 			servers.forEach(server => {
 				const promise = new Promise((resolve, reject) => {
 					if (stat?.serverList && stat.serverList.find(s => s.serverId == server.get("serverId")) !== undefined) {

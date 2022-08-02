@@ -186,8 +186,7 @@ CREATE TABLE IF NOT EXISTS `report_admin_op` (
   KEY `reportTime` (`reportTime`),
   KEY `userId` (`userId`),
   KEY `userType` (`userType`),
-  KEY `userSn` (`userSn`),
-  FULLTEXT KEY `payload` (`payload`)
+  KEY `userSn` (`userSn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_boxes` (
@@ -200,7 +199,12 @@ CREATE TABLE IF NOT EXISTS `report_boxes` (
   `logId` bigint(20) DEFAULT NULL,
   `context` text NOT NULL,
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `createdAt` (`createdAt`),
+  KEY `logId` (`logId`),
+  KEY `logType` (`logType`),
+  KEY `accountDBID` (`accountDBID`),
+  KEY `boxId` (`boxId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_characters` (
@@ -267,8 +271,8 @@ CREATE TABLE IF NOT EXISTS `report_shop_pay` (
   PRIMARY KEY (`id`),
   KEY `accountDBID` (`accountDBID`),
   KEY `serverId` (`serverId`),
-  KEY `updatedAt` (`updatedAt`),
-  KEY `status` (`status`)
+  KEY `status` (`status`),
+  KEY `createdAt` (`createdAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `server_info` (

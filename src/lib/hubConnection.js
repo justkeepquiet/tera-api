@@ -43,6 +43,7 @@ class HubConnection extends EventEmitter {
 		this.watchServerCategories = {};
 
 		this.socket = null;
+		this.recvTimeout = 5000;
 		this.connected = false;
 		this.registred = false;
 		this.biasCount = 0;
@@ -52,6 +53,7 @@ class HubConnection extends EventEmitter {
 		this.hubAddr = hubAddr;
 		this.hubPort = hubPort;
 		this.params = params;
+		this.recvTimers = new Map();
 	}
 
 	get isConnected() {
@@ -69,18 +71,12 @@ class HubConnection extends EventEmitter {
 		this.reconnectInterval = setInterval(() => this.reconnect(), 10000);
 
 		this.socket.socket.on("error", err => {
-			if (this.params.logger?.error) {
-				this.params.logger.error(err.toString());
-			}
-
 			if (err.code === "ECONNRESET" || err.code === "EISCONN") {
 				this.connected = false;
 				this.registred = false;
 
 				this.reconnect();
 			}
-
-			clearTimeout(this.readTimer);
 		});
 
 		this.socket.socket.on("data", data =>
@@ -90,7 +86,11 @@ class HubConnection extends EventEmitter {
 		return this.socket.connect(this.hubPort, this.hubAddr).then(() => {
 			this.connected = true;
 			return this.register();
-		}).catch(() => {});
+		}).catch(err => {
+			if (this.params.logger?.error) {
+				this.params.logger.error(err.toString());
+			}
+		});
 	}
 
 	reconnect() {
@@ -129,36 +129,109 @@ class HubConnection extends EventEmitter {
 			this.uniqueServerId = (num | num2 | num3);
 		}
 
-		const req = hub.RegisterReq.encode({
+		const reqData = {
 			serverId: makeGuid(this.serviceId, this.uniqueServerId),
 			eventSub: Object.keys(this.watchServerCategories)
-		});
+		};
 
+		const req = hub.RegisterReq.encode(reqData);
 		const msg = Buffer.concat([struct.pack(this.idFormat, 1), req.finish()]); // 1: RegisterReq
 
-		return this.send("RegisterReq", msg).then(() =>
-			new Promise(resolve => {
-				this.once("register", () => resolve());
-			})
-		);
+		if (this.params.logger?.debug) {
+			this.params.logger.debug(`Send RegisterReq: ${JSON.stringify(this.formatJson(reqData))}`);
+		}
+
+		return this.send(msg).then(() => new Promise((resolve, reject) => {
+			this.once("register", data => {
+				clearTimeout(this.recvTimers.get("register"));
+				this.recvTimers.delete("register");
+
+				if (this.params.logger?.info) {
+					this.params.logger.info(`Registred: category ${this.serviceId}, number ${this.uniqueServerId}`);
+				}
+
+				data.serverList.forEach(gusid => {
+					const category = (gusid & 0xFF000000) >> 24;
+
+					if (this.watchServerCategories[category] === undefined) {
+						this.watchServerCategories[category] = new Set();
+					}
+
+					this.watchServerCategories[category].add(gusid);
+				});
+
+				this.registred = true;
+
+				resolve();
+			});
+
+			this.recvTimers.set("register", setTimeout(() =>
+				reject(new HubError("Send RegisterReq: Recv timed out", 0x000FE100)), this.recvTimeout));
+		}));
 	}
 
-	sendMessage(serverId, msgId, msgData) {
+	sendMessage(serverId, msgId, reqFunc, resFunc, msgData, protoName, funcName = null) {
 		if (!this.connected || !this.registred) {
 			return Promise.reject(new HubError("Not registred", 0x000FE003));
 		}
 
+		let label = `${protoName}.${reqFunc.name}`;
+
+		if (funcName) {
+			label += `.${funcName}`;
+		}
+
 		const jobId = ++this.jobId;
-		const msgBuf = Buffer.concat([struct.pack(this.idFormat, msgId), msgData]);
+
+		if (this.params.logger?.debug) {
+			this.params.logger.debug(`Send ${label} (${jobId}): ${JSON.stringify(this.formatJson(msgData))}`);
+		}
+
+		const msgBuf = Buffer.concat([
+			struct.pack(this.idFormat, msgId),
+			reqFunc.encode(msgData).finish()
+		]);
 
 		const req = hub.SendMessageReq.encode({ jobId, serverId, msgBuf });
 		const msg = Buffer.concat([struct.pack(this.idFormat, 3), req.finish()]); // 3: SendMessageReq
 
-		return this.send("SendMessageReq", msg).then(() =>
-			new Promise(resolve => {
-				this.once(jobId, res => resolve(res));
-			})
-		);
+		return this.send(msg).then(() => new Promise((resolve, reject) => {
+			this.once(jobId, data => {
+				clearTimeout(this.recvTimers.get(jobId));
+				this.recvTimers.delete(jobId);
+
+				label = `${protoName}.${resFunc.name}`;
+
+				if (funcName) {
+					label += `.${funcName}`;
+				}
+
+				if (data === null) {
+					return reject(new HubError(`${label}: Failed`, 0x000FE001));
+				}
+
+				const res = resFunc.decode(data.msgBuf);
+
+				if (this.params.logger?.debug) {
+					this.params.logger.debug(`Recv ${label} (${jobId}): ${JSON.stringify(this.formatJson(res))}`);
+				}
+
+				if (res.result !== undefined) {
+					if (res.result !== resFunc.result_type.FAILED) {
+						return resolve(res);
+					}
+
+					return reject(
+						new HubError(`${label}: ${resFunc.result_type[res.result]}`, res.result)
+					);
+				}
+
+				return resolve(res); // opMsg Ans
+			});
+
+			this.recvTimers.set(jobId, setTimeout(() =>
+				reject(new HubError(`Send ${label} (${jobId}): Recv timed out`, 0x000FE100)), this.recvTimeout));
+		}));
 	}
 
 	//
@@ -168,24 +241,12 @@ class HubConnection extends EventEmitter {
 	RegisterAns(data) { // 2
 		const res = hub.RegisterAns.decode(data);
 
+		if (this.params.logger?.debug) {
+			this.params.logger.debug(`Recv RegisterAns: ${JSON.stringify(this.formatJson(res))}`);
+		}
+
 		if (res.result) {
-			if (this.params.logger?.info) {
-				this.params.logger.info(`Registred: category ${this.serviceId}, number ${this.uniqueServerId}`);
-			}
-
-			res.serverList.forEach(gusid => {
-				const category = (gusid & 0xFF000000) >> 24;
-
-				if (this.watchServerCategories[category] === undefined) {
-					this.watchServerCategories[category] = new Set();
-				}
-
-				this.watchServerCategories[category].add(gusid);
-			});
-
-			this.registred = true;
-
-			this.emit("register");
+			this.emit("register", res);
 		} else {
 			this.biasCount++;
 
@@ -200,6 +261,7 @@ class HubConnection extends EventEmitter {
 	SendMessageAns(data) { // 4
 		const res = hub.SendMessageAns.decode(data);
 
+		// Process failed Ans
 		if (!res.result) {
 			if (this.listenerCount(res.jobId) !== 0) {
 				this.emit(res.jobId, null);
@@ -214,29 +276,46 @@ class HubConnection extends EventEmitter {
 	RecvMessageReq(data) { // 5
 		const recv = hub.RecvMessageReq.decode(data);
 
-		const serverID = recv.serverId;
+		const serverId = recv.serverId;
 		const jobId = recv.jobId;
 		const msgId = struct.unpack(this.idFormat, Uint8Array.prototype.slice.call(recv.msgBuf, 0, this.idSize));
 		const msgBuf = Uint8Array.prototype.slice.call(recv.msgBuf, this.idSize);
 
 		if (this.listenerCount(jobId) !== 0) {
-			this.emit(jobId, { serverID, jobId, msgId, msgBuf });
+			this.emit(jobId, { serverId, jobId, msgId, msgBuf });
 		} else {
-			this.emit("message", { serverID, jobId, msgId, msgBuf });
+			if (this.params.logger?.debug) {
+				this.params.logger.debug(`Recv RecvMessageReq: ${JSON.stringify(this.formatJson(recv))}`);
+			}
+
+			this.emit("message", { serverId, jobId, msgId, msgBuf });
 		}
 	}
 
 	PingReq(data) { // 6
 		hub.PingReq.decode(data);
 
+		if (this.params.logger?.debug) {
+			this.params.logger.debug("Recv PingReq");
+		}
+
 		const req = hub.PingAns.encode();
 		const msg = Buffer.concat([struct.pack(this.idFormat, 7), req.finish()]); // 7: PingAns
 
-		return this.send("PingAns", msg);
+		if (this.params.logger?.debug) {
+			this.params.logger.debug("Send PingAns");
+		}
+
+		return this.send(msg);
 	}
 
 	ServerEvent(data) { // 8
 		const res = hub.ServerEvent.decode(data);
+
+		if (this.params.logger?.debug) {
+			this.params.logger.debug(`Recv ServerEvent: ${JSON.stringify(this.formatJson(res))}`);
+		}
+
 		const category = (res.serverId & 0xFF000000) >> 24;
 
 		if (res.event == this.serverEvent.CONNECTED) {
@@ -254,7 +333,7 @@ class HubConnection extends EventEmitter {
 	// Util
 	//
 
-	send(handlerName, msg) {
+	send(msg) {
 		const dataLength = msg.length;
 		const size = this.headerSize + dataLength;
 
@@ -263,10 +342,6 @@ class HubConnection extends EventEmitter {
 		}
 
 		const data = Buffer.concat([struct.pack(this.headerFormat, size), msg]);
-
-		if (this.params.logger?.debug) {
-			this.params.logger.debug(`Send ${handlerName}: ${msg.toString("hex")}`);
-		}
 
 		return this.socket.write(data).then(() =>
 			Promise.resolve()
@@ -308,12 +383,24 @@ class HubConnection extends EventEmitter {
 				continue;
 			}
 
-			if (this.params.logger?.debug) {
-				this.params.logger.debug(`Recv ${this.hubFunctionMap[msgId].name.slice(6)}: ${body.toString("hex")}`);
-			}
-
 			this.hubFunctionMap[msgId](Uint8Array.prototype.slice.call(body, this.idSize));
 		}
+	}
+
+	formatJson(inObj) {
+		const obj = { ...inObj };
+
+		for (const [key, value] of Object.entries(obj)) {
+			if (Buffer.isBuffer(value)) {
+				obj[key] = Buffer.from(value).toString();
+			} else if (typeof value === "object") {
+				obj[key] = this.formatJson(value);
+			} else {
+				obj[key] = value;
+			}
+		}
+
+		return obj;
 	}
 }
 

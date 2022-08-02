@@ -62,7 +62,7 @@ module.exports.secondsToDhms = (__, seconds) => {
 		if (h > 0) r.push(`${h} ${__("hr.")}`);
 		if (m > 0) r.push(`${m} ${__("min.")}`);
 
-		if (r.length === 0 && s > 0)
+		if (r.length === 0)
 			r.push(`${s} ${__("sec.")}`);
 	}
 

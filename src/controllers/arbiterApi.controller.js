@@ -48,11 +48,13 @@ module.exports.GetServerPermission = ({ logger, sequelize, serverModel }) => [
 		const { server_id } = req.body;
 
 		serverModel.maintenance.findOne({
+			attributes: ["id"],
 			where: {
 				startTime: { [Op.lt]: sequelize.fn("NOW") },
 				endTime: { [Op.gt]: sequelize.fn("NOW") }
 			}
 		}).then(maintenance => serverModel.info.findOne({
+			attributes: ["permission", "isCrowdness"],
 			where: { serverId: server_id }
 		}).then(server => {
 			if (server === null) {
