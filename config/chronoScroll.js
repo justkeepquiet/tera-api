@@ -1,8 +1,8 @@
 "use strict";
 
-const Shop = require("../src/actions/shop.actions");
-const Benefit = require("../src/actions/Benefit.actions");
-const ItemClaim = require("../src/actions/itemClaim.actions");
+const Shop = require("../src/actions/handlers/shop");
+const Benefit = require("../src/actions/handlers/benefit");
+const ItemClaim = require("../src/actions/handlers/itemClaim");
 
 // Defaul benefit id for Elite Status
 const benefitId = process.env.API_PORTAL_BENEFIT_ID_ELITE_STATUS || 533; // RU VIP
@@ -22,9 +22,9 @@ const boxContext = {
 	days: 365,
 
 	// List of items in the box
-	// You can only use the IDs of Service Items configured in the Box Web panel
 	items: [
-		{ item_id: 1, item_count: 1 }
+		{ item_template_id: 207018, item_count: 1 }, // (207018) Care and Use of Your Pet Candyspinner (15 Days)
+		{ item_template_id: 81207, item_count: 1000 } // (81207) Tikat
 	]
 };
 

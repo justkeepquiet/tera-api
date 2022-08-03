@@ -211,6 +211,71 @@ class HubFunctions extends HubConnection {
 		);
 	}
 
+	getPageServiceItem(serviceItemMappingItemSN = null, offset = 0, count = 10) {
+		const opMsg = opArb.opmsg.create({
+			gufid: makeGuid(serverCategory.boxapi, 115), // GetPageServiceItem
+			senderGusid: makeGuid(this.serviceId, 0),
+			receiverGusid: makeGuid(serverCategory.boxapi, 0),
+			execType: opArb.opmsg.ExecType.EXECUTE,
+			jobType: opArb.opmsg.JobType.REQUEST,
+
+			arguments: [
+				opArb.opmsg.Argument.create({
+					name: Buffer.from("offset"),
+					value: Buffer.from(offset.toString())
+				}),
+				opArb.opmsg.Argument.create({
+					name: Buffer.from("count"),
+					value: Buffer.from(count.toString())
+				}),
+				opArb.opmsg.Argument.create({
+					name: Buffer.from("serviceItemSN"),
+					value: Buffer.from("")
+				}),
+				opArb.opmsg.Argument.create({
+					name: Buffer.from("serviceItemServiceSN"),
+					value: Buffer.from("")
+				}),
+				opArb.opmsg.Argument.create({
+					name: Buffer.from("serviceItemMappingItemSN"),
+					value: Buffer.from(serviceItemMappingItemSN ? serviceItemMappingItemSN.toString() : "")
+				}),
+				opArb.opmsg.Argument.create({
+					name: Buffer.from("serviceItemName"),
+					value: Buffer.from("")
+				}),
+				opArb.opmsg.Argument.create({
+					name: Buffer.from("serviceItemEnableFlag"),
+					value: Buffer.from("1")
+				}),
+				opArb.opmsg.Argument.create({
+					name: Buffer.from("sort"),
+					value: Buffer.from("serviceItemSN")
+				}),
+				opArb.opmsg.Argument.create({
+					name: Buffer.from("dir"),
+					value: Buffer.from("desc")
+				})
+			]
+		});
+
+		return this.opMsg(opMsg, gusid.boxapi, "GetPageServiceItem").then(data => {
+			const resultSets = [];
+
+			data.resultSets[0].rows.forEach(row => {
+				const resultSet = {};
+
+				row.values.forEach((value, column) =>
+					resultSet[data.resultSets[0].columnNames[column].toString()] = value.toString()
+				);
+
+				resultSets.push(resultSet);
+			});
+
+			return Promise.resolve(resultSets);
+		});
+	}
+
 	getServiceItem(serviceItemSN) {
 		const opMsg = opArb.opmsg.create({
 			gufid: makeGuid(serverCategory.boxapi, 116), // GetServiceItem

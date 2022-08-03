@@ -21,15 +21,27 @@ class ServiceItem {
 					return Promise.resolve(Number(serviceItemId));
 				}
 
-				return this.create(itemTemplateId, title, description, userSn).then(newServiceItemId =>
-					Promise.resolve(Number(newServiceItemId))
+				return this.getCreate(itemTemplateId, title, description, userSn).then(newServiceItemId =>
+					Promise.resolve(newServiceItemId)
 				);
 			});
 		}
 
-		return this.create(itemTemplateId, title, description, userSn).then(newServiceItemId =>
-			Promise.resolve(Number(newServiceItemId))
+		return this.getCreate(itemTemplateId, title, description, userSn).then(newServiceItemId =>
+			Promise.resolve(newServiceItemId)
 		);
+	}
+
+	getCreate(itemTemplateId, title, description, userSn = 0) {
+		return this.getByTemplateId(itemTemplateId).then(existsServiceItemId => {
+			if (existsServiceItemId !== null) {
+				return Promise.resolve(existsServiceItemId);
+			}
+
+			return this.create(itemTemplateId, title, description, userSn).then(newServiceItemId =>
+				Promise.resolve(newServiceItemId)
+			);
+		});
 	}
 
 	create(itemTemplateId, title, description, userSn = 0) {
@@ -50,6 +62,12 @@ class ServiceItem {
 	checkExists(serviceItemId) {
 		return this.modules.hub.getServiceItem(serviceItemId).then(resultSet =>
 			Promise.resolve(resultSet.length > 0 && !!parseInt(resultSet[0].serviceItemEnableFlag))
+		);
+	}
+
+	getByTemplateId(itemTemplateId) {
+		return this.modules.hub.getPageServiceItem(itemTemplateId, 0, 1).then(resultSet =>
+			Promise.resolve(resultSet.length > 0 ? Number(resultSet[0].serviceItemSN) : null)
 		);
 	}
 }

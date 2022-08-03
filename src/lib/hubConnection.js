@@ -129,22 +129,36 @@ class HubConnection extends EventEmitter {
 			this.uniqueServerId = (num | num2 | num3);
 		}
 
+		const jobId = -this.uniqueServerId;
+
 		const reqData = {
 			serverId: makeGuid(this.serviceId, this.uniqueServerId),
 			eventSub: Object.keys(this.watchServerCategories)
 		};
 
+		if (this.params.logger?.debug) {
+			this.params.logger.debug(`Send RegisterReq (${jobId}): ${JSON.stringify(this.formatJson(reqData))}`);
+		}
+
 		const req = hub.RegisterReq.encode(reqData);
 		const msg = Buffer.concat([struct.pack(this.idFormat, 1), req.finish()]); // 1: RegisterReq
 
-		if (this.params.logger?.debug) {
-			this.params.logger.debug(`Send RegisterReq: ${JSON.stringify(this.formatJson(reqData))}`);
-		}
-
 		return this.send(msg).then(() => new Promise((resolve, reject) => {
-			this.once("register", data => {
-				clearTimeout(this.recvTimers.get("register"));
-				this.recvTimers.delete("register");
+			this.once(jobId, data => {
+				clearTimeout(this.recvTimers.get(jobId));
+				this.recvTimers.delete(jobId);
+
+				if (data === null) {
+					this.biasCount++;
+
+					if (this.biasCount > 10000) {
+						return Promise.reject(new HubError("Can't register server", 0x000FE002));
+					}
+
+					return this.connect().then(() =>
+						resolve()
+					);
+				}
 
 				if (this.params.logger?.info) {
 					this.params.logger.info(`Registred: category ${this.serviceId}, number ${this.uniqueServerId}`);
@@ -165,8 +179,8 @@ class HubConnection extends EventEmitter {
 				resolve();
 			});
 
-			this.recvTimers.set("register", setTimeout(() =>
-				reject(new HubError("Send RegisterReq: Recv timed out", 0x000FE100)), this.recvTimeout));
+			this.recvTimers.set(jobId, setTimeout(() =>
+				reject(new HubError(`Send RegisterReq (${jobId}): Recv timed out`, 0x000FE100)), this.recvTimeout));
 		}));
 	}
 
@@ -240,22 +254,13 @@ class HubConnection extends EventEmitter {
 
 	RegisterAns(data) { // 2
 		const res = hub.RegisterAns.decode(data);
+		const jobId = -this.uniqueServerId;
 
 		if (this.params.logger?.debug) {
-			this.params.logger.debug(`Recv RegisterAns: ${JSON.stringify(this.formatJson(res))}`);
+			this.params.logger.debug(`Recv RegisterAns (${jobId}): ${JSON.stringify(this.formatJson(res))}`);
 		}
 
-		if (res.result) {
-			this.emit("register", res);
-		} else {
-			this.biasCount++;
-
-			if (this.biasCount > 10000) {
-				return Promise.reject(new HubError("Can't register server", 0x000FE002));
-			}
-
-			this.connect();
-		}
+		this.emit(jobId, res.result ? res : null);
 	}
 
 	SendMessageAns(data) { // 4

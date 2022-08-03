@@ -1,8 +1,8 @@
 "use strict";
 
-const Shop = require("../src/actions/shop.actions");
-const Benefit = require("../src/actions/Benefit.actions");
-const ItemClaim = require("../src/actions/itemClaim.actions");
+const Shop = require("../src/actions/handlers/shop");
+const Benefit = require("../src/actions/handlers/benefit");
+const ItemClaim = require("../src/actions/handlers/itemClaim");
 
 const benefitId = process.env.API_PORTAL_BENEFIT_ID_ELITE_STATUS || 533; // RU VIP
 
@@ -27,9 +27,8 @@ module.exports = {
 		[ItemClaim, {
 			makeBox: [{ ...boxContext,
 				// List of items in the box
-				// You can only use the IDs of Service Items configured in the Box Web panel
 				items: [
-					{ item_id: 1, item_count: 1 } // Scroll 70 lvl
+					{ item_template_id: 207631, item_count: 1 } // (207631) Level 70 Scroll
 				]
 			}]
 		}]
