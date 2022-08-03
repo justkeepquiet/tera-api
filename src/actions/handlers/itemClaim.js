@@ -4,6 +4,7 @@
  * @typedef {import("../../app").modules} modules
  */
 
+const { formatStrsheet } = require("../../utils/helpers");
 const { ServiceItem, Box } = require("../../utils/boxHelper");
 
 class ItemClaim {
@@ -24,13 +25,33 @@ class ItemClaim {
 		const promises = [];
 
 		context.items.forEach((item, i) => {
-			if (!item.item_id && item.item_template_id) {
-				promises.push(this.serviceItem.getCreate(item.item_template_id, "undefined", "undefined").then(serviceItemId => {
-					if (serviceItemId) {
-						context.items[i].item_id = serviceItemId;
-					}
-				}));
+			if (item.item_id || !item.item_template_id) {
+				return;
 			}
+
+			promises.push(
+				this.modules.dataModel.itemTemplates.findOne({
+					where: { itemTemplateId: item.item_template_id },
+					include: [{
+						as: "strings",
+						model: this.modules.dataModel.itemStrings,
+						required: false
+					}]
+				}).then(itemTemplate => {
+					if (itemTemplate !== null) {
+						const title = itemTemplate.get("strings")[0]?.get("string") || "undefined";
+						const description = formatStrsheet(itemTemplate.get("strings")[0]?.get("toolTip")) || "undefined";
+
+						return this.serviceItem.getCreate(item.item_template_id, title, description).then(serviceItemId => {
+							if (serviceItemId) {
+								context.items[i].item_id = serviceItemId;
+							}
+						});
+					} else {
+						this.modules.logger.error(`Cannot create Service Item for ItemTemplateId ${item.item_template_id}: non-existent template`);
+					}
+				})
+			);
 		});
 
 		return Promise.all(promises).then(() =>
