@@ -20,7 +20,6 @@ const dataElements = new Map();
 const conversionElements = [];
 const skillIconsElements = [];
 
-/*
 console.log("Loading StrSheet files...");
 
 if (fs.existsSync(strSheetDirPath)) {
@@ -44,8 +43,6 @@ if (fs.existsSync(strSheetDirPath)) {
 } else {
 	console.error("StrSheet directory not found.");
 }
-*/
-
 
 console.log("Loading data files...");
 
@@ -67,7 +64,6 @@ if (fs.existsSync(dataDirPath)) {
 	console.error("Data directory not found.");
 }
 
-/*
 console.log("Loading conversion files...");
 
 if (fs.existsSync(conversionDirPath)) {
@@ -101,9 +97,7 @@ if (fs.existsSync(conversionDirPath)) {
 } else {
 	console.error("ConversionDirPath directory not found.");
 }
-*/
 
-/*
 console.log("Loading SkillIcons files...");
 
 if (fs.existsSync(skillIconsDataDirPath)) {
@@ -127,8 +121,6 @@ if (fs.existsSync(skillIconsDataDirPath)) {
 } else {
 	console.error("SkillIcons directory not found.");
 }
-*/
-
 
 const sequelize = new Sequelize(
 	process.env.DB_DATABASE,
@@ -155,7 +147,6 @@ const sequelize = new Sequelize(
 sequelize.authenticate().then(async () => {
 	const dataModel = require("../models/data.model")(sequelize, DataTypes);
 
-	/*
 	console.log("Adding strSheet elements...");
 	const strSheetTotal = strSheetElements.length;
 
@@ -169,8 +160,6 @@ sequelize.authenticate().then(async () => {
 
 		console.log(index, "/", strSheetTotal, "Added:", itemStrings.id);
 	}
-	*/
-
 
 	console.log("Adding data elements...");
 	const dataTotal = dataElements.size;
@@ -199,7 +188,6 @@ sequelize.authenticate().then(async () => {
 		console.log(++i, "/", dataTotal, "Added:", itemTemplate.id, itemTemplate.name);
 	}
 
-	/*
 	console.log("Adding conversion elements...");
 	const conversionTotal = conversionElements.length;
 
@@ -208,9 +196,7 @@ sequelize.authenticate().then(async () => {
 
 		console.log(index, "/", conversionTotal, "Added:", conversion.itemTemplateId, conversion.fixedItemTemplateId);
 	}
-	*/
 
-	/*
 	console.log("Adding skillIcons elements...");
 	const skillIconsTotal = skillIconsElements.length;
 
