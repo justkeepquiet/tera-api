@@ -376,13 +376,9 @@ module.exports.PartialWelcomeHtml = ({ logger, accountModel, serverModel }) => [
 				where: { serverId: req.user.lastLoginServer }
 			});
 
-			const benefits = {};
-
-			(await accountModel.benefits.findAll({
+			const benefits = await accountModel.benefits.findAll({
 				where: { accountDBID: req.user.accountDBID }
-			})).forEach(benefitData =>
-				benefits[benefitData.get("benefitId")] = benefitData.get("availableUntil")
-			);
+			});
 
 			res.render("partials/shopWelcome", {
 				moment,
