@@ -81,7 +81,7 @@ function apiRequest(action, params) {
 	var response = null;
 
 	$.ajax({
-		url: "/tera/" + action,
+		url: "/tera/" + action + "?ts=" + Date.now(),
 		method: params ? "post" : "get",
 		data: params,
 		async: false,
