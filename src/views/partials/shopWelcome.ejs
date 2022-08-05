@@ -3,20 +3,22 @@ const activeBenefits = benefits.filter(b => !moment().isAfter(b.get("availableUn
 
 const founder = activeBenefits.filter(b => shopConfig.founderBenefits.map(a => parseInt(a)).includes(b.get("benefitId")));
 const premium = activeBenefits.filter(b => shopConfig.premiumBenefits.map(a => parseInt(a)).includes(b.get("benefitId")));
-const pcClub = activeBenefits.filter(b => shopConfig.pcClubBenefits.map(a => parseInt(a)).includes(b.get("benefitId")));
+const pcCafe = activeBenefits.filter(b => shopConfig.pcCafeBenefits.map(a => parseInt(a)).includes(b.get("benefitId")));
 _%>
 <div class="main hero-unit white-text">
 	<h2><%= __("Welcome!") %></h2><hr>
 	<%= __("You are playing on the server") %>: <b><%= server.get("nameString") %></b><br>
 	<%_ if (premium.length) { _%>
-	<%- __("Premium status account") %>: <b><%= __("Yes") %></b> (<%- __("%s days left", `<b>${moment(premium[0].get("availableUntil")).diff(moment(), "days")}</b>`) %>)<br>
+	<%_ const premiumDays = moment(premium[0].get("availableUntil")).diff(moment(), "days"); _%>
+	<%- __("Premium status account") %>: <b><%= __("Yes") %></b><%- premiumDays < 365 ? ` (${__("%s days left", `<b>${premiumDays}</b>`)})` : "" %><br>
 	<%_ } else { _%>
 	<%- __("Premium status account") %>: <b><%= __("No") %></b><br>
 	<%_ } _%>
-	<%_ if (pcClub.length) { _%>
-	<%- __("PC Club account") %>: <b><%= __("Yes") %></b> (<%- __("%s days left", `<b>${moment(pcClub[0].get("availableUntil")).diff(moment(), "days")}</b>`) %>)<br>
+	<%_ if (pcCafe.length) { _%>
+	<%_ const pcCafeDays = moment(pcCafe[0].get("availableUntil")).diff(moment(), "days"); _%>
+	<%- __("PC Cafe account") %>: <b><%= __("Yes") %></b><%- pcCafeDays < 365 ? ` (${__("%s days left", `<b>${pcCafeDays}</b>`)})` : "" %><br>
 	<%_ } else { _%>
-	<%- __("PC Club account") %>: <b><%= __("No") %></b><br>
+	<%- __("PC Cafe account") %>: <b><%= __("No") %></b><br>
 	<%_ } _%>
 	<%- __("Founder account") %>: <b><%= founder.length ? __("Yes") : __("No") %></b>
 </div>

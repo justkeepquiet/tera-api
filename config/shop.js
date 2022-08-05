@@ -20,7 +20,7 @@ module.exports = {
 		"520",
 		"701"
 	],
-	pcClubBenefits: [
+	pcCafeBenefits: [
 		"800",
 		"801",
 		"802",
