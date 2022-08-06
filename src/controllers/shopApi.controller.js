@@ -69,7 +69,7 @@ module.exports.FundByUserNo = modules => [
 					}
 				);
 
-				shop.fund(amount).then(() =>
+				return shop.fund(amount).then(() =>
 					resultJson(res, 0, "success")
 				);
 			})
