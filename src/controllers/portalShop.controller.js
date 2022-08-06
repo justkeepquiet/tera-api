@@ -341,8 +341,6 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataM
 					productObj.rareGrade = firstItem.get("template").get("rareGrade");
 				}
 
-				console.log(firstItem.get("template").get("requiredRace"));
-
 				productObj.requiredLevel = firstItem.get("template").get("requiredLevel");
 				productObj.requiredClass = firstItem.get("template").get("requiredClass")?.split(";") || [];
 				productObj.requiredGender = firstItem.get("template").get("requiredGender");
