@@ -4,7 +4,7 @@ const Shop = require("../src/actions/handlers/shop");
 const Benefit = require("../src/actions/handlers/benefit");
 const ItemClaim = require("../src/actions/handlers/itemClaim");
 
-// Defaul benefit id for Elite Status
+// Default benefit id for Elite Status
 const benefitId = process.env.API_PORTAL_BENEFIT_ID_ELITE_STATUS || 533; // RU VIP
 
 // Box Context for Elite Status Voucher Benefit

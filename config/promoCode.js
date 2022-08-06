@@ -4,9 +4,10 @@ const Shop = require("../src/actions/handlers/shop");
 const Benefit = require("../src/actions/handlers/benefit");
 const ItemClaim = require("../src/actions/handlers/itemClaim");
 
+// Default benefit id for Elite Status
 const benefitId = process.env.API_PORTAL_BENEFIT_ID_ELITE_STATUS || 533; // RU VIP
 
-// Box Context for Elite Status Voucher Benefit
+// Box Context base settings for sending items on Promo code activation
 const boxContext = {
 	// Title of the box sent to the player
 	title: "Promo Code Activation",
@@ -21,6 +22,8 @@ const boxContext = {
 	days: 365
 };
 
+// List of Promo code functions, linked with certain promo code.
+// The functions specified here are automatically displayed in the Admin Panel.
 module.exports = {
 	// FREE-70-LVLUP
 	add_item_70_scroll: [
