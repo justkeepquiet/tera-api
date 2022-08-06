@@ -184,7 +184,8 @@ moduleLoader.final().then(
 
 			const es = new ExpressServer(modules, {
 				logger: createLogger("Portal API", { colors: { debug: "blue" } }),
-				enableCompression: true
+				enableCompression: true,
+				disableCache: true
 			});
 
 			if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
