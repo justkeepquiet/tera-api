@@ -54,7 +54,7 @@ The Steer Server allows you to flexibly manage permissions to certain sections o
 
 1. [Install and configure](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) the Steer Server, Box Server.
 2. Go to your TERA Server **arb_gw** directory and open config **config_arb_gw.txt**.
-3. Modify the patamerer `web_shop_url` value as `http://YOUR_API_HOST/tera/ShopAuth?authKey=%s`, where `YOUR_API_HOST` specify your TERA API host.
+3. Modify the patamerer `web_shop_url` value as `http://YOUR_API_HOST/tera/ShopAuth?authKey=%s`, where `YOUR_API_HOST` specify your TERA API (Portal API) host.
 4. Go to your TERA Server **Bin** directory and open **DeploymentConfig.xml**.
 5. Remove or comment the line like this `<Shop url="..." />`.
 6. Open your **.env** and set the `API_PORTAL_SHOP_ENABLE` parameter to `true`.
