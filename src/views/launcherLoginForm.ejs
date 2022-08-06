@@ -37,6 +37,7 @@
 		parent.$(".region").click(function() {
 			localStorage.REGION = $(this).data("region");
 			parent.Launcher.setRegion($(this).data("region"), true);
+			parent.Launcher.abortPatch();
 		});
 
 		$("#userLoginForm").submit(function() {
@@ -63,6 +64,7 @@
 
 		q("#qaRegion").on("change", function() {
 			parent.Launcher.setRegion(this.value, true);
+			parent.Launcher.abortPatch();
 			localStorage.REGION = this.value;
 		});
 
@@ -140,6 +142,7 @@
 	function logout() {
 		localStorage.ACCOUNT_ID = null;
 		localStorage.AUTH_KEY = null;
+		parent.Launcher.abortPatch();
 		parent.Launcher.showLoginIFrame();
 	}
 </script>
