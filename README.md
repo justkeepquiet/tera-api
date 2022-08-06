@@ -60,3 +60,7 @@ The Steer Server allows you to flexibly manage permissions to certain sections o
 6. Open your **.env** and set the `API_PORTAL_SHOP_ENABLE` parameter to `true`.
 
 TERA Shop products are configured through the TERA API Admin Panel. The creation of a Service Item in the Box System occurs automatically when a product is added (using the Platform Hub).
+
+### Additional Settings
+
+You can further setting of Promo codes, Chronoscrolls (Premium Items), Admin Panel and Shop by editing the files in the **config** directory.
