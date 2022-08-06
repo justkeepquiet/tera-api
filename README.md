@@ -74,3 +74,9 @@ If you need to implement a Shop balance change using your external billing site,
 The following endpoints are currently available:
 * **/shopApi/GetAccountInfoByUserNo** - Request the Shop balance of the specified account (request: `POST`, required fields: `userNo`).
 * **/shopApi/FundByUserNo** - Fund the Shop balance of the specified account (request: `POST`, required fields: `userNo`, `transactionId`, `amount`).
+
+## TERA Client Data (Datasheets)
+
+The API and the Shop require data on item templates, item conversions, item strings etc. This data is uploaded into the MySQL database (data for patch 100.02 is already included). The API also requires client some datasheets placed into directory **data\datasheets** (the necessary datasheets for patch 100.02 already included).
+
+If you plan to use the API with another TERA patch, you will need to update this data. To update the data in the MySQL database, you can use tool **src\tools\dataItemsUpdater.js**, launched by command `node src/tools/dataItemsUpdater.js [lang]`. For it to work, you need to place the client datasheets (unpacked by program [novadrop-dc](https://github.com/vezel-dev/novadrop), [download](https://drive.google.com/drive/folders/1U1w4GgEgEoeayX3dmMryIX70ztdisCl9?usp=sharing)) into directory **share\dataitems\[lang]**. Where **lang** specify your datasheet language code, like **en**, **ru**, etc.
