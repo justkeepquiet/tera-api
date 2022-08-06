@@ -64,3 +64,11 @@ TERA Shop products are configured through the TERA API Admin Panel. The creation
 ### Additional Settings
 
 You can further setting of Promo codes, Chronoscrolls (Premium Items), Admin Panel and Shop by editing the files in the **config** directory.
+
+## Gateway API Server
+
+The API includes one more server (Gateway API Server) designed for remote access to data managed by the API and performing certain actions, such as requesting the Shop balance, funding the Shop balance, etc.
+
+The following endpoints are currently available:
+* **/shopApi/GetAccountInfoByUserNo** - Request the Shop balance of the specified account (request: `POST`, required fields: `userNo`).
+* **/shopApi/FundByUserNo** - Fund the Shop balance of the specified account (request: `POST`, required fields: `userNo`, `transactionId`, `amount`).
