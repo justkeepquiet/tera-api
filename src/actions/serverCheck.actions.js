@@ -29,7 +29,7 @@ class ServerCheckActions {
 			servers.forEach(server => {
 				const promise = new Promise((resolve, reject) => {
 					if (stat?.serverList && stat.serverList.find(s => s.serverId == server.get("serverId")) !== undefined) {
-						resolve(true);
+						return resolve(true);
 					}
 
 					isPortReachable(server.get("loginPort"), { host: server.get("loginIp"), timeout: 5000 }).then(status =>

@@ -9,7 +9,7 @@ module.exports.readGuid = guid =>
 ;
 
 module.exports.gusid = {
-	userenter: 4278190080,
+	userentity: 4278190080,
 	boxapi: 268435457, // (16 << 24) + 1
 	steersession: 167772160, // (10 << 24) + 0
 	steermind: 67108864 // (4 << 24) + 0

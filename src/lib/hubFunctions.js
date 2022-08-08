@@ -90,7 +90,7 @@ class HubFunctions extends HubConnection {
 	 * @return {Promise<opUent.QueryUserAns>}
 	 */
 	queryUser(userSrl, action = 0, serverId = 0) {
-		return this.sendMessage(gusid.userenter, 1, opUent.QueryUserReq, opUent.QueryUserAns,
+		return this.sendMessage(gusid.userentity, 1, opUent.QueryUserReq, opUent.QueryUserAns,
 			{ userSrl, action, serverId }, "OpUent"); // 1: QueryUserReq
 	}
 
@@ -98,7 +98,7 @@ class HubFunctions extends HubConnection {
 	 * @return {Promise<opUent.GetServerStatAns>}
 	 */
 	getServerStat() {
-		return this.sendMessage(gusid.userenter, 3, opUent.GetServerStatReq, opUent.GetServerStatAns,
+		return this.sendMessage(gusid.userentity, 3, opUent.GetServerStatReq, opUent.GetServerStatAns,
 			{}, "OpUent"); // 3: GetServerStatReq
 	}
 
@@ -106,7 +106,7 @@ class HubFunctions extends HubConnection {
 	 * @return {Promise<opUent.GetAllServerStatAns>}
 	 */
 	getAllServerStat(serverCat) {
-		return this.sendMessage(gusid.userenter, 5, opUent.GetAllServerStatReq, opUent.GetAllServerStatAns,
+		return this.sendMessage(gusid.userentity, 5, opUent.GetAllServerStatReq, opUent.GetAllServerStatAns,
 			{ serverCat }, "OpUent"); // 5: GetAllServerStatReq
 	}
 
