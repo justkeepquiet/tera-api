@@ -45,7 +45,7 @@ class ServiceItem {
 	}
 
 	create(itemTemplateId, title, description, userSn = 0) {
-		const time = moment().utc().format("YYYY-MM-DD HH:mm:ss");
+		const time = moment().format("YYYY-MM-DD HH:mm:ss");
 		const tag = "1,1,1";
 
 		return this.modules.hub.createServiceItem(userSn || 0, itemTemplateId, 1, time, true, title, description, tag).then(serviceItemId =>
@@ -81,8 +81,8 @@ class Box {
 	}
 
 	create(boxContext, userId, serverId = null, characterId = null, externalTransactionKey = null) {
-		const startDate = moment().utc().format("YYYY-MM-DD HH:mm:ss");
-		const endDate = moment().utc().add(boxContext.days, "days").format("YYYY-MM-DD HH:mm:ss");
+		const startDate = moment().format("YYYY-MM-DD HH:mm:ss");
+		const endDate = moment().add(boxContext.days, "days").format("YYYY-MM-DD HH:mm:ss");
 
 		const itemData = [];
 		const boxTagData = [
