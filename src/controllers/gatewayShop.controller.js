@@ -5,22 +5,22 @@
  * @typedef {import("express").RequestHandler} RequestHandler
  */
 
-const body = require("express-validator").body;
+const { query, body } = require("express-validator");
 const Shop = require("../actions/handlers/shop");
 
-const { validationHandler, resultJson } = require("../middlewares/shopApi.middlewares");
+const { validationHandler, resultJson } = require("../middlewares/gateway.middlewares");
 
 /**
  * @param {modules} modules
  */
 module.exports.GetAccountInfoByUserNo = ({ logger, shopModel }) => [
-	[body("userNo").notEmpty()],
+	[query("userNo").notEmpty()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		const { userNo } = req.body;
+		const { userNo } = req.query;
 
 		shopModel.accounts.findOne({ where: { accountDBID: userNo } }).then(account => {
 			if (account === null) {

@@ -67,13 +67,16 @@ You can further setting of Promo codes, Chronoscrolls (Premium Items), Admin Pan
 
 ## Gateway API Server
 
-The API includes one more server (Gateway API Server) designed for remote access to data managed by the API and performing certain actions, such as requesting the Shop balance, funding the Shop balance, etc.
+The API includes one more server (Gateway API Server) designed for remote access to data managed by the API and performing certain actions, such as requesting the server online monitoring, Shop balance, funding the Shop balance, etc.
 
 If you need to implement a Shop balance change using your external billing site, please use this API instead of directly changing the database.
 
 The following endpoints are currently available:
-* **/shopApi/GetAccountInfoByUserNo** - Request the Shop balance of the specified account (request: `POST`, required fields: `userNo`).
-* **/shopApi/FundByUserNo** - Fund the Shop balance of the specified account (request: `POST`, required fields: `userNo`, `transactionId`, `amount`).
+
+* **/serverApi/GetServerInfoByServerId** - Request the server information of specified server ID (request: `GET`, required fields: `serverId`).
+* **/accountApi/GetAccountInfoByUserNo** - Request the account information of specified account ID (request: `GET`, required fields: `userNo`).
+* **/shopApi/GetAccountInfoByUserNo** - Request the Shop balance of the specified account ID (request: `GET`, required fields: `userNo`).
+* **/shopApi/FundByUserNo** - Fund the Shop balance of the specified account ID (request: `POST`, required fields: `userNo`, `transactionId`, `amount`).
 
 ## TERA Client Data (Datasheets)
 
