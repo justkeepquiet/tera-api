@@ -71,12 +71,14 @@ The API includes one more server (Gateway API Server) designed for remote access
 
 If you need to implement a Shop balance change using your external billing site, please use this API instead of directly changing the database.
 
-The following endpoints are currently available:
+### Available endpoints
 
-* **/serverApi/GetServerInfoByServerId** - Request the server information of specified server ID (request: `GET`, required fields: `serverId`).
-* **/accountApi/GetAccountInfoByUserNo** - Request the account information of specified account ID (request: `GET`, required fields: `userNo`).
-* **/shopApi/GetAccountInfoByUserNo** - Request the Shop balance of the specified account ID (request: `GET`, required fields: `userNo`).
-* **/shopApi/FundByUserNo** - Fund the Shop balance of the specified account ID (request: `POST`, required fields: `userNo`, `transactionId`, `amount`).
+Endpoint | Method | Arguments | Description
+--- | --- | --- | ---
+/serverApi/GetServerInfoByServerId | GET | serverId | Request the server information of specified server ID.
+/accountApi/GetAccountInfoByUserNo | GET | userNo | Request the account information of specified account ID.
+/shopApi/GetAccountInfoByUserNo | GET | userNo | Request the Shop balance of the specified account ID.
+/shopApi/FundByUserNo | POST | userNo, transactionId, amount | Fund the Shop balance of the specified account ID.
 
 ## TERA Client Data (Datasheets)
 
