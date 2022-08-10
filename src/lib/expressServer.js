@@ -76,9 +76,13 @@ class ExpressServer {
 			}
 
 			this.app.use(morgan(logFormat, {
-				stream: {
-					write: text => this.logger.info(text.trim())
-				}
+				skip: (req, res) => res.statusCode < 400,
+				stream: { write: text => this.logger.warn(text.trim()) }
+			}));
+
+			this.app.use(morgan(logFormat, {
+				skip: (req, res) => res.statusCode >= 400,
+				stream: { write: text => this.logger.info(text.trim()) }
 			}));
 		}
 	}
