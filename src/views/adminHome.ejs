@@ -175,7 +175,7 @@
 						data.activityReport.forEach(report => {
 							$("#activityReport").append(
 								"<tr>" +
-									"<td>" + report.reportTime + "</td>" +
+									"<td class=\"text-nowrap\">" + report.reportTime + "</td>" +
 									"<td>" + report.reportType + "</td>" +
 									"<td>" + report.ip + "</td>" +
 									"<td>" + report.accountDBID + "</td>" +
@@ -191,7 +191,7 @@
 						data.payLogs.forEach(report => {
 							$("#payLogs").append(
 								"<tr>" +
-									"<td>" + report.createdAt + "</td>" +
+									"<td class=\"text-nowrap\">" + report.createdAt + "</td>" +
 									"<td>" + report.accountDBID + "</td>" +
 									"<td>" + report.serverId + "</td>" +
 									"<td><a href=\"/shop_products/edit?id=" + report.productId + "\">" + report.productId + "</a></td>" +
@@ -208,7 +208,7 @@
 						data.cheatsReport.forEach(report => {
 							$("#cheatsReport").append(
 								"<tr>" +
-									"<td>" + report.reportTime + "</td>" +
+									"<td class=\"text-nowrap\">" + report.reportTime + "</td>" +
 									"<td>" + report.accountDBID + "</td>" +
 									"<td>" + report.name + "</td>" +
 									"<td>" + report.skill + "</td>" +
