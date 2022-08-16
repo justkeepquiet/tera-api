@@ -211,7 +211,6 @@ sequelize.authenticate().then(async () => {
 
 		console.log(index, "/", skillIconsTotal, "Added:", skillIcon.skillId);
 	}
-	*/
 
 	sequelize.close();
 });
