@@ -114,10 +114,10 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 					});
 				}
 
-				return Promise.all(promises).then(() =>
-					next()
-				);
+				return Promise.all(promises);
 			})
+		).then(() =>
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
@@ -320,9 +320,9 @@ module.exports.deleteAction = ({ logger, sequelize, reportModel, shopModel }) =>
 				shopModel.categoryStrings.destroy({
 					where: { categoryId: id }
 				})
-			]).then(() =>
-				next()
-			)
+			])
+		).then(() =>
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });

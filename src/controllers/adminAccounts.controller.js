@@ -193,10 +193,10 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 					});
 				}
 
-				return Promise.all(promises).then(() =>
-					next()
-				);
+				return Promise.all(promises);
 			})
+		).then(() =>
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });

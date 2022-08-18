@@ -131,19 +131,19 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 				const promises = [];
 
 				if (description) {
-					Object.keys(description).forEach(language => {
+					Object.keys(description).forEach(language =>
 						promises.push(shopModel.promoCodeStrings.create({
 							promoCodeId: promocode.get("promoCodeId"),
 							language,
 							description: description[language]
-						}));
-					});
+						}))
+					);
 				}
 
-				return Promise.all(promises).then(() =>
-					next()
-				);
+				return Promise.all(promises);
 			})
+		).then(() =>
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
@@ -364,9 +364,9 @@ module.exports.deleteAction = ({ logger, sequelize, reportModel, shopModel }) =>
 				shopModel.promoCodeActivated.destroy({
 					where: { promoCodeId }
 				})
-			]).then(() =>
-				next()
-			)
+			])
+		).then(() =>
+			next()
 		).catch(err => {
 			logger.error(err);
 			res.render("adminError", { layout: "adminLayout", err });
