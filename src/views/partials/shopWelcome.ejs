@@ -7,7 +7,9 @@ const pcCafe = activeBenefits.filter(b => shopConfig.pcCafeBenefits.map(a => par
 _%>
 <div class="main hero-unit white-text">
 	<h2><%= __("Welcome!") %></h2><hr>
+	<%_ if (server !== null) { _%>
 	<%= __("You are playing on the server") %>: <b><%= server.get("nameString") %></b><br>
+	<%_ } _%>
 	<%_ if (premium.length) { _%>
 	<%_ const premiumDays = moment(premium[0].get("availableUntil")).diff(moment(), "days"); _%>
 	<%- __("Premium status account") %>: <b><%= __("Yes") %></b><%- premiumDays < 365 ? ` (${__("%s days left", `<b>${premiumDays}</b>`)})` : "" %><br>
