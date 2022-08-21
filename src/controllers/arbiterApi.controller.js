@@ -258,7 +258,10 @@ module.exports.LeaveGame = ({ logger, sequelize, accountModel, serverModel, repo
 					}
 
 					return serverModel.info.decrement({ usersOnline: 1 }, {
-						where: { serverId: account.get("lastLoginServer") }
+						where: {
+							serverId: account.get("lastLoginServer"),
+							usersOnline: { [Op.gt]: 0 }
+						}
 					});
 				}),
 				accountModel.info.update({
@@ -425,7 +428,10 @@ module.exports.DeleteChar = ({ logger, sequelize, accountModel, serverModel, rep
 		sequelize.transaction(() => {
 			const promises = [
 				serverModel.info.decrement({ usersTotal: 1 }, {
-					where: { serverId: server_id }
+					where: {
+						serverId: server_id,
+						usersTotal: { [Op.gt]: 0 }
+					}
 				}),
 				accountModel.characters.destroy({
 					where: {
