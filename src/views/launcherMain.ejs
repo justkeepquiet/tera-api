@@ -13,6 +13,7 @@
 	var serverMaintenanceString = "<%= __('The server is under maintenance. Please try again later.') %>";
 
 	var PATCH_NO_CHECK = /^true$/i.test("<%= patchNoCheck %>");
+	var START_NO_CHECK = /^true$/i.test("<%= startNoCheck %>");
 	var PATCH_URL = "<%= patchUrl %>";
 	var REGION = localStorage.REGION ? localStorage.REGION : "<%= region %>";
 	var REGIONS = {

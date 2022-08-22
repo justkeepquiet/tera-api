@@ -234,7 +234,7 @@ var Launcher = {
 
 		Launcher.status = 3;
 
-		if ((loginIFrame.QA_MODE && loginIFrame.QA_MODE_NOCHECK) || PATCH_NO_CHECK) { // no check files in QA mode
+		if ((loginIFrame.QA_MODE && loginIFrame.QA_MODE_NOCHECK) || START_NO_CHECK || PATCH_NO_CHECK) { // no check files in QA mode
 			Launcher.status = 0;
 			Launcher.sendCommand("execute|" + REGION);
 		} else {

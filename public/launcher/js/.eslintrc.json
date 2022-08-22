@@ -89,6 +89,7 @@
 		"DEBUG_STR": true,
 		"PATCH_URL": true,
 		"PATCH_NO_CHECK": true,
+		"START_NO_CHECK": true,
 		"PATCH_INFO_STRINGS": true
 	}
 }

@@ -55,6 +55,7 @@ module.exports.MainHtml = ({ i18n }) => [
 		res.render("launcherMain", {
 			brandName: process.env.API_PORTAL_BRAND_NAME || "Tera Private Server",
 			patchNoCheck: process.env.API_PORTAL_CLIENT_PATCH_NO_CHECK,
+			startNoCheck: process.env.API_PORTAL_LAUNCHER_DISABLE_CONSISTENCY_CHECK,
 			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
 			region: process.env.API_PORTAL_CLIENT_DEFAULT_REGION,
 			localeSelector: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR),
