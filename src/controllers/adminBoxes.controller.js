@@ -449,7 +449,9 @@ module.exports.editAction = modules => [
 					const index = Object.keys(itemTemplateIds).find(k => itemTemplateIds[k] == itemTemplateId);
 
 					if (itemTemplateIds[index]) {
-						if (boxItemIds[index] != boxItem.get("boxItemId")) {
+						if (boxItemIds[index] != boxItem.get("boxItemId") ||
+							boxItemCounts[index] != boxItem.get("boxItemCount")
+						) {
 							promises.push(serviceItem.checkCreate(
 								boxItemIds[index],
 								itemTemplateId,
