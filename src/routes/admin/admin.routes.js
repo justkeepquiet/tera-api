@@ -6,6 +6,7 @@
 
 const path = require("path");
 const I18n = require("i18n").I18n;
+const moment = require("moment-timezone");
 const express = require("express");
 const uuid = require("uuid").v4;
 const session = require("express-session");
@@ -55,6 +56,9 @@ module.exports = modules => {
 		(req, login, password, done) => {
 			const clientIP = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
 
+			const remember = !!req.body.remember;
+			const tz = moment.tz.zone(req.body.tz)?.name || moment.tz.guess();
+
 			if (/^true$/i.test(process.env.STEER_ENABLE)) {
 				return modules.steer.openSession(login, password, clientIP).then(({ sessionKey, userSn }) =>
 					modules.steer.getFunctionList(sessionKey).then(functions =>
@@ -63,7 +67,9 @@ module.exports = modules => {
 							login,
 							userSn,
 							sessionKey,
-							functions
+							functions,
+							tz,
+							remember
 						})
 					)
 				).catch(err => {
@@ -88,7 +94,9 @@ module.exports = modules => {
 				done(null, {
 					type: "qa",
 					login,
-					password
+					password,
+					tz,
+					remember
 				});
 			} else {
 				done(null, false, "Invalid QA login or password.");
