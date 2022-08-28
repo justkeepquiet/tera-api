@@ -129,7 +129,7 @@ module.exports.loginAction = ({ passport }) => [
 
 			req.login(user, () => {
 				req.user.remember = !!req.body.remember;
-				req.user.tz = req.body.tz || moment.tz.guess();
+				req.user.tz = moment.tz.zone(req.body.tz)?.name || moment.tz.guess();
 
 				if (req.user.remember) {
 					const maxAge = 86400000 * 7;
