@@ -13,9 +13,9 @@ function regionToLanguage(region) {
 		CHN: "cn", EUR: "en",
 		FRA: "fr", GER: "de",
 		INT: "en", JPN: "jp",
-		RUS: "ru", SE: "se",
-		THA: "th", TW: "tw",
-		USA: "en"
+		KOR: "kr", RUS: "ru",
+		SE: "se", THA: "th",
+		TW: "tw", USA: "en"
 	};
 
 	if (typeof regions[region] !== "undefined") {

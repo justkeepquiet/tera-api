@@ -91,7 +91,7 @@ module.exports.SetAccountInfoByUserNo = ({ logger, accountModel }) => [
 	[
 		body("userNo").notEmpty(),
 		body("authKey").notEmpty(),
-		body("language").isIn(["cn", "en", "fr", "de", "jp", "ru", "se", "th", "tw"])
+		body("language").isIn(["cn", "en", "fr", "de", "jp", "kr", "ru", "se", "th", "tw"])
 	],
 	validationHandler(logger),
 	/**

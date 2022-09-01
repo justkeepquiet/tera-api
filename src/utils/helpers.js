@@ -81,6 +81,7 @@ module.exports.regionToLanguage = region =>
 		GER: "de",
 		INT: "en",
 		JPN: "jp",
+		KOR: "kr",
 		RUS: "ru",
 		SE: "se",
 		THA: "th",
