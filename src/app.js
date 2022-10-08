@@ -184,7 +184,6 @@ moduleLoader.final().then(
 
 			const es = new ExpressServer(modules, {
 				logger: createLogger("Portal API", { colors: { debug: "blue" } }),
-				enableCompression: true,
 				disableCache: true
 			});
 
