@@ -34,13 +34,17 @@ function shopGetAccountInfo(callback) {
 	return apiRequest("ShopGetAccountInfo", {}, "json", callback);
 }
 
-function loadMenu(active = 0) {
+function loadMenu(active) {
+	if (!active) {
+		active = 0;
+	}
+
 	apiRequest("ShopPartialMenu?active=" + active, null, "html", function(result) {
 		$("#menu").html(result);
 	});
 }
 
-function loadContent(page, params = null) {
+function loadContent(page, params) {
 	// $(".item-icon").attr("src", "");
 	$(".navbar-fixed-top .nav li").removeClass("active");
 	$(".navbar-fixed-top .nav li a[data-page='" + page.split("?")[0] + "']").parent().addClass("active");
@@ -58,7 +62,7 @@ function loadContent(page, params = null) {
 	});
 }
 
-function loadContentProduct(params = null) {
+function loadContentProduct(params) {
 	apiRequest("ShopPartialProduct", params, "html", function(result) {
 		$("#content").hide();
 		$("#content_product").html(result).show().animate({ scrollTop: 0 }, 0);
