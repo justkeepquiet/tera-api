@@ -64,7 +64,7 @@
 						</div>
 						<div class="form-group">
 						<%_ id.forEach(ID => { _%>
-							<input type="hidden" name="id[]" id="validate" value="<%= ID %>">
+							<input type="hidden" name="id[]" value="<%= ID %>">
 						<%_ }) _%>
 							<input type="hidden" name="validate" id="validate" value="1">
 							<button type="submit" id="submit" class="btn btn-primary"><%= __("Save") %></button>
