@@ -182,8 +182,9 @@ module.exports.SignupAction = ({ logger, sequelize, accountModel }) => [
 			})),
 		body("email").trim().isEmail().withMessage("$2"),
 		body("password").trim()
-			.isLength({ min: 8, max: 14 }).withMessage("$3")
-			.isAlphanumeric().withMessage("$3")
+			.isLength({ min: 8, max: 128 }).withMessage("$3")
+			.isStrongPassword().withMessage("$3") //minLength: 8, minLowercase: 1, minUppercase: 1, minNumbers: 1, minSymbols: 1
+			//.isAlphanumeric().withMessage("$3")
 	],
 	/**
 	 * @type {RequestHandler}

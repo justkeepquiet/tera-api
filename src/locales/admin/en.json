@@ -458,5 +458,8 @@
 	"d.": "d.",
 	"hr.": "hr.",
 	"min.": "min.",
-	"sec.": "sec."
+	"sec.": "sec.",
+	"Server ID field contains an existing server ID.": "Server ID field contains an existing server ID.",
+	"Password field must be between 8 and 128 characters.": "Please enter a strong password. At least 8 characters, 1 lowercase 1 uppercase, 1 number, 1 symbols. eg: P@ssw0rd",
+	"Change password": "Change password"
 }
