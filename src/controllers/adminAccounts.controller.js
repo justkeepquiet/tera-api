@@ -119,7 +119,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 				}
 			})),
 		body("passWord").trim()
-			.isLength({ min: 1, max: 128 }).withMessage(i18n.__("Password field must be between 1 and 128 characters.")),
+			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("Password field must be between 8 and 128 characters.")),
 		body("email").optional({ checkFalsy: true }).trim()
 			.isEmail().withMessage(i18n.__("Email field must contain a valid email.")),
 		body("permission")
@@ -271,7 +271,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 				}
 			})),
 		body("passWord").trim().optional({ checkFalsy: true })
-			.isLength({ max: 128 }).withMessage(i18n.__("Password field must be between 1 and 128 characters.")),
+			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("Password field must be between 8 and 128 characters.")),
 		body("email").trim().optional({ checkFalsy: true })
 			.isEmail().withMessage(i18n.__("Email field must contain a valid email.")),
 		body("permission")
@@ -286,6 +286,12 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 		const { accountDBID } = req.query;
 		const { userName, passWord, email, permission, privilege, benefitIds, availableUntils } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
+		
+		let passwordString = passWord;
+		
+		if (encryptPasswords) {
+			passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + passWord).digest("hex");
+		}
 
 		if (!accountDBID) {
 			return res.redirect("/accounts");
@@ -308,7 +314,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 
 		accountModel.info.update({
 			userName,
-			...passWord ? { passWord } : {},
+			...passWord ? { passWord: passwordString } : {},
 			email,
 			permission,
 			privilege,
