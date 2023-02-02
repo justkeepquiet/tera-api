@@ -13,6 +13,7 @@ const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const Passport = require("passport").Passport;
 const LocalStrategy = require("passport-local").Strategy;
+const helpers = require("../../utils/helpers");
 
 const adminController = require("../../controllers/admin.controller");
 const adminApiController = require("../../controllers/adminApi.controller");
@@ -54,7 +55,7 @@ module.exports = modules => {
 
 	passport.use(new LocalStrategy({ usernameField: "login", passReqToCallback: true },
 		(req, login, password, done) => {
-			const clientIP = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+			const clientIP = helpers.getRemoteAddress(req);
 
 			const remember = !!req.body.remember;
 			const tz = moment.tz.zone(req.body.tz)?.name || moment.tz.guess();

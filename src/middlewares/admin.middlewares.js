@@ -80,7 +80,7 @@ module.exports.writeOperationReport = (reportModel, params = {}) =>
 			userId: req?.user?.login,
 			userType: req?.user?.type,
 			userTz: req?.user?.tz,
-			ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
+			ip: helpers.getRemoteAddress(req),
 			function: req.path,
 			payload: JSON.stringify([req.query, req.body]),
 			reportType: params.reportType || 1

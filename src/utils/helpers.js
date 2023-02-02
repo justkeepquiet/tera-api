@@ -177,6 +177,14 @@ module.exports.validationResultLog = (request, customLogger) => {
 };
 
 /**
+* @param {Request} request
+* @return {string}
+*/
+module.exports.getRemoteAddress = request =>
+	(request.headers["x-forwarded-for"] || request.socket.remoteAddress).split(",")[0]
+;
+
+/**
 * @param {string[]} array
 * @return {string}
 */

@@ -25,7 +25,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, sequelize, accountModel }) =>
 	 */
 	(req, res) => {
 		const { userNo, authKey } = req.body;
-		const clientIP = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+		const clientIP = helpers.getRemoteAddress(req);
 
 		accountModel.info.findOne({
 			where: { accountDBID: userNo, authKey },
