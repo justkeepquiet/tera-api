@@ -12,4 +12,5 @@ const gatewayAccountController = require("../../controllers/gatewayAccount.contr
 */
 module.exports = modules => express.Router()
 	.get("/GetAccountInfoByUserNo", gatewayAccountController.GetAccountInfoByUserNo(modules))
+	.get("/GetAccountBanByUserNo", gatewayAccountController.GetAccountBanByUserNo(modules))
 ;

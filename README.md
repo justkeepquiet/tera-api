@@ -77,6 +77,7 @@ Endpoint | Method | Arguments | Description
 --- | --- | --- | ---
 /serverApi/GetServerInfoByServerId | GET | serverId | Request the server information of specified server ID.
 /accountApi/GetAccountInfoByUserNo | GET | userNo | Request the account information of specified account ID.
+/accountApi/GetAccountBanByUserNo | GET | userNo, clientIP | Request the account banned status of specified account ID and client IP.
 /shopApi/GetAccountInfoByUserNo | GET | userNo | Request the Shop balance of the specified account ID.
 /shopApi/FundByUserNo | POST | userNo, transactionId, amount | Fund the Shop balance of the specified account ID.
 
