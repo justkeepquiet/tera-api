@@ -76,7 +76,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 	expressLayouts,
 	[
 		body("promoCode")
-			.isLength({ min: 6, max: 16 }).withMessage("Promo code field must be between 6 and 16 characters.")
+			.isLength({ min: 6, max: 16 }).withMessage(i18n.__("Promo code field must be between 6 and 16 characters."))
 			.custom((value, { req }) => shopModel.promoCodes.findOne({
 				where: {
 					promoCode: req.body.promoCode
