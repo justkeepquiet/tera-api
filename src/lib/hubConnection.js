@@ -45,7 +45,7 @@ class HubConnection extends EventEmitter {
 		this.socket = null;
 		this.recvTimeout = 5000;
 		this.connected = false;
-		this.registred = false;
+		this.registered = false;
 		this.biasCount = 0;
 		this.jobId = 0;
 		this.uniqueServerId = 0;
@@ -60,8 +60,8 @@ class HubConnection extends EventEmitter {
 		return this.connected;
 	}
 
-	get isRegistred() {
-		return this.registred;
+	get isRegistered() {
+		return this.registered;
 	}
 
 	connect() {
@@ -73,7 +73,7 @@ class HubConnection extends EventEmitter {
 		this.socket.socket.on("error", err => {
 			if (err.code === "ECONNRESET" || err.code === "EISCONN") {
 				this.connected = false;
-				this.registred = false;
+				this.registered = false;
 
 				this.reconnect();
 			}
@@ -101,7 +101,7 @@ class HubConnection extends EventEmitter {
 
 	destroy() {
 		this.connected = false;
-		this.registred = false;
+		this.registered = false;
 
 		clearInterval(this.reconnectInterval);
 
@@ -115,7 +115,7 @@ class HubConnection extends EventEmitter {
 	//
 
 	register() {
-		if (!this.connected || this.registred) {
+		if (!this.connected || this.registered) {
 			return Promise.resolve();
 		}
 
@@ -161,7 +161,7 @@ class HubConnection extends EventEmitter {
 				}
 
 				if (this.params.logger?.info) {
-					this.params.logger.info(`Registred: category ${this.serviceId}, number ${this.uniqueServerId}`);
+					this.params.logger.info(`Registered: category ${this.serviceId}, number ${this.uniqueServerId}`);
 				}
 
 				data.serverList.forEach(gusid => {
@@ -174,7 +174,7 @@ class HubConnection extends EventEmitter {
 					this.watchServerCategories[category].add(gusid);
 				});
 
-				this.registred = true;
+				this.registered = true;
 
 				resolve();
 			});
@@ -185,8 +185,8 @@ class HubConnection extends EventEmitter {
 	}
 
 	sendMessage(serverId, msgId, reqFunc, resFunc, msgData, protoName, funcName = null) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new HubError("Not registred", 0x000FE003));
+		if (!this.connected || !this.registered) {
+			return Promise.reject(new HubError("Not registered", 0x000FE003));
 		}
 
 		let label = `${protoName}.${reqFunc.name}`;

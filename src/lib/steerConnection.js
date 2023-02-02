@@ -34,7 +34,7 @@ class SteerConnection {
 		this.socket = null;
 		this.readTimeout = 5000;
 		this.connected = false;
-		this.registred = false;
+		this.registered = false;
 		this.biasCount = 0;
 		this.jobId = 0;
 		this.uniqueServerId = 0;
@@ -49,8 +49,8 @@ class SteerConnection {
 		return this.connected;
 	}
 
-	get isRegistred() {
-		return this.registred;
+	get isRegistered() {
+		return this.registered;
 	}
 
 	connect() {
@@ -62,7 +62,7 @@ class SteerConnection {
 		this.socket.socket.on("error", err => {
 			if (err.code === "ECONNRESET" || err.code === "EISCONN") {
 				this.connected = false;
-				this.registred = false;
+				this.registered = false;
 
 				this.reconnect();
 			}
@@ -88,7 +88,7 @@ class SteerConnection {
 
 	destroy() {
 		this.connected = false;
-		this.registred = false;
+		this.registered = false;
 
 		clearInterval(this.reconnectInterval);
 
@@ -98,7 +98,7 @@ class SteerConnection {
 	}
 
 	checkRegistered() {
-		if (!this.connected || this.registred) {
+		if (!this.connected || this.registered) {
 			return Promise.resolve();
 		}
 
@@ -124,10 +124,10 @@ class SteerConnection {
 		return this.sendAndRecv(opMsg).then(data => {
 			if (data.resultCode && readGuid(data.resultCode).number === this.steerResultCode.success) {
 				if (this.params.logger?.info) {
-					this.params.logger.info(`Registred: category ${this.serviceId}, number ${this.uniqueServerId}`);
+					this.params.logger.info(`Registered: category ${this.serviceId}, number ${this.uniqueServerId}`);
 				}
 
-				this.registred = true;
+				this.registered = true;
 			} else {
 				this.biasCount++;
 
@@ -145,8 +145,8 @@ class SteerConnection {
 	}
 
 	sendMessage(opMsg) {
-		if (!this.connected || !this.registred) {
-			return Promise.reject(new SteerError("Not registred", 0x000FF003));
+		if (!this.connected || !this.registered) {
+			return Promise.reject(new SteerError("Not registered", 0x000FF003));
 		}
 
 		return this.sendAndRecv(opMsg);
