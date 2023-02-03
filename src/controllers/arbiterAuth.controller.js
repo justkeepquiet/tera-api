@@ -10,6 +10,8 @@ const Op = require("sequelize").Op;
 
 const { validationHandler, resultJson } = require("../middlewares/arbiterAuth.middlewares");
 
+const ipFromLauncher = /^true$/i.test(process.env.API_ARBITER_USE_IP_FROM_LAUNCHER);
+
 /**
  * endpoint: /systemApi/RequestAPIServerStatusAvailable
  * @param {modules} modules
@@ -83,30 +85,32 @@ module.exports.GameAuthenticationLogin = ({ logger, sequelize, accountModel }) =
 				},
 				required: false
 			}]
-		}).then(account =>
-			accountModel.bans.findOne({
+		}).then(account => {
+			if (account === null) {
+				return resultJson(res, 50000, "account not exist");
+			}
+
+			if (account.get("authKey") !== authKey) {
+				return resultJson(res, 50011, "authkey mismatch");
+			}
+
+			const ip = ipFromLauncher ? account.get("lastLoginIP") : clientIP;
+
+			return accountModel.bans.findOne({
 				where: {
 					active: 1,
-					ip: { [Op.like]: `%"${clientIP}"%` },
+					ip: { [Op.like]: `%"${ip}"%` },
 					startTime: { [Op.lt]: sequelize.fn("NOW") },
 					endTime: { [Op.gt]: sequelize.fn("NOW") }
 				}
 			}).then(bannedByIp => {
-				if (account === null) {
-					return resultJson(res, 50000, "account not exist");
-				}
-
-				if (account.get("authKey") !== authKey) {
-					return resultJson(res, 50011, "authkey mismatch");
-				}
-
 				if (account.get("banned") !== null || bannedByIp !== null) {
 					return resultJson(res, 50012, "account banned");
 				}
 
 				resultJson(res, 0, "success");
-			})
-		).catch(err => {
+			});
+		}).catch(err => {
 			logger.error(err);
 			resultJson(res, 1, "internal error");
 		});

@@ -17,6 +17,7 @@ const reportActivity = /^true$/i.test(process.env.API_ARBITER_REPORT_ACTIVITY);
 const reportCharacters = /^true$/i.test(process.env.API_ARBITER_REPORT_CHARACTERS);
 const reportChronoScrolls = /^true$/i.test(process.env.API_ARBITER_REPORT_CHRONOSCROLLS);
 const reportCheats = /^true$/i.test(process.env.API_ARBITER_REPORT_CHEATS);
+const ipFromLauncher = /^true$/i.test(process.env.API_ARBITER_USE_IP_FROM_LAUNCHER);
 
 /**
  * @param {modules} modules
@@ -183,39 +184,45 @@ module.exports.EnterGame = ({ logger, sequelize, accountModel, serverModel, repo
 	(req, res) => {
 		const { ip, server_id, user_srl } = req.body;
 
-		sequelize.transaction(() => {
-			const promises = [
-				accountModel.info.update({
-					lastLoginTime: moment().toDate(),
-					lastLoginIP: ip,
-					lastLoginServer: server_id,
-					playCount: sequelize.literal("playCount + 1")
-				}, {
-					where: { accountDBID: user_srl }
-				}),
-				serverModel.info.increment({ usersOnline: 1 }, {
-					where: { serverId: server_id }
-				}),
-				accountModel.online.create({
-					accountDBID: user_srl,
-					serverId: server_id
-				})
-			];
-
-			if (reportActivity) {
-				reportModel.activity.create({
-					accountDBID: user_srl,
-					serverId: server_id,
-					ip,
-					reportType: 1
-				}).catch(err => {
-					logger.error(err);
-				});
+		accountModel.info.findOne({ where: { accountDBID: user_srl } }).then(account => {
+			if (account === null) {
+				return resultJson(res, 50000, { msg: "account not exist" });
 			}
 
-			return Promise.all(promises).then(() =>
-				resultJson(res, 0)
-			);
+			return sequelize.transaction(() => {
+				const promises = [
+					accountModel.info.update({
+						...!ipFromLauncher ? { lastLoginIP: ip } : {},
+						lastLoginTime: moment().toDate(),
+						lastLoginServer: server_id,
+						playCount: sequelize.literal("playCount + 1")
+					}, {
+						where: { accountDBID: user_srl }
+					}),
+					serverModel.info.increment({ usersOnline: 1 }, {
+						where: { serverId: server_id }
+					}),
+					accountModel.online.create({
+						accountDBID: user_srl,
+						serverId: server_id
+					})
+				];
+
+				if (reportActivity) {
+					reportModel.activity.create({
+						accountDBID: user_srl,
+						serverId: server_id,
+						ip: ipFromLauncher ? account.get("lastLoginIP") : ip,
+						reportType: 1
+					}).catch(err => {
+						logger.error(err);
+					});
+				}
+
+				return Promise.all(promises).then(() =>
+					resultJson(res, 0)
+				);
+			});
 		}).catch(err => {
 			logger.error(err);
 			resultJson(res, 1, { msg: "internal error" });
@@ -240,9 +247,7 @@ module.exports.LeaveGame = ({ logger, sequelize, accountModel, serverModel, repo
 
 		sequelize.transaction(() => {
 			const promises = [
-				accountModel.info.findOne({
-					where: { accountDBID: user_srl }
-				}).then(account => {
+				accountModel.info.findOne({ where: { accountDBID: user_srl } }).then(account => {
 					if (account === null) return;
 
 					if (reportActivity) {
@@ -503,7 +508,7 @@ module.exports.UseChronoScroll = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.ReportCheater = ({ logger, reportModel }) => [
+module.exports.ReportCheater = ({ logger, accountModel, reportModel }) => [
 	[
 		body("cheat_info").isNumeric(),
 		body("ip").isIP(),
@@ -522,12 +527,18 @@ module.exports.ReportCheater = ({ logger, reportModel }) => [
 			return resultJson(res, 0);
 		}
 
-		reportModel.cheats.create({
-			accountDBID: usr_srl,
-			serverId: svr_id,
-			ip: ip,
-			type: type,
-			cheatInfo: cheat_info
+		accountModel.info.findOne({ where: { accountDBID: usr_srl } }).then(account => {
+			if (account === null) {
+				return resultJson(res, 50000, { msg: "account not exist" });
+			}
+
+			return reportModel.cheats.create({
+				accountDBID: usr_srl,
+				serverId: svr_id,
+				ip: ipFromLauncher ? account.get("lastLoginIP") : ip,
+				type,
+				cheatInfo: cheat_info
+			});
 		}).then(() =>
 			resultJson(res, 0)
 		).catch(err => {

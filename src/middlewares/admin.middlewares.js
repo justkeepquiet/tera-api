@@ -80,7 +80,7 @@ module.exports.writeOperationReport = (reportModel, params = {}) =>
 			userId: req?.user?.login,
 			userType: req?.user?.type,
 			userTz: req?.user?.tz,
-			ip: helpers.getRemoteAddress(req),
+			ip: req.ip,
 			function: req.path,
 			payload: JSON.stringify([req.query, req.body]),
 			reportType: params.reportType || 1
