@@ -25,9 +25,10 @@ Built-in admin panel for full control of all functionality and viewing API logs.
 3. Execute the `npm install` command in your tera-api directory, or just run **install.bat**.
 4. Import the [database files](share/db) in file names order to your MySQL server.
 5. Unpack the [tera-icons.zip](share/data) archive to **tera-api\data\tera-icons** folder.
-6. Copy or rename the **.env.example** file to **.env**.
-7. Configure the parameters in the **.env** file.
-8. Execute the `node src/app` command, or run the file **tera-api.bat** to start TERA API servers.
+6. [Download](https://disk.yandex.ru/d/ert9ccPa7BWehA) and unpack fonts to **tera-api\public** folder.
+7. Copy or rename the **.env.example** file to **.env**.
+8. Configure the parameters in the **.env** file.
+9. Execute the `node src/app` command, or run the file **tera-api.bat** to start TERA API servers.
 
 If you don't plan to use [tera-client-packer](https://github.com/justkeepquiet/tera-client-packer) to automatically update the client through the launcher, set parameter `API_PORTAL_CLIENT_PATCH_NO_CHECK` to `true` in your **.env** config file.
 
