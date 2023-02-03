@@ -13,7 +13,6 @@ const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const Passport = require("passport").Passport;
 const LocalStrategy = require("passport-local").Strategy;
-const helpers = require("../../utils/helpers");
 
 const adminController = require("../../controllers/admin.controller");
 const adminApiController = require("../../controllers/adminApi.controller");
@@ -55,13 +54,11 @@ module.exports = modules => {
 
 	passport.use(new LocalStrategy({ usernameField: "login", passReqToCallback: true },
 		(req, login, password, done) => {
-			const clientIP = helpers.getRemoteAddress(req);
-
 			const remember = !!req.body.remember;
 			const tz = moment.tz.zone(req.body.tz)?.name || moment.tz.guess();
 
 			if (/^true$/i.test(process.env.STEER_ENABLE)) {
-				return modules.steer.openSession(login, password, clientIP).then(({ sessionKey, userSn }) =>
+				return modules.steer.openSession(login, password, req.ip).then(({ sessionKey, userSn }) =>
 					modules.steer.getFunctionList(sessionKey).then(functions =>
 						done(null, {
 							type: "steer",

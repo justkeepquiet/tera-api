@@ -11,6 +11,8 @@ const helpers = require("../utils/helpers");
 
 const { validationHandler, resultJson } = require("../middlewares/portalLauncher.middlewares");
 
+const ipFromLauncher = /^true$/i.test(process.env.API_ARBITER_USE_IP_FROM_LAUNCHER);
+
 /**
  * @param {modules} modules
  */
@@ -25,7 +27,6 @@ module.exports.GetAccountInfoByUserNo = ({ logger, sequelize, accountModel }) =>
 	 */
 	(req, res) => {
 		const { userNo, authKey } = req.body;
-		const clientIP = helpers.getRemoteAddress(req);
 
 		accountModel.info.findOne({
 			where: { accountDBID: userNo, authKey },
@@ -59,7 +60,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, sequelize, accountModel }) =>
 				bannedByIp = await accountModel.bans.findOne({
 					where: {
 						active: 1,
-						ip: { [Op.like]: `%"${clientIP}"%` },
+						ip: { [Op.like]: `%"${req.ip}"%` },
 						startTime: { [Op.lt]: sequelize.fn("NOW") },
 						endTime: { [Op.gt]: sequelize.fn("NOW") }
 					}
@@ -107,7 +108,10 @@ module.exports.SetAccountInfoByUserNo = ({ logger, accountModel }) => [
 				return resultJson(res, 50000, "account not exist");
 			}
 
-			return accountModel.info.update({ language }, {
+			return accountModel.info.update({
+				language,
+				...ipFromLauncher ? { lastLoginIP: req.ip } : {}
+			}, {
 				where: { accountDBID: account.get("accountDBID") }
 			}).then(() =>
 				resultJson(res, 0, "success")
