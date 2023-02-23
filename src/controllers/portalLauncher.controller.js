@@ -14,6 +14,8 @@ const helpers = require("../utils/helpers");
 
 const { recaptcha, validationHandler, resultJson } = require("../middlewares/portalLauncher.middlewares");
 
+const ipFromLauncher = /^true$/i.test(process.env.API_ARBITER_USE_IP_FROM_LAUNCHER);
+
 /**
  * @param {modules} modules
  */
@@ -127,7 +129,10 @@ module.exports.LoginAction = ({ logger, sequelize, accountModel }) => [
 
 			const authKey = uuid.v4();
 
-			accountModel.info.update({ authKey: authKey }, {
+			accountModel.info.update({
+				authKey: authKey,
+				...ipFromLauncher ? { lastLoginIP: req.ip } : {}
+			}, {
 				where: { accountDBID: account.get("accountDBID") }
 			}).then(async () => {
 				let characterCount = "0";
@@ -224,7 +229,8 @@ module.exports.SignupAction = ({ logger, sequelize, accountModel }) => [
 						promises.push(accountModel.benefits.create({
 							accountDBID: account.get("accountDBID"),
 							benefitId: benefitId,
-							availableUntil: sequelize.fn("ADDDATE", sequelize.fn("NOW"), benefitDays)
+							availableUntil: sequelize.fn("ADDDATE", sequelize.fn("NOW"), benefitDays),
+							...ipFromLauncher ? { lastLoginIP: req.ip } : {}
 						}));
 					});
 
