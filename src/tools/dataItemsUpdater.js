@@ -164,8 +164,7 @@ sequelize.authenticate().then(async () => {
 	console.log("Adding data elements...");
 	const dataTotal = dataElements.size;
 
-	let i = 0;
-	for (const itemTemplate of dataElements) {
+	for (const [index, itemTemplate] of dataElements) {
 		await dataModel.itemTemplates.upsert({
 			itemTemplateId: itemTemplate.id,
 			name: itemTemplate.name || null,
@@ -185,7 +184,7 @@ sequelize.authenticate().then(async () => {
 			warehouseStorable: Number(itemTemplate.warehouseStorable === "true")
 		});
 
-		console.log(++i, "/", dataTotal, "Added:", itemTemplate.id, itemTemplate.name);
+		console.log(index, "/", dataTotal, "Added:", itemTemplate.id, itemTemplate.name);
 	}
 
 	console.log("Adding conversion elements...");
