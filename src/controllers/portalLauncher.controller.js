@@ -79,6 +79,7 @@ module.exports.LoginFormHtml = ({ i18n }) => [
 	(req, res) => {
 		res.render("launcherLoginForm", {
 			qaPrivilege: process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE,
+			disableRegistration: /^true$/i.test(process.env.API_PORTAL_LAUNCHER_DISABLE_REGISTRATION),
 			lang: req.query.lang,
 			locale: i18n.getLocale()
 		});
@@ -246,6 +247,10 @@ module.exports.SignupAction = ({ logger, sequelize, accountModel }) => [
 				resultJson(res, 1, "internal error");
 			});
 		};
+
+		if (/^true$/i.test(process.env.API_PORTAL_LAUNCHER_DISABLE_REGISTRATION)) {
+			return resultJson(res, 2, "registration disabled");
+		}
 
 		if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
 			recaptcha.verify(req, error => {
