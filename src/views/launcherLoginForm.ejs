@@ -150,7 +150,11 @@
 </head>
 <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false" style="overflow: hidden;">
 <div class="wrap">
+<%_ if (!disableRegistration) { _%>
 	<form class="form-horizontal" name="userLoginForm" method="post" action="" id="userLoginForm">
+<%_ } else { _%>
+	<form class="form-horizontal" name="userLoginForm" method="post" action="" id="userLoginForm" style="padding-top: 30px">
+<%_} _%>
 		<div class="form-group">
 			<div class="col">
 				<input type="text" class="form-control form-uid" id="login" name="login" placeholder="<%= __('Login') %>" maxlength="30" tabindex="1">
@@ -173,7 +177,9 @@
 		<div class="form-group">
 			<div class="col">
 				<button type="submit" tabindex="3" class="btn-submit">Sign in</button>
+<%_ if (!disableRegistration) { _%>
 				<button type="button" tabindex="3" class="btn-join" id="btnJoin">Join a member</button>
+<%_ } _%>
 			</div>
 		</div>
 	</form>
