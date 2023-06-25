@@ -636,7 +636,7 @@ module.exports.PromoCodeAction = modules => [
 			});
 
 			if (promocode === null) {
-				return resultJson(res, 1000, { msg: "invalid promocode" });
+				return resultJson(res, 1000, "invalid promocode");
 			}
 
 			const promocodeActivated = await modules.shopModel.promoCodeActivated.findOne({
@@ -647,7 +647,7 @@ module.exports.PromoCodeAction = modules => [
 			});
 
 			if (promocodeActivated !== null) {
-				return resultJson(res, 1010, { msg: "invalid promocode" });
+				return resultJson(res, 1010, "invalid promocode");
 			}
 
 			await modules.sequelize.transaction(async () => {
