@@ -622,49 +622,53 @@ module.exports.PromoCodeAction = modules => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res) => {
 		const { promoCode } = req.body;
 
-		return modules.shopModel.promoCodes.findOne({
-			where: {
-				promoCode: promoCode,
-				active: 1,
-				validAfter: { [Op.lt]: modules.sequelize.fn("NOW") },
-				validBefore: { [Op.gt]: modules.sequelize.fn("NOW") }
-			}
-		}).then(promocode => {
+		try {
+			const promocode = await modules.shopModel.promoCodes.findOne({
+				where: {
+					promoCode: promoCode,
+					active: 1,
+					validAfter: { [Op.lt]: modules.sequelize.fn("NOW") },
+					validBefore: { [Op.gt]: modules.sequelize.fn("NOW") }
+				}
+			});
+
 			if (promocode === null) {
 				return resultJson(res, 1000, { msg: "invalid promocode" });
 			}
 
-			return modules.shopModel.promoCodeActivated.findOne({
+			const promocodeActivated = await modules.shopModel.promoCodeActivated.findOne({
 				where: {
 					accountDBID: req.user.accountDBID,
 					promoCodeId: promocode.get("promoCodeId")
 				}
-			}).then(promocodeActivated => {
-				if (promocodeActivated !== null) {
-					return resultJson(res, 1010, { msg: "invalid promocode" });
-				}
+			});
 
+			if (promocodeActivated !== null) {
+				return resultJson(res, 1010, { msg: "invalid promocode" });
+			}
+
+			await modules.sequelize.transaction(async () => {
 				const actions = new PromoCodeActions(
 					modules,
 					req.user.lastLoginServer,
 					req.user.accountDBID
 				);
 
-				return actions.execute(promocode.get("function"), promocode.get("promoCodeId")).then(() =>
-					modules.shopModel.promoCodeActivated.create({
-						promoCodeId: promocode.get("promoCodeId"),
-						accountDBID: req.user.accountDBID
-					})
-				).then(() =>
-					resultJson(res, 0, "success")
-				);
+				await modules.shopModel.promoCodeActivated.create({
+					promoCodeId: promocode.get("promoCodeId"),
+					accountDBID: req.user.accountDBID
+				});
+
+				return actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
 			});
-		}).catch(err => {
+
+			resultJson(res, 0, "success");
+		} catch (err) {
 			modules.logger.error(err);
-			resultJson(res, 1, { msg: "internal error" });
-		});
+			resultJson(res, 1, "internal error");
+		}
 	}
 ];
