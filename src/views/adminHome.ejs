@@ -177,7 +177,7 @@
 								"<tr>" +
 									"<td class=\"text-nowrap\">" + report.reportTime + "</td>" +
 									"<td>" + report.reportType + "</td>" +
-									"<td>" + report.ip + "</td>" +
+									"<td>" + (report.ip.length > 15 ? report.ip.substring(0, 15) + '...' : report.ip) + "</td>" +
 									"<td>" + report.accountDBID + "</td>" +
 									"<td>" + report.serverId + "</td>" +
 								"</tr>"
