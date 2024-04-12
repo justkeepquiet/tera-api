@@ -44,7 +44,7 @@
     "moment-timezone": "^0.5.34",
     "morgan": "^1.10.0",
     "morgan-body": "^2.6.6",
-    "mysql2": "^2.3.3",
+    "mysql2": ">=3.9.4",
     "passport": "^0.6.0",
     "passport-custom": "^1.1.1",
     "passport-local": "^1.0.0",
