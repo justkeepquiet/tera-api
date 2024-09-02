@@ -11,4 +11,6 @@ module.exports = modules => {
 	modules.app.use("/tera", require("./portal/tera.routes")(modules));
 	modules.app.use("/tera", require("./portal/launcher.routes")(modules));
 	modules.app.use("/tera", require("./portal/shop.routes")(modules));
+	// v2
+	modules.app.use("/v2", require("./portal/v2/launcher.routes")(modules));
 };
