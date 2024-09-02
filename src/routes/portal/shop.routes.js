@@ -61,7 +61,8 @@ module.exports = modules => {
 		})
 	);
 
-	modules.app.use(session({
+	modules.app.use("/tera", session({
+		name: "shop.sid",
 		genid: () => uuid(),
 		store: new MemoryStore(),
 		secret: process.env.API_PORTAL_SECRET,
@@ -69,8 +70,8 @@ module.exports = modules => {
 		saveUninitialized: true
 	}));
 
-	modules.app.use(passport.initialize());
-	modules.app.use(passport.session());
+	modules.app.use("/tera", passport.initialize());
+	modules.app.use("/tera", passport.session());
 
 	modules.app.use((req, res, next) => {
 		const locale = req?.user?.language || process.env.API_PORTAL_LOCALE;
