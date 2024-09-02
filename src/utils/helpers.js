@@ -91,6 +91,27 @@ module.exports.regionToLanguage = region =>
 ;
 
 /**
+ * @param {string} language
+ * @return {Object[]}
+ */
+module.exports.languageToRegion = language =>
+	({
+		cn: "CHN",
+		en: "EUR",
+		"en-GB": "EUR",
+		"en-US": "USA",
+		fr: "FRA",
+		de: "GER",
+		jp: "JPN",
+		kr: "KOR",
+		ru: "RUS",
+		se: "SE",
+		th: "THA",
+		tw: "TW"
+	}[language.toLowerCase()] || "EUR")
+;
+
+/**
 * @return {Object[]}
 */
 module.exports.getClientRegions = () => {
