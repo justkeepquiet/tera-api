@@ -5,7 +5,6 @@
  * @typedef {import("express").RequestHandler} RequestHandler
  */
 
-const crypto = require("crypto");
 const uuid = require("uuid");
 const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
@@ -117,13 +116,7 @@ module.exports.LoginAction = ({ logger, sequelize, accountModel }) => [
 				return resultJson(res, 50000, "account not exist");
 			}
 
-			let passwordString = password;
-
-			if (/^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWORDS)) {
-				passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
-			}
-
-			if (account === null || account.get("passWord") !== passwordString) {
+			if (account === null || account.get("passWord") !== helpers.getPasswordString(password)) {
 				logger.warn("Invalid login or password");
 				return resultJson(res, 50015, "password error");
 			}
@@ -211,16 +204,11 @@ module.exports.SignupAction = ({ logger, sequelize, accountModel }) => [
 		const handler = async () => {
 			const { login, password, email } = req.body;
 			const authKey = uuid.v4();
-			let passwordString = password;
-
-			if (/^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWORDS)) {
-				passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
-			}
 
 			sequelize.transaction(() =>
 				accountModel.info.create({
 					userName: login,
-					passWord: passwordString,
+					passWord: helpers.getPasswordString(password),
 					authKey,
 					email
 				}).then(account => {

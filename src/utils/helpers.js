@@ -7,6 +7,7 @@
 * @typedef {import("i18n").__} __
 */
 
+const crypto = require("crypto");
 const validationResult = require("express-validator").validationResult;
 const logger = require("../utils/logger");
 
@@ -235,3 +236,17 @@ module.exports.permissionToString = permission =>
 module.exports.stringToPermission = string =>
 	parseInt(string, 16)
 ;
+
+/**
+* @param {string} password
+* @return {string}
+*/
+module.exports.getPasswordString = password => {
+	let passwordString = password;
+
+	if (/^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWORDS)) {
+		passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
+	}
+
+	return passwordString;
+};
