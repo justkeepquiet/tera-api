@@ -69,6 +69,16 @@ CREATE TABLE IF NOT EXISTS `account_online` (
   PRIMARY KEY (`accountDBID`,`serverId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE IF NOT EXISTS `account_reset_password` (
+  `token` VARCHAR(128) NOT NULL,
+  `email` VARCHAR(64) NOT NULL,
+  `code` VARCHAR(6) NULL,
+  `failsCount` INT(11) NOT NULL DEFAULT '0',
+  `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`token`, `email`),
+  INDEX `code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `account_verify` (
 	`token` VARCHAR(128) NOT NULL,
 	`email` VARCHAR(64) NOT NULL,
@@ -76,9 +86,11 @@ CREATE TABLE IF NOT EXISTS `account_verify` (
 	`failsCount` INT(11) NOT NULL DEFAULT '0',
   `userName` VARCHAR(64) NULL,
   `passWord` VARCHAR(128) NULL,
+  `action` VARCHAR(64) NOT NULL,
 	`createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (`token`, `email`),
-	INDEX `code` (`code`)
+	INDEX `code` (`code`),
+  INDEX `action` (`action`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `box_info` (
