@@ -120,8 +120,17 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 			})),
 		body("passWord").trim()
 			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("Password field must be between 8 and 128 characters.")),
-		body("email").optional({ checkFalsy: true }).trim()
-			.isEmail().withMessage(i18n.__("Email field must contain a valid email.")),
+		body("email").trim()
+			.isEmail().withMessage(i18n.__("Email field must contain a valid email."))
+			.custom((value, { req }) => accountModel.info.findOne({
+				where: {
+					email: req.body.email
+				}
+			}).then(data => {
+				if (data) {
+					return Promise.reject(i18n.__("Email field contains already existing email."));
+				}
+			})),
 		body("permission")
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain a valid number.")),
 		body("privilege")
@@ -272,8 +281,18 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 			})),
 		body("passWord").trim().optional({ checkFalsy: true })
 			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("Password field must be between 8 and 128 characters.")),
-		body("email").trim().optional({ checkFalsy: true })
-			.isEmail().withMessage(i18n.__("Email field must contain a valid email.")),
+		body("email").trim()
+			.isEmail().withMessage(i18n.__("Email field must contain a valid email."))
+			.custom((value, { req }) => accountModel.info.findOne({
+				where: {
+					email: req.body.email,
+					accountDBID: { [Op.ne]: req.query.accountDBID }
+				}
+			}).then(data => {
+				if (data) {
+					return Promise.reject(i18n.__("Email field contains already existing email."));
+				}
+			})),
 		body("permission")
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain a valid number.")),
 		body("privilege")

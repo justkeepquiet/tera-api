@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS `account_info` (
   `language` varchar(3) DEFAULT NULL,
   PRIMARY KEY (`accountDBID`) USING BTREE,
   KEY `authKey` (`authKey`),
+  UNIQUE `userName` (`userName`),
   UNIQUE `email` (`email`),
   KEY `passWord` (`passWord`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;

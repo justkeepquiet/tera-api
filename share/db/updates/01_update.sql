@@ -1,5 +1,5 @@
 
-ALTER TABLE `account_info` DROP PRIMARY KEY, ADD PRIMARY KEY (`accountDBID`) USING BTREE, ADD UNIQUE `email` (`email`) ;
+ALTER TABLE `account_info` DROP PRIMARY KEY, ADD PRIMARY KEY (`accountDBID`) USING BTREE, ADD UNIQUE INDEX `userName` (`userName`), ADD UNIQUE INDEX `email` (`email`) ;
 ALTER TABLE `account_info` DROP INDEX `authKey`, ADD UNIQUE INDEX `authKey` (`authKey`) USING BTREE;
 
 CREATE TABLE IF NOT EXISTS `account_reset_password` (
