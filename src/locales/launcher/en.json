@@ -18,6 +18,7 @@
 	"Making patch list...": "Making patch list...",
 	"Account blocked. Please contact support.": "Account blocked. Please contact support.",
 	"This login is already exists.": "This login is already exists.",
+	"This email address is already exists.": "This email address is already exists.",
 	"Please enter 4-13 alphanumeric characters for login.": "Please enter 4-13 alphanumeric characters for login.",
 	"Please enter valid email address.": "Please enter valid email address.",
 	"Please enter 8-128 alphanumeric characters password.": "Please enter a strong password. At least 8 characters, 1 lowercase 1 uppercase, 1 number, 1 symbols. eg: P@ssw0rd",

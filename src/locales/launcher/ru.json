@@ -18,6 +18,7 @@
 	"Making patch list...": "Создания списка обновлений...",
 	"Account blocked. Please contact support.": "Аккаунт заблокирован. Свяжитесь со службой поддержки.",
 	"This login is already exists.": "Указанный логин уже существует.",
+	"This email address is already exists.": "Указанный Email адрес уже существует.",
 	"Please enter 4-13 alphanumeric characters for login.": "Введите логин, содержащий буквы и цифры длиной 4-13 символов.",
 	"Please enter valid email address.": "Введите правильный Email адрес.",
 	"Please enter 8-128 alphanumeric characters password.": "Введите пароль, содержащий буквы и цифры длиной 8-128 символов.",
