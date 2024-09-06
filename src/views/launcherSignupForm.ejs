@@ -40,6 +40,10 @@
 					case "$3":
 						alert("<%= __('Please enter 8-128 alphanumeric characters password.') %>");
 						break;
+
+					case "$4":
+						alert("<%= __('This email address is already exists.') %>");
+						break;
 					default:
 						alert(result.Msg);
 						console.log(result.Msg);

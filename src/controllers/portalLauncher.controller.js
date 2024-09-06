@@ -182,16 +182,26 @@ module.exports.SignupAction = ({ logger, sequelize, accountModel }) => [
 		body("login").trim()
 			.isLength({ min: 3, max: 13 }).withMessage("$1")
 			.isAlphanumeric().withMessage("$1")
-			.custom((value, { req }) => accountModel.info.findOne({
+			.custom(value => accountModel.info.findOne({
 				where: {
-					userName: req.body.login
+					userName: value
 				}
 			}).then(user => {
 				if (user) {
 					return Promise.reject("$0");
 				}
 			})),
-		body("email").trim().isEmail().withMessage("$2"),
+		body("email").trim()
+			.isEmail().withMessage("$2")
+			.custom(value => accountModel.info.findOne({
+				where: {
+					email: value
+				}
+			}).then(user => {
+				if (user) {
+					return Promise.reject("$4");
+				}
+			})),
 		body("password").trim()
 			.isLength({ min: 8, max: 128 }).withMessage("$3")
 			.isStrongPassword().withMessage("$3")
