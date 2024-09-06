@@ -56,8 +56,9 @@ CREATE TABLE IF NOT EXISTS `account_info` (
   `permission` int(11) NOT NULL DEFAULT '0',
   `privilege` int(11) NOT NULL DEFAULT '0',
   `language` varchar(3) DEFAULT NULL,
-  PRIMARY KEY (`accountDBID`,`userName`) USING BTREE,
+  PRIMARY KEY (`accountDBID`) USING BTREE,
   KEY `authKey` (`authKey`),
+  UNIQUE `email` (`email`),
   KEY `passWord` (`passWord`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
@@ -66,6 +67,18 @@ CREATE TABLE IF NOT EXISTS `account_online` (
   `serverId` int(11) NOT NULL,
   `createdAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`accountDBID`,`serverId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `account_verify` (
+	`token` VARCHAR(128) NOT NULL,
+	`email` VARCHAR(64) NOT NULL,
+	`code` VARCHAR(6) NULL,
+	`failsCount` INT(11) NOT NULL DEFAULT '0',
+  `userName` VARCHAR(64) NULL,
+  `passWord` VARCHAR(128) NULL,
+	`createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`token`, `email`),
+	INDEX `code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `box_info` (

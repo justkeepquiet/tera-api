@@ -19,7 +19,6 @@ module.exports = (sequelize, DataTypes) =>
 		},
 		userName: {
 			type: DataTypes.STRING(64),
-			primaryKey: true,
 			allowNull: false
 		},
 		passWord: {
@@ -27,11 +26,13 @@ module.exports = (sequelize, DataTypes) =>
 			allowNull: false
 		},
 		authKey: {
-			type: DataTypes.STRING(128)
+			type: DataTypes.STRING(128),
+			unique: true
 		},
 		email: {
 			type: DataTypes.STRING(64),
-			primaryKey: true
+			allowNull: false,
+			unique: true
 		},
 		registerTime: {
 			type: DataTypes.DATE,

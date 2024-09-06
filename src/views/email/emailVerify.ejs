@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body style="background: #ffffff">
+    <table align="center" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8f8f8; background-repeat: repeat; font-family: Arial, sans-serif; font-size: 14px;">
+        <tbody>
+            <tr>
+                <td><div style="max-width: 60px; min-width: 20px"></div></td>
+                <td style="padding-top: 30px; padding-right: 0; padding-left: 0; padding-bottom: 60px;">
+                    <div style="max-width: 630px; min-width: 300px; margin: 0 auto">
+                    <!-- div style="margin-left: 5%; margin-bottom: 15px; height: 38px; line-height: 38px">
+                        <img src="" alt="" width="68" height="36" border="0">
+                    </div -->
+                    <table align="center" cellpadding="0" cellspacing="0" style="border-color: #e6e6e6; border-width: 1px; border-style: solid; background-color: #fff; padding-top: 25px; padding-right: 5%; padding-bottom: 50px; padding-left: 5%;" width="100%">
+                        <tbody>
+                            <tr>
+                                <td style="padding:0;">
+                                    <p style="font-family: Arial, sans-serif; font-size: 19px; margin-top: 14px; margin-bottom: 0;">
+                                        <%= __('Hello!') %>
+                                    </p>
+                                    <p style="font-family: Arial, sans-serif; font-size: 15px; line-height: 17px; margin-top: 30px; margin-bottom: 40px;">
+                                        <%= __('Your verification code') %>:
+                                    </p>
+                                    <table cellpadding="0" cellspacing="0" width="202">
+                                        <tr>
+                                            <td width="202" height="48" style="background-color: #17476E; text-align: center; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
+                                                <p style="display: block; font-family: Arial, sans-serif; font-size: 15px; text-align: center; width: 202px;
+                                                color: #fff; text-decoration: none; font-weight: bold;">
+                                                    <span style="font-size: 1.6em;"><%= code %></span>
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <p style="font-family: Arial, sans-serif; font-size: 15px; line-height: 17px; margin-top: 30px; margin-bottom: 30px;">
+                                        <%= __('This letter is generated automatically and does not require a response.') %>
+                                    </p>
+                                    <p style="font-family: Arial, sans-serif; font-size: 15px; font-style: italic; margin-top: 30px; margin-bottom: 0;">
+                                        <%= __('Sincerely, ') %><br>
+                                        <%= brandName %>
+                                    </p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+</body>
+</html>

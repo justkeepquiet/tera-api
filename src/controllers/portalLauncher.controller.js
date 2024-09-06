@@ -9,11 +9,23 @@ const uuid = require("uuid");
 const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
-const helpers = require("../utils/helpers");
+const Recaptcha = require("express-recaptcha").RecaptchaV3;
 
-const { recaptcha, validationHandler, resultJson } = require("../middlewares/portalLauncher.middlewares");
+const helpers = require("../utils/helpers");
+const { validationHandler, resultJson } = require("../middlewares/portalLauncher.middlewares");
 
 const ipFromLauncher = /^true$/i.test(process.env.API_ARBITER_USE_IP_FROM_LAUNCHER);
+
+let recaptcha = null;
+
+if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
+	recaptcha = new Recaptcha(
+		process.env.API_PORTAL_RECAPTCHA_SITE_KEY,
+		process.env.API_PORTAL_RECAPTCHA_SECRET_KEY, {
+			callback: "bindFormAction"
+		}
+	);
+}
 
 /**
  * @param {modules} modules
@@ -218,8 +230,7 @@ module.exports.SignupAction = ({ logger, sequelize, accountModel }) => [
 						promises.push(accountModel.benefits.create({
 							accountDBID: account.get("accountDBID"),
 							benefitId: benefitId,
-							availableUntil: sequelize.fn("ADDDATE", sequelize.fn("NOW"), benefitDays),
-							...ipFromLauncher ? { lastLoginIP: req.ip } : {}
+							availableUntil: sequelize.fn("ADDDATE", sequelize.fn("NOW"), benefitDays)
 						}));
 					});
 

@@ -8,6 +8,7 @@
  * @property {Sequelize} sequelize
  * @property {HubFunctions} hub
  * @property {SteerFunctions} steer
+ * @property {nodemailer.Transporter} mailer
  * @property {BackgroundQueue} queue
  * @property {import("./utils/logger").logger} logger
  * @property {import("./lib/expressServer").app} app
@@ -25,6 +26,7 @@ require("dotenv").config();
 
 const { Sequelize, DataTypes } = require("sequelize");
 const cls = require("cls-hooked");
+const nodemailer = require("nodemailer");
 const createLogger = require("./utils/logger").createLogger;
 const cliHelper = require("./utils/cliHelper");
 const CoreLoader = require("./lib/coreLoader");
@@ -79,6 +81,23 @@ moduleLoader.setPromise("steer", () => new Promise(resolve => {
 		resolve(steer)
 	);
 }));
+
+moduleLoader.setAsync("mailer", () => {
+	const settings = {
+		host: process.env.MAILER_SMTP_HOST,
+		port: process.env.MAILER_SMTP_PORT,
+		secure: /^true$/i.test(process.env.MAILER_SMTP_SECURE)
+	};
+
+	if (process.env.MAILER_SMTP_AUTH_USER && process.env.MAILER_SMTP_AUTH_PASS) {
+		settings.auth = {
+			user: process.env.MAILER_SMTP_AUTH_USER,
+			pass: process.env.MAILER_SMTP_AUTH_PASS
+		};
+	}
+
+	return nodemailer.createTransport(settings);
+});
 
 moduleLoader.setPromise("datasheetModel", () =>
 	require("./models/datasheet.model")(createLogger("Datasheet", { colors: { debug: "gray" } }))
@@ -184,7 +203,7 @@ moduleLoader.final().then(
 
 			const es = new ExpressServer(modules, {
 				logger: createLogger("Portal API", { colors: { debug: "blue" } }),
-				disableCache: true
+				disableCache: false
 			});
 
 			if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {

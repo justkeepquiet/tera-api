@@ -250,3 +250,22 @@ module.exports.getPasswordString = password => {
 
 	return passwordString;
 };
+
+/**
+* @return {string}
+*/
+module.exports.generateVerificationCode = () =>
+	Math.floor(100000 + Math.random() * 900000).toString().padStart(6, "0")
+;
+
+/**
+* @param {string} email
+* @return {string}
+*/
+module.exports.maskEmail = email => {
+	const [localPart, domain] = email.split("@");
+	const hiddenLocal = localPart.slice(0, 2) + "*".repeat(localPart.length - 2);
+	const [domainName, domainSuffix] = domain.split(".");
+	const hiddenDomain = `${domainName[0] + "*".repeat(domainName.length - 1)}.${domainSuffix}`;
+	return `${hiddenLocal}@${hiddenDomain}`;
+};

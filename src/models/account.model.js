@@ -11,6 +11,7 @@
  * @property {import("sequelize").ModelCtor<Model<any, any>>} characters
  * @property {import("sequelize").ModelCtor<Model<any, any>>} benefits
  * @property {import("sequelize").ModelCtor<Model<any, any>>} online
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} verify
  */
 
 /**
@@ -24,7 +25,8 @@ module.exports = (sequelize, DataTypes, modules) => {
 		bans: require("./account/accountBans.model")(sequelize, DataTypes),
 		characters: require("./account/accountCharacters.model")(sequelize, DataTypes),
 		benefits: require("./account/accountBenefits.model")(sequelize, DataTypes),
-		online: require("./account/accountOnline.model")(sequelize, DataTypes)
+		online: require("./account/accountOnline.model")(sequelize, DataTypes),
+		verify: require("./account/accountVerify.model")(sequelize, DataTypes)
 	};
 
 	// info
