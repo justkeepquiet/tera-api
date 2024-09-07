@@ -12,6 +12,7 @@
  * @property {BackgroundQueue} queue
  * @property {import("./utils/logger").logger} logger
  * @property {import("./lib/expressServer").app} app
+ * @property {import("./lib/scheduler").Scheduler} scheduler
  * @property {import("./models/datasheet.model").datasheetModel} datasheetModel
  * @property {import("./models/queue.model").queueModel} queueModel
  * @property {import("./models/data.model").dataModel} dataModel
@@ -31,6 +32,7 @@ const createLogger = require("./utils/logger").createLogger;
 const cliHelper = require("./utils/cliHelper");
 const CoreLoader = require("./lib/coreLoader");
 const BackgroundQueue = require("./lib/backgroundQueue");
+const { Scheduler, expr } = require("./lib/scheduler");
 const ExpressServer = require("./lib/expressServer");
 const serverCategory = require("./lib/teraPlatformGuid").serverCategory;
 const HubFunctions = require("./lib/hubFunctions");
@@ -81,6 +83,10 @@ moduleLoader.setPromise("steer", () => new Promise(resolve => {
 		resolve(steer)
 	);
 }));
+
+moduleLoader.setAsync("scheduler", () => new Scheduler(
+	createLogger("Scheduler", { colors: { debug: "gray" } })
+));
 
 moduleLoader.setAsync("mailer", () => {
 	const settings = {
@@ -273,14 +279,14 @@ moduleLoader.final().then(
 			setInterval(serversStatusCheck, 10000);
 			serversStatusCheck();
 
-			setInterval(() =>
-				modules.queue.start().catch(err =>
-					modules.queue.logger.error(err)
-				), 60000
+			modules.scheduler.start({ name: "printMemoryUsage", schedule: expr.EVERY_THIRTY_MINUTES }, cli.printMemoryUsage);
+			modules.scheduler.start({ name: "backgroundQueue", schedule: expr.EVERY_MINUTE }, () =>
+				modules.queue.start().catch(err => modules.queue.logger.error(err))
 			);
-
-			setInterval(() =>
-				cli.printMemoryUsage(), 60000 * 30
+			modules.scheduler.startTasks(
+				require("../config/scheduler"),
+				require("./controllers/scheduler.controller"),
+				modules
 			);
 
 			cli.printInfo();
