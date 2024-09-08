@@ -3,6 +3,7 @@ data/*
 logs/*
 sessions/*
 public/fontawesome/*
+public/updates/*
 share/dataitems/*
 package-lock.json
 .env

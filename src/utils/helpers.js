@@ -7,7 +7,9 @@
 * @typedef {import("i18n").__} __
 */
 
+const fs = require("fs");
 const crypto = require("crypto");
+const bencode = require("bencode");
 const validationResult = require("express-validator").validationResult;
 const logger = require("../utils/logger");
 
@@ -269,3 +271,11 @@ module.exports.maskEmail = email => {
 	const hiddenDomain = `${domainName[0] + "*".repeat(domainName.length - 1)}.${domainSuffix}`;
 	return `${hiddenLocal}@${hiddenDomain}`;
 };
+
+/**
+* @param {string} path
+* @return {any[]}
+*/
+module.exports.readTorrent = path =>
+	bencode.decode(fs.readFileSync(path))
+;
