@@ -74,7 +74,7 @@ module.exports = modules => {
 	modules.app.use("/tera", passport.session());
 
 	modules.app.use((req, res, next) => {
-		const locale = req?.user?.language || process.env.API_PORTAL_LOCALE;
+		const locale = (req?.user?.language || process.env.API_PORTAL_LOCALE).split("-")[0];
 
 		if (i18n.getLocales().includes(locale)) {
 			i18n.setLocale(locale);
