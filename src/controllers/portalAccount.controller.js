@@ -92,7 +92,7 @@ module.exports.SetAccountInfoByUserNo = ({ logger, accountModel }) => [
 	[
 		body("userNo").notEmpty(),
 		body("authKey").notEmpty(),
-		body("language").isIn(["cn", "en", "fr", "de", "jp", "kr", "ru", "se", "th", "tw"])
+		body("language").isIn(["cn", "en", "en-US", "fr", "de", "jp", "kr", "ru", "se", "th", "tw"])
 	],
 	validationHandler(logger),
 	/**
@@ -109,7 +109,9 @@ module.exports.SetAccountInfoByUserNo = ({ logger, accountModel }) => [
 			}
 
 			return accountModel.info.update({
-				language,
+				language: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR) ?
+					language :
+					helpers.regionToLanguage(process.env.API_PORTAL_CLIENT_DEFAULT_REGION),
 				...ipFromLauncher ? { lastLoginIP: req.ip } : {}
 			}, {
 				where: { accountDBID: account.get("accountDBID") }

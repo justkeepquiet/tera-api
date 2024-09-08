@@ -89,7 +89,7 @@ module.exports.regionToLanguage = region =>
 		SE: "se",
 		THA: "th",
 		TW: "tw",
-		USA: "en"
+		USA: "en-US"
 	}[region.toUpperCase()] || "en")
 ;
 
@@ -111,7 +111,7 @@ module.exports.languageToRegion = language =>
 		se: "SE",
 		th: "THA",
 		tw: "TW"
-	}[language.toLowerCase()] || "EUR")
+	}[language.replace("_", "-")] || "EUR")
 ;
 
 /**

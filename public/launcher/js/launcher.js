@@ -15,7 +15,7 @@ function regionToLanguage(region) {
 		INT: "en", JPN: "jp",
 		KOR: "kr", RUS: "ru",
 		SE: "se", THA: "th",
-		TW: "tw", USA: "en"
+		TW: "tw", USA: "en-US"
 	};
 
 	if (typeof regions[region] !== "undefined") {
@@ -301,7 +301,7 @@ function l2w_getLauncherInfoUrl() {
 }
 
 function l2w_getServerList() {
-	return host + "/tera/ServerList?lang=" + regionToLanguage(REGION);
+	return host + "/tera/ServerList?lang=" + regionToLanguage(REGION).split("-")[0];
 }
 
 function l2w_getOTP() {

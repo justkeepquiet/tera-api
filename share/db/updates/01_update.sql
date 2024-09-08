@@ -1,6 +1,7 @@
 
 ALTER TABLE `account_info` DROP PRIMARY KEY, ADD PRIMARY KEY (`accountDBID`) USING BTREE, ADD UNIQUE INDEX `userName` (`userName`), ADD UNIQUE INDEX `email` (`email`) ;
 ALTER TABLE `account_info` DROP INDEX `authKey`, ADD UNIQUE INDEX `authKey` (`authKey`) USING BTREE;
+ALTER TABLE `account_info` CHANGE COLUMN `language` `language` VARCHAR(5) NULL DEFAULT NULL COLLATE 'utf8_general_ci' AFTER `privilege`;
 
 CREATE TABLE IF NOT EXISTS `account_reset_password` (
   `token` VARCHAR(128) NOT NULL,

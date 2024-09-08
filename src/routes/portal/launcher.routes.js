@@ -20,7 +20,7 @@ module.exports = modules => {
 	});
 
 	modules.app.use((req, res, next) => {
-		const locale = req.query.lang || process.env.API_PORTAL_LOCALE;
+		const locale = (req.query.lang || process.env.API_PORTAL_LOCALE).split("-")[0];
 
 		if (i18n.getLocales().includes(locale)) {
 			i18n.setLocale(locale);
