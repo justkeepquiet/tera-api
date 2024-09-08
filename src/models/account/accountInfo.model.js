@@ -74,7 +74,7 @@ module.exports = (sequelize, DataTypes) =>
 			defaultValue: 0
 		},
 		language: {
-			type: DataTypes.STRING(3)
+			type: DataTypes.STRING(5)
 		}
 	})
 ;
