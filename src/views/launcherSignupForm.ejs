@@ -19,10 +19,14 @@
 
 		if (result) {
 			if (result.Return) {
-				localStorage.ACCOUNT_ID = result.UserNo;
-				localStorage.AUTH_KEY = result.AuthKey;
-
-				document.location.replace("LauncherLoginForm");
+				if (result.VerifyToken) {
+					localStorage.VERIFY_TOKEN = result.VerifyToken;
+					document.location.replace("LauncherSignupVerifyForm?lang=<%= locale %>&token=" + result.VerifyToken);
+				} else {
+					localStorage.ACCOUNT_ID = result.UserNo;
+					localStorage.AUTH_KEY = result.AuthKey;
+					document.location.replace("LauncherLoginForm");
+				}
 			} else {
 				switch (result.Msg) {
 					case "$0":
@@ -96,7 +100,7 @@
 		<br>
 		<div class="form-group">
 			<div class="col">
-				<button type="submit" tabindex="3" class="btn-join">Sign up</button>
+				<button type="submit" tabindex="3" class="btn-blue"><%= __('Sign Up') %></button>
 			</div>
 		</div>
 	</form>

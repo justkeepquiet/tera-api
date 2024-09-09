@@ -49,6 +49,10 @@
 			document.location.replace("LauncherSignupForm?lang=<%= locale %>");
 			parent.Launcher.sendCommand("size|320,530");
 		});
+
+		$("#btnResetPass").click(function() {
+			document.location.replace("LauncherResetPasswordForm?lang=<%= locale %>");
+		});
 	});
 
 	function setQaBox() {
@@ -150,7 +154,7 @@
 </head>
 <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false" style="overflow: hidden;">
 <div class="wrap">
-<%_ if (!disableRegistration) { _%>
+<%_ if (!isRegistrationDisabled) { _%>
 	<form class="form-horizontal" name="userLoginForm" method="post" action="" id="userLoginForm">
 <%_ } else { _%>
 	<form class="form-horizontal" name="userLoginForm" method="post" action="" id="userLoginForm" style="padding-top: 30px">
@@ -168,17 +172,20 @@
 		<div class="form-group">
 			<div class="col">
 				<div class="checkbox">
-					<label>
-					<input type="checkbox" name="remember" id="remember" checked> <%= __("Remember Me") %></label>
+					<label><input type="checkbox" name="remember" id="remember" checked> <%= __('Remember Me') %></label>
 				</div>
 				<br><br>
 			</div>
 		</div>
-		<div class="form-group">
-			<div class="col">
-				<button type="submit" tabindex="3" class="btn-submit">Sign in</button>
-<%_ if (!disableRegistration) { _%>
-				<button type="button" tabindex="3" class="btn-join" id="btnJoin">Join a member</button>
+		<div class="form-group" style="padding-top: 15px;">
+			<div class="col" style="text-align: center;">
+				<button type="submit" tabindex="3" class="btn-orange" style="text-transform: uppercase;"><%= __('Login') %></button>
+<%_ if (!isRegistrationDisabled) { _%>
+				<button type="button" tabindex="3" class="btn-blue" style="text-transform: uppercase;" id="btnJoin"><%= __('Sign Up') %></button>
+<%_ } _%>
+				<br>
+<%_ if (isEmailVerifyEnabled) { _%>
+				<a href="#" style="text-decoration: underline;" id="btnResetPass"><%= __('Forgot your password?') %></a>
 <%_ } _%>
 			</div>
 		</div>

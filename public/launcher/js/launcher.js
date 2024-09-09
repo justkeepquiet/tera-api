@@ -49,12 +49,34 @@ function launcherLogoutAction(authKey) {
 	});
 }
 
-function launcherSignupAction(login, email, password, token) {
+function launcherResetPasswordAction(email, captcha) {
+	return apiRequest("LauncherResetPasswordAction", {
+		"g-recaptcha-response": captcha,
+		email: email
+	});
+}
+
+function launcherResetPasswordVerifyAction(token, code, password) {
+	return apiRequest("LauncherResetPasswordVerifyAction", {
+		token: token,
+		code: code,
+		password: password
+	});
+}
+
+function launcherSignupAction(login, email, password, captcha) {
 	return apiRequest("LauncherSignupAction", {
-		"g-recaptcha-response": token,
+		"g-recaptcha-response": captcha,
 		login: login,
 		email: email,
 		password: password
+	});
+}
+
+function launcherSignupVerifyAction(token, code) {
+	return apiRequest("LauncherSignupVerifyAction", {
+		token: token,
+		code: code
 	});
 }
 

@@ -37,9 +37,18 @@ module.exports = modules => {
 	return express.Router()
 		.get("/LauncherMaintenanceStatus", portalLauncherController.MaintenanceStatus(mod))
 		.get("/LauncherMain", portalLauncherController.MainHtml(mod))
+
 		.get("/LauncherLoginForm", portalLauncherController.LoginFormHtml(mod))
-		.get("/LauncherSignupForm", portalLauncherController.SignupFormHtml(mod))
 		.post("/LauncherLoginAction", portalLauncherController.LoginAction(mod))
+
+		.get("/LauncherSignupForm", portalLauncherController.SignupFormHtml(mod))
 		.post("/LauncherSignupAction", portalLauncherController.SignupAction(mod))
+		.get("/LauncherSignupVerifyForm", portalLauncherController.SignupVerifyFormHtml(mod))
+		.post("/LauncherSignupVerifyAction", portalLauncherController.SignupVerifyAction(mod))
+
+		.get("/LauncherResetPasswordForm", portalLauncherController.ResetPasswordFormHtml(mod))
+		.post("/LauncherResetPasswordAction", portalLauncherController.ResetPasswordAction(mod))
+		.get("/LauncherResetPasswordVerifyForm", portalLauncherController.ResetPasswordVerifyFormHtml(mod))
+		.post("/LauncherResetPasswordVerifyAction", portalLauncherController.ResetPasswordVerifyAction(mod))
 	;
 };

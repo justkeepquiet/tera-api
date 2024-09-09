@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge;">
+<title>Login</title>
+<link rel="stylesheet" href="/public/launcher/css/login.css">
+<link rel="stylesheet" href="/public/launcher/css/buttons-<%= locale %>.css">
+<script type="text/javascript" src="/public/launcher/js/jquery-1.11.1.min.js"></script>
+<script>
+	function signupVerifyAction(token, code) {
+		var result = parent.launcherSignupVerifyAction(token, code);
+
+		if (result) {
+			if (result.Return) {
+				localStorage.VERIFY_TOKEN = null;
+				localStorage.ACCOUNT_ID = result.UserNo;
+				localStorage.AUTH_KEY = result.AuthKey;
+				document.location.replace("LauncherLoginForm");
+			} else {
+				switch (result.Msg) {
+					case "$0":
+						alert("<%= __('Invalid verification code.') %>");
+						break;
+
+					case "$1":
+						alert("<%= __('The number of verification code entry attempts has been exceeded.') %>");
+						document.location.replace("LauncherLoginForm");
+						break;
+
+					default:
+						alert(result.Msg);
+						console.log(result.Msg);
+				}
+			}
+		}
+	}
+
+	$(function () {
+		$("#loader").hide();
+		$("#userSignupVerifyForm").show();
+		$("#userSignupVerifyForm").submit(function() {
+			signupVerifyAction(localStorage.VERIFY_TOKEN, $('#code').val());
+			return false;
+		});
+	});
+</script>
+</head>
+<body oncontextmenu="return false" ondragstart="return false" onselectstart="return false" style="overflow: hidden;">
+<div class="wrap">
+	<div class="loader" id="loader"></div>
+	<form class="form-horizontal" name="userSignupVerifyForm"  method="post" action="" id="userSignupVerifyForm" style="display: none;">
+		<div class="form-group" style="padding-top: 70px;">
+			<div class="col">
+				<input type="text" class="form-control form-code" id="code" name="code" value=""  placeholder="<%= __('Verification code') %>" maxlength="128" tabindex="2">
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="col" style="text-align: center;">
+				<%= __('This code has been sent to your email') %><br>
+				<%= email %>
+			</div>
+		</div>
+		<div class="form-group" style="padding-top: 20px;">
+			<div class="col">
+				<button type="submit" tabindex="3" class="btn-blue"><%= __('Confirm') %></button>
+			</div>
+		</div>
+	</form>
+	<button class="btn-close" onclick="parent.Launcher.sendCommand('close');">Close</button>
+</div>
+<!--/wrap-->
+</body>
+</html>

@@ -30,5 +30,20 @@
 	"QA Operations Menu": "Меню тестирования",
 	"Disable file check": "Отключить проверку файлов",
 	"Client language": "Язык клиента",
-	"Hide block": "Скрыть блок"
+	"Hide block": "Скрыть блок",
+	"Sign Up": "Регистрация",
+	"New password": "Новый пароль",
+	"Verification code": "Код подтверждения",
+	"Confirm": "Подтвердить",
+	"Forgot your password?": "Забыли пароль?",
+	"This code has been sent to your email": "Код был отправлен на ваш Email",
+	"Invalid verification code.": "Неверный код подтверждения.",
+	"Reset Password": "Сбросить пароль",
+	"Confirmation of registration": "Подтверждение регистрации",
+	"Hello!": "Здравствуйте!",
+	"Your verification code": "Ваш код подтверждения",
+	"This letter is generated automatically and does not require a response.": "Это письмо сгенерировано автоматически и не требует ответа.",
+	"Sincerely, ": "С уважением, ",
+	"The number of verification code entry attempts has been exceeded.": "Превышено количество попыток ввода кода подтверждения.",
+	"Your password has been successfully changed.": "Ваш пароль был успешно изменен."
 }
