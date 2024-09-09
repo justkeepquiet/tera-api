@@ -37,39 +37,3 @@
 .gamestart .btn-repair {
 	background-image: url(../images/ru/btn-repair.png);
 }
-/* Login form */
-button.btn-submit {
-	background-image:url(../images/ru/btn-auth.png);
-	width:224px;
-	height:67px;
-	background-color:transparent;
-	border-width:0;
-	text-indent:-9999px;
-	padding:0;
-	display:block;
-	cursor:pointer;
-	margin-top:15px;
-	margin-bottom:5px;
-}
-button.btn-join {
-	background-image:url(../images/ru/btn-auth.png);
-	width:224px;
-	height:67px;
-	background-color:transparent;
-	border-width:0;
-	text-indent:-9999px;
-	padding:0;
-	display:block;
-	cursor:pointer;
-	margin-bottom:5px;
-	background-position:0 -70px;
-}
-a.btn-join {
-	background-image:url(../images/ru/btn-auth.png);
-	width:224px;
-	height:67px;
-	text-indent:-9999px;
-	display:block;
-	cursor:pointer;
-	background-position:0 -70px;
-}

@@ -135,3 +135,36 @@ a {
 	visibility: hidden;
 	top: -1000px;
 }
+button.btn-orange {
+	background-image: url(../images/btn.png);
+	width: 224px;
+	height: 67px;
+	color: #fff2a7;
+	font-size: 24px;
+	background-color: transparent;
+	border-width: 0;
+	padding: 0;
+	line-height: 0;
+	display: block;
+	cursor: pointer;
+	margin-bottom: 5px;
+	text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px 0px 0 #000, 
+		0px 1px 0 #000, -1px 0px 0 #000, 0px -1px 0 #000, 1px 1px 0px rgba(0,0,0,0);
+}
+button.btn-blue {
+	background-image: url(../images/btn.png);
+	width: 224px;
+	height: 67px;
+	color: #fff;
+	font-size: 24px;
+	background-color: transparent;
+	border-width: 0;
+	padding: 0;
+	line-height: 0;
+	display: block;
+	cursor: pointer;
+	margin-bottom: 5px;
+	background-position: 0 -70px;
+	text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px 0px 0 #000,
+		0px 1px 0 #000, -1px 0px 0 #000, 0px -1px 0 #000, 1px 1px 0px rgba(0,0,0,0);
+}
