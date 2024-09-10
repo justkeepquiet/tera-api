@@ -46,5 +46,7 @@
 	"This letter is generated automatically and does not require a response.": "This letter is generated automatically and does not require a response.",
 	"Sincerely, ": "Sincerely, ",
 	"The number of verification code entry attempts has been exceeded.": "The number of verification code entry attempts has been exceeded.",
-	"Your password has been successfully changed.": "Your password has been successfully changed."
+	"Your password has been successfully changed.": "Your password has been successfully changed.",
+	"Login to existing account": "Login to existing account",
+	"Login to another account": "Login to another account"
 }

@@ -46,5 +46,7 @@
 	"This letter is generated automatically and does not require a response.": "Это письмо сгенерировано автоматически и не требует ответа.",
 	"Sincerely, ": "С уважением, ",
 	"The number of verification code entry attempts has been exceeded.": "Превышено количество попыток ввода кода подтверждения.",
-	"Your password has been successfully changed.": "Ваш пароль был успешно изменен."
+	"Your password has been successfully changed.": "Ваш пароль был успешно изменен.",
+	"Login to existing account": "Войти в существующий аккаунт",
+	"Login to another account": "Войти в другой аккаунт"
 }

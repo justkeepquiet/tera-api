@@ -59,9 +59,14 @@
 	function bindFormAction(token) {
 		$("#loader").hide();
 		$("#userSignupForm").show();
+
 		$("#userSignupForm").submit(function() {
 			signupAction($('#login').val(), $('#email').val(), $('#password').val(), $('#password2').val(), token);
 			return false;
+		});
+
+		$("#btnToLogin").click(function() {
+			document.location.replace("LauncherLoginForm?lang=<%= locale %>");
 		});
 	}
 </script>
@@ -99,8 +104,10 @@
 		<br>
 		<br>
 		<div class="form-group">
-			<div class="col">
+			<div class="col" style="text-align: center;">
 				<button type="submit" tabindex="3" class="btn-blue"><%= __('Sign Up') %></button>
+				<br>
+				<a href="#" style="text-decoration: underline;" id="btnToLogin"><%= __('Login to existing account') %></a>
 			</div>
 		</div>
 	</form>
