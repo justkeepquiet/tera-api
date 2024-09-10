@@ -71,13 +71,12 @@ module.exports.MainHtml = ({ i18n }) => [
 	(req, res) => {
 		res.render("launcherMain", {
 			brandName: process.env.API_PORTAL_BRAND_NAME || "Tera Private Server",
-			patchNoCheck: process.env.API_PORTAL_CLIENT_PATCH_NO_CHECK,
-			startNoCheck: process.env.API_PORTAL_LAUNCHER_DISABLE_CONSISTENCY_CHECK,
+			patchNoCheck: /^true$/i.test(process.env.API_PORTAL_CLIENT_PATCH_NO_CHECK),
+			startNoCheck: /^true$/i.test(process.env.API_PORTAL_LAUNCHER_DISABLE_CONSISTENCY_CHECK),
 			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
-			region: process.env.API_PORTAL_CLIENT_DEFAULT_REGION,
-			localeSelector: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR),
-			locale: i18n.getLocale(),
+			region: helpers.languageToRegion(req.query.lang || process.env.API_PORTAL_LOCALE),
 			lang: req.query.lang,
+			localeSelector: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR),
 			regions: helpers.getClientRegions(),
 			helpers
 		});
@@ -95,9 +94,7 @@ module.exports.LoginFormHtml = ({ i18n }) => [
 		res.render("launcherLoginForm", {
 			qaPrivilege: process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE,
 			isRegistrationDisabled,
-			isEmailVerifyEnabled,
-			lang: req.query.lang,
-			locale: i18n.getLocale()
+			isEmailVerifyEnabled
 		});
 	}
 ];
@@ -407,7 +404,7 @@ module.exports.SignupFormHtml = () => [
 	 * @type {RequestHandler}
 	 */
 	(req, res) => {
-		if (!isEmailVerifyEnabled || isRegistrationDisabled) {
+		if (isRegistrationDisabled) {
 			return res.redirect("LauncherLoginForm");
 		}
 
@@ -519,8 +516,7 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 						userName: login,
 						passWord: helpers.getPasswordString(password),
 						authKey: uuid(),
-						email,
-						language: i18n.getLocale()
+						email
 					});
 
 					const promises = [];
@@ -660,8 +656,7 @@ module.exports.SignupVerifyAction = ({ logger, i18n, sequelize, accountModel }) 
 					userName: accountVerify.get("userName"),
 					passWord: helpers.getPasswordString(accountVerify.get("passWord")),
 					authKey: uuid(),
-					email: accountVerify.get("email"),
-					language: i18n.getLocale()
+					email: accountVerify.get("email")
 				});
 
 				const promises = [];

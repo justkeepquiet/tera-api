@@ -131,8 +131,12 @@ var Launcher = {
 		$("#fileName").text("");
 		$("#totalText").text("");
 
-		if (localStorage.REGION && !urlParam("lang")) {
-			Launcher.setRegion(localStorage.REGION, true);
+		if (!urlParam("lang")) {
+			if (localStorage.REGION) {
+				Launcher.setRegion(localStorage.REGION, true);
+			} else {
+				Launcher.setRegion(REGIONS[USER_LANG] || REGION, true);
+			}
 		}
 	},
 
@@ -289,12 +293,12 @@ var Launcher = {
 		var language = regionToLanguage(region);
 
 		if (language) {
-			if (reload) {
-				location.replace("LauncherMain" + "?lang=" + language);
-			}
-
 			if (loginIFrame.ACCOUNT_ID && loginIFrame.AUTH_KEY) {
 				setAccountInfoByUserNo(loginIFrame.ACCOUNT_ID, loginIFrame.AUTH_KEY, language);
+			}
+
+			if (reload) {
+				location.replace("LauncherMain" + "?lang=" + language);
 			}
 		}
 

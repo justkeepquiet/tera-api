@@ -16,7 +16,7 @@
 				localStorage.VERIFY_TOKEN = null;
 				localStorage.ACCOUNT_ID = result.UserNo;
 				localStorage.AUTH_KEY = result.AuthKey;
-				document.location.replace("LauncherLoginForm");
+				document.location.replace("LauncherLoginForm?lang=<%= locale %>");
 			} else {
 				switch (result.Msg) {
 					case "$0":
@@ -25,7 +25,7 @@
 
 					case "$1":
 						alert("<%= __('The number of verification code entry attempts has been exceeded.') %>");
-						document.location.replace("LauncherLoginForm");
+						document.location.replace("LauncherLoginForm?lang=<%= locale %>");
 						break;
 
 					default:

@@ -25,21 +25,6 @@
 			parent.Launcher.showLoginIFrame();
 		}
 
-		if (!parent.urlParam("lang")) {
-			var userLang = (navigator.language || navigator.userLanguage).split('-')[0];
-			if (localStorage.REGION) {
-				parent.Launcher.setRegion(localStorage.REGION, true);
-			} else {
-				parent.Launcher.setRegion(parent.REGIONS[userLang] || parent.REGION, true);
-			}
-		}
-
-		parent.$(".region").click(function() {
-			localStorage.REGION = $(this).data("region");
-			parent.Launcher.setRegion($(this).data("region"), true);
-			parent.Launcher.abortPatch();
-		});
-
 		$("#userLoginForm").submit(function() {
 			authByLoginAndPassword($('#login').val(), $('#password').val(), $('#remember').is(':checked'));
 			return false;
@@ -179,9 +164,9 @@
 		</div>
 		<div class="form-group" style="padding-top: 15px;">
 			<div class="col" style="text-align: center;">
-				<button type="submit" tabindex="3" class="btn-orange" style="text-transform: uppercase;"><%= __('Login') %></button>
+				<button type="submit" tabindex="3" class="btn-orange"><%= __('Sign In') %></button>
 <%_ if (!isRegistrationDisabled) { _%>
-				<button type="button" tabindex="3" class="btn-blue" style="text-transform: uppercase;" id="btnJoin"><%= __('Sign Up') %></button>
+				<button type="button" tabindex="3" class="btn-blue" id="btnJoin"><%= __('Sign Up') %></button>
 <%_ } _%>
 				<br>
 <%_ if (isEmailVerifyEnabled) { _%>

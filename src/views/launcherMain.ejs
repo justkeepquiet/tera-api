@@ -12,9 +12,10 @@
 	var accountBlockedString = "<%= __('Account blocked. Please contact support.') %>";
 	var serverMaintenanceString = "<%= __('The server is under maintenance. Please try again later.') %>";
 
-	var PATCH_NO_CHECK = /^true$/i.test("<%= patchNoCheck %>");
-	var START_NO_CHECK = /^true$/i.test("<%= startNoCheck %>");
+	var PATCH_NO_CHECK = <%= patchNoCheck %>;
+	var START_NO_CHECK = <%= startNoCheck %>;
 	var PATCH_URL = "<%= patchUrl %>";
+	var USER_LANG = (navigator.language || navigator.userLanguage).split('-')[0];
 	var REGION = localStorage.REGION ? localStorage.REGION : "<%= region %>";
 	var REGIONS = {
 		<%_ regions.forEach(element => { _%>
@@ -44,6 +45,20 @@
 <script type="text/javascript" src="/public/launcher/js/launcher-util.js"></script>
 <script type="text/javascript" src="/public/launcher/js/launcher-errors.js"></script>
 <script type="text/javascript" src="/public/launcher/js/launcher.js"></script>
+<script>
+	$(function() {
+		var langParam = urlParam("lang");
+		if (langParam) {
+			$("#loginIFrame").attr("src", "/tera/LauncherLoginForm?lang=" + langParam);
+		}
+
+		$(".region").click(function() {
+			localStorage.REGION = $(this).data("region");
+			Launcher.setRegion($(this).data("region"), true);
+			Launcher.abortPatch();
+		});
+	});
+</script>
 <style type="text/css">
 	html { overflow: hidden; padding: 0; margin: 0; }
 </style>
@@ -129,7 +144,7 @@
 	</div>
 	<!--/wrap-->
 	<div id="loginScreen" class="modalScreen">
-		<iframe src="/tera/LauncherLoginForm?lang=<%= locale %>" id="loginIFrame" name="loginIFrame"></iframe>
+		<iframe src="" id="loginIFrame" name="loginIFrame"></iframe>
 	</div>
 </body>
 </html>
