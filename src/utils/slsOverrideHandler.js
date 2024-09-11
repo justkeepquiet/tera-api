@@ -49,7 +49,10 @@ class SlsOverrideHandler {
 	}
 
 	applyGeoipRule(rule, server) {
-		if (!this.reader) return;
+		if (!this.reader) {
+			this.logger.error("SLS Override Handler: GeoIP reader not initialized. Method 'geoip' was skipped.");
+			return;
+		}
 
 		rule.params.forEach(param => {
 			if (typeof param === "function") {
