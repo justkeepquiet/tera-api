@@ -29,7 +29,7 @@ class Scheduler {
 
 	startTasks(tasks, controller, ...args) {
 		tasks.forEach(task =>
-			this.start(task, controller[task.name], args)
+			this.start(task, controller[task.name], ...args)
 		);
 	}
 
@@ -37,16 +37,22 @@ class Scheduler {
 		this.scheduled.forEach(number => this.stop(number));
 	}
 
-	start(task, func, args) {
+	start(task, func, ...args) {
 		const taskInternal = {
 			id: null,
-			callback: () => {
+			callback: async () => {
 				if (typeof func === "function") {
 					if (this.logger !== null) {
 						this.logger.debug(`Executing (${taskInternal.id}): ${task.name}`);
 					}
 
-					func(...args);
+					try {
+						await func.call(null, ...args);
+					} catch (err) {
+						if (this.logger) {
+							this.logger.error(`Error (${taskInternal.id}): ${task.name}:`, err);
+						}
+					}
 				} else if (this.logger !== null) {
 					this.logger.warn(`Error (${taskInternal.id}): ${task.name} is not a function.`);
 				}

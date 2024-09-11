@@ -5,15 +5,14 @@
  */
 
 const Op = require("sequelize").Op;
-const moment = require("moment-timezone");
 
 /**
  * @param {modules} modules
  */
-module.exports.opAccountVerifyModel = async ({ accountModel }) => {
+module.exports.opAccountVerifyModel = async ({ sequelize, accountModel }) => {
 	await accountModel.verify.destroy({
 		where: {
-			createdAt: { [Op.lt]: moment().subtract(1, "hours").toDate() }
+			createdAt: { [Op.lt]: sequelize.literal("NOW() - INTERVAL 1 HOUR") }
 		}
 	});
 };
@@ -21,10 +20,10 @@ module.exports.opAccountVerifyModel = async ({ accountModel }) => {
 /**
  * @param {modules} modules
  */
-module.exports.opAccountResetPasswordModel = async ({ accountModel }) => {
+module.exports.opAccountResetPasswordModel = async ({ sequelize, accountModel }) => {
 	await accountModel.resetPassword.destroy({
 		where: {
-			createdAt: { [Op.lt]: moment().subtract(1, "hours").toDate() }
+			createdAt: { [Op.lt]: sequelize.literal("NOW() - INTERVAL 1 HOUR") }
 		}
 	});
 };

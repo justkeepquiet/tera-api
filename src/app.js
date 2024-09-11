@@ -209,7 +209,7 @@ moduleLoader.final().then(
 
 			const es = new ExpressServer(modules, {
 				logger: createLogger("Portal API", { colors: { debug: "blue" } }),
-				disableCache: false
+				disableCache: !/^true$/i.test(process.env.API_PORTAL_ENABLE_CACHE)
 			});
 
 			if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
@@ -274,12 +274,8 @@ moduleLoader.final().then(
 		modules.queue.setHandlers(tasksActions);
 
 		return serverLoader.final().then(() => {
-			const serversStatusCheck = () => serverCheckActions.all();
-
-			setInterval(serversStatusCheck, 10000);
-			serversStatusCheck();
-
-			modules.scheduler.start({ name: "printMemoryUsage", schedule: expr.EVERY_THIRTY_MINUTES }, cli.printMemoryUsage);
+			modules.scheduler.start({ name: "serverCheckActions", schedule: expr.EVERY_TEN_SECONDS }, () => serverCheckActions.all());
+			modules.scheduler.start({ name: "printMemoryUsage", schedule: expr.EVERY_THIRTY_MINUTES }, () => cli.printMemoryUsage());
 			modules.scheduler.start({ name: "backgroundQueue", schedule: expr.EVERY_MINUTE }, () =>
 				modules.queue.start().catch(err => modules.queue.logger.error(err))
 			);
@@ -289,6 +285,7 @@ moduleLoader.final().then(
 				modules
 			);
 
+			serverCheckActions.all();
 			cli.printInfo();
 			cli.printMemoryUsage();
 			cli.printReady();
