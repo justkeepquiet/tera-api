@@ -5,7 +5,6 @@
  * @typedef {import("express").RequestHandler} RequestHandler
  */
 
-const crypto = require("crypto");
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
@@ -154,13 +153,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 	(req, res, next) => {
 		const { userName, passWord, email, permission, privilege, benefitIds, availableUntils } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
-		let passwordString = passWord;
-
 		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()] || new Map();
-
-		if (encryptPasswords) {
-			passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + passWord).digest("hex");
-		}
 
 		if (!errors.isEmpty()) {
 			return res.render("adminAccountsAdd", {
@@ -169,7 +162,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 				moment,
 				accountBenefits,
 				userName,
-				passWord,
+				passWord: helpers.getPasswordString(passWord),
 				email,
 				permission,
 				privilege,
@@ -181,7 +174,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 		sequelize.transaction(() =>
 			accountModel.info.create({
 				userName,
-				passWord: passwordString,
+				passWord: helpers.getPasswordString(passWord),
 				email,
 				permission,
 				privilege
@@ -305,12 +298,6 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 		const { accountDBID } = req.query;
 		const { userName, passWord, email, permission, privilege, benefitIds, availableUntils } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
-		
-		let passwordString = passWord;
-		
-		if (encryptPasswords) {
-			passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + passWord).digest("hex");
-		}
 
 		if (!accountDBID) {
 			return res.redirect("/accounts");
@@ -333,7 +320,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 
 		accountModel.info.update({
 			userName,
-			...passWord ? { passWord: passwordString } : {},
+			...passWord ? { passWord: helpers.getPasswordString(passWord) } : {},
 			email,
 			permission,
 			privilege,
