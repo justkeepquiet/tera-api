@@ -3,12 +3,14 @@
 /**
  * @typedef {import("sequelize").Sequelize} Sequelize
  * @typedef {import("sequelize/types")} DataTypes
+ * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
  *
  * @typedef {object} modules
  * @property {Sequelize} sequelize
  * @property {HubFunctions} hub
  * @property {SteerFunctions} steer
  * @property {nodemailer.Transporter} mailer
+ * @property {ReaderModel} geoip
  * @property {BackgroundQueue} queue
  * @property {import("./utils/logger").logger} logger
  * @property {import("./lib/expressServer").app} app
@@ -25,6 +27,9 @@
 
 require("dotenv").config();
 
+const fs = require("fs");
+const path = require("path");
+const geoip = require("@maxmind/geoip2-node");
 const { Sequelize, DataTypes } = require("sequelize");
 const cls = require("cls-hooked");
 const nodemailer = require("nodemailer");
@@ -103,6 +108,21 @@ moduleLoader.setAsync("mailer", () => {
 	}
 
 	return nodemailer.createTransport(settings);
+});
+
+moduleLoader.setAsync("geoip", () => {
+	const geoipLogger = createLogger("GeoIP", { colors: { debug: "gray" } });
+	const filePath = path.join(__dirname, "..", "data", "geoip", "GeoLite2-City.mmdb");
+
+	if (fs.existsSync(filePath)) {
+		const geoIpData = fs.readFileSync(filePath);
+		const reader = geoip.Reader.openBuffer(geoIpData);
+
+		geoipLogger.debug("Loaded.");
+		return reader;
+	} else {
+		geoipLogger.debug("File GeoLite2-City.mmdb is not found. Skip loading.");
+	}
 });
 
 moduleLoader.setPromise("datasheetModel", () =>
