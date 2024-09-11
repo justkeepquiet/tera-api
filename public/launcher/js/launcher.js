@@ -103,7 +103,7 @@ function apiRequest(action, params) {
 	var response = null;
 
 	$.ajax({
-		url: "/tera/" + action + "?ts=" + Date.now(),
+		url: "/tera/" + action + "?lang=" + urlParam("lang") + "&ts=" + Date.now(),
 		method: params ? "post" : "get",
 		data: params,
 		async: false,
@@ -135,7 +135,7 @@ var Launcher = {
 			if (localStorage.REGION) {
 				Launcher.setRegion(localStorage.REGION, true);
 			} else {
-				Launcher.setRegion(REGIONS[USER_LANG] || REGION, true);
+				Launcher.setRegion(REGIONS[USER_LANG] || REGIONS["en-US"] || REGION, true);
 			}
 		}
 	},
