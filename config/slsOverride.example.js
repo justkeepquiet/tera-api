@@ -59,6 +59,20 @@ module.exports = [
 				serverPort: null,
 				// Set suffix to server name (use "null" to disable).
 				nameSuffix: "UA"
+			},
+			// Reassignment the IP address based on the resolving from the domain name
+			// (for example, when using DynDNS or No-IP).
+			{
+				method: "domain",
+				params: {
+					// Specifies the domain name on the basis of which the IP will be determined.
+					domain: "qhbtdfacvt.ddns.net",
+					// The IP addresses of the DNS servers that serves the domain is specified (to avoid caching).
+					dnsServers: [
+						"194.62.182.53", // nf1.no-ip.com
+						"45.54.64.53" // nf2.no-ip.com
+					]
+				}
 			}
 		]
 	}

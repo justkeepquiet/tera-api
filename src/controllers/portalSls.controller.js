@@ -10,18 +10,13 @@ const SlsBuilder = require("../utils/slsBuilder");
 const { requireReload } = require("../utils/helpers");
 const SlsOverrideHandler = require("../utils/slsOverrideHandler");
 
-const applyServerOverride = (logger, servers, clientIp, geoip) => {
+const applyServerOverride = async (servers, clientIp, geoip, logger) => {
 	try {
 		const slsOverride = requireReload("../../config/slsOverride");
+		const serverOverrideHandler = new SlsOverrideHandler(slsOverride, clientIp, geoip, logger);
 
-		try {
-			const serverOverrideHandler = new SlsOverrideHandler(slsOverride, clientIp, geoip);
-
-			servers.forEach(server => {
-				serverOverrideHandler.applyOverrides(server);
-			});
-		} catch (err) {
-			logger.warn(err);
+		for (const server of servers) {
+			await serverOverrideHandler.applyOverrides(server);
 		}
 	} catch (_) {
 		logger.debug("Config file slsOverride is not found. Skip overrides.");
@@ -59,7 +54,7 @@ module.exports.GetServerListXml = ({ logger, sequelize, geoip, serverModel }) =>
 				sls.addServer(server, strings, maintenance !== null)
 			);
 
-			applyServerOverride(logger, sls.servers, req.ip, geoip);
+			await applyServerOverride(sls.servers, req.ip, geoip, logger);
 
 			res.type("application/xml").send(sls.renderXML());
 		} catch (err) {
