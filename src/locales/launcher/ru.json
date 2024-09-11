@@ -41,13 +41,16 @@
 	"This code has been sent to your email": "Код был отправлен на ваш Email",
 	"Invalid verification code.": "Неверный код подтверждения.",
 	"Reset Password": "Сбросить пароль",
-	"Confirmation of registration": "Подтверждение регистрации",
-	"Hello!": "Здравствуйте!",
-	"Your verification code": "Ваш код подтверждения",
-	"This letter is generated automatically and does not require a response.": "Это письмо сгенерировано автоматически и не требует ответа.",
-	"Sincerely, ": "С уважением, ",
-	"The number of verification code entry attempts has been exceeded.": "Превышено количество попыток ввода кода подтверждения.",
 	"Your password has been successfully changed.": "Ваш пароль был успешно изменен.",
+	"The number of verification code entry attempts has been exceeded.": "Количество попыток ввода кода подтверждения превышено.",
 	"Login to existing account": "Войти в существующий аккаунт",
-	"Login to another account": "Войти в другой аккаунт"
+	"Login to another account": "Войти в другой аккаунт",
+	"Confirm your registration in": "Подтвердите свою регистрацию в",
+	"Instructions to reset your password": "Инструкции по восстановлению пароля",
+	"Hi there!": "Здравствуйте!",
+	"We've received a request to verify your account. Please use the following code to complete your verification:": "Мы получили запрос на проверку вашего аккаунта. Пожалуйста, используйте следующий код для завершения проверки:",
+	"We've received a request to reset the password for your account. Please use the following code to reset your password:": "Мы получили запрос на восстановление пароля для вашей учетной записи. Пожалуйста, используйте следующий код для сброса пароля:",
+	"If you did not request this verification, please disregard this message.": "Если вы не запрашивали данную проверку, проигнорируйте это сообщение.",
+	"Best regards,": "С уважением,",
+	"%s Team": "Команда %s"
 }

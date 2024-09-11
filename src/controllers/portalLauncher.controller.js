@@ -17,6 +17,7 @@ const { validationHandler, resultJson } = require("../middlewares/portalLauncher
 const isRegistrationDisabled = /^true$/i.test(process.env.API_PORTAL_LAUNCHER_DISABLE_REGISTRATION);
 const isEmailVerifyEnabled = /^true$/i.test(process.env.API_PORTAL_LAUNCHER_ENABLE_EMAIL_VERIFY);
 const ipFromLauncher = /^true$/i.test(process.env.API_ARBITER_USE_IP_FROM_LAUNCHER);
+const brandName = process.env.API_PORTAL_BRAND_NAME || "Tera Private Server";
 
 let recaptcha = null;
 
@@ -70,7 +71,7 @@ module.exports.MainHtml = ({ i18n }) => [
 	 */
 	(req, res) => {
 		res.render("launcherMain", {
-			brandName: process.env.API_PORTAL_BRAND_NAME || "Tera Private Server",
+			brandName,
 			patchNoCheck: /^true$/i.test(process.env.API_PORTAL_CLIENT_PATCH_NO_CHECK),
 			startNoCheck: /^true$/i.test(process.env.API_PORTAL_LAUNCHER_DISABLE_CONSISTENCY_CHECK),
 			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
@@ -174,7 +175,7 @@ module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel 
 				app.render("./email/resetPasswordVerify", { ...res.locals,
 					protocol: req.protocol,
 					host: req.hostname,
-					brandName: process.env.API_PORTAL_BRAND_NAME || "Tera Private Server",
+					brandName,
 					code
 				}, async (err, html) => {
 					if (err) {
@@ -186,7 +187,7 @@ module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel 
 						await mailer.sendMail({
 							from: `"${process.env.API_PORTAL_EMAIL_FROM_NAME}" <${process.env.API_PORTAL_EMAIL_FROM_ADDRESS}>`,
 							to: email,
-							subject: i18n.__("Reset Password"),
+							subject: i18n.__("Instructions to reset your password"),
 							html
 						});
 					} catch (_) {
@@ -486,7 +487,7 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 				app.render("./email/emailVerify", { ...res.locals,
 					protocol: req.protocol,
 					host: req.hostname,
-					brandName: process.env.API_PORTAL_BRAND_NAME || "Tera Private Server",
+					brandName,
 					code
 				}, async (err, html) => {
 					if (err) {
@@ -498,7 +499,7 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 						await mailer.sendMail({
 							from: `"${process.env.API_PORTAL_EMAIL_FROM_NAME}" <${process.env.API_PORTAL_EMAIL_FROM_ADDRESS}>`,
 							to: email,
-							subject: i18n.__("Confirmation of registration"),
+							subject: `${i18n.__("Confirm your registration in")} ${brandName}`,
 							html
 						});
 					} catch (_) {

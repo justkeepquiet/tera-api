@@ -41,13 +41,16 @@
 	"This code has been sent to your email": "This code has been sent to your email",
 	"Invalid verification code.": "Invalid verification code.",
 	"Reset Password": "Reset Password",
-	"Confirmation of registration": "Confirmation of registration",
-	"Hello!": "Hello!",
-	"Your verification code": "Your verification code",
-	"This letter is generated automatically and does not require a response.": "This letter is generated automatically and does not require a response.",
-	"Sincerely, ": "Sincerely, ",
-	"The number of verification code entry attempts has been exceeded.": "The number of verification code entry attempts has been exceeded.",
 	"Your password has been successfully changed.": "Your password has been successfully changed.",
+	"The number of verification code entry attempts has been exceeded.": "The number of verification code entry attempts has been exceeded.",
 	"Login to existing account": "Login to existing account",
-	"Login to another account": "Login to another account"
+	"Login to another account": "Login to another account",
+	"Confirm your registration in": "Confirm your registration in",
+	"Instructions to reset your password": "Instructions to reset your password",
+	"Hi there!": "Hi there!",
+	"We've received a request to verify your account. Please use the following code to complete your verification:": "We've received a request to verify your account. Please use the following code to complete your verification:",
+	"We've received a request to reset the password for your account. Please use the following code to reset your password:": "We've received a request to reset the password for your account. Please use the following code to reset your password:",
+	"If you did not request this verification, please disregard this message.": "If you did not request this verification, please disregard this message.",
+	"Best regards,": "Best regards,",
+	"%s Team": "%s Team"
 }
