@@ -5,7 +5,6 @@
   "main": "src/app.js",
   "scripts": {
     "start": "node src/app",
-    "dev": "nodemon src/app.js",
     "itemupden": "node src/tools/dataItemsUpdater.js en",
     "itemupdru": "node src/tools/dataItemsUpdater.js ru"
   },
@@ -28,13 +27,12 @@
   },
   "dependencies": {
     "bencode": "^2.0.3",
-    "body-parser": "^1.20.3",
     "cls-hooked": "^4.2.2",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.1",
     "ejs": "^3.1.10",
-    "express": "^4.20.0",
+    "express": "^5.0.0",
     "express-ejs-layouts": "^2.5.1",
     "express-recaptcha": "^5.1.0",
     "express-session": "^1.17.3",
@@ -65,8 +63,7 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node-cron": "^3.0.11",
-    "@types/sequelize": "^4.28.20",
-    "nodemon": "^2.0.16"
+    "@types/sequelize": "^4.28.20"
   },
   "engines": {
     "node": ">=18.0.0"

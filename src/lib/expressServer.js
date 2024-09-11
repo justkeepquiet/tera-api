@@ -8,7 +8,6 @@ const express = require("express");
 const path = require("path");
 const morgan = require("morgan");
 const morganBody = require("morgan-body");
-const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const compression = require("compression");
 
@@ -29,8 +28,7 @@ class ExpressServer {
 
 		this.app.disable("x-powered-by");
 		this.app.use(express.json());
-		this.app.use(bodyParser.urlencoded({ extended: true }));
-		this.app.use(bodyParser.json());
+		this.app.use(express.urlencoded({ extended: true }));
 		this.app.use(cookieParser());
 
 		this.app.use((req, res, next) => {
