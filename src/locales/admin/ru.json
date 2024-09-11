@@ -470,5 +470,6 @@
 	"sec.": "сек.",
 	"Server ID field contains an existing server ID.": "Поле 'ID сервера' содержит существующий ID сервера.",
 	"Password field must be between 8 and 128 characters.": "Поле 'Пароль' должно содержать от 8 до 128 символов.",
-	"Change password": "Изменить пароль"
+	"Change password": "Изменить пароль",
+	"The API settings contain a dynamic overriding of the server information.": "Настройки API содержат динамическое переопределение информации о сервере."
 }

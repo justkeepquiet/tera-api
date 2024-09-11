@@ -471,5 +471,6 @@
 	"sec.": "sec.",
 	"Server ID field contains an existing server ID.": "Server ID field contains an existing server ID.",
 	"Password field must be between 8 and 128 characters.": "Password field must be between 8 and 128 characters.",
-	"Change password": "Change password"
+	"Change password": "Change password",
+	"The API settings contain a dynamic overriding of the server information.": "The API settings contain a dynamic overriding of the server information."
 }

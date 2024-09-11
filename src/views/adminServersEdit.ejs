@@ -12,6 +12,11 @@
 				<div class="card card-block">
 					<form id="form" method="POST" action="">
 						<%- include("partials/adminFormErrors", { errors }) -%>
+						<%_ if (isSlsOverrided) { %>
+						<div class="form-group alert alert-info">
+							<%= __("The API settings contain a dynamic overriding of the server information.") %>
+						</div>
+						<%_ } _%>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="serverId"><%= __("Server ID") %></label>

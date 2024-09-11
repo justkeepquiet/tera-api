@@ -11,6 +11,20 @@ const helpers = require("../utils/helpers");
 
 const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
+const isSlsOverrided = (serverId = null) => {
+	try {
+		const slsOverride = helpers.requireReload("../../config/slsOverride");
+
+		if (serverId !== null) {
+			return slsOverride.filter(s => s.serverId == serverId).length !== 0;
+		} else {
+			return slsOverride.length !== 0;
+		}
+	} catch (_) { }
+
+	return false;
+};
+
 /**
  * @param {modules} modules
  */
@@ -24,7 +38,8 @@ module.exports.index = modules => [
 		modules.serverModel.info.findAll().then(servers =>
 			res.render("adminServers", {
 				layout: "adminLayout",
-				servers
+				servers,
+				isSlsOverrided
 			})
 		).catch(err => {
 			modules.logger.error(err);
@@ -197,7 +212,8 @@ module.exports.edit = ({ logger, serverModel }) => [
 				isPvE: data.get("isPvE"),
 				isCrowdness: data.get("isCrowdness"),
 				isAvailable: data.get("isAvailable"),
-				isEnabled: data.get("isEnabled")
+				isEnabled: data.get("isEnabled"),
+				isSlsOverrided: isSlsOverrided(serverId)
 			});
 		}).catch(err => {
 			logger.error(err);
@@ -268,7 +284,8 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 				isPvE,
 				isCrowdness,
 				isAvailable,
-				isEnabled
+				isEnabled,
+				isSlsOverrided: isSlsOverrided(serverId)
 			});
 		}
 
