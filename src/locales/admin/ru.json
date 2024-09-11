@@ -469,6 +469,6 @@
 	"min.": "мин.",
 	"sec.": "сек.",
 	"Server ID field contains an existing server ID.": "Поле 'ID сервера' содержит существующий ID сервера.",
-	"Password field must be between 8 and 128 characters.": "Пожалуйста, введите надежный пароль. Не менее 8 символов, 1 строчная, 1 прописная, 1 цифра, 1 символ. Например: P@ssw0rd",
+	"Password field must be between 8 and 128 characters.": "Поле 'Пароль' должно содержать от 8 до 128 символов.",
 	"Change password": "Изменить пароль"
 }
