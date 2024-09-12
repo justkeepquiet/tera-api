@@ -33,6 +33,7 @@ const adminPromocodesActivatedController = require("../../controllers/adminPromo
 const adminBoxesController = require("../../controllers/adminBoxes.controller");
 const adminShopLogsController = require("../../controllers/adminShopLogs.controller");
 const adminTasksController = require("../../controllers/adminTasks.controller");
+const adminLauncherController = require("../../controllers/adminLauncher.controller");
 
 /**
 * @param {modules} modules
@@ -194,12 +195,13 @@ module.exports = modules => {
 		.get("/maintenance/edit", adminMaintenanceController.edit(mod))
 		.post("/maintenance/edit", adminMaintenanceController.editAction(mod))
 		.get("/maintenance/delete", adminMaintenanceController.deleteAction(mod))
+		// Launcher
+		.get("/launcher_logs", adminLauncherController.logs(mod))
 		// Report
 		.get("/report_activity", adminReportController.activity(mod))
 		.get("/report_characters", adminReportController.characters(mod))
 		.get("/report_cheats", adminReportController.cheats(mod))
 		.get("/report_chronoscrolls", adminReportController.chronoscrolls(mod))
-		.get("/report_launcher", adminReportController.launcher(mod))
 		// Shop Account Management
 		.get("/shop_accounts", adminShopAccountsController.index(mod))
 		.get("/shop_accounts/add", adminShopAccountsController.add(mod))

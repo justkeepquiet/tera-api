@@ -473,7 +473,7 @@
 	"Change password": "Изменить пароль",
 	"The API settings contain a dynamic overriding of the server information.": "Настройки API содержат динамическое переопределение информации о сервере.",
 	"Launcher": "Лаунчер",
-	"Launcher Report": "Отчет лаунчера",
+	"Launcher Logs": "Журнал лаунчера",
 	"Version": "Версия",
 	"Crash game": "Сбой клиента",
 	"Sign in": "Авторизация"
