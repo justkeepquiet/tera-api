@@ -12,23 +12,23 @@ ALTER TABLE `report_chronoscrolls` ADD COLUMN `id` BIGINT(20) NOT NULL AUTO_INCR
 CREATE TABLE IF NOT EXISTS `account_reset_password` (
   `token` varchar(128) NOT NULL,
   `email` varchar(64) NOT NULL,
-  `code` varchar(6) NULL,
+  `code` varchar(6) DEFAULT NULL,
   `failsCount` int(11) NOT NULL DEFAULT '0',
-  `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`token`, `email`),
-  INDEX `code` (`code`)
+  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`token`,`email`),
+  KEY `code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `account_verify` (
   `token` varchar(128) NOT NULL,
   `email` varchar(64) NOT NULL,
-  `code` varchar(6) NULL,
+  `code` varchar(6) DEFAULT NULL,
   `failsCount` int(11) NOT NULL DEFAULT '0',
-  `userName` varchar(64) NULL,
-  `passWord` varchar(128) NULL,
-  `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`token`, `email`),
-  INDEX `code` (`code`)
+  `userName` varchar(64) DEFAULT NULL,
+  `passWord` varchar(128) DEFAULT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`token`,`email`),
+  KEY `code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- launcher V2
@@ -44,4 +44,38 @@ CREATE TABLE IF NOT EXISTS `report_launcher` (
   PRIMARY KEY (`id`),
   INDEX `accountDBID` (`accountDBID`),
   INDEX `reportTime` (`reportTime`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- launcher V2
+CREATE TABLE IF NOT EXISTS `launcher_slides` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `active` tinyint(4) NOT NULL DEFAULT '1',
+  `priority` int(11) NOT NULL DEFAULT '0',
+  `image` varchar(2048) DEFAULT NULL,
+  `link` varchar(4096) DEFAULT NULL,
+  `panelColor` varchar(64) DEFAULT NULL,
+  `panelIcon` varchar(64) DEFAULT NULL,
+  `displayDateStart` timestamp NULL DEFAULT NULL,
+  `displayDateEnd` timestamp NULL DEFAULT NULL,
+  `timerStart` timestamp NULL DEFAULT NULL,
+  `timerEnd` timestamp NULL DEFAULT NULL,
+  `createdAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `active` (`active`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- launcher V2
+CREATE TABLE IF NOT EXISTS `launcher_slide_strings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `language` varchar(3) NOT NULL,
+  `slideId` int(11) NOT NULL,
+  `title` varchar(1024) DEFAULT NULL,
+  `description` text,
+  `buttonText` varchar(1024) DEFAULT NULL,
+  `panelSmall` varchar(256) DEFAULT NULL,
+  `panelBig` varchar(256) DEFAULT NULL,
+  `expiryText` varchar(256) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UNIQUE` (`language`,`slideId`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

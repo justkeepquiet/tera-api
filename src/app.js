@@ -23,6 +23,7 @@
  * @property {import("./models/report.model").reportModel} reportModel
  * @property {import("./models/shop.model").shopModel} shopModel
  * @property {import("./models/box.model").boxModel} boxModel
+ * @property {import("./models/launcher.model").launcherModel} launcherModel
  */
 
 require("dotenv").config();
@@ -177,6 +178,7 @@ moduleLoader.setPromise("sequelize", () => new Promise((resolve, reject) => {
 		moduleLoader.setAsync("reportModel", require("./models/report.model"), sequelize, DataTypes);
 		moduleLoader.setAsync("shopModel", require("./models/shop.model"), sequelize, DataTypes);
 		moduleLoader.setAsync("boxModel", require("./models/box.model"), sequelize, DataTypes);
+		moduleLoader.setAsync("launcherModel", require("./models/launcher.model"), sequelize, DataTypes);
 
 		sequelizeLogger.info("Connected.");
 		resolve(sequelize);
