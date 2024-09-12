@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes, modules) => {
 		activity: require("./report/reportActivity.model")(sequelize, DataTypes),
 		characters: require("./report/reportCharacters.model")(sequelize, DataTypes),
 		cheats: require("./report/reportCheats.model")(sequelize, DataTypes),
+		launcher: require("./report/reportLauncher.model")(sequelize, DataTypes),
 		chronoScrolls: require("./report/reportChronoScrolls.model")(sequelize, DataTypes),
 		shopFund: require("./report/reportShopFund.model")(sequelize, DataTypes),
 		shopPay: require("./report/reportShopPay.model")(sequelize, DataTypes),

@@ -280,6 +280,21 @@ CREATE TABLE IF NOT EXISTS `report_chronoscrolls` (
   KEY `reportTime` (`reportTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- launcher V2
+CREATE TABLE IF NOT EXISTS `report_launcher` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `accountDBID` bigint(20) NULL DEFAULT NULL,
+  `ip` varchar(64) NULL DEFAULT NULL,
+  `action` varchar(64) NULL DEFAULT NULL,
+  `label` varchar(128) NULL DEFAULT NULL,
+  `optLabel` varchar(128) NULL DEFAULT NULL,
+  `version` varchar(128) NULL DEFAULT NULL,
+  `reportTime` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  INDEX `accountDBID` (`accountDBID`),
+  INDEX `reportTime` (`reportTime`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 CREATE TABLE IF NOT EXISTS `report_shop_fund` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `accountDBID` bigint(20) NOT NULL,
