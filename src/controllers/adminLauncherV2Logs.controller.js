@@ -15,7 +15,7 @@ const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 /**
  * @param {modules} modules
  */
-module.exports.logs = ({ logger, reportModel }) => [
+module.exports.index = ({ logger, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
