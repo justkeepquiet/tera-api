@@ -11,19 +11,22 @@
 */
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("report_characters", {
-		accountDBID: {
+		id: {
 			type: DataTypes.BIGINT(20),
 			primaryKey: true,
+			autoIncrement: true,
+			allowNull: false
+		},
+		accountDBID: {
+			type: DataTypes.BIGINT(20),
 			allowNull: false
 		},
 		serverId: {
 			type: DataTypes.INTEGER(11),
-			primaryKey: true,
 			allowNull: false
 		},
 		characterId: {
 			type: DataTypes.INTEGER(11),
-			primaryKey: true,
 			allowNull: false
 		},
 		name: {

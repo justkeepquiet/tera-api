@@ -71,23 +71,23 @@ CREATE TABLE IF NOT EXISTS `account_online` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `account_reset_password` (
-  `token` VARCHAR(128) NOT NULL,
-  `email` VARCHAR(64) NOT NULL,
-  `code` VARCHAR(6) NULL,
-  `failsCount` INT(11) NOT NULL DEFAULT '0',
+  `token` varchar(128) NOT NULL,
+  `email` varchar(64) NOT NULL,
+  `code` varchar(6) NULL,
+  `failsCount` int(11) NOT NULL DEFAULT '0',
   `createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`token`, `email`),
   INDEX `code` (`code`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `account_verify` (
-	`token` VARCHAR(128) NOT NULL,
-	`email` VARCHAR(64) NOT NULL,
-	`code` VARCHAR(6) NULL,
-	`failsCount` INT(11) NOT NULL DEFAULT '0',
-  `userName` VARCHAR(64) NULL,
-  `passWord` VARCHAR(128) NULL,
-  `action` VARCHAR(64) NOT NULL,
+	`token` varchar(128) NOT NULL,
+	`email` varchar(64) NOT NULL,
+	`code` varchar(6) NULL,
+	`failsCount` int(11) NOT NULL DEFAULT '0',
+  `userName` varchar(64) NULL,
+  `passWord` varchar(128) NULL,
+  `action` varchar(64) NOT NULL,
 	`createdAt` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	PRIMARY KEY (`token`, `email`),
 	INDEX `code` (`code`),
@@ -185,12 +185,14 @@ CREATE TABLE IF NOT EXISTS `queue_tasks` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_activity` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `accountDBID` bigint(20) DEFAULT NULL,
   `serverId` int(11) DEFAULT NULL,
   `ip` varchar(64) DEFAULT NULL,
   `playTime` int(11) DEFAULT NULL,
   `reportType` int(11) DEFAULT NULL,
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
   KEY `accountDBID` (`accountDBID`),
   KEY `serverId` (`serverId`),
   KEY `reportTime` (`reportTime`),
@@ -234,6 +236,7 @@ CREATE TABLE IF NOT EXISTS `report_boxes` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_characters` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `accountDBID` bigint(20) NOT NULL,
   `serverId` int(11) NOT NULL,
   `characterId` int(11) NOT NULL,
@@ -244,6 +247,7 @@ CREATE TABLE IF NOT EXISTS `report_characters` (
   `level` int(11) DEFAULT NULL,
   `reportType` int(11) DEFAULT NULL,
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
   KEY `accountDBID` (`accountDBID`),
   KEY `serverId` (`serverId`),
   KEY `characterId` (`characterId`),
@@ -251,22 +255,26 @@ CREATE TABLE IF NOT EXISTS `report_characters` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_cheats` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `accountDBID` bigint(20) DEFAULT NULL,
   `serverId` int(11) DEFAULT NULL,
   `ip` varchar(64) DEFAULT NULL,
   `type` int(11) DEFAULT NULL,
   `cheatInfo` varchar(1024) DEFAULT NULL,
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
   KEY `accountDBID` (`accountDBID`),
   KEY `serverId` (`serverId`),
   KEY `reportTime` (`reportTime`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `report_chronoscrolls` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `accountDBID` bigint(20) DEFAULT NULL,
   `serverId` int(11) DEFAULT NULL,
   `chronoId` int(11) DEFAULT NULL,
   `reportTime` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
   KEY `accountDBID` (`accountDBID`),
   KEY `serverId` (`serverId`),
   KEY `reportTime` (`reportTime`)

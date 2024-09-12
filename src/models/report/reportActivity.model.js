@@ -11,13 +11,17 @@
 */
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("report_activity", {
-		accountDBID: {
+		id: {
 			type: DataTypes.BIGINT(20),
-			primaryKey: true
+			primaryKey: true,
+			autoIncrement: true,
+			allowNull: false
+		},
+		accountDBID: {
+			type: DataTypes.BIGINT(20)
 		},
 		serverId: {
-			type: DataTypes.INTEGER(11),
-			primaryKey: true
+			type: DataTypes.INTEGER(11)
 		},
 		ip: {
 			type: DataTypes.STRING(64)
