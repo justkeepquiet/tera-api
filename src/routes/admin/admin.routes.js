@@ -199,6 +199,7 @@ module.exports = modules => {
 		.get("/report_characters", adminReportController.characters(mod))
 		.get("/report_cheats", adminReportController.cheats(mod))
 		.get("/report_chronoscrolls", adminReportController.chronoscrolls(mod))
+		.get("/report_launcher", adminReportController.launcher(mod))
 		// Shop Account Management
 		.get("/shop_accounts", adminShopAccountsController.index(mod))
 		.get("/shop_accounts/add", adminShopAccountsController.add(mod))

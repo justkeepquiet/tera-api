@@ -1,0 +1,203 @@
+<%_
+const gameEndCodes = {
+	"0": {
+		"0": "Standard game exit"
+	},
+	"5": {
+		"0": "Graphics driver error"
+	},
+	"6": {
+		"0": "Data file read error"
+	},
+	"7": {
+		"0": "Standard game closure"
+	},
+	"8": {
+		"0": "Internet connection error"
+	},
+	"9": {
+		"0": "Failed to retrieve authentication information"
+	},
+	"10": {
+		"0": "Insufficient memory"
+	},
+	"11": {
+		"0": "Failed to initialize the graphics card"
+	},
+	"12": {
+		"0": "Graphics card does not support the game"
+	},
+	"15": {
+		"0": "The game was automatically closed due to inactivity"
+	},
+	"33": {
+		"0": "Administrator disconnected from the world"
+	},
+	"34": {
+		"0": "Administrator disconnected from the game"
+	},
+	"257": {
+		"0": "Failed to log in",
+		"13": "This account has been banned",
+		"32781": "Account has been banned"
+	},
+	"258": {
+		"0": "Payment system error"
+	},
+	"259": {
+		"0": "An attempt to log into the game from another device was made"
+	},
+	"260": {
+		"0": "Unable to retrieve server list",
+		"404": "Unable to retrieve server list: 404"
+	},
+	"261": {
+		"0": "Failed to log in: 261."
+	},
+	"262": {
+		"0": "The account is currently in use on another device"
+	},
+	"265": {
+		"0": "Some client files are missing or corrupted"
+	},
+	"273": {
+		"0": "Server list is currently unavailable"
+	},
+	"274": {
+		"0": "Settings file loading error"
+	},
+	"275": {
+		"0": "Graphics settings are too high",
+		"2": "File TERA/Binaries/TERA.exe not found",
+		"5": "Access to file TERA/Binaries/TERA.exe is denied",
+		"193": "File TERA/Binaries/TERA.exe is not a Win32 application",
+		"216": "Client is incompatible with Windows version",
+		"740": "Insufficient rights to run TERA/Binaries/TERA.exe",
+		"1392": "File TERA/Binaries/TERA.exe is corrupted or inaccessible"
+	},
+	"276": {
+		"0": "Failed to update the launcher"
+	},
+	"277": {
+		"0": "Patch file format error"
+	},
+	"278": {
+		"0": "Program files are corrupted"
+	},
+	"65535": {
+		"0": "Game system failure"
+	},
+	"32768": {
+		"0": "Server is undergoing maintenance"
+	},
+	"32769": {
+		"0": "First closed beta test of TERA has ended"
+	},
+	"32770": {
+		"0": "Server is temporarily unavailable due to maintenance"
+	},
+	"65280": {
+		"0": "An error occurred during the game, and the client was closed"
+	}
+};
+_%>
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Launcher Report") %></h1>
+	</div>
+	<%- include("partials/adminReportForm", { servers: null, from, to, accountDBID }) -%>
+	<section class="section" style="display: none;">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-json mt-5">
+									<thead>
+										<tr>
+											<th><%= __("Report time") %></th>
+											<th><%= __("Action") %></th>
+											<th><%= __("Description") %></th>
+											<th><%= __("Version") %></th>
+											<th><%= __("Client IP") %></th>
+											<th><%= __("Account ID") %></th>
+										</tr>
+									</thead>
+								</table>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+reports.forEach(report => {
+	const label = report.get("label") || "-";
+	const optLabel = report.get("optLabel") || "-";
+	const version = report.get("version") || "-";
+	let action = report.get("action") || "-";
+	let description = "-";
+
+	switch (action) {
+		case "enter_game":
+			action = __("Enter game");
+			description = `OSID: ${label}`;
+			break;
+
+		case "crash_game":
+			action = __("Crash game");
+
+			if (gameEndCodes[label]?.[optLabel] !== undefined) {
+				description = `(${label}-${optLabel}) ${gameEndCodes[label][optLabel]}`;
+			} else {
+				description = `(${label}-${optLabel}) Unknown error`;
+			}
+			break;
+
+		case "signin":
+			action = __("Sign in");
+			break;
+
+		case "start_dl":
+			action = __("Start download");
+			description = `to_version: ${label}<br>from_version: ${optLabel}`;
+			break;
+
+		case "finish_dl":
+			action = __("Finish download");
+			description = `to_version: ${label}<br>from_version: ${optLabel}`;
+			break;
+	}
+
+	if (action.startsWith("dl_")) {
+		action = __("Downloading");
+		description = action.split("_")[1];
+	}
+
+	tableData.push([
+		moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
+		action,
+		description,
+		version,
+		report.get("ip"),
+		report.get("accountDBID")
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]]
+		}));
+		$(".section").show();
+	});
+</script>

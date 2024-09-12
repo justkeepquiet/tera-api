@@ -8,10 +8,13 @@
 			<label for="to"><%= __("to") %></label>
 			<input type="datetime-local" class="form-control boxed" name="to" value="<%= to.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
 		</div>
+		<%_ if (accountDBID) { _%>
 		<div class="form-group">
 			<label for="accountDBID"><%= __("Account ID") %></label>
 			<input type="text" class="form-control boxed" name="accountDBID" value="<%= accountDBID %>">
 		</div>
+		<%_ } _%>
+		<%_ if (servers) { _%>
 		<div class="form-group">
 			<label for="serverId"><%= __("Server ID") %></label>
 			<select class="form-control boxed" name="serverId">
@@ -21,6 +24,7 @@
 			<%_ }) _%>
 			</select>
 		</div>
+		<%_ } _%>
 		<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
 	</form>
 </section>

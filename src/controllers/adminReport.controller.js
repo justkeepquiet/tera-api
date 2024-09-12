@@ -66,6 +66,50 @@ const reportHandler = (logger, serverModel, model, view, viewData = {}) =>
 /**
  * @param {modules} modules
  */
+module.exports.launcher = ({ logger, reportModel }) => [
+	accessFunctionHandler,
+	expressLayouts,
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res) => {
+		let { from, to } = req.query;
+		const { accountDBID } = req.query;
+
+		from = from ? moment.tz(from, req.user.tz) : moment().subtract(30, "days");
+		to = to ? moment.tz(to, req.user.tz) : moment().add(30, "days");
+
+		reportModel.launcher.findAll({
+			where: {
+				...accountDBID ? { accountDBID } : {},
+				reportTime: {
+					[Op.gt]: from.toDate(),
+					[Op.lt]: to.toDate()
+				}
+			},
+			order: [
+				["reportTime", "DESC"]
+			]
+		}).then(reports =>
+			res.render("adminReportLauncher", {
+				layout: "adminLayout",
+				moment,
+				helpers,
+				reports,
+				from,
+				to,
+				accountDBID
+			})
+		).catch(err => {
+			logger.error(err);
+			res.render("adminError", { layout: "adminLayout", err });
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
 module.exports.activity = ({ logger, serverModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
