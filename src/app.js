@@ -100,10 +100,10 @@ moduleLoader.setAsync("mailer", () => {
 		secure: /^true$/i.test(process.env.MAILER_SMTP_SECURE)
 	};
 
-	if (process.env.MAILER_SMTP_AUTH_USER && process.env.MAILER_SMTP_AUTH_PASS) {
+	if (process.env.MAILER_SMTP_AUTH_USER && process.env.MAILER_SMTP_AUTH_PASSWORD) {
 		settings.auth = {
 			user: process.env.MAILER_SMTP_AUTH_USER,
-			pass: process.env.MAILER_SMTP_AUTH_PASS
+			pass: process.env.MAILER_SMTP_AUTH_PASSWORD
 		};
 	}
 
