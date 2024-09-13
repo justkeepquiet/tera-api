@@ -222,7 +222,7 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 					errors: errors.array(),
 					shopLocales,
 					id: category.get("id"),
-					sort: category.get("sort"),
+					sort,
 					active,
 					title: title || []
 				});
