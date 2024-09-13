@@ -28,26 +28,27 @@
 					document.location.replace("LauncherLoginForm");
 				}
 			} else {
-				switch (result.Msg) {
-					case "$0":
+				switch (result.ReturnCode) {
+					case 10:
 						alert("<%= __('This login is already exists.') %>");
 						break;
 
-					case "$1":
+					case 11:
 						alert("<%= __('Please enter 4-13 alphanumeric characters for login.') %>");
 						break;
 
-					case "$2":
+					case 12:
 						alert("<%= __('Please enter valid email address.') %>");
 						break;
 
-					case "$3":
+					case 13:
 						alert("<%= __('Please enter 8-128 alphanumeric characters password.') %>");
 						break;
 
-					case "$4":
+					case 14:
 						alert("<%= __('This email address is already exists.') %>");
 						break;
+
 					default:
 						alert(result.Msg);
 						console.log(result.Msg);

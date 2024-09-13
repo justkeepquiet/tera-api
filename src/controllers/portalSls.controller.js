@@ -1,11 +1,13 @@
 "use strict";
 
 /**
- * @typedef {import("../app").modules} modules
  * @typedef {import("express").RequestHandler} RequestHandler
+ * @typedef {import("express").ErrorRequestHandler} ErrorRequestHandler
+ * @typedef {import("../app").modules} modules
  */
 
 const Op = require("sequelize").Op;
+
 const SlsBuilder = require("../utils/slsBuilder");
 const { requireReload } = require("../utils/helpers");
 const SlsOverrideHandler = require("../utils/slsOverrideHandler");
@@ -31,35 +33,37 @@ module.exports.GetServerListXml = ({ logger, sequelize, geoip, serverModel }) =>
 	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
-		try {
-			const strings = await serverModel.strings.findOne({
-				where: { language: req.query.lang || "en" }
-			});
+		const strings = await serverModel.strings.findOne({
+			where: { language: req.query.lang || "en" }
+		});
 
-			if (strings === null) {
-				return res.status(500).end("getting strings error");
-			}
-
-			const servers = await serverModel.info.findAll({ where: { isEnabled: 1 } });
-			const maintenance = await serverModel.maintenance.findOne({
-				where: {
-					startTime: { [Op.lt]: sequelize.fn("NOW") },
-					endTime: { [Op.gt]: sequelize.fn("NOW") }
-				}
-			});
-
-			const sls = new SlsBuilder();
-
-			servers.forEach(server =>
-				sls.addServer(server, strings, maintenance !== null)
-			);
-
-			await applyServerOverride(sls.servers, req.ip, geoip, logger);
-
-			res.type("application/xml").send(sls.renderXML());
-		} catch (err) {
-			logger.error(err);
-			res.status(500).end("getting sls error");
+		if (strings === null) {
+			return res.status(500).end("getting strings error");
 		}
+
+		const servers = await serverModel.info.findAll({ where: { isEnabled: 1 } });
+		const maintenance = await serverModel.maintenance.findOne({
+			where: {
+				startTime: { [Op.lt]: sequelize.fn("NOW") },
+				endTime: { [Op.gt]: sequelize.fn("NOW") }
+			}
+		});
+
+		const sls = new SlsBuilder();
+
+		servers.forEach(server =>
+			sls.addServer(server, strings, maintenance !== null)
+		);
+
+		await applyServerOverride(sls.servers, req.ip, geoip, logger);
+
+		res.type("application/xml").send(sls.renderXML());
+	},
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+		res.status(500).end("getting sls error");
 	}
 ];

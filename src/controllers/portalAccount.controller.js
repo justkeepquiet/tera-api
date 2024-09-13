@@ -1,15 +1,16 @@
 "use strict";
 
 /**
- * @typedef {import("../app").modules} modules
  * @typedef {import("express").RequestHandler} RequestHandler
+ * @typedef {import("../app").modules} modules
  */
 
 const body = require("express-validator").body;
 const Op = require("sequelize").Op;
-const helpers = require("../utils/helpers");
 
-const { validationHandler, resultJson } = require("../middlewares/portalLauncher.middlewares");
+const helpers = require("../utils/helpers");
+const ApiError = require("../lib/apiError");
+const { validationHandler } = require("../middlewares/portalLauncher.middlewares");
 
 const ipFromLauncher = /^true$/i.test(process.env.API_ARBITER_USE_IP_FROM_LAUNCHER);
 
@@ -25,10 +26,10 @@ module.exports.GetAccountInfoByUserNo = ({ logger, sequelize, accountModel }) =>
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { userNo, authKey } = req.body;
 
-		accountModel.info.findOne({
+		const account = await accountModel.info.findOne({
 			where: { accountDBID: userNo, authKey },
 			include: [{
 				as: "banned",
@@ -40,47 +41,47 @@ module.exports.GetAccountInfoByUserNo = ({ logger, sequelize, accountModel }) =>
 				},
 				required: false
 			}]
-		}).then(async account => {
-			if (account === null) {
-				return resultJson(res, 50000, "account not exist");
-			}
+		});
 
-			let characterCount = "0";
-			let bannedByIp = null;
+		if (account === null) {
+			throw new ApiError("account not exist", 50000);
+		}
 
-			try {
-				const characters = await accountModel.characters.findAll({
-					attributes: ["serverId", [sequelize.fn("COUNT", "characterId"), "charCount"]],
-					group: ["serverId"],
-					where: { accountDBID: account.get("accountDBID") }
-				});
+		let characterCount = "0";
+		let bannedByIp = null;
 
-				characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
-
-				bannedByIp = await accountModel.bans.findOne({
-					where: {
-						active: 1,
-						ip: { [Op.like]: `%"${req.ip}"%` },
-						startTime: { [Op.lt]: sequelize.fn("NOW") },
-						endTime: { [Op.gt]: sequelize.fn("NOW") }
-					}
-				});
-			} catch (err) {
-				logger.error(err);
-			}
-
-			resultJson(res, 0, "success", {
-				CharacterCount: characterCount,
-				Permission: account.get("permission"),
-				Privilege: account.get("privilege"),
-				Language: account.get("language"),
-				UserNo: account.get("accountDBID"),
-				UserName: account.get("userName"),
-				Banned: account.get("banned") !== null || bannedByIp !== null
+		try {
+			const characters = await accountModel.characters.findAll({
+				attributes: ["serverId", [sequelize.fn("COUNT", "characterId"), "charCount"]],
+				group: ["serverId"],
+				where: { accountDBID: account.get("accountDBID") }
 			});
-		}).catch(err => {
+
+			characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
+
+			bannedByIp = await accountModel.bans.findOne({
+				where: {
+					active: 1,
+					ip: { [Op.like]: `%"${req.ip}"%` },
+					startTime: { [Op.lt]: sequelize.fn("NOW") },
+					endTime: { [Op.gt]: sequelize.fn("NOW") }
+				}
+			});
+		} catch (err) {
 			logger.error(err);
-			resultJson(res, 1, "internal error");
+		}
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			CharacterCount: characterCount,
+			Permission: account.get("permission"),
+			Privilege: account.get("privilege"),
+			Language: account.get("language"),
+			UserNo: account.get("accountDBID"),
+			UserName: account.get("userName"),
+			Banned: account.get("banned") !== null || bannedByIp !== null
 		});
 	}
 ];
@@ -98,29 +99,30 @@ module.exports.SetAccountInfoByUserNo = ({ logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { userNo, authKey, language } = req.body;
 
-		accountModel.info.findOne({
+		const account = await accountModel.info.findOne({
 			where: { accountDBID: userNo, authKey }
-		}).then(account => {
-			if (account === null) {
-				return resultJson(res, 50000, "account not exist");
-			}
+		});
 
-			return accountModel.info.update({
-				language: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR) ?
-					language :
-					helpers.regionToLanguage(process.env.API_PORTAL_CLIENT_DEFAULT_REGION),
-				...ipFromLauncher ? { lastLoginIP: req.ip } : {}
-			}, {
-				where: { accountDBID: account.get("accountDBID") }
-			}).then(() =>
-				resultJson(res, 0, "success")
-			);
-		}).catch(err => {
-			logger.error(err);
-			resultJson(res, 1, "internal error");
+		if (account === null) {
+			throw new ApiError("account not exist", 50000);
+		}
+
+		await accountModel.info.update({
+			language: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR) ?
+				language :
+				helpers.regionToLanguage(process.env.API_PORTAL_CLIENT_DEFAULT_REGION),
+			...ipFromLauncher ? { lastLoginIP: req.ip } : {}
+		}, {
+			where: { accountDBID: account.get("accountDBID") }
+		});
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success"
 		});
 	}
 ];

@@ -1,18 +1,20 @@
 "use strict";
 
 /**
-* @typedef {import("../../app").modules} modules
-*/
+ * @typedef {import("express").ErrorRequestHandler} ErrorRequestHandler
+ * @typedef {import("../../app").modules} modules
+ */
 
 const path = require("path");
 const I18n = require("i18n").I18n;
 const express = require("express");
 
+const ApiError = require("../../lib/apiError");
 const portalLauncherController = require("../../controllers/portalLauncher.controller");
 
 /**
-* @param {modules} modules
-*/
+ * @param {modules} modules
+ */
 module.exports = modules => {
 	const i18n = new I18n({
 		directory: path.resolve(__dirname, "../../locales/launcher"),
@@ -50,5 +52,19 @@ module.exports = modules => {
 		.post("/LauncherResetPasswordAction", portalLauncherController.ResetPasswordAction(mod))
 		.get("/LauncherResetPasswordVerifyForm", portalLauncherController.ResetPasswordVerifyFormHtml(mod))
 		.post("/LauncherResetPasswordVerifyAction", portalLauncherController.ResetPasswordVerifyAction(mod))
+
+		.use(
+			/**
+			 * @type {ErrorRequestHandler}
+			 */
+			(err, req, res, next) => {
+				if (err instanceof ApiError) {
+					res.json({ Return: false, ReturnCode: err.code, Msg: err.message });
+				} else {
+					modules.logger.error(err);
+					res.json({ Return: false, ReturnCode: 1, Msg: "internal error" });
+				}
+			}
+		)
 	;
 };

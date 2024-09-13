@@ -9,24 +9,25 @@ const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
 const Op = require("sequelize").Op;
-const helpers = require("../utils/helpers");
 
+const helpers = require("../utils/helpers");
 const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+
 const encryptPasswords = /^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWORDS);
 
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, accountModel, serverModel }) => [
+module.exports.index = ({ accountModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { accountDBID, email } = req.query;
 
-		accountModel.info.findAll({
+		const accounts = await accountModel.info.findAll({
 			where: {
 				...accountDBID ? { accountDBID } : {},
 				...email ? { email } : {}
@@ -48,17 +49,14 @@ module.exports.index = ({ logger, accountModel, serverModel }) => [
 			order: [
 				["accountDBID", "ASC"]
 			]
-		}).then(accounts =>
-			res.render("adminAccounts", {
-				layout: "adminLayout",
-				accounts,
-				moment,
-				accountDBID,
-				email
-			})
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		});
+
+		res.render("adminAccounts", {
+			layout: "adminLayout",
+			accounts,
+			moment,
+			accountDBID,
+			email
 		});
 	}
 ];
@@ -72,7 +70,7 @@ module.exports.add = ({ i18n, datasheetModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const benefitIds = [];
 		const availableUntils = [];
 
@@ -108,9 +106,9 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 	[
 		body("userName").trim()
 			.isLength({ min: 1, max: 64 }).withMessage(i18n.__("Name field must be between 1 and 64 characters."))
-			.custom((value, { req }) => accountModel.info.findOne({
+			.custom(value => accountModel.info.findOne({
 				where: {
-					userName: req.body.userName
+					userName: value
 				}
 			}).then(data => {
 				if (data) {
@@ -121,9 +119,9 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("Password field must be between 8 and 128 characters.")),
 		body("email").trim()
 			.isEmail().withMessage(i18n.__("Email field must contain a valid email."))
-			.custom((value, { req }) => accountModel.info.findOne({
+			.custom(value => accountModel.info.findOne({
 				where: {
-					email: req.body.email
+					email: value
 				}
 			}).then(data => {
 				if (data) {
@@ -150,7 +148,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { userName, passWord, email, permission, privilege, benefitIds, availableUntils } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()] || new Map();
@@ -171,44 +169,41 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 			});
 		}
 
-		sequelize.transaction(() =>
-			accountModel.info.create({
+		await sequelize.transaction(async () => {
+			const account = await accountModel.info.create({
 				userName,
 				passWord: helpers.getPasswordString(passWord),
 				email,
 				permission,
 				privilege
-			}).then(account => {
-				const promises = [];
+			});
 
-				if (benefitIds) {
-					benefitIds.forEach((benefitId, i) => {
-						if (availableUntils[i] === undefined) {
-							return;
-						}
+			const promises = [];
 
-						promises.push(accountModel.benefits.create({
-							accountDBID: account.get("accountDBID"),
-							benefitId,
-							availableUntil: moment.tz(availableUntils[i], req.user.tz).toDate()
-						}));
-					});
-				}
+			if (benefitIds) {
+				benefitIds.forEach((benefitId, i) => {
+					if (availableUntils[i] === undefined) {
+						return;
+					}
 
-				return Promise.all(promises);
-			})
-		).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+					promises.push(accountModel.benefits.create({
+						accountDBID: account.get("accountDBID"),
+						benefitId,
+						availableUntil: moment.tz(availableUntils[i], req.user.tz).toDate()
+					}));
+				});
+			}
+
+			await Promise.all(promises);
 		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/accounts");
 	}
 ];
@@ -216,39 +211,36 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, accountModel }) => [
+module.exports.edit = ({ accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { accountDBID } = req.query;
 
 		if (!accountDBID) {
 			return res.redirect("/accounts");
 		}
 
-		accountModel.info.findOne({ where: { accountDBID } }).then(data => {
-			if (data === null) {
-				return res.redirect("/accounts");
-			}
+		const data = await accountModel.info.findOne({ where: { accountDBID } });
 
-			res.render("adminAccountsEdit", {
-				layout: "adminLayout",
-				errors: null,
-				encryptPasswords,
-				moment,
-				accountDBID,
-				userName: data.get("userName"),
-				passWord: data.get("passWord"),
-				email: data.get("email"),
-				permission: data.get("permission"),
-				privilege: data.get("privilege")
-			});
-		}).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		if (data === null) {
+			return res.redirect("/accounts");
+		}
+
+		res.render("adminAccountsEdit", {
+			layout: "adminLayout",
+			errors: null,
+			encryptPasswords,
+			moment,
+			accountDBID,
+			userName: data.get("userName"),
+			passWord: data.get("passWord"),
+			email: data.get("email"),
+			permission: data.get("permission"),
+			privilege: data.get("privilege")
 		});
 	}
 ];
@@ -294,7 +286,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { accountDBID } = req.query;
 		const { userName, passWord, email, permission, privilege, benefitIds, availableUntils } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
@@ -318,7 +310,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 			});
 		}
 
-		accountModel.info.update({
+		await accountModel.info.update({
 			userName,
 			...passWord ? { passWord: helpers.getPasswordString(passWord) } : {},
 			email,
@@ -328,18 +320,15 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 			availableUntils
 		}, {
 			where: { accountDBID }
-		}).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
 		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/accounts");
 	}
 ];
@@ -356,55 +345,48 @@ module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, accountMod
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
 
-		try {
-			if (!accountDBID) {
-				return res.redirect("/accounts");
-			}
+		if (!accountDBID) {
+			return res.redirect("/accounts");
+		}
 
-			const online = await accountModel.online.findOne({ where: { accountDBID } });
+		const online = await accountModel.online.findOne({ where: { accountDBID } });
 
-			if (online !== null) {
-				hub.kickUser(online.get("serverId"), accountDBID, 33).catch(err =>
-					logger.warn(err.toString())
-				);
-
-				await new Promise(resolve => setTimeout(resolve, 3000));
-			}
-
-			await sequelize.transaction(async () =>
-				await Promise.all([
-					accountModel.info.destroy({
-						where: { accountDBID }
-					}),
-					accountModel.benefits.destroy({
-						where: { accountDBID }
-					}),
-					accountModel.characters.destroy({
-						where: { accountDBID }
-					}),
-					accountModel.online.destroy({
-						where: { accountDBID }
-					}),
-					shopModel.accounts.destroy({
-						where: { accountDBID }
-					}),
-					shopModel.promoCodeActivated.destroy({
-						where: { accountDBID }
-					})
-				])
+		if (online !== null) {
+			hub.kickUser(online.get("serverId"), accountDBID, 33).catch(err =>
+				logger.warn(err.toString())
 			);
 
-			next();
-		} catch (err) {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+			await new Promise(resolve => setTimeout(resolve, 3000));
 		}
+
+		await sequelize.transaction(async () => {
+			await accountModel.info.destroy({
+				where: { accountDBID }
+			});
+			await accountModel.benefits.destroy({
+				where: { accountDBID }
+			});
+			await accountModel.characters.destroy({
+				where: { accountDBID }
+			});
+			await accountModel.online.destroy({
+				where: { accountDBID }
+			});
+			await shopModel.accounts.destroy({
+				where: { accountDBID }
+			});
+			await shopModel.promoCodeActivated.destroy({
+				where: { accountDBID }
+			});
+		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/accounts");
 	}
 ];
@@ -412,51 +394,48 @@ module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, accountMod
 /**
  * @param {modules} modules
  */
-module.exports.characters = ({ logger, accountModel, serverModel }) => [
+module.exports.characters = ({ accountModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { serverId, accountDBID } = req.query;
 
-		serverModel.info.findAll().then(servers => {
-			if (!serverId || !accountDBID) {
-				return res.render("adminAccountsCharacters", {
-					layout: "adminLayout",
-					characters: null,
-					servers,
-					moment,
-					serverId,
-					accountDBID
-				});
-			}
+		const servers = await serverModel.info.findAll();
 
-			return accountModel.characters.findAll({
-				where: {
-					serverId,
-					accountDBID
-				},
-				include: [{
-					as: "server",
-					model: serverModel.info,
-					required: false,
-					attributes: ["nameString"]
-				}]
-			}).then(characters => {
-				res.render("adminAccountsCharacters", {
-					layout: "adminLayout",
-					characters,
-					servers,
-					moment,
-					serverId,
-					accountDBID
-				});
+		if (!serverId || !accountDBID) {
+			return res.render("adminAccountsCharacters", {
+				layout: "adminLayout",
+				characters: null,
+				servers,
+				moment,
+				serverId,
+				accountDBID
 			});
-		}).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		}
+
+		const characters = await accountModel.characters.findAll({
+			where: {
+				serverId,
+				accountDBID
+			},
+			include: [{
+				as: "server",
+				model: serverModel.info,
+				required: false,
+				attributes: ["nameString"]
+			}]
+		});
+
+		res.render("adminAccountsCharacters", {
+			layout: "adminLayout",
+			characters,
+			servers,
+			moment,
+			serverId,
+			accountDBID
 		});
 	}
 ];

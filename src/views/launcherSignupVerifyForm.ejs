@@ -18,12 +18,12 @@
 				localStorage.AUTH_KEY = result.AuthKey;
 				document.location.replace("LauncherLoginForm?lang=<%= locale %>");
 			} else {
-				switch (result.Msg) {
-					case "$0":
+				switch (result.ReturnCode) {
+					case 10:
 						alert("<%= __('Invalid verification code.') %>");
 						break;
 
-					case "$1":
+					case 11:
 						alert("<%= __('The number of verification code entry attempts has been exceeded.') %>");
 						document.location.replace("LauncherLoginForm?lang=<%= locale %>");
 						break;

@@ -2,17 +2,10 @@
 
 /**
  * @typedef {import("express").RequestHandler} RequestHandler
- * @typedef {import("express").Response} Response
  */
 
+const ApiError = require("../lib/apiError");
 const helpers = require("../utils/helpers");
-
-/**
- * @param {Response} res
- */
-const resultJson = (res, code, params = {}) => res.json({
-	result_code: code, ...params
-});
 
 module.exports.validationHandler = logger =>
 	/**
@@ -20,11 +13,9 @@ module.exports.validationHandler = logger =>
 	 */
 	(req, res, next) => {
 		if (!helpers.validationResultLog(req, logger).isEmpty()) {
-			return resultJson(res, 2, { msg: "invalid parameter" });
+			throw new ApiError("invalid parameter", 2);
 		}
 
 		next();
 	}
 ;
-
-module.exports.resultJson = resultJson;

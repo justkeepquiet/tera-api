@@ -8,27 +8,22 @@
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
-const helpers = require("../utils/helpers");
 
+const helpers = require("../utils/helpers");
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, reportModel }) => [
+module.exports.index = ({ reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res) => {
-		let { from, to } = req.query;
+	async (req, res, next) => {
 		const { accountDBID } = req.query;
+		const from = req.query.from ? moment.tz(req.query.from, req.user.tz) : moment().subtract(30, "days");
+		const to = req.query.to ? moment.tz(req.query.to, req.user.tz) : moment().add(30, "days");
 
-		from = from ? moment.tz(from, req.user.tz) : moment().subtract(30, "days");
-		to = to ? moment.tz(to, req.user.tz) : moment().add(30, "days");
-
-		reportModel.launcher.findAll({
+		const reports = await reportModel.launcher.findAll({
 			where: {
 				...accountDBID ? { accountDBID } : {},
 				reportTime: {
@@ -39,19 +34,16 @@ module.exports.index = ({ logger, reportModel }) => [
 			order: [
 				["reportTime", "DESC"]
 			]
-		}).then(reports =>
-			res.render("adminLauncherLogs", {
-				layout: "adminLayout",
-				moment,
-				helpers,
-				reports,
-				from,
-				to,
-				accountDBID
-			})
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		});
+
+		res.render("adminLauncherLogs", {
+			layout: "adminLayout",
+			moment,
+			helpers,
+			reports,
+			from,
+			to,
+			accountDBID
 		});
 	}
 ];

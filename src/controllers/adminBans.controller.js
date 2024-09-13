@@ -9,30 +9,27 @@ const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
 const validator = require("validator");
-const helpers = require("../utils/helpers");
 
+const helpers = require("../utils/helpers");
 const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, accountModel }) => [
+module.exports.index = ({ accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		accountModel.bans.findAll().then(bans => {
-			res.render("adminBans", {
-				layout: "adminLayout",
-				moment,
-				helpers,
-				bans
-			});
-		}).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+	async (req, res, next) => {
+		const bans = await accountModel.bans.findAll();
+
+		res.render("adminBans", {
+			layout: "adminLayout",
+			moment,
+			helpers,
+			bans
 		});
 	}
 ];
@@ -59,7 +56,7 @@ module.exports.add = ({ i18n, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { accountDBID } = req.query;
 
 		res.render("adminBansAdd", {
@@ -121,7 +118,7 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { accountDBID, startTime, endTime, active, ip, description } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
@@ -138,35 +135,32 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 			});
 		}
 
-		accountModel.info.findOne({ where: { accountDBID } }).then(account =>
-			accountModel.bans.create({
-				accountDBID: account.get("accountDBID"),
-				startTime: moment.tz(startTime, req.user.tz).toDate(),
-				endTime: moment.tz(endTime, req.user.tz).toDate(),
-				active: active == "on",
-				ip: JSON.stringify(helpers.unserializeRange(ip)),
-				description
-			}).then(() => {
-				if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
-					hub.kickUser(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
-						if (err.resultCode() !== 2) {
-							logger.warn(err.toString());
-						}
-					});
-				}
+		const account = await accountModel.info.findOne({ where: { accountDBID } });
 
-				next();
-			})
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		accountModel.bans.create({
+			accountDBID: account.get("accountDBID"),
+			startTime: moment.tz(startTime, req.user.tz).toDate(),
+			endTime: moment.tz(endTime, req.user.tz).toDate(),
+			active: active == "on",
+			ip: JSON.stringify(helpers.unserializeRange(ip)),
+			description
+		}).then(() => {
+			if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
+				hub.kickUser(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
+					if (err.resultCode() !== 2) {
+						logger.warn(err.toString());
+					}
+				});
+			}
+
+			next();
 		});
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/bans");
 	}
 ];
@@ -180,7 +174,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		const { accountDBID } = req.query;
 
 		if (!accountDBID) {
@@ -284,7 +278,7 @@ module.exports.editAction = ({ i18n, logger, hub, reportModel, accountModel }) =
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/bans");
 	}
 ];
@@ -316,7 +310,7 @@ module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/bans");
 	}
 ];

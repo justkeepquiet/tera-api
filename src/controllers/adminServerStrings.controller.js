@@ -7,28 +7,25 @@
 
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
-const helpers = require("../utils/helpers");
 
+const helpers = require("../utils/helpers");
 const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, serverModel }) => [
+module.exports.index = ({ serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		serverModel.strings.findAll().then(strings => {
-			res.render("adminServerStrings", {
-				layout: "adminLayout",
-				strings
-			});
-		}).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+	async (req, res, next) => {
+		const strings = await serverModel.strings.findAll();
+
+		res.render("adminServerStrings", {
+			layout: "adminLayout",
+			strings
 		});
 	}
 ];
@@ -42,7 +39,7 @@ module.exports.add = () => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		res.render("adminServerStringsAdd", {
 			layout: "adminLayout",
 			errors: null,
@@ -92,7 +89,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { language, categoryPvE, categoryPvP, serverOffline,
 			serverLow, serverMedium, serverHigh, crowdNo, crowdYes, popup } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
@@ -114,7 +111,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 			});
 		}
 
-		serverModel.strings.create({
+		await serverModel.strings.create({
 			language,
 			categoryPvE,
 			categoryPvP,
@@ -125,18 +122,15 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 			crowdNo,
 			crowdYes,
 			popup
-		}).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
 		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/server_strings");
 	}
 ];
@@ -144,37 +138,36 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, serverModel }) => [
+module.exports.edit = ({ serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { language } = req.query;
 
-		serverModel.strings.findOne({ where: { language } }).then(data => {
-			if (data === null) {
-				return res.redirect("/server_strings");
-			}
+		const data = await serverModel.strings.findOne({
+			where: { language }
+		});
 
-			res.render("adminServerStringsEdit", {
-				layout: "adminLayout",
-				errors: null,
-				language: data.get("language"),
-				categoryPvE: data.get("categoryPvE"),
-				categoryPvP: data.get("categoryPvP"),
-				serverOffline: data.get("serverOffline"),
-				serverLow: data.get("serverLow"),
-				serverMedium: data.get("serverMedium"),
-				serverHigh: data.get("serverHigh"),
-				crowdNo: data.get("crowdNo"),
-				crowdYes: data.get("crowdYes"),
-				popup: data.get("popup")
-			});
-		}).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		if (data === null) {
+			return res.redirect("/server_strings");
+		}
+
+		res.render("adminServerStringsEdit", {
+			layout: "adminLayout",
+			errors: null,
+			language: data.get("language"),
+			categoryPvE: data.get("categoryPvE"),
+			categoryPvP: data.get("categoryPvP"),
+			serverOffline: data.get("serverOffline"),
+			serverLow: data.get("serverLow"),
+			serverMedium: data.get("serverMedium"),
+			serverHigh: data.get("serverHigh"),
+			crowdNo: data.get("crowdNo"),
+			crowdYes: data.get("crowdYes"),
+			popup: data.get("popup")
 		});
 	}
 ];
@@ -208,7 +201,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { language } = req.query;
 		const { categoryPvE, categoryPvP, serverOffline,
 			serverLow, serverMedium, serverHigh, crowdNo, crowdYes, popup } = req.body;
@@ -235,7 +228,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 			});
 		}
 
-		serverModel.strings.update({
+		await serverModel.strings.update({
 			categoryPvE,
 			categoryPvP,
 			serverOffline,
@@ -247,18 +240,15 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 			popup
 		}, {
 			where: { language }
-		}).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
 		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/server_strings");
 	}
 ];
@@ -266,31 +256,28 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, reportModel, serverModel }) => [
+module.exports.deleteAction = ({ reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { language } = req.query;
 
 		if (!language) {
 			return res.redirect("/server_strings");
 		}
 
-		serverModel.strings.destroy({ where: { language } }).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
-		});
+		await serverModel.strings.destroy({ where: { language } });
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/server_strings");
 	}
 ];

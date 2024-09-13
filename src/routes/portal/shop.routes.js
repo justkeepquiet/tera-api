@@ -1,8 +1,9 @@
 "use strict";
 
 /**
-* @typedef {import("../../app").modules} modules
-*/
+ * @typedef {import("express").ErrorRequestHandler} ErrorRequestHandler
+ * @typedef {import("../../app").modules} modules
+ */
 
 const path = require("path");
 const I18n = require("i18n").I18n;
@@ -13,11 +14,12 @@ const MemoryStore = require("memorystore")(session);
 const Passport = require("passport").Passport;
 const CustomStrategy = require("passport-custom").Strategy;
 
+const ApiError = require("../../lib/apiError");
 const portalShopController = require("../../controllers/portalShop.controller");
 
 /**
-* @param {modules} modules
-*/
+ * @param {modules} modules
+ */
 module.exports = modules => {
 	const passport = new Passport();
 	const i18n = new I18n({
@@ -101,5 +103,19 @@ module.exports = modules => {
 		.post("/ShopGetAccountInfo", portalShopController.GetAccountInfo(mod))
 		.post("/ShopPurchaseAction", portalShopController.PurchaseAction(mod))
 		.post("/ShopPromoCodeAction", portalShopController.PromoCodeAction(mod))
+
+		.use(
+			/**
+			 * @type {ErrorRequestHandler}
+			 */
+			(err, req, res, next) => {
+				if (err instanceof ApiError) {
+					res.json({ Return: false, ReturnCode: err.code, Msg: err.message });
+				} else {
+					modules.logger.error(err);
+					res.json({ Return: false, ReturnCode: 1, Msg: "internal error" });
+				}
+			}
+		)
 	;
 };

@@ -14,20 +14,18 @@ const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 /**
  * @param {modules} modules
  */
-module.exports.fund = ({ logger, reportModel }) => [
+module.exports.fund = ({ reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		let { from, to } = req.query;
+	async (req, res, next) => {
 		const { accountDBID } = req.query;
+		const from = req.query.from ? moment.tz(req.query.from, req.user.tz) : moment().subtract(30, "days");
+		const to = req.query.to ? moment.tz(req.query.to, req.user.tz) : moment().add(30, "days");
 
-		from = from ? moment.tz(from, req.user.tz) : moment().subtract(30, "days");
-		to = to ? moment.tz(to, req.user.tz) : moment().add(30, "days");
-
-		reportModel.shopFund.findAll({
+		const logs = await reportModel.shopFund.findAll({
 			where: {
 				...accountDBID ? { accountDBID } : {},
 				createdAt: {
@@ -38,18 +36,15 @@ module.exports.fund = ({ logger, reportModel }) => [
 			order: [
 				["createdAt", "DESC"]
 			]
-		}).then(logs =>
-			res.render("adminShopFundLogs", {
-				layout: "adminLayout",
-				moment,
-				logs,
-				from,
-				to,
-				accountDBID
-			})
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		});
+
+		res.render("adminShopFundLogs", {
+			layout: "adminLayout",
+			moment,
+			logs,
+			from,
+			to,
+			accountDBID
 		});
 	}
 ];
@@ -57,20 +52,18 @@ module.exports.fund = ({ logger, reportModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.pay = ({ logger, serverModel, reportModel }) => [
+module.exports.pay = ({ serverModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		let { from, to } = req.query;
+	async (req, res, next) => {
 		const { accountDBID, serverId } = req.query;
+		const from = req.query.from ? moment.tz(req.query.from, req.user.tz) : moment().subtract(30, "days");
+		const to = req.query.to ? moment.tz(req.query.to, req.user.tz) : moment().add(30, "days");
 
-		from = from ? moment.tz(from, req.user.tz) : moment().subtract(30, "days");
-		to = to ? moment.tz(to, req.user.tz) : moment().add(30, "days");
-
-		reportModel.shopPay.findAll({
+		const logs = await reportModel.shopPay.findAll({
 			where: {
 				...accountDBID ? { accountDBID } : {},
 				...serverId ? { serverId } : {},
@@ -88,22 +81,19 @@ module.exports.pay = ({ logger, serverModel, reportModel }) => [
 			order: [
 				["createdAt", "DESC"]
 			]
-		}).then(logs =>
-			serverModel.info.findAll().then(servers => {
-				res.render("adminShopPayLogs", {
-					layout: "adminLayout",
-					moment,
-					servers,
-					logs,
-					from,
-					to,
-					serverId,
-					accountDBID
-				});
-			})
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		});
+
+		const servers = await serverModel.info.findAll();
+
+		res.render("adminShopPayLogs", {
+			layout: "adminLayout",
+			moment,
+			servers,
+			logs,
+			from,
+			to,
+			serverId,
+			accountDBID
 		});
 	}
 ];

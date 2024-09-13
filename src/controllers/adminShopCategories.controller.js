@@ -7,22 +7,23 @@
 
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
-const helpers = require("../utils/helpers");
 
+const helpers = require("../utils/helpers");
 const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+
 const shopLocales = require("../../config/admin").shopLocales;
 
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ i18n, logger, sequelize, shopModel }) => [
+module.exports.index = ({ i18n, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		shopModel.categories.findAll({
+	async (req, res, next) => {
+		const categories = await shopModel.categories.findAll({
 			include: [{
 				as: "strings",
 				model: shopModel.categoryStrings,
@@ -32,14 +33,11 @@ module.exports.index = ({ i18n, logger, sequelize, shopModel }) => [
 			order: [
 				["sort", "DESC"]
 			]
-		}).then(categories => {
-			res.render("adminShopCategories", {
-				layout: "adminLayout",
-				categories
-			});
-		}).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		});
+
+		res.render("adminShopCategories", {
+			layout: "adminLayout",
+			categories
 		});
 	}
 ];
@@ -53,7 +51,7 @@ module.exports.add = () => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		res.render("adminShopCategoriesAdd", {
 			layout: "adminLayout",
 			errors: null,
@@ -82,7 +80,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { sort, active, title } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
@@ -97,37 +95,34 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 			});
 		}
 
-		sequelize.transaction(() =>
-			shopModel.categories.create({
+		await sequelize.transaction(async () => {
+			const category = await shopModel.categories.create({
 				sort,
 				active: active == "on"
-			}).then(category => {
-				const promises = [];
+			});
 
-				if (title) {
-					Object.keys(title).forEach(language => {
-						promises.push(shopModel.categoryStrings.create({
-							categoryId: category.get("id"),
-							language,
-							title: title[language]
-						}));
-					});
-				}
+			const promises = [];
 
-				return Promise.all(promises);
-			})
-		).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+			if (title) {
+				Object.keys(title).forEach(language => {
+					promises.push(shopModel.categoryStrings.create({
+						categoryId: category.get("id"),
+						language,
+						title: title[language]
+					}));
+				});
+			}
+
+			await Promise.all(promises);
 		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/shop_categories");
 	}
 ];
@@ -135,48 +130,45 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, shopModel }) => [
+module.exports.edit = ({ shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { id } = req.query;
 
 		if (!id) {
 			return res.redirect("/shop_categories");
 		}
 
-		shopModel.categories.findOne({
+		const category = await shopModel.categories.findOne({
 			where: { id }
-		}).then(category => {
-			if (category === null) {
-				return res.redirect("/shop_categories");
-			}
+		});
 
-			return shopModel.categoryStrings.findAll({
-				where: { categoryId: category.get("id") }
-			}).then(strings => {
-				const title = {};
+		if (category === null) {
+			return res.redirect("/shop_categories");
+		}
 
-				strings.forEach(string => {
-					title[string.get("language")] = string.get("title");
-				});
+		const strings = await shopModel.categoryStrings.findAll({
+			where: { categoryId: category.get("id") }
+		});
 
-				res.render("adminShopCategoriesEdit", {
-					layout: "adminLayout",
-					errors: null,
-					shopLocales,
-					id: category.get("id"),
-					sort: category.get("sort"),
-					active: category.get("active"),
-					title
-				});
-			});
-		}).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		const title = {};
+
+		strings.forEach(string => {
+			title[string.get("language")] = string.get("title");
+		});
+
+		res.render("adminShopCategoriesEdit", {
+			layout: "adminLayout",
+			errors: null,
+			shopLocales,
+			id: category.get("id"),
+			sort: category.get("sort"),
+			active: category.get("active"),
+			title
 		});
 	}
 ],
@@ -203,95 +195,90 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 		const { sort, active, title } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
-		try {
-			if (!id) {
-				return res.redirect("/shop_categories");
-			}
+		if (!id) {
+			return res.redirect("/shop_categories");
+		}
 
-			const category = await shopModel.categories.findOne({
-				where: { id }
+		const category = await shopModel.categories.findOne({
+			where: { id }
+		});
+
+		if (category === null) {
+			return res.redirect("/shop_categories");
+		}
+
+		if (!errors.isEmpty()) {
+			return res.render("adminShopCategoriesEdit", {
+				layout: "adminLayout",
+				errors: errors.array(),
+				shopLocales,
+				id: category.get("id"),
+				sort,
+				active,
+				title: title || []
 			});
+		}
 
-			if (category === null) {
-				return res.redirect("/shop_categories");
-			}
-
-			if (!errors.isEmpty()) {
-				return res.render("adminShopCategoriesEdit", {
-					layout: "adminLayout",
-					errors: errors.array(),
-					shopLocales,
-					id: category.get("id"),
+		await sequelize.transaction(async () => {
+			const promises = [
+				shopModel.categories.update({
 					sort,
-					active,
-					title: title || []
+					active: active == "on"
+				}, {
+					where: { id }
+				})
+			];
+
+			if (title) {
+				const categoryStrings = await shopModel.categoryStrings.findAll({
+					where: { categoryId: id }
+				});
+
+				categoryStrings.forEach(categoryString => {
+					const language = categoryString.get("language");
+
+					if (title[language]) {
+						promises.push(shopModel.categoryStrings.update({
+							title: title[language]
+						}, {
+							where: {
+								categoryId: id,
+								language
+							}
+						}));
+					} else {
+						promises.push(shopModel.categoryStrings.destroy({
+							where: {
+								categoryId: id,
+								language
+							}
+						}));
+					}
+				});
+
+				shopLocales.forEach(language => {
+					if (title[language]) {
+						promises.push(shopModel.categoryStrings.create({
+							categoryId: id,
+							title: title[language],
+							language
+						}, {
+							ignoreDuplicates: true
+						}));
+					}
 				});
 			}
 
-			await sequelize.transaction(async () => {
-				const promises = [
-					shopModel.categories.update({
-						sort,
-						active: active == "on"
-					}, {
-						where: { id }
-					})
-				];
+			await Promise.all(promises);
+		});
 
-				if (title) {
-					const categoryStrings = await shopModel.categoryStrings.findAll({
-						where: { categoryId: id }
-					});
-
-					categoryStrings.forEach(categoryString => {
-						const language = categoryString.get("language");
-
-						if (title[language]) {
-							promises.push(shopModel.categoryStrings.update({
-								title: title[language]
-							}, {
-								where: {
-									categoryId: id,
-									language
-								}
-							}));
-						} else {
-							promises.push(shopModel.categoryStrings.destroy({
-								where: {
-									categoryId: id,
-									language
-								}
-							}));
-						}
-					});
-
-					shopLocales.forEach(language => {
-						if (title[language]) {
-							promises.push(shopModel.categoryStrings.create({
-								categoryId: id,
-								title: title[language],
-								language
-							}, {
-								ignoreDuplicates: true
-							}));
-						}
-					});
-				}
-
-				await Promise.all(promises);
-			});
-
-			next();
-		} catch (err) {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
-		}
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/shop_categories");
 	}
 ];
@@ -299,40 +286,35 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, sequelize, reportModel, shopModel }) => [
+module.exports.deleteAction = ({ sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { id } = req.query;
 
 		if (!id) {
 			return res.redirect("/shop_categories");
 		}
 
-		sequelize.transaction(() =>
-			Promise.all([
-				shopModel.categories.destroy({
-					where: { id }
-				}),
-				shopModel.categoryStrings.destroy({
-					where: { categoryId: id }
-				})
-			])
-		).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		await sequelize.transaction(async () => {
+			await shopModel.categories.destroy({
+				where: { id }
+			});
+			await shopModel.categoryStrings.destroy({
+				where: { categoryId: id }
+			});
 		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/shop_categories");
 	}
 ];

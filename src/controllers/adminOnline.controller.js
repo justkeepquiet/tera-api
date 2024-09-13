@@ -8,23 +8,23 @@
 const expressLayouts = require("express-ejs-layouts");
 const query = require("express-validator").query;
 const moment = require("moment-timezone");
-const helpers = require("../utils/helpers");
 
+const helpers = require("../utils/helpers");
 const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, accountModel, serverModel }) => [
+module.exports.index = ({ accountModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { serverId } = req.query;
 
-		accountModel.online.findAll({
+		const online = await accountModel.online.findAll({
 			where: {
 				...serverId ? { serverId } : {}
 			},
@@ -32,19 +32,16 @@ module.exports.index = ({ logger, accountModel, serverModel }) => [
 				as: "info",
 				model: accountModel.info
 			}]
-		}).then(online =>
-			serverModel.info.findAll().then(servers => {
-				res.render("adminOnline", {
-					layout: "adminLayout",
-					moment,
-					servers,
-					online,
-					serverId
-				});
-			})
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		});
+
+		serverModel.info.findAll().then(servers => {
+			res.render("adminOnline", {
+				layout: "adminLayout",
+				moment,
+				servers,
+				online,
+				serverId
+			});
 		});
 	}
 ];
@@ -58,9 +55,9 @@ module.exports.kickAction = ({ i18n, logger, hub, reportModel, accountModel, ser
 	[
 		query("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.info.findOne({
+			.custom(value => accountModel.info.findOne({
 				where: {
-					accountDBID: req.query.accountDBID
+					accountDBID: value
 				}
 			}).then(data => {
 				if (data === null) {
@@ -69,9 +66,9 @@ module.exports.kickAction = ({ i18n, logger, hub, reportModel, accountModel, ser
 			})),
 		query("serverId")
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain a valid number."))
-			.custom((value, { req }) => serverModel.info.findOne({
+			.custom(value => serverModel.info.findOne({
 				where: {
-					serverId: req.query.serverId
+					serverId: value
 				}
 			}).then(data => {
 				if (data === null) {
@@ -86,24 +83,19 @@ module.exports.kickAction = ({ i18n, logger, hub, reportModel, accountModel, ser
 		const { accountDBID, serverId } = req.query;
 		const errors = helpers.validationResultLog(req, logger);
 
-		try {
-			if (!errors.isEmpty()) {
-				throw new Error(errors.array()[0].msg);
-			}
-
-			await hub.kickUser(serverId, accountDBID, 33);
-
-			next();
-		} catch (err) {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		if (!errors.isEmpty()) {
+			throw new Error(errors.array()[0].msg);
 		}
+
+		await hub.kickUser(serverId, accountDBID, 33);
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		res.redirect(`/online?serverId=${req.query.fromServerId || ""}`);
 	}
 ];
@@ -117,9 +109,9 @@ module.exports.kickAllAction = ({ i18n, logger, hub, reportModel, serverModel })
 	[
 		query("serverId")
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain a valid number."))
-			.custom((value, { req }) => serverModel.info.findOne({
+			.custom(value => serverModel.info.findOne({
 				where: {
-					serverId: req.query.serverId
+					serverId: value
 				}
 			}).then(data => {
 				if (data === null) {
@@ -134,24 +126,19 @@ module.exports.kickAllAction = ({ i18n, logger, hub, reportModel, serverModel })
 		const { serverId } = req.query;
 		const errors = helpers.validationResultLog(req, logger);
 
-		try {
-			if (!errors.isEmpty()) {
-				throw new Error(errors.array()[0].msg);
-			}
-
-			await hub.bulkKick(serverId, 33);
-
-			next();
-		} catch (err) {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		if (!errors.isEmpty()) {
+			throw new Error(errors.array()[0].msg);
 		}
+
+		await hub.bulkKick(serverId, 33);
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect(`/online?serverId=${req.query.fromServerId || ""}`);
 	}
 ];

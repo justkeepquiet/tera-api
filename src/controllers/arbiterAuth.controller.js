@@ -1,14 +1,16 @@
 "use strict";
 
 /**
- * @typedef {import("../app").modules} modules
  * @typedef {import("express").RequestHandler} RequestHandler
+ * @typedef {import("express").ErrorRequestHandler} ErrorRequestHandler
+ * @typedef {import("../app").modules} modules
  */
 
 const body = require("express-validator").body;
 const Op = require("sequelize").Op;
 
-const { validationHandler, resultJson } = require("../middlewares/arbiterAuth.middlewares");
+const ApiError = require("../lib/apiError");
+const { validationHandler } = require("../middlewares/arbiterAuth.middlewares");
 
 const ipFromLauncher = /^true$/i.test(process.env.API_ARBITER_USE_IP_FROM_LAUNCHER);
 
@@ -20,14 +22,15 @@ module.exports.RequestAPIServerStatusAvailable = ({ logger, serverModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		serverModel.info.update({ isAvailable: 0, usersOnline: 0 }, {
+	async (req, res, next) => {
+		await serverModel.info.update({ isAvailable: 0, usersOnline: 0 }, {
 			where: { isEnabled: 1 }
-		}).then(() =>
-			res.json({ Return: true })
-		).catch(err => {
-			logger.error(err);
-			res.json({ Return: false });
+		});
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success"
 		});
 	}
 ];
@@ -42,20 +45,20 @@ module.exports.RequestAuthkey = ({ logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { clientIP, userNo } = req.body;
 
-		accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
-			if (account === null) {
-				return resultJson(res, 50000, "account not exist");
-			}
+		const account = await accountModel.info.findOne({ where: { accountDBID: userNo } });
 
-			resultJson(res, 0, "success", {
-				Tokken: account.get("authKey")
-			});
-		}).catch(err => {
-			logger.error(err);
-			resultJson(res, 1, "internal error");
+		if (account === null) {
+			throw new ApiError("account not exist", 50000);
+		}
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			Tokken: account.get("authKey")
 		});
 	}
 ];
@@ -70,10 +73,10 @@ module.exports.GameAuthenticationLogin = ({ logger, sequelize, accountModel }) =
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { authKey, clientIP, userNo } = req.body;
 
-		accountModel.info.findOne({
+		const account = await accountModel.info.findOne({
 			where: { accountDBID: userNo },
 			include: [{
 				as: "banned",
@@ -85,34 +88,35 @@ module.exports.GameAuthenticationLogin = ({ logger, sequelize, accountModel }) =
 				},
 				required: false
 			}]
-		}).then(account => {
-			if (account === null) {
-				return resultJson(res, 50000, "account not exist");
+		});
+
+		if (account === null) {
+			throw new ApiError("account not exist", 50000);
+		}
+
+		if (account.get("authKey") !== authKey) {
+			throw new ApiError("authkey mismatch", 50011);
+		}
+
+		const ip = ipFromLauncher ? account.get("lastLoginIP") : clientIP;
+
+		const bannedByIp = await accountModel.bans.findOne({
+			where: {
+				active: 1,
+				ip: { [Op.like]: `%"${ip}"%` },
+				startTime: { [Op.lt]: sequelize.fn("NOW") },
+				endTime: { [Op.gt]: sequelize.fn("NOW") }
 			}
+		});
 
-			if (account.get("authKey") !== authKey) {
-				return resultJson(res, 50011, "authkey mismatch");
-			}
+		if (account.get("banned") !== null || bannedByIp !== null) {
+			throw new ApiError("account banned", 50012);
+		}
 
-			const ip = ipFromLauncher ? account.get("lastLoginIP") : clientIP;
-
-			return accountModel.bans.findOne({
-				where: {
-					active: 1,
-					ip: { [Op.like]: `%"${ip}"%` },
-					startTime: { [Op.lt]: sequelize.fn("NOW") },
-					endTime: { [Op.gt]: sequelize.fn("NOW") }
-				}
-			}).then(bannedByIp => {
-				if (account.get("banned") !== null || bannedByIp !== null) {
-					return resultJson(res, 50012, "account banned");
-				}
-
-				resultJson(res, 0, "success");
-			});
-		}).catch(err => {
-			logger.error(err);
-			resultJson(res, 1, "internal error");
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success"
 		});
 	}
 ];

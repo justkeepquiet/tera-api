@@ -6,7 +6,9 @@
  */
 
 const query = require("express-validator").query;
-const { validationHandler, resultJson } = require("../middlewares/gateway.middlewares");
+
+const ApiError = require("../lib/apiError");
+const { validationHandler } = require("../middlewares/gateway.middlewares");
 
 /**
  * @param {modules} modules
@@ -17,37 +19,41 @@ module.exports.GetServerInfoByServerId = ({ logger, serverModel, accountModel })
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { serverId } = req.query;
 
-		serverModel.info.findOne({ where: { serverId: serverId } }).then(server => {
-			if (server === null) {
-				return resultJson(res, 50000, "server not exist");
-			}
+		const server = await serverModel.info.findOne({
+			where: { serverId: serverId }
+		});
 
-			return accountModel.characters.count({ where: { serverId: serverId } }).then(characters =>
-				resultJson(res, 0, "success", {
-					ServerId: server.get("serverId"),
-					LoginIp: server.get("loginIp"),
-					LoginPort: server.get("loginPort"),
-					Language: server.get("language"),
-					NameString: server.get("nameString"),
-					DescrString: server.get("descrString"),
-					Permission: server.get("permission"),
-					TresholdLow: server.get("tresholdLow"),
-					TresholdMedium: server.get("tresholdMedium"),
-					IsPvE: server.get("isPvE"),
-					IsCrowdness: server.get("isCrowdness"),
-					IsAvailable: server.get("isAvailable"),
-					IsEnabled: server.get("isEnabled"),
-					UsersOnline: server.get("usersOnline"),
-					UsersTotal: server.get("usersTotal"),
-					Characters: Number(characters)
-				})
-			);
-		}).catch(err => {
-			logger.error(err);
-			resultJson(res, 1, "internal error");
+		if (server === null) {
+			throw ApiError("server not exist", 50000);
+		}
+
+		const characters = await accountModel.characters.count({
+			where: { serverId: serverId }
+		});
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			ServerId: server.get("serverId"),
+			LoginIp: server.get("loginIp"),
+			LoginPort: server.get("loginPort"),
+			Language: server.get("language"),
+			NameString: server.get("nameString"),
+			DescrString: server.get("descrString"),
+			Permission: server.get("permission"),
+			TresholdLow: server.get("tresholdLow"),
+			TresholdMedium: server.get("tresholdMedium"),
+			IsPvE: server.get("isPvE"),
+			IsCrowdness: server.get("isCrowdness"),
+			IsAvailable: server.get("isAvailable"),
+			IsEnabled: server.get("isEnabled"),
+			UsersOnline: server.get("usersOnline"),
+			UsersTotal: server.get("usersTotal"),
+			Characters: Number(characters)
 		});
 	}
 ];

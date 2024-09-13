@@ -13,16 +13,16 @@ const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, queueModel }) => [
+module.exports.index = ({ queueModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { handler, tag } = req.query;
 
-		queueModel.tasks.findAll({
+		const tasks = await queueModel.tasks.findAll({
 			where: {
 				...handler ? { handler } : {},
 				...tag ? { tag } : {}
@@ -30,17 +30,14 @@ module.exports.index = ({ logger, queueModel }) => [
 			order: [
 				["id", "DESC"]
 			]
-		}).then(tasks =>
-			res.render("adminTasks", {
-				layout: "adminLayout",
-				moment,
-				tag,
-				handler,
-				tasks
-			})
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		});
+
+		res.render("adminTasks", {
+			layout: "adminLayout",
+			moment,
+			tag,
+			handler,
+			tasks
 		});
 	}
 ];
@@ -48,58 +45,49 @@ module.exports.index = ({ logger, queueModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.restartAction = ({ logger, queue }) => [
+module.exports.restartAction = ({ queue }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		queue.start(true).then(() =>
-			res.redirect("/tasks")
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
-		});
+	async (req, res, next) => {
+		await queue.start(true);
+
+		res.redirect("/tasks");
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.cancelFailedAction = ({ logger, queue }) => [
+module.exports.cancelFailedAction = ({ queue }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { handler, tag } = req.query;
 
-		queue.clear(queue.status.rejected, handler || null, tag || null).then(() =>
-			res.redirect("/tasks")
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
-		});
+		await queue.clear(queue.status.rejected, handler || null, tag || null);
+
+		res.redirect("/tasks");
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.cancelAllAction = ({ logger, queue }) => [
+module.exports.cancelAllAction = ({ queue }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		queue.clear().then(() =>
-			res.redirect("/tasks")
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
-		});
+	async (req, res, next) => {
+		await queue.clear();
+
+		res.redirect("/tasks");
 	}
 ];

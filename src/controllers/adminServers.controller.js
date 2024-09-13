@@ -7,8 +7,8 @@
 
 const expressLayouts = require("express-ejs-layouts");
 const body = require("express-validator").body;
-const helpers = require("../utils/helpers");
 
+const helpers = require("../utils/helpers");
 const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 const isSlsOverrided = (serverId = null) => {
@@ -34,16 +34,13 @@ module.exports.index = modules => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		modules.serverModel.info.findAll().then(servers =>
-			res.render("adminServers", {
-				layout: "adminLayout",
-				servers,
-				isSlsOverrided
-			})
-		).catch(err => {
-			modules.logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+	async (req, res, next) => {
+		const servers = await modules.serverModel.info.findAll();
+
+		res.render("adminServers", {
+			layout: "adminLayout",
+			servers,
+			isSlsOverrided
 		});
 	}
 ];
@@ -57,7 +54,7 @@ module.exports.add = ({ i18n }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		res.render("adminServersAdd", {
 			layout: "adminLayout",
 			errors: null,
@@ -87,9 +84,9 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	[
 		body("serverId")
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain the value as a number."))
-			.custom((value, { req }) => serverModel.info.findOne({
+			.custom(value => serverModel.info.findOne({
 				where: {
-					serverId: req.body.serverId
+					serverId: value
 				}
 			}).then(data => {
 				if (data) {
@@ -125,7 +122,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { serverId, loginIp, loginPort, language, nameString, descrString, permission,
 			tresholdLow, tresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
@@ -150,7 +147,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 			});
 		}
 
-		serverModel.info.create({
+		await serverModel.info.create({
 			serverId,
 			loginIp,
 			loginPort,
@@ -164,18 +161,15 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 			isCrowdness: isCrowdness == "on",
 			isAvailable: isAvailable == "on",
 			isEnabled: isEnabled == "on"
-		}).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
 		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/servers");
 	}
 ];
@@ -189,35 +183,32 @@ module.exports.edit = ({ logger, serverModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { serverId } = req.query;
 
-		serverModel.info.findOne({ where: { serverId } }).then(data => {
-			if (data === null) {
-				return res.redirect("/servers");
-			}
+		const data = await serverModel.info.findOne({ where: { serverId } });
 
-			res.render("adminServersEdit", {
-				layout: "adminLayout",
-				errors: null,
-				serverId: data.get("serverId"),
-				loginIp: data.get("loginIp"),
-				loginPort: data.get("loginPort"),
-				language: data.get("language"),
-				nameString: data.get("nameString"),
-				descrString: data.get("descrString"),
-				permission: data.get("permission"),
-				tresholdLow: data.get("tresholdLow"),
-				tresholdMedium: data.get("tresholdMedium"),
-				isPvE: data.get("isPvE"),
-				isCrowdness: data.get("isCrowdness"),
-				isAvailable: data.get("isAvailable"),
-				isEnabled: data.get("isEnabled"),
-				isSlsOverrided: isSlsOverrided(serverId)
-			});
-		}).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		if (data === null) {
+			return res.redirect("/servers");
+		}
+
+		res.render("adminServersEdit", {
+			layout: "adminLayout",
+			errors: null,
+			serverId: data.get("serverId"),
+			loginIp: data.get("loginIp"),
+			loginPort: data.get("loginPort"),
+			language: data.get("language"),
+			nameString: data.get("nameString"),
+			descrString: data.get("descrString"),
+			permission: data.get("permission"),
+			tresholdLow: data.get("tresholdLow"),
+			tresholdMedium: data.get("tresholdMedium"),
+			isPvE: data.get("isPvE"),
+			isCrowdness: data.get("isCrowdness"),
+			isAvailable: data.get("isAvailable"),
+			isEnabled: data.get("isEnabled"),
+			isSlsOverrided: isSlsOverrided(serverId)
 		});
 	}
 ];
@@ -258,7 +249,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { serverId } = req.query;
 		const { loginIp, loginPort, language, nameString, descrString, permission,
 			tresholdLow, tresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
@@ -289,7 +280,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 			});
 		}
 
-		serverModel.info.update({
+		await serverModel.info.update({
 			loginIp,
 			loginPort,
 			language,
@@ -304,18 +295,15 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 			isEnabled: isEnabled == "on"
 		}, {
 			where: { serverId }
-		}).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
 		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/servers");
 	}
 ];
@@ -323,31 +311,28 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, reportModel, serverModel }) => [
+module.exports.deleteAction = ({ reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { serverId } = req.query;
 
 		if (!serverId) {
 			return res.redirect("/servers");
 		}
 
-		serverModel.info.destroy({ where: { serverId } }).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
-		});
+		await serverModel.info.destroy({ where: { serverId } });
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/servers");
 	}
 ];

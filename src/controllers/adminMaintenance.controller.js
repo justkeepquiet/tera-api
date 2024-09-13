@@ -8,29 +8,26 @@
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
-const helpers = require("../utils/helpers");
 
+const helpers = require("../utils/helpers");
 const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ logger, serverModel }) => [
+module.exports.index = ({ serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
-		serverModel.maintenance.findAll().then(maintenances => {
-			res.render("adminMaintenance", {
-				layout: "adminLayout",
-				maintenances,
-				moment
-			});
-		}).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+	async (req, res, next) => {
+		const maintenances = await serverModel.maintenance.findAll();
+
+		res.render("adminMaintenance", {
+			layout: "adminLayout",
+			maintenances,
+			moment
 		});
 	}
 ];
@@ -44,7 +41,7 @@ module.exports.add = () => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		res.render("adminMaintenanceAdd", {
 			layout: "adminLayout",
 			errors: null,
@@ -72,7 +69,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { startTime, endTime, description } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
@@ -86,22 +83,19 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 			});
 		}
 
-		serverModel.maintenance.create({
+		await serverModel.maintenance.create({
 			startTime: moment.tz(startTime, req.user.tz).toDate(),
 			endTime: moment.tz(endTime, req.user.tz).toDate(),
 			description
-		}).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
 		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/maintenance");
 	}
 ];
@@ -109,35 +103,32 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, serverModel }) => [
+module.exports.edit = ({ serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { id } = req.query;
 
 		if (!id) {
 			return res.redirect("/maintenance");
 		}
 
-		serverModel.maintenance.findOne({ where: { id } }).then(data => {
-			if (data === null) {
-				return res.redirect("/maintenance");
-			}
+		const data = await serverModel.maintenance.findOne({ where: { id } });
 
-			res.render("adminMaintenanceEdit", {
-				layout: "adminLayout",
-				errors: null,
-				startTime: moment(data.get("startTime")),
-				endTime: moment(data.get("endTime")),
-				description: data.get("description"),
-				id
-			});
-		}).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		if (data === null) {
+			return res.redirect("/maintenance");
+		}
+
+		res.render("adminMaintenanceEdit", {
+			layout: "adminLayout",
+			errors: null,
+			startTime: moment(data.get("startTime")),
+			endTime: moment(data.get("endTime")),
+			description: data.get("description"),
+			id
 		});
 	}
 ];
@@ -159,7 +150,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { id } = req.query;
 		const { startTime, endTime, description } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
@@ -179,24 +170,21 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 			});
 		}
 
-		serverModel.maintenance.update({
+		await serverModel.maintenance.update({
 			startTime: moment.tz(startTime, req.user.tz).toDate(),
 			endTime: moment.tz(endTime, req.user.tz).toDate(),
 			description
 		}, {
 			where: { id }
-		}).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
 		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/maintenance");
 	}
 ];
@@ -204,31 +192,28 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, reportModel, serverModel }) => [
+module.exports.deleteAction = ({ reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { id } = req.query;
 
 		if (!id) {
 			return res.redirect("/maintenance");
 		}
 
-		serverModel.maintenance.destroy({ where: { id } }).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
-		});
+		await serverModel.maintenance.destroy({ where: { id } });
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect("/maintenance");
 	}
 ];

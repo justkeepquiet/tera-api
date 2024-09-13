@@ -8,20 +8,21 @@
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
-const helpers = require("../utils/helpers");
+const query = require("express-validator").query;
 
-const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+const helpers = require("../utils/helpers");
+const { validationHandler, accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ i18n, logger, accountModel, datasheetModel }) => [
+module.exports.index = ({ i18n, accountModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { accountDBID } = req.query;
 		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()] || new Map();
 
@@ -34,21 +35,16 @@ module.exports.index = ({ i18n, logger, accountModel, datasheetModel }) => [
 			});
 		}
 
-		accountModel.benefits.findAll({
-			where: {
-				accountDBID
-			}
-		}).then(benefits => {
-			res.render("adminBenefits", {
-				layout: "adminLayout",
-				benefits,
-				moment,
-				accountBenefits,
-				accountDBID
-			});
-		}).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		const benefits = await accountModel.benefits.findAll({
+			where: { accountDBID }
+		});
+
+		res.render("adminBenefits", {
+			layout: "adminLayout",
+			benefits,
+			moment,
+			accountBenefits,
+			accountDBID
 		});
 	}
 ];
@@ -62,12 +58,12 @@ module.exports.add = ({ i18n, accountModel, datasheetModel }) => [
 	[
 		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.info.findOne({
+			.custom(value => accountModel.info.findOne({
 				where: {
-					accountDBID: req.body.accountDBID
+					accountDBID: value
 				}
 			}).then(data => {
-				if (req.body.accountDBID && data === null) {
+				if (value && data === null) {
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			}))
@@ -75,7 +71,7 @@ module.exports.add = ({ i18n, accountModel, datasheetModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { accountDBID } = req.query;
 		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()] || new Map();
 
@@ -100,12 +96,12 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel, data
 	[
 		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.info.findOne({
+			.custom(value => accountModel.info.findOne({
 				where: {
-					accountDBID: req.body.accountDBID
+					accountDBID: value
 				}
 			}).then(data => {
-				if (req.body.accountDBID && data === null) {
+				if (value && data === null) {
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
@@ -127,7 +123,7 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel, data
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { accountDBID, benefitId, availableUntil } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
 
@@ -156,22 +152,19 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel, data
 			logger.warn(err.toString())
 		);
 
-		accountModel.benefits.create({
+		await accountModel.benefits.create({
 			accountDBID,
 			benefitId,
 			availableUntil: moment.tz(availableUntil, req.user.tz).toDate()
-		}).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
 		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect(`/benefits?accountDBID=${req.body.accountDBID || ""}`);
 	}
 ];
@@ -179,39 +172,37 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel, data
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ i18n, logger, accountModel, datasheetModel }) => [
+module.exports.edit = ({ logger, i18n, accountModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("accountDBID").notEmpty(),
+		query("benefitId").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { accountDBID, benefitId } = req.query;
 		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()] || new Map();
 
-		if (!accountDBID || !benefitId) {
-			return res.redirect("/benefits");
+		const data = await accountModel.benefits.findOne({
+			where: { benefitId, accountDBID }
+		});
+
+		if (data === null) {
+			return res.redirect(`/benefits?accountDBID=${accountDBID}`);
 		}
 
-		accountModel.benefits.findOne({
-			where: { benefitId, accountDBID }
-		}).then(data => {
-			if (data === null) {
-				return res.redirect(`/benefits?accountDBID=${accountDBID}`);
-			}
-
-			res.render("adminBenefitsEdit", {
-				layout: "adminLayout",
-				errors: null,
-				moment,
-				accountBenefits,
-				accountDBID: data.get("accountDBID"),
-				benefitId: data.get("benefitId"),
-				availableUntil: moment(data.get("availableUntil"))
-			});
-		}).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		res.render("adminBenefitsEdit", {
+			layout: "adminLayout",
+			errors: null,
+			moment,
+			accountBenefits,
+			accountDBID: data.get("accountDBID"),
+			benefitId: data.get("benefitId"),
+			availableUntil: moment(data.get("availableUntil"))
 		});
 	}
 ];
@@ -223,20 +214,21 @@ module.exports.editAction = ({ logger, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
+		query("accountDBID").notEmpty(),
+		query("benefitId").notEmpty()
+	],
+	validationHandler(logger),
+	[
 		body("availableUntil").trim()
 			.isISO8601().withMessage("Available until field must contain a valid date.")
 	],
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { accountDBID, benefitId } = req.query;
 		const { availableUntil } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
-
-		if (!accountDBID || !benefitId) {
-			return res.redirect("/benefits");
-		}
 
 		if (!errors.isEmpty()) {
 			return res.render("adminBenefitsEdit", {
@@ -266,22 +258,19 @@ module.exports.editAction = ({ logger, hub, reportModel, accountModel }) => [
 			logger.warn(err.toString())
 		);
 
-		accountModel.benefits.update({
+		await accountModel.benefits.update({
 			availableUntil: moment.tz(availableUntil, req.user.tz).toDate()
 		}, {
 			where: { benefitId, accountDBID }
-		}).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
 		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect(`/benefits?accountDBID=${req.query.accountDBID || ""}`);
 	}
 ];
@@ -292,15 +281,16 @@ module.exports.editAction = ({ logger, hub, reportModel, accountModel }) => [
 module.exports.deleteAction = ({ logger, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("accountDBID").notEmpty(),
+		query("benefitId").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { accountDBID, benefitId } = req.query;
-
-		if (!accountDBID || !benefitId) {
-			return res.redirect("/benefits");
-		}
 
 		accountModel.online.findOne({
 			where: { accountDBID }
@@ -312,18 +302,15 @@ module.exports.deleteAction = ({ logger, hub, reportModel, accountModel }) => [
 			logger.warn(err.toString())
 		);
 
-		accountModel.benefits.destroy({ where: { benefitId, accountDBID } }).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
-		});
+		await accountModel.benefits.destroy({ where: { benefitId, accountDBID } });
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	(req, res, next) => {
 		res.redirect(`/benefits?accountDBID=${req.query.accountDBID || ""}`);
 	}
 ];

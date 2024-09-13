@@ -1,15 +1,18 @@
 "use strict";
 
 /**
-* @typedef {import("../../app").modules} modules
-*/
+ * @typedef {import("express").ErrorRequestHandler} ErrorRequestHandler
+ * @typedef {import("../../app").modules} modules
+ */
 
 const express = require("express");
+
+const ApiError = require("../../lib/apiError");
 const arbiterApiController = require("../../controllers/arbiterApi.controller");
 
 /**
-* @param {modules} modules
-*/
+ * @param {modules} modules
+ */
 module.exports = modules => express.Router()
 	.get("/ServiceTest", arbiterApiController.ServiceTest(modules))
 	.post("/GetServerPermission", arbiterApiController.GetServerPermission(modules))
@@ -22,4 +25,18 @@ module.exports = modules => express.Router()
 	.post("/DeleteChar", arbiterApiController.DeleteChar(modules))
 	.post("/UseChronoScroll", arbiterApiController.UseChronoScroll(modules))
 	.post("/report_cheater", arbiterApiController.ReportCheater(modules))
+
+	.use(
+		/**
+		 * @type {ErrorRequestHandler}
+		 */
+		(err, req, res, next) => {
+			if (err instanceof ApiError) {
+				res.json({ Return: false, ReturnCode: err.code, Msg: err.message });
+			} else {
+				modules.logger.error(err);
+				res.json({ Return: false, ReturnCode: 1, Msg: "internal error" });
+			}
+		}
+	)
 ;

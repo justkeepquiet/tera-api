@@ -194,7 +194,7 @@ module.exports.validationResultLog = (request, customLogger) => {
 	const result = validationResult(request);
 
 	if (!result.isEmpty()) {
-		(customLogger || logger).warn("Validation failed: ".concat(result.array().map(e => `${e.param}="${e.msg}"`).join(", ")));
+		(customLogger || logger).debug("Validation failed: ".concat(result.array().map(e => `${e.param}="${e.msg}"`).join(", ")));
 	}
 
 	return result;

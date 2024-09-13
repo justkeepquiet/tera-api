@@ -21,26 +21,21 @@ module.exports.home = ({ logger, serverModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	async (req, res) => {
+	async (req, res, next) => {
 		const isSteer = req.user.type === "steer";
 
-		try {
-			const servers = await serverModel.info.findAll({
-				where: { isEnabled: 1 }
-			});
+		const servers = await serverModel.info.findAll({
+			where: { isEnabled: 1 }
+		});
 
-			res.render("adminHome", {
-				layout: "adminLayout",
-				moment,
-				servers,
-				activityReport: !isSteer || Object.values(req.user.functions).includes("/report_activity"),
-				cheatsReport: !isSteer || Object.values(req.user.functions).includes("/report_cheats"),
-				payLogs: !isSteer || Object.values(req.user.functions).includes("/shop_pay_logs")
-			});
-		} catch (err) {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
-		}
+		res.render("adminHome", {
+			layout: "adminLayout",
+			moment,
+			servers,
+			activityReport: !isSteer || Object.values(req.user.functions).includes("/report_activity"),
+			cheatsReport: !isSteer || Object.values(req.user.functions).includes("/report_cheats"),
+			payLogs: !isSteer || Object.values(req.user.functions).includes("/shop_pay_logs")
+		});
 	}
 ];
 
@@ -53,7 +48,7 @@ module.exports.profile = () => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		res.render("adminProfile", { layout: "adminLayout", moment });
 	}
 ];
@@ -67,7 +62,7 @@ module.exports.settings = () => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const settings = [];
 
 		Object.keys(dotenv.config().parsed).forEach(parameter => {
@@ -87,7 +82,7 @@ module.exports.login = () => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		if (req.isAuthenticated()) {
 			return res.redirect("/home");
 		}
@@ -113,7 +108,7 @@ module.exports.loginAction = ({ passport }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		passport.authenticate("local", (error, user, msg) => {
 			if (error) {
 				return res.render("adminLogin", {
@@ -157,7 +152,7 @@ module.exports.logoutAction = ({ logger, steer }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		if (steer.isRegistered && req?.user?.sessionKey) {
 			steer.closeSession(req.user.sessionKey).catch(err =>
 				logger.warn(err)
@@ -177,7 +172,7 @@ module.exports.index = () => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		res.redirect("/login");
 	}
 ];

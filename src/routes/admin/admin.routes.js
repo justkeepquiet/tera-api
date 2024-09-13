@@ -1,8 +1,9 @@
 "use strict";
 
 /**
-* @typedef {import("../../app").modules} modules
-*/
+ * @typedef {import("express").ErrorRequestHandler} ErrorRequestHandler
+ * @typedef {import("../../app").modules} modules
+ */
 
 const path = require("path");
 const I18n = require("i18n").I18n;
@@ -14,6 +15,7 @@ const FileStore = require("session-file-store")(session);
 const Passport = require("passport").Passport;
 const LocalStrategy = require("passport-local").Strategy;
 
+const ApiError = require("../../lib/apiError");
 const adminController = require("../../controllers/admin.controller");
 const adminApiController = require("../../controllers/adminApi.controller");
 const adminOperationsReportController = require("../../controllers/adminOperationsReport.controller");
@@ -138,6 +140,21 @@ module.exports = modules => {
 		.get("/api/getAccounts", adminApiController.getAccounts(mod))
 		.get("/api/getCharacters", adminApiController.getCharacters(mod))
 		.get("/api/getItems", adminApiController.getItems(mod))
+
+		.use("/api",
+			/**
+			 * @type {ErrorRequestHandler}
+			 */
+			(err, req, res, next) => {
+				if (err instanceof ApiError) {
+					res.json({ result_code: err.code, msg: err.message });
+				} else {
+					modules.logger.error(err);
+					res.json({ result_code: 1, msg: "internal error" });
+				}
+			}
+		)
+
 		// Admin Panel Auth
 		.get("/", adminController.index(mod))
 		.get("/login", adminController.login(mod))
@@ -196,6 +213,13 @@ module.exports = modules => {
 		.get("/maintenance/edit", adminMaintenanceController.edit(mod))
 		.post("/maintenance/edit", adminMaintenanceController.editAction(mod))
 		.get("/maintenance/delete", adminMaintenanceController.deleteAction(mod))
+		// Launcher Slides
+		// .get("/launcher_slides", adminLauncherSlidesController.index(mod))
+		// .get("/launcher_slides/add", adminLauncherSlidesController.add(mod))
+		// .post("/launcher_slides/add", adminLauncherSlidesController.addAction(mod))
+		// .get("/launcher_slides/edit", adminLauncherSlidesController.edit(mod))
+		// .post("/launcher_slides/edit", adminLauncherSlidesController.editAction(mod))
+		// .get("/launcher_slides/delete", adminLauncherSlidesController.deleteAction(mod))
 		// Launcher Logs
 		.get("/launcher_logs", adminLauncherLogsController.index(mod))
 		// Report
@@ -259,5 +283,23 @@ module.exports = modules => {
 		.get("/tasks/restart", adminTasksController.restartAction(mod))
 		.get("/tasks/cancel_failed", adminTasksController.cancelFailedAction(mod))
 		.get("/tasks/cancel_all", adminTasksController.cancelAllAction(mod))
+
+		.use(
+			/**
+			 * @type {ErrorRequestHandler}
+			 */
+			(err, req, res, next) => {
+				if (!(err instanceof ApiError)) {
+					modules.logger.error(err);
+				}
+
+				if (typeof res.render === "function") {
+					res.render("adminError", {
+						layout: "adminLayout",
+						err: err.message || err.toString()
+					});
+				}
+			}
+		)
 	;
 };

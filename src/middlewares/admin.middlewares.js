@@ -5,15 +5,9 @@
  * @typedef {import("../models/report.model").reportModel} reportModel
  */
 
+const ApiError = require("../lib/apiError");
 const helpers = require("../utils/helpers");
 const databaseLogger = require("../utils/logger").createLogger("Database");
-
-/**
- * @param {Response} res
- */
-const resultJson = (res, code, params = {}) => res.json({
-	result_code: code, ...params
-});
 
 module.exports.validationHandler = logger =>
 	/**
@@ -21,7 +15,7 @@ module.exports.validationHandler = logger =>
 	 */
 	(req, res, next) => {
 		if (!helpers.validationResultLog(req, logger).isEmpty()) {
-			return resultJson(res, 2, { msg: "invalid parameter" });
+			throw new ApiError("invalid parameter", 2);
 		}
 
 		next();
@@ -32,13 +26,12 @@ module.exports.validationHandler = logger =>
  * @type {RequestHandler}
  */
 module.exports.apiAccessHandler = (req, res, next) => {
-	if (req.isAuthenticated()) {
-		res.locals.user = req.user;
-
-		next();
-	} else {
-		resultJson(res, 3, { msg: "access denied" });
+	if (!req.isAuthenticated()) {
+		throw new ApiError("invalid parameter", 3);
 	}
+
+	res.locals.user = req.user;
+	next();
 };
 
 /**
@@ -91,5 +84,3 @@ module.exports.writeOperationReport = (reportModel, params = {}) =>
 		next();
 	}
 ;
-
-module.exports.resultJson = resultJson;

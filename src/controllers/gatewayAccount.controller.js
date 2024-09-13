@@ -8,7 +8,9 @@
 const moment = require("moment-timezone");
 const query = require("express-validator").query;
 const Op = require("sequelize").Op;
-const { validationHandler, resultJson } = require("../middlewares/gateway.middlewares");
+
+const ApiError = require("../lib/apiError");
+const { validationHandler } = require("../middlewares/gateway.middlewares");
 
 /**
  * @param {modules} modules
@@ -19,33 +21,35 @@ module.exports.GetAccountInfoByUserNo = ({ logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { userNo } = req.query;
 
-		accountModel.info.findOne({ where: { accountDBID: userNo } }).then(account => {
-			if (account === null) {
-				return resultJson(res, 50000, "account not exist");
-			}
+		const account = await accountModel.info.findOne({
+			where: { accountDBID: userNo }
+		});
 
-			resultJson(res, 0, "success", {
-				UserNo: account.get("accountDBID"),
-				UserName: account.get("userName"),
-				AuthKey: account.get("authKey"),
-				Email: account.get("email"),
-				RegisterTime: moment(account.get("registerTime")).unix(),
-				LastLoginTime: moment(account.get("lastLoginTime")).unix(),
-				LastLoginIP: account.get("lastLoginIP"),
-				LastLoginServer: account.get("lastLoginServer"),
-				PlayTimeLast: account.get("playTimeLast"),
-				PlayTimeTotal: account.get("playTimeTotal"),
-				PlayCount: account.get("playCount"),
-				Permission: account.get("permission"),
-				Privilege: account.get("privilege"),
-				Language: account.get("language")
-			});
-		}).catch(err => {
-			logger.error(err);
-			resultJson(res, 1, "internal error");
+		if (account === null) {
+			throw ApiError("account not exist", 50000);
+		}
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			UserNo: account.get("accountDBID"),
+			UserName: account.get("userName"),
+			AuthKey: account.get("authKey"),
+			Email: account.get("email"),
+			RegisterTime: moment(account.get("registerTime")).unix(),
+			LastLoginTime: moment(account.get("lastLoginTime")).unix(),
+			LastLoginIP: account.get("lastLoginIP"),
+			LastLoginServer: account.get("lastLoginServer"),
+			PlayTimeLast: account.get("playTimeLast"),
+			PlayTimeTotal: account.get("playTimeTotal"),
+			PlayCount: account.get("playCount"),
+			Permission: account.get("permission"),
+			Privilege: account.get("privilege"),
+			Language: account.get("language")
 		});
 	}
 ];
@@ -62,10 +66,10 @@ module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => 
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		const { userNo, clientIP } = req.query;
 
-		accountModel.info.findOne({
+		const account = await accountModel.info.findOne({
 			where: { accountDBID: userNo },
 			include: [{
 				as: "banned",
@@ -77,26 +81,28 @@ module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => 
 				},
 				required: false
 			}]
-		}).then(account =>
-			accountModel.bans.findOne({
-				where: {
-					active: 1,
-					ip: { [Op.like]: `%"${clientIP}"%` },
-					startTime: { [Op.lt]: sequelize.fn("NOW") },
-					endTime: { [Op.gt]: sequelize.fn("NOW") }
-				}
-			}).then(bannedByIp => {
-				if (account === null) {
-					return resultJson(res, 50000, "account not exist");
-				}
+		});
 
-				resultJson(res, 0, "success", {
-					Banned: account.get("banned") !== null || bannedByIp !== null
-				});
-			})
-		).catch(err => {
-			logger.error(err);
-			resultJson(res, 1, "internal error");
+		const bannedByIp = await accountModel.bans.findOne({
+			where: {
+				active: 1,
+				ip: { [Op.like]: `%"${clientIP}"%` },
+				startTime: { [Op.lt]: sequelize.fn("NOW") },
+				endTime: { [Op.gt]: sequelize.fn("NOW") }
+			}
+		});
+
+		if (account === null) {
+			throw ApiError("account not exist", 50000);
+		}
+
+		const isBanned = account.get("banned") !== null || bannedByIp !== null;
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			Banned: isBanned
 		});
 	}
 ];

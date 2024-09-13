@@ -12,7 +12,8 @@ const body = require("express-validator").body;
 const Recaptcha = require("express-recaptcha").RecaptchaV3;
 
 const helpers = require("../utils/helpers");
-const { validationHandler, resultJson } = require("../middlewares/portalLauncher.middlewares");
+const ApiError = require("../lib/apiError");
+const { validationHandler } = require("../middlewares/portalLauncher.middlewares");
 
 const isRegistrationDisabled = /^true$/i.test(process.env.API_PORTAL_LAUNCHER_DISABLE_REGISTRATION);
 const isEmailVerifyEnabled = /^true$/i.test(process.env.API_PORTAL_LAUNCHER_ENABLE_EMAIL_VERIFY);
@@ -33,31 +34,33 @@ if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
 /**
  * @param {modules} modules
  */
-module.exports.MaintenanceStatus = ({ logger, sequelize, serverModel }) => [
+module.exports.MaintenanceStatus = ({ sequelize, serverModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	async (req, res) => {
-		try {
-			const maintenance = await serverModel.maintenance.findOne({
-				where: {
-					startTime: { [Op.lt]: sequelize.fn("NOW") },
-					endTime: { [Op.gt]: sequelize.fn("NOW") }
-				}
-			});
-
-			if (maintenance !== null) {
-				resultJson(res, 0, "success", {
-					StartTime: moment(maintenance.get("startTime")).unix(),
-					EndTime: moment(maintenance.get("startTime")).unix(),
-					Description: maintenance.get("description")
-				});
-			} else {
-				resultJson(res, 0, "success");
+	async (req, res, next) => {
+		const maintenance = await serverModel.maintenance.findOne({
+			where: {
+				startTime: { [Op.lt]: sequelize.fn("NOW") },
+				endTime: { [Op.gt]: sequelize.fn("NOW") }
 			}
-		} catch (err) {
-			logger.error(err);
-			resultJson(res, 1, "Internal error");
+		});
+
+		if (maintenance !== null) {
+			res.json({
+				Return: true,
+				ReturnCode: 0,
+				Msg: "success",
+				StartTime: moment(maintenance.get("startTime")).unix(),
+				EndTime: moment(maintenance.get("startTime")).unix(),
+				Description: maintenance.get("description")
+			});
+		} else {
+			res.json({
+				Return: true,
+				ReturnCode: 0,
+				Msg: "success"
+			});
 		}
 	}
 ];
@@ -65,11 +68,11 @@ module.exports.MaintenanceStatus = ({ logger, sequelize, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.MainHtml = ({ i18n }) => [
+module.exports.MainHtml = () => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		res.render("launcherMain", {
 			brandName,
 			patchNoCheck: /^true$/i.test(process.env.API_PORTAL_CLIENT_PATCH_NO_CHECK),
@@ -87,11 +90,11 @@ module.exports.MainHtml = ({ i18n }) => [
 /**
  * @param {modules} modules
  */
-module.exports.LoginFormHtml = ({ i18n }) => [
+module.exports.LoginFormHtml = () => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		res.render("launcherLoginForm", {
 			qaPrivilege: process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE,
 			isRegistrationDisabled,
@@ -107,7 +110,7 @@ module.exports.ResetPasswordFormHtml = () => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		if (!isEmailVerifyEnabled) {
 			return res.redirect("LauncherLoginForm");
 		}
@@ -124,14 +127,14 @@ module.exports.ResetPasswordFormHtml = () => [
 module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel }) => [
 	[
 		body("email").trim()
-			.isEmail().withMessage("$0")
+			.isEmail().withMessage(10)
 			.custom(value => accountModel.info.findOne({
 				where: {
 					email: value
 				}
 			}).then(user => {
 				if (user === null) {
-					return Promise.reject("$1");
+					return Promise.reject(11);
 				}
 			}))
 	],
@@ -142,7 +145,7 @@ module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel 
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
-			return resultJson(res, 2, errors.array()[0].msg);
+			throw new ApiError("invalid parameter", errors.array()[0].msg);
 		}
 
 		next();
@@ -150,70 +153,68 @@ module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel 
 	/**
 	 * @type {RequestHandler}
 	 */
-	async (req, res) => {
-		try {
-			if (!isEmailVerifyEnabled) {
-				return resultJson(res, 100, "Email verify disabled.");
-			}
+	async (req, res, next) => {
+		if (!isEmailVerifyEnabled) {
+			throw new ApiError("email verify disabled", 100);
+		}
 
-			const { email } = req.body;
+		const { email } = req.body;
 
-			const handler = async () => {
-				const token = uuid();
-				const code = helpers.generateVerificationCode();
+		const handler = async () => {
+			const token = uuid();
+			const code = helpers.generateVerificationCode();
 
-				await accountModel.resetPassword.destroy({
-					where: { email }
-				});
+			await accountModel.resetPassword.destroy({
+				where: { email }
+			});
 
-				await accountModel.resetPassword.create({
-					token,
-					code,
-					email
-				});
+			await accountModel.resetPassword.create({
+				token,
+				code,
+				email
+			});
 
-				app.render("email/resetPasswordVerify", { ...res.locals,
-					protocol: req.protocol,
-					host: req.hostname,
-					brandName,
-					code
-				}, async (err, html) => {
-					if (err) {
-						logger.error(err);
-						return resultJson(res, 1, "Internal error.");
-					}
+			app.render("email/resetPasswordVerify", { ...res.locals,
+				protocol: req.protocol,
+				host: req.hostname,
+				brandName,
+				code
+			}, async (err, html) => {
+				if (err) {
+					logger.error(err);
+					throw new ApiError("internal error", 1);
+				}
 
-					try {
-						await mailer.sendMail({
-							from: `"${process.env.API_PORTAL_EMAIL_FROM_NAME}" <${process.env.API_PORTAL_EMAIL_FROM_ADDRESS}>`,
-							to: email,
-							subject: i18n.__("Instructions to reset your password"),
-							html
-						});
-					} catch (_) {
-						logger.error(err);
-					}
-
-					resultJson(res, 0, "success", {
-						VerifyToken: token
+				try {
+					await mailer.sendMail({
+						from: `"${process.env.API_PORTAL_EMAIL_FROM_NAME}" <${process.env.API_PORTAL_EMAIL_FROM_ADDRESS}>`,
+						to: email,
+						subject: i18n.__("Instructions to reset your password"),
+						html
 					});
-				});
-			};
+				} catch (_) {
+					logger.error(err);
+				}
 
-			if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
-				recaptcha.verify(req, error => {
-					if (error) {
-						return resultJson(res, 2, "Captcha error");
-					}
-
-					handler();
+				res.json({
+					Return: true,
+					ReturnCode: 0,
+					Msg: "success",
+					VerifyToken: token
 				});
-			} else {
+			});
+		};
+
+		if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
+			recaptcha.verify(req, error => {
+				if (error) {
+					throw new ApiError("captcha error", 2);
+				}
+
 				handler();
-			}
-		} catch (err) {
-			logger.error(err);
-			resultJson(res, 1, "Internal error.");
+			});
+		} else {
+			handler();
 		}
 	}
 ];
@@ -221,47 +222,40 @@ module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel 
 /**
  * @param {modules} modules
  */
-module.exports.ResetPasswordVerifyFormHtml = ({ logger, accountModel }) => [
+module.exports.ResetPasswordVerifyFormHtml = ({ accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	async (req, res) => {
+	async (req, res, next) => {
 		if (!req.query.token || !isEmailVerifyEnabled) {
 			return res.redirect("LauncherLoginForm");
 		}
 
-		try {
-			const accountResetPassword = await accountModel.resetPassword.findOne({
-				where: {
-					token: req.query.token
-				}
-			});
+		const accountResetPassword = await accountModel.resetPassword.findOne({
+			where: { token: req.query.token }
+		});
 
-			if (accountResetPassword === null) {
-				return res.redirect("LauncherLoginForm");
-			}
-
-			res.render("launcherResetPasswordVerifyForm", {
-				email: helpers.maskEmail(accountResetPassword.get("email"))
-			});
-		} catch (err) {
-			logger.error(err);
-			resultJson(res, 1, "Internal error.");
+		if (accountResetPassword === null) {
+			return res.redirect("LauncherLoginForm");
 		}
+
+		res.render("launcherResetPasswordVerifyForm", {
+			email: helpers.maskEmail(accountResetPassword.get("email"))
+		});
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.ResetPasswordVerifyAction = ({ logger, i18n, sequelize, accountModel }) => [
+module.exports.ResetPasswordVerifyAction = ({ logger, sequelize, accountModel }) => [
 	[
 		body("password").trim()
-			.isLength({ min: 8, max: 128 }).withMessage("$0")
-			// .isStrongPassword().withMessage("$0")
-			.isAlphanumeric().withMessage("$0"),
-		body("token").notEmpty().withMessage("$1"),
-		body("code").notEmpty().withMessage("$1")
+			.isLength({ min: 8, max: 128 }).withMessage(10)
+			// .isStrongPassword().withMessage(10)
+			.isAlphanumeric().withMessage(10),
+		body("token").notEmpty().withMessage(11),
+		body("code").notEmpty().withMessage(11)
 	],
 	/**
 	 * @type {RequestHandler}
@@ -270,7 +264,7 @@ module.exports.ResetPasswordVerifyAction = ({ logger, i18n, sequelize, accountMo
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
-			return resultJson(res, 2, i18n.__(errors.array()[0].msg));
+			throw new ApiError("invalid parameter", errors.array()[0].msg);
 		}
 
 		next();
@@ -278,55 +272,54 @@ module.exports.ResetPasswordVerifyAction = ({ logger, i18n, sequelize, accountMo
 	/**
 	 * @type {RequestHandler}
 	 */
-	async (req, res) => {
-		try {
-			if (!isEmailVerifyEnabled) {
-				return resultJson(res, 100, "Email verify disabled.");
-			}
+	async (req, res, next) => {
+		if (!isEmailVerifyEnabled) {
+			throw new ApiError("email verify disabled", 100);
+		}
 
-			const { token, code, password } = req.body;
+		const { token, code, password } = req.body;
 
-			const accountResetPassword = await accountModel.resetPassword.findOne({
+		const accountResetPassword = await accountModel.resetPassword.findOne({
+			where: { token }
+		});
+
+		if (accountResetPassword === null) {
+			throw new ApiError("invalid verification code", 11);
+		}
+
+		if (accountResetPassword.get("failsCount") >= 10) {
+			await accountModel.resetPassword.destroy({
 				where: { token }
 			});
 
-			if (accountResetPassword === null) {
-				return resultJson(res, 2, "$1");
-			}
-
-			if (accountResetPassword.get("failsCount") >= 10) {
-				await accountModel.resetPassword.destroy({
-					where: { token }
-				});
-
-				return resultJson(res, 3, "$2");
-			}
-
-			if (accountResetPassword.get("code") !== code.toString().replaceAll(",", "").toUpperCase()) {
-				await accountModel.resetPassword.increment({ failsCount: 1 }, {
-					where: { token }
-				});
-
-				return resultJson(res, 2, "Invalid verification code.");
-			}
-
-			await sequelize.transaction(async () => {
-				await accountModel.resetPassword.destroy({
-					where: { token }
-				});
-
-				await accountModel.info.update({
-					passWord: helpers.getPasswordString(password)
-				}, {
-					where: { email: accountResetPassword.get("email") }
-				});
-
-				resultJson(res, 0, "success");
-			});
-		} catch (err) {
-			logger.error(err);
-			resultJson(res, 1, "Internal error.");
+			throw new ApiError("attempts has been exceeded", 12);
 		}
+
+		if (accountResetPassword.get("code") !== code.toString().replaceAll(",", "").toUpperCase()) {
+			await accountModel.resetPassword.increment({ failsCount: 1 }, {
+				where: { token }
+			});
+
+			throw new ApiError("invalid verification code", 2);
+		}
+
+		await sequelize.transaction(async () => {
+			await accountModel.resetPassword.destroy({
+				where: { token }
+			});
+
+			await accountModel.info.update({
+				passWord: helpers.getPasswordString(password)
+			}, {
+				where: { email: accountResetPassword.get("email") }
+			});
+		});
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success"
+		});
 	}
 ];
 
@@ -339,60 +332,58 @@ module.exports.LoginAction = ({ logger, sequelize, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	async (req, res) => {
+	async (req, res, next) => {
+		const { login, password } = req.body;
+
+		const account = await accountModel.info.findOne({ where: { userName: login } });
+
+		if (account === null) {
+			throw new ApiError("account not exist", 50000);
+		}
+
+		if (account === null || account.get("passWord") !== helpers.getPasswordString(password)) {
+			logger.warn("Invalid login or password");
+			throw new ApiError("password error", 50015);
+		}
+
+		const authKey = uuid();
+
 		try {
-			const { login, password } = req.body;
+			await accountModel.info.update({
+				authKey: authKey,
+				...ipFromLauncher ? { lastLoginIP: req.ip } : {}
+			}, {
+				where: { accountDBID: account.get("accountDBID") }
+			});
 
-			const account = await accountModel.info.findOne({ where: { userName: login } });
-
-			if (account === null) {
-				return resultJson(res, 50000, "Account not exist");
-			}
-
-			if (account === null || account.get("passWord") !== helpers.getPasswordString(password)) {
-				logger.warn("Invalid login or password");
-				return resultJson(res, 50015, "Password error");
-			}
-
-			const authKey = uuid();
+			let characterCount = "0";
 
 			try {
-				await accountModel.info.update({
-					authKey: authKey,
-					...ipFromLauncher ? { lastLoginIP: req.ip } : {}
-				}, {
+				const characters = await accountModel.characters.findAll({
+					attributes: ["serverId", [sequelize.fn("COUNT", "characterId"), "charCount"]],
+					group: ["serverId"],
 					where: { accountDBID: account.get("accountDBID") }
 				});
 
-				let characterCount = "0";
-
-				try {
-					const characters = await accountModel.characters.findAll({
-						attributes: ["serverId", [sequelize.fn("COUNT", "characterId"), "charCount"]],
-						group: ["serverId"],
-						where: { accountDBID: account.get("accountDBID") }
-					});
-
-					characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
-				} catch (err) {
-					logger.error(err);
-				}
-
-				resultJson(res, 0, "success", {
-					CharacterCount: characterCount,
-					Permission: account.get("permission"),
-					Privilege: account.get("privilege"),
-					UserNo: account.get("accountDBID"),
-					UserName: account.get("userName"),
-					AuthKey: authKey
-				});
+				characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
 			} catch (err) {
 				logger.error(err);
-				resultJson(res, 50811, "Failure update auth token");
 			}
+
+			res.json({
+				Return: true,
+				ReturnCode: 0,
+				Msg: "success",
+				CharacterCount: characterCount,
+				Permission: account.get("permission"),
+				Privilege: account.get("privilege"),
+				UserNo: account.get("accountDBID"),
+				UserName: account.get("userName"),
+				AuthKey: authKey
+			});
 		} catch (err) {
 			logger.error(err);
-			resultJson(res, 1, "Internal error");
+			throw new ApiError("failure update auth token", 50811);
 		}
 	}
 ];
@@ -404,7 +395,7 @@ module.exports.SignupFormHtml = () => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res) => {
+	async (req, res, next) => {
 		if (isRegistrationDisabled) {
 			return res.redirect("LauncherLoginForm");
 		}
@@ -421,32 +412,32 @@ module.exports.SignupFormHtml = () => [
 module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountModel }) => [
 	[
 		body("login").trim()
-			.isLength({ min: 3, max: 13 }).withMessage("$1")
-			.isAlphanumeric().withMessage("$1")
+			.isLength({ min: 3, max: 13 }).withMessage(11)
+			.isAlphanumeric().withMessage(11)
 			.custom(value => accountModel.info.findOne({
 				where: {
 					userName: value
 				}
 			}).then(user => {
 				if (user) {
-					return Promise.reject("$0");
+					return Promise.reject(10);
 				}
 			})),
 		body("email").trim()
-			.isEmail().withMessage("$2")
+			.isEmail().withMessage(12)
 			.custom(value => accountModel.info.findOne({
 				where: {
 					email: value
 				}
 			}).then(user => {
 				if (user) {
-					return Promise.reject("$4");
+					return Promise.reject(14);
 				}
 			})),
 		body("password").trim()
-			.isLength({ min: 8, max: 128 }).withMessage("$3")
-			// .isStrongPassword().withMessage("$3")
-			.isAlphanumeric().withMessage("$3")
+			.isLength({ min: 8, max: 128 }).withMessage(13)
+			// .isStrongPassword().withMessage(13)
+			.isAlphanumeric().withMessage(13)
 	],
 	/**
 	 * @type {RequestHandler}
@@ -455,7 +446,7 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
-			return resultJson(res, 2, errors.array()[0].msg);
+			throw new ApiError("invalid parameter", errors.array()[0].msg);
 		}
 
 		next();
@@ -463,7 +454,7 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 	/**
 	 * @type {RequestHandler}
 	 */
-	async (req, res) => {
+	async (req, res, next) => {
 		const { login, password, email } = req.body;
 
 		const handler = async () => {
@@ -492,7 +483,7 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 				}, async (err, html) => {
 					if (err) {
 						logger.error(err);
-						return resultJson(res, 1, "Internal error.");
+						throw new ApiError("internal error", 1);
 					}
 
 					try {
@@ -506,7 +497,10 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 						logger.error(err);
 					}
 
-					resultJson(res, 0, "success", {
+					res.json({
+						Return: true,
+						ReturnCode: 0,
+						Msg: "success",
 						VerifyToken: token
 					});
 				});
@@ -533,7 +527,10 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 					await Promise.all(promises);
 
 					// Login account
-					resultJson(res, 0, "success", {
+					res.json({
+						Return: true,
+						ReturnCode: 0,
+						Msg: "success",
 						UserNo: account.get("accountDBID"),
 						AuthKey: account.get("authKey")
 					});
@@ -542,13 +539,13 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 		};
 
 		if (isRegistrationDisabled) {
-			return resultJson(res, 2, "Registration disabled");
+			throw new ApiError("registration disabled", 100);
 		}
 
 		if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
 			recaptcha.verify(req, error => {
 				if (error) {
-					return resultJson(res, 2, "Captcha error");
+					throw new ApiError("captcha error", 2);
 				}
 
 				handler();
@@ -562,43 +559,38 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 /**
  * @param {modules} modules
  */
-module.exports.SignupVerifyFormHtml = ({ logger, accountModel }) => [
+module.exports.SignupVerifyFormHtml = ({ accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
-	async (req, res) => {
+	async (req, res, next) => {
 		if (!req.query.token || !isEmailVerifyEnabled || isRegistrationDisabled) {
 			return res.redirect("LauncherLoginForm");
 		}
 
-		try {
-			const accountVerify = await accountModel.verify.findOne({
-				where: {
-					token: req.query.token
-				}
-			});
-
-			if (accountVerify === null) {
-				return res.redirect("LauncherLoginForm");
+		const accountVerify = await accountModel.verify.findOne({
+			where: {
+				token: req.query.token
 			}
+		});
 
-			res.render("launcherSignupVerifyForm", {
-				email: helpers.maskEmail(accountVerify.get("email"))
-			});
-		} catch (err) {
-			logger.error(err);
-			resultJson(res, 1, "Internal error.");
+		if (accountVerify === null) {
+			return res.redirect("LauncherLoginForm");
 		}
+
+		res.render("launcherSignupVerifyForm", {
+			email: helpers.maskEmail(accountVerify.get("email"))
+		});
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.SignupVerifyAction = ({ logger, i18n, sequelize, accountModel }) => [
+module.exports.SignupVerifyAction = ({ logger, sequelize, accountModel }) => [
 	[
-		body("token").notEmpty().withMessage("$0"),
-		body("code").notEmpty().withMessage("$0")
+		body("token").notEmpty().withMessage(10),
+		body("code").notEmpty().withMessage(10)
 	],
 	/**
 	 * @type {RequestHandler}
@@ -607,7 +599,7 @@ module.exports.SignupVerifyAction = ({ logger, i18n, sequelize, accountModel }) 
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
-			return resultJson(res, 2, i18n.__(errors.array()[0].msg));
+			throw new ApiError("invalid parameter", errors.array()[0].msg);
 		}
 
 		next();
@@ -615,72 +607,70 @@ module.exports.SignupVerifyAction = ({ logger, i18n, sequelize, accountModel }) 
 	/**
 	 * @type {RequestHandler}
 	 */
-	async (req, res) => {
-		try {
-			if (isRegistrationDisabled) {
-				return resultJson(res, 100, "Registration disabled.");
-			}
+	async (req, res, next) => {
+		if (isRegistrationDisabled) {
+			throw new ApiError("registration disabled", 100);
+		}
 
-			const { token, code } = req.body;
+		const { token, code } = req.body;
 
-			const accountVerify = await accountModel.verify.findOne({
+		const accountVerify = await accountModel.verify.findOne({
+			where: { token }
+		});
+
+		if (accountVerify === null) {
+			throw new ApiError("invalid verification code", 10);
+		}
+
+		if (accountVerify.get("failsCount") >= 10) {
+			await accountModel.verify.destroy({
 				where: { token }
 			});
 
-			if (accountVerify === null) {
-				return resultJson(res, 2, "$0");
-			}
-
-			if (accountVerify.get("failsCount") >= 10) {
-				await accountModel.verify.destroy({
-					where: { token }
-				});
-
-				return resultJson(res, 3, "$1");
-			}
-
-			if (accountVerify.get("code") !== code.toString().replaceAll(",", "").toUpperCase()) {
-				await accountModel.verify.increment({ failsCount: 1 }, {
-					where: { token }
-				});
-
-				return resultJson(res, 2, "$0");
-			}
-
-			await sequelize.transaction(async () => {
-				await accountModel.verify.destroy({
-					where: { token }
-				});
-
-				// Create user account
-				const account = await accountModel.info.create({
-					userName: accountVerify.get("userName"),
-					passWord: helpers.getPasswordString(accountVerify.get("passWord")),
-					authKey: uuid(),
-					email: accountVerify.get("email")
-				});
-
-				const promises = [];
-
-				helpers.getInitialBenefits().forEach((benefitDays, benefitId) => {
-					promises.push(accountModel.benefits.create({
-						accountDBID: account.get("accountDBID"),
-						benefitId: benefitId,
-						availableUntil: sequelize.fn("ADDDATE", sequelize.fn("NOW"), benefitDays)
-					}));
-				});
-
-				await Promise.all(promises);
-
-				// Login account
-				resultJson(res, 0, "success", {
-					UserNo: account.get("accountDBID"),
-					AuthKey: account.get("authKey")
-				});
-			});
-		} catch (err) {
-			logger.error(err);
-			resultJson(res, 1, "Internal error.");
+			throw new ApiError("attempts has been exceeded", 11);
 		}
+
+		if (accountVerify.get("code") !== code.toString().replaceAll(",", "").toUpperCase()) {
+			await accountModel.verify.increment({ failsCount: 1 }, {
+				where: { token }
+			});
+
+			throw new ApiError("invalid verification code", 10);
+		}
+
+		await sequelize.transaction(async () => {
+			await accountModel.verify.destroy({
+				where: { token }
+			});
+
+			// Create user account
+			const account = await accountModel.info.create({
+				userName: accountVerify.get("userName"),
+				passWord: helpers.getPasswordString(accountVerify.get("passWord")),
+				authKey: uuid(),
+				email: accountVerify.get("email")
+			});
+
+			const promises = [];
+
+			helpers.getInitialBenefits().forEach((benefitDays, benefitId) => {
+				promises.push(accountModel.benefits.create({
+					accountDBID: account.get("accountDBID"),
+					benefitId: benefitId,
+					availableUntil: sequelize.fn("ADDDATE", sequelize.fn("NOW"), benefitDays)
+				}));
+			});
+
+			await Promise.all(promises);
+
+			// Login account
+			res.json({
+				Return: true,
+				ReturnCode: 0,
+				Msg: "success",
+				UserNo: account.get("accountDBID"),
+				AuthKey: account.get("authKey")
+			});
+		});
 	}
 ];
