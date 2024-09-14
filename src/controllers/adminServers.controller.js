@@ -84,9 +84,9 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	[
 		body("serverId")
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain the value as a number."))
-			.custom(value => serverModel.info.findOne({
+			.custom((value, { req }) => serverModel.info.findOne({
 				where: {
-					serverId: value
+					serverId: req.body.serverId
 				}
 			}).then(data => {
 				if (data) {

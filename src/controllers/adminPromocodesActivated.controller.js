@@ -95,23 +95,23 @@ module.exports.addAction = modules => [
 	[
 		body("promoCodeId")
 			.isInt({ min: 0 }).withMessage(modules.i18n.__("Promo code ID field must contain a valid number."))
-			.custom(value => modules.shopModel.promoCodes.findOne({
+			.custom((value, { req }) => modules.shopModel.promoCodes.findOne({
 				where: {
-					promoCodeId: value
+					promoCodeId: req.body.promoCodeId
 				}
 			}).then(data => {
-				if (value && data === null) {
+				if (req.body.promoCodeId && data === null) {
 					return Promise.reject(modules.i18n.__("Promo code ID field contains not existing promo code ID."));
 				}
 			})),
 		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(modules.i18n.__("Account ID field must contain a valid number."))
-			.custom(value => modules.accountModel.info.findOne({
+			.custom((value, { req }) => modules.accountModel.info.findOne({
 				where: {
-					accountDBID: value
+					accountDBID: req.body.accountDBID
 				}
 			}).then(data => {
-				if (value && data === null) {
+				if (req.body.accountDBID && data === null) {
 					return Promise.reject(modules.i18n.__("Account ID contains not existing account ID."));
 				}
 			}))

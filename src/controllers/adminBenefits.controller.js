@@ -58,12 +58,12 @@ module.exports.add = ({ i18n, accountModel, datasheetModel }) => [
 	[
 		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom(value => accountModel.info.findOne({
+			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
-					accountDBID: value
+					accountDBID: req.body.accountDBID
 				}
 			}).then(data => {
-				if (value && data === null) {
+				if (req.body.accountDBID && data === null) {
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			}))
@@ -96,12 +96,12 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel, data
 	[
 		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom(value => accountModel.info.findOne({
+			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
-					accountDBID: value
+					accountDBID: req.body.accountDBID
 				}
 			}).then(data => {
-				if (value && data === null) {
+				if (req.body.accountDBID && data === null) {
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),

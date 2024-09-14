@@ -189,9 +189,9 @@ module.exports.addAction = modules => [
 		body("price")
 			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
 		body("categoryId")
-			.custom(value => modules.shopModel.categories.findOne({
+			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
-					id: value || null
+					id: req.body.categoryId || null
 				}
 			}).then(data => {
 				if (!data) {
@@ -216,9 +216,9 @@ module.exports.addAction = modules => [
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
 				}
 			}))
-			.custom(value => {
-				const itemTemplateIds = value.filter((e, i) =>
-					value.lastIndexOf(e) == i && value.indexOf(e) != i
+			.custom((value, { req }) => {
+				const itemTemplateIds = req.body.itemTemplateIds.filter((e, i) =>
+					req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
 				);
 
 				return !itemTemplateIds.includes(value);
@@ -545,9 +545,9 @@ module.exports.editAction = modules => [
 		body("sort")
 			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
 		body("categoryId")
-			.custom(value => modules.shopModel.categories.findOne({
+			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
-					id: value || null
+					id: req.body.categoryId || null
 				}
 			}).then(data => {
 				if (!data) {

@@ -75,21 +75,21 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 	[
 		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom(value => shopModel.accounts.findOne({
+			.custom((value, { req }) => shopModel.accounts.findOne({
 				where: {
-					accountDBID: value
+					accountDBID: req.body.accountDBID
 				}
 			}).then(data => {
-				if (value && data !== null) {
+				if (req.body.accountDBID && data !== null) {
 					return Promise.reject(i18n.__("Shop account with specified account ID already exists."));
 				}
 			}))
-			.custom(value => accountModel.info.findOne({
+			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
-					accountDBID: value
+					accountDBID: req.body.accountDBID
 				}
 			}).then(data => {
-				if (value && data === null) {
+				if (req.body.accountDBID && data === null) {
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),

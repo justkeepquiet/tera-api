@@ -55,9 +55,9 @@ module.exports.kickAction = ({ i18n, logger, hub, reportModel, accountModel, ser
 	[
 		query("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom(value => accountModel.info.findOne({
+			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
-					accountDBID: value
+					accountDBID: req.query.accountDBID
 				}
 			}).then(data => {
 				if (data === null) {
@@ -66,9 +66,9 @@ module.exports.kickAction = ({ i18n, logger, hub, reportModel, accountModel, ser
 			})),
 		query("serverId")
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain a valid number."))
-			.custom(value => serverModel.info.findOne({
+			.custom((value, { req }) => serverModel.info.findOne({
 				where: {
-					serverId: value
+					serverId: req.query.serverId
 				}
 			}).then(data => {
 				if (data === null) {
@@ -109,9 +109,9 @@ module.exports.kickAllAction = ({ i18n, logger, hub, reportModel, serverModel })
 	[
 		query("serverId")
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain a valid number."))
-			.custom(value => serverModel.info.findOne({
+			.custom((value, { req }) => serverModel.info.findOne({
 				where: {
-					serverId: value
+					serverId: req.query.serverId
 				}
 			}).then(data => {
 				if (data === null) {

@@ -142,9 +142,9 @@ module.exports.addAction = modules => [
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
 				}
 			}))
-			.custom(value => {
-				const itemTemplateIds = value.filter((e, i) =>
-					value.lastIndexOf(e) == i && value.indexOf(e) != i
+			.custom((value, { req }) => {
+				const itemTemplateIds = req.body.itemTemplateIds.filter((e, i) =>
+					req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
 				);
 
 				return !itemTemplateIds.includes(value);
@@ -328,9 +328,9 @@ module.exports.editAction = modules => [
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
 				}
 			}))
-			.custom(value => {
-				const itemTemplateIds = value.filter((e, i) =>
-					value.lastIndexOf(e) == i && value.indexOf(e) != i
+			.custom((value, { req }) => {
+				const itemTemplateIds = req.body.itemTemplateIds.filter((e, i) =>
+					req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
 				);
 
 				return !itemTemplateIds.includes(value);
@@ -663,12 +663,12 @@ module.exports.sendAction = modules => [
 			})),
 		body("accountDBID")
 			.isInt().withMessage(modules.i18n.__("Account ID field must contain a valid number."))
-			.custom(value => modules.accountModel.info.findOne({
+			.custom((value, { req }) => modules.accountModel.info.findOne({
 				where: {
-					accountDBID: value
+					accountDBID: req.body.accountDBID
 				}
 			}).then(data => {
-				if (value && data === null) {
+				if (req.body.accountDBID && data === null) {
 					return Promise.reject(modules.i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
@@ -871,9 +871,9 @@ module.exports.sendAllAction = modules => [
 	[
 		body("serverId").optional({ checkFalsy: true })
 			.isInt().withMessage(modules.i18n.__("Server ID field must contain a valid number."))
-			.custom(value => modules.serverModel.info.findOne({
+			.custom((value, { req }) => modules.serverModel.info.findOne({
 				where: {
-					...value ? { serverId: value } : {}
+					...req.body.serverId ? { serverId: req.body.serverId } : {}
 				}
 			}).then(data => {
 				if (data === null) {
