@@ -47,7 +47,7 @@ servers.forEach(server => {
 	tableData.push([
 		server.get("serverId"),
 		`<a href="/servers/edit?serverId=${server.get("serverId")}">${server.get("nameString")}</a>`,
-		`${server.get("loginIp")}:${server.get("loginPort")}${isSlsOverrided(server.get("serverId")) ? ' <i class="fa fa-refresh text-info"></i>' : ''}`,
+		`${server.get("loginIp")}:${server.get("loginPort")}${isSlsOverrided(server.get("serverId")) ? ' <i class="fa fa-refresh text-warning"></i>' : ''}`,
 		server.get("language"),
 		server.get("isPvE") ? "PvE" : "PvP",
 		server.get("permission"),

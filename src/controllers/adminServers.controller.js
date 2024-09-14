@@ -70,7 +70,8 @@ module.exports.add = ({ i18n }) => [
 			isPvE: 0,
 			isCrowdness: 0,
 			isAvailable: 0,
-			isEnabled: 1
+			isEnabled: 1,
+			isSlsOverrided: isSlsOverrided()
 		});
 	}
 ];
@@ -143,7 +144,8 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 				isPvE,
 				isCrowdness,
 				isAvailable,
-				isEnabled
+				isEnabled,
+				isSlsOverrided: isSlsOverrided()
 			});
 		}
 
