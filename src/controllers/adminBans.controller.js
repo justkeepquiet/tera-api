@@ -43,12 +43,10 @@ module.exports.add = ({ i18n, accountModel }) => [
 	[
 		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.info.findOne({
-				where: {
-					accountDBID: req.body.accountDBID
-				}
+			.custom(value => accountModel.info.findOne({
+				where: { accountDBID: value }
 			}).then(data => {
-				if (req.body.accountDBID && data === null) {
+				if (value && data === null) {
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			}))
@@ -137,24 +135,24 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 
 		const account = await accountModel.info.findOne({ where: { accountDBID } });
 
-		accountModel.bans.create({
+		await accountModel.bans.create({
 			accountDBID: account.get("accountDBID"),
 			startTime: moment.tz(startTime, req.user.tz).toDate(),
 			endTime: moment.tz(endTime, req.user.tz).toDate(),
 			active: active == "on",
 			ip: JSON.stringify(helpers.unserializeRange(ip)),
 			description
-		}).then(() => {
-			if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
-				hub.kickUser(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
-					if (err.resultCode() !== 2) {
-						logger.warn(err.toString());
-					}
-				});
-			}
-
-			next();
 		});
+
+		if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
+			hub.kickUser(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
+				if (err.resultCode() !== 2) {
+					logger.warn(err.toString());
+				}
+			});
+		}
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
@@ -168,37 +166,36 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, accountModel }) => [
+module.exports.edit = ({ accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { accountDBID } = req.query;
 
 		if (!accountDBID) {
 			return res.redirect("/bans");
 		}
 
-		accountModel.bans.findOne({ where: { accountDBID } }).then(data => {
-			if (data === null) {
-				return res.redirect("/bans");
-			}
+		const data = await accountModel.bans.findOne({
+			where: { accountDBID }
+		});
 
-			res.render("adminBansEdit", {
-				layout: "adminLayout",
-				errors: null,
-				accountDBID: data.get("accountDBID"),
-				startTime: moment(data.get("startTime")),
-				endTime: moment(data.get("endTime")),
-				description: data.get("description"),
-				active: data.get("active"),
-				ip: helpers.serializeRange(JSON.parse(data.get("ip") || "[]"))
-			});
-		}).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		if (data === null) {
+			return res.redirect("/bans");
+		}
+
+		res.render("adminBansEdit", {
+			layout: "adminLayout",
+			errors: null,
+			accountDBID: data.get("accountDBID"),
+			startTime: moment(data.get("startTime")),
+			endTime: moment(data.get("endTime")),
+			description: data.get("description"),
+			active: data.get("active"),
+			ip: helpers.serializeRange(JSON.parse(data.get("ip") || "[]"))
 		});
 	}
 ];
@@ -228,7 +225,7 @@ module.exports.editAction = ({ i18n, logger, hub, reportModel, accountModel }) =
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { accountDBID } = req.query;
 		const { startTime, endTime, active, ip, description } = req.body;
 		const errors = helpers.validationResultLog(req, logger);
@@ -249,30 +246,28 @@ module.exports.editAction = ({ i18n, logger, hub, reportModel, accountModel }) =
 				description
 			});
 		}
-		accountModel.info.findOne({ where: { accountDBID } }).then(account =>
-			accountModel.bans.update({
-				startTime: moment.tz(startTime, req.user.tz).toDate(),
-				endTime: moment.tz(endTime, req.user.tz).toDate(),
-				active: active == "on",
-				ip: JSON.stringify(helpers.unserializeRange(ip)),
-				description
-			}, {
-				where: { accountDBID }
-			}).then(() => {
-				if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
-					hub.kickUser(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
-						if (err.resultCode() !== 2) {
-							logger.warn(err.toString());
-						}
-					});
-				}
 
-				next();
-			})
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		const account = await accountModel.info.findOne({ where: { accountDBID } });
+
+		await accountModel.bans.update({
+			startTime: moment.tz(startTime, req.user.tz).toDate(),
+			endTime: moment.tz(endTime, req.user.tz).toDate(),
+			active: active == "on",
+			ip: JSON.stringify(helpers.unserializeRange(ip)),
+			description
+		}, {
+			where: { accountDBID }
 		});
+
+		if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
+			hub.kickUser(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
+				if (err.resultCode() !== 2) {
+					logger.warn(err.toString());
+				}
+			});
+		}
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
@@ -286,25 +281,24 @@ module.exports.editAction = ({ i18n, logger, hub, reportModel, accountModel }) =
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
+module.exports.deleteAction = ({ reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
-	(req, res, next) => {
+	async (req, res, next) => {
 		const { accountDBID } = req.query;
 
 		if (!accountDBID) {
 			return res.redirect("/bans");
 		}
 
-		accountModel.bans.destroy({ where: { accountDBID } }).then(() =>
-			next()
-		).catch(err => {
-			logger.error(err);
-			res.render("adminError", { layout: "adminLayout", err });
+		await accountModel.bans.destroy({
+			where: { accountDBID }
 		});
+
+		next();
 	},
 	writeOperationReport(reportModel),
 	/**
