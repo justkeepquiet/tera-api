@@ -28,7 +28,7 @@ const applyServerOverride = async (servers, clientIp, geoip, logger) => {
 /**
  * @param {modules} modules
  */
-module.exports.GetServerListXml = ({ logger, sequelize, geoip, serverModel }) => [
+module.exports.GetServerList = ({ logger, sequelize, geoip, serverModel }, format) => [
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -38,7 +38,8 @@ module.exports.GetServerListXml = ({ logger, sequelize, geoip, serverModel }) =>
 		});
 
 		if (strings === null) {
-			return res.status(500).end("getting strings error");
+			res.status(500).end("Invalid SLS language");
+			return;
 		}
 
 		const servers = await serverModel.info.findAll({ where: { isEnabled: 1 } });
@@ -57,13 +58,23 @@ module.exports.GetServerListXml = ({ logger, sequelize, geoip, serverModel }) =>
 
 		await applyServerOverride(sls.servers, req.ip, geoip, logger);
 
-		res.type("application/xml").send(sls.renderXML());
+		switch (format) {
+			case "xml":
+				res.type("application/xml").send(sls.renderXML(true));
+				break;
+			case "json":
+				res.type("application/json").send(sls.renderJSON(true, Number(req.query.sort ?? 3)));
+				break;
+			default:
+				res.status(500).end("Invalid SLS format");
+				break;
+		}
 	},
 	/**
 	 * @type {ErrorRequestHandler}
 	 */
 	(err, req, res, next) => {
 		logger.error(err);
-		res.status(500).end("getting sls error");
+		res.status(500).end("Getting SLS error");
 	}
 ];

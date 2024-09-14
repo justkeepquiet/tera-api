@@ -67,14 +67,6 @@ class SlsBuilder {
 
 	/**
 	 * @param {boolean} [pretty=true]
-	 * @return {string}
-	 */
-	renderJSON(pretty = true) {
-		return JSON.stringify(this.servers, ...(pretty ? [null, 4] : []));
-	}
-
-	/**
-	 * @param {boolean} [pretty=true]
 	 * @param {string} [encoding=utf-8]
 	 * @return {string}
 	 */
@@ -99,6 +91,36 @@ class SlsBuilder {
 		});
 
 		return this.xml.end({ pretty });
+	}
+
+	/**
+	 * @param {boolean} [pretty=true]
+	 * @param {Number} [sortCriterion=3]
+	 * @return {string}
+	 */
+	renderJSON(pretty = true, sortCriterion = 3) {
+		this.json = {
+			servers: [],
+			sort_criterion: sortCriterion
+		};
+
+		this.servers.forEach(server => {
+			this.json.servers.push({
+				id: server.id,
+				name: server.name,
+				category: server.category.value,
+				title: server.rawName,
+				queue: server.crowdness.value,
+				population: `<font color="${server.open.color}">${server.open.value}</font>`,
+				address: server.ip,
+				port: server.port,
+				available: Number(server.permissionMask < maxPermissionValue),
+				unavailable_message: server.popup,
+				host: null
+			});
+		});
+
+		return JSON.stringify(this.json, ...(pretty ? [null, 4] : []));
 	}
 
 	get getServers() {

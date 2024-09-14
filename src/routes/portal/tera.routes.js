@@ -15,7 +15,9 @@ const portalAccountController = require("../../controllers/portalAccount.control
  * @param {modules} modules
  */
 module.exports = modules => express.Router()
-	.get("/ServerList", portalSlsController.GetServerListXml(modules))
+	.get("/ServerList", portalSlsController.GetServerList(modules, "xml"))
+	.get("/ServerList.xml", portalSlsController.GetServerList(modules, "xml"))
+	.get("/ServerList.json", portalSlsController.GetServerList(modules, "json"))
 	.post("/GetAccountInfoByUserNo", portalAccountController.GetAccountInfoByUserNo(modules))
 	.post("/SetAccountInfoByUserNo", portalAccountController.SetAccountInfoByUserNo(modules))
 
