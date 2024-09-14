@@ -8,18 +8,19 @@
 */
 
 const fs = require("fs");
+const path = require("path");
 const crypto = require("crypto");
 const bencode = require("bencode");
 const validationResult = require("express-validator").validationResult;
 const logger = require("../utils/logger");
 
 /**
-* @param {string} path
+* @param {string} filePath
 * @return {*}
 */
-module.exports.requireReload = path => {
-	delete require.cache[require.resolve(path)];
-	return require(path);
+module.exports.requireReload = filePath => {
+	delete require.cache[require.resolve(filePath)];
+	return require(filePath);
 };
 
 /**
@@ -273,9 +274,22 @@ module.exports.maskEmail = email => {
 };
 
 /**
-* @param {string} path
+* @param {string} filePath
 * @return {any[]}
 */
-module.exports.readTorrent = path =>
-	bencode.decode(fs.readFileSync(path))
+module.exports.readTorrent = filePath =>
+	bencode.decode(fs.readFileSync(filePath))
 ;
+
+/**
+* @param {directory} directory
+* @param {string[]} exts
+* @return {string[]}
+*/
+module.exports.getFilenamesFromDirectory = (directory, exts = [".png", ".jpg"]) => {
+	const files = fs.readdirSync(directory);
+	const imageFiles = files.filter(file =>
+		exts.includes(path.extname(file).toLowerCase())
+	);
+	return imageFiles;
+};

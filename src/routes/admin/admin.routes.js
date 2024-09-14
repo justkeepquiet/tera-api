@@ -35,7 +35,7 @@ const adminPromocodesActivatedController = require("../../controllers/adminPromo
 const adminBoxesController = require("../../controllers/adminBoxes.controller");
 const adminShopLogsController = require("../../controllers/adminShopLogs.controller");
 const adminTasksController = require("../../controllers/adminTasks.controller");
-// const adminLauncherSlidesController = require("../../controllers/adminLauncherV2Slides.controller");
+const adminLauncherSlidesController = require("../../controllers/adminLauncherV2Slides.controller");
 const adminLauncherLogsController = require("../../controllers/adminLauncherV2Logs.controller");
 
 /**
@@ -214,12 +214,12 @@ module.exports = modules => {
 		.post("/maintenance/edit", adminMaintenanceController.editAction(mod))
 		.get("/maintenance/delete", adminMaintenanceController.deleteAction(mod))
 		// Launcher Slides
-		// .get("/launcher_slides", adminLauncherSlidesController.index(mod))
-		// .get("/launcher_slides/add", adminLauncherSlidesController.add(mod))
-		// .post("/launcher_slides/add", adminLauncherSlidesController.addAction(mod))
-		// .get("/launcher_slides/edit", adminLauncherSlidesController.edit(mod))
-		// .post("/launcher_slides/edit", adminLauncherSlidesController.editAction(mod))
-		// .get("/launcher_slides/delete", adminLauncherSlidesController.deleteAction(mod))
+		.get("/launcher_slides", adminLauncherSlidesController.index(mod))
+		.get("/launcher_slides/add", adminLauncherSlidesController.add(mod))
+		.post("/launcher_slides/add", adminLauncherSlidesController.addAction(mod))
+		.get("/launcher_slides/edit", adminLauncherSlidesController.edit(mod))
+		.post("/launcher_slides/edit", adminLauncherSlidesController.editAction(mod))
+		.get("/launcher_slides/delete", adminLauncherSlidesController.deleteAction(mod))
 		// Launcher Logs
 		.get("/launcher_logs", adminLauncherLogsController.index(mod))
 		// Report
