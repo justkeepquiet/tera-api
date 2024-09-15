@@ -177,12 +177,12 @@ _%>
 		});
 		$("input[name='icon']").change(selectIcon);
 		$("#add-info-on").click(function() {
-			$("#add-info").show();
+			$("#add-info").slideDown("fast");
 			$("#add-info-off").show();
 			$(this).hide();
 		});
 		$("#add-info-off").click(function() {
-			$("#add-info").hide();
+			$("#add-info").slideUp("fast");
 			$("#add-info-on").show();
 			$(this).hide();
 		});
