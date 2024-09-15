@@ -516,5 +516,8 @@
 	"bomb": "bomb",
 	"clover": "clover",
 	"Panel small text": "Panel small text",
-	"Panel big text": "Panel big text"
+	"Panel big text": "Panel big text",
+	"Button text": "Button text",
+	"Button link": "Button link",
+	"Button": "Button"
 }

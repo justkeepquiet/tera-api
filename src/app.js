@@ -236,6 +236,7 @@ moduleLoader.final().then(
 
 			if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
 				es.setStatic("/public/shop/images/tera-icons", "data/tera-icons");
+				es.setStatic("/public/launcher/images/launcher-slides-bg", "data/launcher-slides-bg"); // launcher v2
 				es.setStatic("/public", "public");
 			}
 
@@ -281,8 +282,9 @@ moduleLoader.final().then(
 				enableCompression: true
 			});
 
-			es.setStatic("/static", "src/static/admin");
 			es.setStatic("/static/images/tera-icons", "data/tera-icons");
+			es.setStatic("/static/images/launcher-slides-bg", "data/launcher-slides-bg"); // launcher v2
+			es.setStatic("/static", "src/static/admin");
 			es.setLogging();
 			es.setRouter("../routes/admin.index");
 

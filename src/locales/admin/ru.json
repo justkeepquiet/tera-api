@@ -516,5 +516,8 @@
 	"bomb": "бомба",
 	"clover": "клевер",
 	"Panel small text": "Малый текст панели",
-	"Panel big text": "Большой текст панели"
+	"Panel big text": "Большой текст панели",
+	"Button text": "Текст кнопки",
+	"Button link": "Ссылка кнопки",
+	"Button": "Кнопка"
 }
