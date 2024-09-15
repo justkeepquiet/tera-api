@@ -7,8 +7,7 @@
 
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
-const body = require("express-validator").body;
-const query = require("express-validator").query;
+const { query, body } = require("express-validator");
 
 const helpers = require("../utils/helpers");
 const { validationHandler, accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
@@ -56,14 +55,14 @@ module.exports.add = ({ i18n, accountModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		body("accountDBID")
+		query("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.info.findOne({
+			.custom(value => accountModel.info.findOne({
 				where: {
-					accountDBID: req.body.accountDBID
+					accountDBID: value
 				}
 			}).then(data => {
-				if (req.body.accountDBID && data === null) {
+				if (value && data === null) {
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			}))

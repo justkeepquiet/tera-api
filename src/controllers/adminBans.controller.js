@@ -7,11 +7,11 @@
 
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
-const body = require("express-validator").body;
+const { query, body } = require("express-validator");
 const validator = require("validator");
 
 const helpers = require("../utils/helpers");
-const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+const { validationHandler, accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -37,11 +37,11 @@ module.exports.index = ({ accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ i18n, accountModel }) => [
+module.exports.add = ({ logger, i18n, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		body("accountDBID")
+		query("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
@@ -51,6 +51,7 @@ module.exports.add = ({ i18n, accountModel }) => [
 				}
 			}))
 	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -133,7 +134,9 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 			});
 		}
 
-		const account = await accountModel.info.findOne({ where: { accountDBID } });
+		const account = await accountModel.info.findOne({
+			where: { accountDBID }
+		});
 
 		await accountModel.bans.create({
 			accountDBID: account.get("accountDBID"),
