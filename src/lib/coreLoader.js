@@ -6,8 +6,8 @@ class CoreLoader {
 		this.resolved = {};
 	}
 
-	setAsync(name, callback, ...args) {
-		this.resolved[name] = callback(...args, this.resolved);
+	async setAsync(name, callback, ...args) {
+		this.resolved[name] = await callback(...args, this.resolved);
 	}
 
 	setPromise(name, callback, ...args) {
