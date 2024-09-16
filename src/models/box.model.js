@@ -12,14 +12,18 @@
 
 /**
  * @param {Sequelize} sequelize
- * @param {DataTypes} DataTypes
  * @param {modules} modules
  */
-module.exports = (sequelize, DataTypes, modules) => {
+module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 	const model = {
 		info: require("./box/boxInfo.model")(sequelize, DataTypes),
 		items: require("./box/boxItems.model")(sequelize, DataTypes)
 	};
+
+	if (syncTables) {
+		await model.info.sync();
+		await model.items.sync();
+	}
 
 	// items
 	model.items.hasOne(modules.dataModel.itemTemplates, {

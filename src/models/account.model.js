@@ -20,7 +20,7 @@
  * @param {DataTypes} DataTypes
  * @param {modules} modules
  */
-module.exports = (sequelize, DataTypes, modules) => {
+module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 	const model = {
 		info: require("./account/accountInfo.model")(sequelize, DataTypes),
 		bans: require("./account/accountBans.model")(sequelize, DataTypes),
@@ -30,6 +30,16 @@ module.exports = (sequelize, DataTypes, modules) => {
 		verify: require("./account/accountVerify.model")(sequelize, DataTypes),
 		resetPassword: require("./account/accountResetPassword.model")(sequelize, DataTypes)
 	};
+
+	if (syncTables) {
+		await model.info.sync();
+		await model.bans.sync();
+		await model.characters.sync();
+		await model.benefits.sync();
+		await model.online.sync();
+		await model.verify.sync();
+		await model.resetPassword.sync();
+	}
 
 	// info
 	model.info.hasOne(model.bans, {

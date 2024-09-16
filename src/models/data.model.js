@@ -14,14 +14,22 @@
 /**
  * @param {Sequelize} sequelize
  * @param {DataTypes} DataTypes
+ * @param {modules} modules
  */
-module.exports = (sequelize, DataTypes) => {
+module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 	const model = {
 		itemTemplates: require("./data/dataItemTemplates.model")(sequelize, DataTypes),
 		itemConversions: require("./data/dataItemConversions.model")(sequelize, DataTypes),
 		itemStrings: require("./data/dataItemStrings.model")(sequelize, DataTypes),
 		skillIcons: require("./data/dataSkillIcons.model")(sequelize, DataTypes)
 	};
+
+	if (syncTables) {
+		await model.itemTemplates.sync();
+		await model.itemConversions.sync();
+		await model.itemStrings.sync();
+		await model.skillIcons.sync();
+	}
 
 	// itemConversions
 	model.itemConversions.hasOne(model.itemTemplates, {

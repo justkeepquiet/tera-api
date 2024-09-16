@@ -21,7 +21,7 @@
  * @param {DataTypes} DataTypes
  * @param {modules} modules
  */
-module.exports = (sequelize, DataTypes, modules) => {
+module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 	const model = {
 		activity: require("./report/reportActivity.model")(sequelize, DataTypes),
 		characters: require("./report/reportCharacters.model")(sequelize, DataTypes),
@@ -33,6 +33,18 @@ module.exports = (sequelize, DataTypes, modules) => {
 		adminOp: require("./report/reportAdminOp.model")(sequelize, DataTypes),
 		boxes: require("./report/reportBoxes.model")(sequelize, DataTypes)
 	};
+
+	if (syncTables) {
+		await model.activity.sync();
+		await model.characters.sync();
+		await model.cheats.sync();
+		await model.launcher.sync();
+		await model.chronoScrolls.sync();
+		await model.shopFund.sync();
+		await model.shopPay.sync();
+		await model.adminOp.sync();
+		await model.boxes.sync();
+	}
 
 	model.activity.hasOne(modules.serverModel.info, {
 		foreignKey: "serverId",

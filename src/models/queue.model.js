@@ -11,7 +11,16 @@
 /**
  * @param {Sequelize} sequelize
  * @param {DataTypes} DataTypes
+ * @param {modules} modules
  */
-module.exports = (sequelize, DataTypes) => ({
-	tasks: require("./queue/queueTasks.model")(sequelize, DataTypes)
-});
+module.exports = async (sequelize, DataTypes, syncTables, modules) => {
+	const model = {
+		tasks: require("./queue/queueTasks.model")(sequelize, DataTypes)
+	};
+
+	if (syncTables) {
+		await model.tasks.sync();
+	}
+
+	return model;
+};

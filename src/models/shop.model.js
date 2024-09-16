@@ -24,7 +24,7 @@
  * @param {DataTypes} DataTypes
  * @param {modules} modules
  */
-module.exports = (sequelize, DataTypes, modules) => {
+module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 	const model = {
 		accounts: require("./shop/shopAccounts.model")(sequelize, DataTypes),
 		categories: require("./shop/shopCategories.model")(sequelize, DataTypes),
@@ -36,6 +36,18 @@ module.exports = (sequelize, DataTypes, modules) => {
 		promoCodeStrings: require("./shop/shopPromoCodeStrings.model")(sequelize, DataTypes),
 		promoCodeActivated: require("./shop/shopPromoCodeActivated.model")(sequelize, DataTypes)
 	};
+
+	if (syncTables) {
+		await model.accounts.sync();
+		await model.categories.sync();
+		await model.categoryStrings.sync();
+		await model.products.sync();
+		await model.productStrings.sync();
+		await model.productItems.sync();
+		await model.promoCodes.sync();
+		await model.promoCodeStrings.sync();
+		await model.promoCodeActivated.sync();
+	}
 
 	// productItems
 	model.productItems.hasOne(modules.dataModel.itemTemplates, {

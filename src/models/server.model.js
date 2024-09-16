@@ -13,9 +13,20 @@
 /**
  * @param {Sequelize} sequelize
  * @param {DataTypes} DataTypes
+ * @param {modules} modules
  */
-module.exports = (sequelize, DataTypes) => ({
-	maintenance: require("./server/serverMaintenance.model")(sequelize, DataTypes),
-	info: require("./server/serverInfo.model")(sequelize, DataTypes),
-	strings: require("./server/serverStrings.model")(sequelize, DataTypes)
-});
+module.exports = async (sequelize, DataTypes, syncTables, modules) => {
+	const model = {
+		maintenance: require("./server/serverMaintenance.model")(sequelize, DataTypes),
+		info: require("./server/serverInfo.model")(sequelize, DataTypes),
+		strings: require("./server/serverStrings.model")(sequelize, DataTypes)
+	};
+
+	if (syncTables) {
+		await model.maintenance.sync();
+		await model.info.sync();
+		await model.strings.sync();
+	}
+
+	return model;
+};

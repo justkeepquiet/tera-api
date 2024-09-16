@@ -1,8 +1,10 @@
 "use strict";
 
+const DB_VERSION = 3;
+
 /**
  * @typedef {import("sequelize").Sequelize} Sequelize
- * @typedef {import("sequelize/types")} DataTypes
+ * @typedef {import("sequelize").DataTypes} DataTypes
  * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
  *
  * @typedef {object} modules
@@ -34,6 +36,7 @@ const geoip = require("@maxmind/geoip2-node");
 const { Sequelize, DataTypes } = require("sequelize");
 const cls = require("cls-hooked");
 const nodemailer = require("nodemailer");
+const MigrationManager = require("./utils/migrationManager");
 const createLogger = require("./utils/logger").createLogger;
 const cliHelper = require("./utils/cliHelper");
 const CoreLoader = require("./lib/coreLoader");
@@ -170,17 +173,49 @@ moduleLoader.setPromise("sequelize", () => new Promise((resolve, reject) => {
 		}
 	);
 
-	sequelize.authenticate().then(() => {
-		moduleLoader.setAsync("queueModel", require("./models/queue.model"), sequelize, DataTypes);
-		moduleLoader.setAsync("serverModel", require("./models/server.model"), sequelize, DataTypes);
-		moduleLoader.setAsync("dataModel", require("./models/data.model"), sequelize, DataTypes);
-		moduleLoader.setAsync("accountModel", require("./models/account.model"), sequelize, DataTypes);
-		moduleLoader.setAsync("reportModel", require("./models/report.model"), sequelize, DataTypes);
-		moduleLoader.setAsync("shopModel", require("./models/shop.model"), sequelize, DataTypes);
-		moduleLoader.setAsync("boxModel", require("./models/box.model"), sequelize, DataTypes);
-		moduleLoader.setAsync("launcherModel", require("./models/launcher.model"), sequelize, DataTypes);
-
+	sequelize.authenticate().then(async () => {
 		sequelizeLogger.info("Connected.");
+
+		const migrationsDir = path.join(__dirname, "migrations");
+		const migrationManager = new MigrationManager(sequelize, sequelizeLogger, migrationsDir);
+		await migrationManager.init();
+
+		const currentDbVersion = await migrationManager.getCurrentVersion();
+		let syncTables = false;
+
+		if (currentDbVersion === 0) {
+			sequelizeLogger.info("DB version is not found.");
+
+			syncTables = true;
+			const isDbNotClean = await migrationManager.queryInterface.showAllTables()
+				.then(tables => tables.includes("server_info"));
+
+			if (!isDbNotClean) {
+				sequelizeLogger.debug(`Database is clean, set DB version: ${DB_VERSION}`);
+				await migrationManager.setVersion(DB_VERSION);
+			} else {
+				await migrationManager.runMigrations();
+			}
+		} else if (currentDbVersion !== DB_VERSION) {
+			syncTables = true;
+			await migrationManager.runMigrations();
+		}
+
+		if (syncTables) {
+			sequelizeLogger.info("Syncing tables.");
+		}
+
+		await moduleLoader.setAsync("queueModel", require("./models/queue.model"), sequelize, DataTypes, syncTables);
+		await moduleLoader.setAsync("serverModel", require("./models/server.model"), sequelize, DataTypes, syncTables);
+		await moduleLoader.setAsync("dataModel", require("./models/data.model"), sequelize, DataTypes, syncTables);
+		await moduleLoader.setAsync("accountModel", require("./models/account.model"), sequelize, DataTypes, syncTables);
+		await moduleLoader.setAsync("reportModel", require("./models/report.model"), sequelize, DataTypes, syncTables);
+		await moduleLoader.setAsync("shopModel", require("./models/shop.model"), sequelize, DataTypes, syncTables);
+		await moduleLoader.setAsync("boxModel", require("./models/box.model"), sequelize, DataTypes, syncTables);
+		await moduleLoader.setAsync("launcherModel", require("./models/launcher.model"), sequelize, DataTypes, syncTables);
+
+		sequelizeLogger.info(`DB version: ${DB_VERSION}`);
+
 		resolve(sequelize);
 	}).catch(err => {
 		sequelizeLogger.error("Connection error:", err);
