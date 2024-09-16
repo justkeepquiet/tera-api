@@ -1,5 +1,9 @@
 "use strict";
 
+/**
+ * @typedef {import("../utils/logger")} logger
+ */
+
 const cron = require("node-cron");
 
 const expr = {
@@ -22,6 +26,9 @@ const expr = {
 };
 
 class Scheduler {
+	/**
+	 * @param {logger} logger
+	 */
 	constructor(logger = null) {
 		this.logger = logger;
 		this.scheduled = [];
