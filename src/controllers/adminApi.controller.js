@@ -73,7 +73,7 @@ module.exports.homeStats = ({ i18n, datasheetModel, dataModel, serverModel, acco
 				usersTotal: server.get("usersTotal"),
 				usersOnline: server.get("usersOnline"),
 				usersOnlinePercent: Math.floor(
-					(server.get("usersOnline") / server.get("tresholdMedium")) * 100
+					(server.get("usersOnline") / server.get("thresholdMedium")) * 100
 				)
 			});
 		});

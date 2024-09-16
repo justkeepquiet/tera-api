@@ -9,6 +9,8 @@ ALTER TABLE `report_characters` ADD COLUMN `id` BIGINT(20) NOT NULL AUTO_INCREME
 ALTER TABLE `report_cheats` ADD COLUMN `id` BIGINT(20) NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
 ALTER TABLE `report_chronoscrolls` ADD COLUMN `id` BIGINT(20) NOT NULL AUTO_INCREMENT FIRST, ADD PRIMARY KEY (`id`);
 
+ALTER TABLE `server_info` CHANGE COLUMN `tresholdLow` `thresholdLow` INT(11) NULL DEFAULT '50' AFTER `permission`, CHANGE COLUMN `tresholdMedium` `thresholdMedium` INT(11) NULL DEFAULT '100' AFTER `thresholdLow`;
+
 CREATE TABLE IF NOT EXISTS `account_reset_password` (
   `token` varchar(128) NOT NULL,
   `email` varchar(64) NOT NULL,

@@ -35,10 +35,10 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.INTEGER(11),
 			defaultValue: 0
 		},
-		tresholdLow: {
+		thresholdLow: {
 			type: DataTypes.INTEGER(11)
 		},
-		tresholdMedium: {
+		thresholdMedium: {
 			type: DataTypes.INTEGER(11)
 		},
 		isPvE: {

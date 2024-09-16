@@ -38,10 +38,10 @@ class SlsBuilder {
 		}
 
 		if (server.get("isAvailable")) {
-			if (server.get("usersOnline") > server.get("tresholdLow")) {
+			if (server.get("usersOnline") > server.get("thresholdLow")) {
 				open = { sort: 1, value: strings.get("serverMedium"), color: "#ffffff" };
 			}
-			if (server.get("usersOnline") > server.get("tresholdMedium")) {
+			if (server.get("usersOnline") > server.get("thresholdMedium")) {
 				open = { sort: 1, value: strings.get("serverHigh"), color: "#ffff00" };
 			}
 		} else {
