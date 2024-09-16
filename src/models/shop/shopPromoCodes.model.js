@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) =>
 		},
 		promoCode: {
 			type: DataTypes.STRING(255),
+			unique: "promoCode",
 			allowNull: false
 		},
 		function: {
@@ -34,18 +35,33 @@ module.exports = (sequelize, DataTypes) =>
 			allowNull: false
 		},
 		active: {
-			type: DataTypes.TINYINT(4),
+			type: DataTypes.BOOLEAN,
 			allowNull: false,
-			defaultValue: 1
-		},
-		createdAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW
-		},
-		updatedAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW,
-			onUpdate: DataTypes.NOW
+			defaultValue: true
 		}
+	}, {
+		indexes: [
+			{
+				name: "promoCode",
+				unique: true,
+				fields: ["promoCode"]
+			},
+			{
+				name: "validAfter",
+				unique: false,
+				fields: ["validAfter"]
+			},
+			{
+				name: "validBefore",
+				unique: false,
+				fields: ["validBefore"]
+			},
+			{
+				name: "active",
+				unique: false,
+				fields: ["active"]
+			}
+		],
+		timestamps: true
 	})
 ;

@@ -18,20 +18,22 @@ module.exports = (sequelize, DataTypes) =>
 		},
 		balance: {
 			type: DataTypes.INTEGER(11),
+			allowNull: false,
 			defaultValue: 0
 		},
 		active: {
-			type: DataTypes.TINYINT(4),
-			defaultValue: 1
-		},
-		createdAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW
-		},
-		updatedAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW,
-			onUpdate: DataTypes.NOW
+			type: DataTypes.BOOLEAN,
+			allowNull: false,
+			defaultValue: true
 		}
+	}, {
+		indexes: [
+			{
+				name: "active",
+				unique: false,
+				fields: ["active"]
+			}
+		],
+		timestamps: true
 	})
 ;

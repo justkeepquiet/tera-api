@@ -13,22 +13,30 @@ module.exports = (sequelize, DataTypes) =>
 	sequelize.define("shop_promocode_strings", {
 		id: {
 			type: DataTypes.BIGINT,
-			unique: "id",
+			primaryKey: true,
 			autoIncrement: true,
 			allowNull: false
 		},
 		language: {
 			type: DataTypes.STRING(3),
-			primaryKey: true,
+			unique: "unique",
 			allowNull: false
 		},
 		promoCodeId: {
 			type: DataTypes.INTEGER(11),
-			primaryKey: true,
+			unique: "unique",
 			allowNull: false
 		},
 		description: {
 			type: DataTypes.STRING(2048)
 		}
+	}, {
+		indexes: [
+			{
+				name: "unique",
+				unique: true,
+				fields: ["language", "promoCodeId"]
+			}
+		]
 	})
 ;

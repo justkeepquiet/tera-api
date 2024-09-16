@@ -34,10 +34,16 @@ module.exports = (sequelize, DataTypes) =>
 		},
 		passWord: {
 			type: DataTypes.STRING(128)
-		},
-		createdAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW
 		}
+	}, {
+		indexes: [
+			{
+				name: "code",
+				unique: false,
+				fields: ["code"]
+			}
+		],
+		timestamps: true,
+		updatedAt: false
 	})
 ;

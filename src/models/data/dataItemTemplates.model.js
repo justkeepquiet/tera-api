@@ -14,15 +14,14 @@ module.exports = (sequelize, DataTypes) =>
 		itemTemplateId: {
 			type: DataTypes.BIGINT(20),
 			primaryKey: true,
-			autoIncrement: true,
 			allowNull: false
 		},
 		icon: {
-			type: DataTypes.TEXT(255),
+			type: DataTypes.STRING(255),
 			allowNull: false
 		},
 		name: {
-			type: DataTypes.TEXT(255),
+			type: DataTypes.STRING(255),
 			allowNull: false
 		},
 		rareGrade: {
@@ -30,25 +29,25 @@ module.exports = (sequelize, DataTypes) =>
 			allowNull: false
 		},
 		category: {
-			type: DataTypes.TEXT(255)
+			type: DataTypes.STRING(255)
 		},
 		requiredLevel: {
 			type: DataTypes.INTEGER(11)
 		},
 		requiredClass: {
-			type: DataTypes.TEXT(255)
+			type: DataTypes.STRING(255)
 		},
 		requiredGender: {
-			type: DataTypes.TEXT(255)
+			type: DataTypes.STRING(255)
 		},
 		requiredRace: {
-			type: DataTypes.TEXT(255)
+			type: DataTypes.STRING(255)
 		},
 		tradable: {
 			type: DataTypes.TINYINT(4)
 		},
 		boundType: {
-			type: DataTypes.TEXT(255)
+			type: DataTypes.STRING(255)
 		},
 		periodByWebAdmin: {
 			type: DataTypes.TINYINT(4)
@@ -65,5 +64,13 @@ module.exports = (sequelize, DataTypes) =>
 		linkSkillPeriodDay: {
 			type: DataTypes.INTEGER(11)
 		}
+	}, {
+		indexes: [
+			{
+				name: "linkSkillId",
+				unique: false,
+				fields: ["linkSkillId"]
+			}
+		]
 	})
 ;

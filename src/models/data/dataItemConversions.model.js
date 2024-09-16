@@ -30,5 +30,23 @@ module.exports = (sequelize, DataTypes) =>
 		gender: {
 			type: DataTypes.STRING(50)
 		}
+	}, {
+		indexes: [
+			{
+				name: "class",
+				unique: false,
+				fields: ["class"]
+			},
+			{
+				name: "race",
+				unique: false,
+				fields: ["race"]
+			},
+			{
+				name: "gender",
+				unique: false,
+				fields: ["gender"]
+			}
+		]
 	})
 ;

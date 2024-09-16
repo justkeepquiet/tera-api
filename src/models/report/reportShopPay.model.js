@@ -43,15 +43,25 @@ module.exports = (sequelize, DataTypes) =>
 		status: {
 			type: DataTypes.STRING(16),
 			allowNull: false
-		},
-		createdAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW
-		},
-		updatedAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW,
-			onUpdate: DataTypes.NOW
 		}
+	}, {
+		indexes: [
+			{
+				name: "accountDBID",
+				unique: false,
+				fields: ["accountDBID"]
+			},
+			{
+				name: "serverId",
+				unique: false,
+				fields: ["serverId"]
+			},
+			{
+				name: "status",
+				unique: false,
+				fields: ["status"]
+			}
+		],
+		timestamps: true
 	})
 ;

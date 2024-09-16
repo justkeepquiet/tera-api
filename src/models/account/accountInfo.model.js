@@ -76,5 +76,28 @@ module.exports = (sequelize, DataTypes) =>
 		language: {
 			type: DataTypes.STRING(5)
 		}
+	}, {
+		indexes: [
+			{
+				name: "userName",
+				unique: true,
+				fields: ["userName"]
+			},
+			{
+				name: "passWord",
+				unique: false,
+				fields: ["passWord"]
+			},
+			{
+				name: "authKey",
+				unique: true,
+				fields: ["authKey"]
+			},
+			{
+				name: "email",
+				unique: true,
+				fields: ["email"]
+			}
+		]
 	})
 ;

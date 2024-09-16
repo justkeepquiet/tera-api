@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) =>
 			allowNull: false
 		},
 		icon: {
-			type: DataTypes.TEXT(255)
+			type: DataTypes.STRING(255)
 		},
 		rareGrade: {
 			type: DataTypes.INTEGER(11)
@@ -45,18 +45,33 @@ module.exports = (sequelize, DataTypes) =>
 			defaultValue: 0
 		},
 		active: {
-			type: DataTypes.TINYINT(4),
+			type: DataTypes.BOOLEAN,
 			allowNull: false,
-			defaultValue: 1
-		},
-		createdAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW
-		},
-		updatedAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW,
-			onUpdate: DataTypes.NOW
+			defaultValue: true
 		}
+	}, {
+		indexes: [
+			{
+				name: "categoryId",
+				unique: false,
+				fields: ["categoryId"]
+			},
+			{
+				name: "validAfter",
+				unique: false,
+				fields: ["validAfter"]
+			},
+			{
+				name: "validBefore",
+				unique: false,
+				fields: ["validBefore"]
+			},
+			{
+				name: "active",
+				unique: false,
+				fields: ["active"]
+			}
+		],
+		timestamps: true
 	})
 ;

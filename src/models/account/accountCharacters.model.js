@@ -41,5 +41,13 @@ module.exports = (sequelize, DataTypes) =>
 		level: {
 			type: DataTypes.INTEGER(11)
 		}
+	}, {
+		indexes: [
+			{
+				name: "name",
+				unique: false,
+				fields: ["name"]
+			}
+		]
 	})
 ;

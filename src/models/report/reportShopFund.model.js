@@ -27,10 +27,16 @@ module.exports = (sequelize, DataTypes) =>
 		},
 		description: {
 			type: DataTypes.STRING(255)
-		},
-		createdAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW
 		}
+	}, {
+		indexes: [
+			{
+				name: "accountDBID",
+				unique: false,
+				fields: ["accountDBID"]
+			}
+		],
+		timestamps: true,
+		updatedAt: false
 	})
 ;

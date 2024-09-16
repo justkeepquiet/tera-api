@@ -18,29 +18,22 @@ module.exports = (sequelize, DataTypes) =>
 			allowNull: false
 		},
 		icon: {
-			type: DataTypes.TEXT(255),
+			type: DataTypes.STRING(255),
 			allowNull: false
 		},
 		title: {
-			type: DataTypes.TEXT(1024),
+			type: DataTypes.STRING(1024),
 			allowNull: false
 		},
 		content: {
-			type: DataTypes.TEXT(2048),
+			type: DataTypes.STRING(2048),
 			allowNull: false
 		},
 		days: {
 			type: DataTypes.INTEGER(11),
 			allowNull: false
-		},
-		createdAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW
-		},
-		updatedAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW,
-			onUpdate: DataTypes.NOW
 		}
+	}, {
+		timestamps: true
 	})
 ;

@@ -42,20 +42,20 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.INTEGER(11)
 		},
 		isPvE: {
-			type: DataTypes.TINYINT(1),
-			defaultValue: 0
+			type: DataTypes.BOOLEAN,
+			defaultValue: false
 		},
 		isCrowdness: {
-			type: DataTypes.TINYINT(1),
-			defaultValue: 0
+			type: DataTypes.BOOLEAN,
+			defaultValue: false
 		},
 		isAvailable: {
-			type: DataTypes.TINYINT(1),
-			defaultValue: 0
+			type: DataTypes.BOOLEAN,
+			defaultValue: false
 		},
 		isEnabled: {
-			type: DataTypes.TINYINT(1),
-			defaultValue: 1
+			type: DataTypes.BOOLEAN,
+			defaultValue: true
 		},
 		usersOnline: {
 			type: DataTypes.INTEGER(11),

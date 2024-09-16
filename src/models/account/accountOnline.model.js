@@ -20,10 +20,9 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.INTEGER(11),
 			primaryKey: true,
 			allowNull: false
-		},
-		createdAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW
 		}
+	}, {
+		timestamps: true,
+		updatedAt: false
 	})
 ;

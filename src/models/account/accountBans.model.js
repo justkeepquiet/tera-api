@@ -11,9 +11,14 @@
 */
 module.exports = (sequelize, DataTypes) =>
 	sequelize.define("account_bans", {
-		accountDBID: {
+		id: {
 			type: DataTypes.BIGINT(20),
 			primaryKey: true,
+			autoIncrement: true,
+			allowNull: false
+		},
+		accountDBID: {
+			type: DataTypes.BIGINT(20),
 			allowNull: false
 		},
 		startTime: {
@@ -28,12 +33,41 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.TEXT
 		},
 		description: {
-			type: DataTypes.STRING
+			type: DataTypes.TEXT
 		},
 		active: {
-			type: DataTypes.TINYINT(4),
+			type: DataTypes.BOOLEAN,
 			allowNull: false,
-			defaultValue: 1
+			defaultValue: true
 		}
+	}, {
+		indexes: [
+			{
+				name: "accountDBID",
+				unique: false,
+				fields: ["accountDBID"]
+			},
+			{
+				name: "startTime",
+				unique: false,
+				fields: ["startTime"]
+			},
+			{
+				name: "endTime",
+				unique: false,
+				fields: ["endTime"]
+			},
+			{
+				name: "ip",
+				unique: false,
+				fields: ["ip"],
+				type: "FULLTEXT"
+			},
+			{
+				name: "active",
+				unique: false,
+				fields: ["active"]
+			}
+		]
 	})
 ;

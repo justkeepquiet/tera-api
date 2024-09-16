@@ -51,5 +51,28 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.DATE,
 			defaultValue: DataTypes.NOW
 		}
+	}, {
+		indexes: [
+			{
+				name: "accountDBID",
+				unique: false,
+				fields: ["accountDBID"]
+			},
+			{
+				name: "serverId",
+				unique: false,
+				fields: ["serverId"]
+			},
+			{
+				name: "characterId",
+				unique: false,
+				fields: ["characterId"]
+			},
+			{
+				name: "reportTime",
+				unique: false,
+				fields: ["reportTime"]
+			}
+		]
 	})
 ;

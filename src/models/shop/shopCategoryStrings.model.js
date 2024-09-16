@@ -33,5 +33,13 @@ module.exports = (sequelize, DataTypes) =>
 		description: {
 			type: DataTypes.TEXT
 		}
+	}, {
+		indexes: [
+			{
+				name: "unique",
+				unique: true,
+				fields: ["language", "categoryId"]
+			}
+		]
 	})
 ;

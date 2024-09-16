@@ -34,15 +34,25 @@ module.exports = (sequelize, DataTypes) =>
 		},
 		message: {
 			type: DataTypes.TEXT
-		},
-		createdAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW
-		},
-		updatedAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW,
-			onUpdate: DataTypes.NOW
 		}
+	}, {
+		indexes: [
+			{
+				name: "tag",
+				unique: false,
+				fields: ["tag"]
+			},
+			{
+				name: "handler",
+				unique: false,
+				fields: ["handler"]
+			},
+			{
+				name: "status",
+				unique: false,
+				fields: ["status"]
+			}
+		],
+		timestamps: true
 	})
 ;

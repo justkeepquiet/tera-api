@@ -19,12 +19,12 @@ module.exports = (sequelize, DataTypes) =>
 		},
 		language: {
 			type: DataTypes.STRING(3),
-			unique: "unique",
+			unique: "UNIQUE",
 			allowNull: false
 		},
 		productId: {
 			type: DataTypes.BIGINT(20),
-			unique: "unique",
+			unique: "UNIQUE",
 			allowNull: false
 		},
 		title: {
@@ -33,5 +33,25 @@ module.exports = (sequelize, DataTypes) =>
 		description: {
 			type: DataTypes.TEXT
 		}
+	}, {
+		indexes: [
+			{
+				name: "UNIQUE",
+				unique: true,
+				fields: ["language", "productId"]
+			},
+			{
+				name: "title",
+				unique: false,
+				fields: ["title"],
+				type: "FULLTEXT"
+			},
+			{
+				name: "description",
+				unique: false,
+				fields: ["description"],
+				type: "FULLTEXT"
+			}
+		]
 	})
 ;

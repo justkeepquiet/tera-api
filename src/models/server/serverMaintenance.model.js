@@ -26,5 +26,18 @@ module.exports = (sequelize, DataTypes) =>
 		description: {
 			type: DataTypes.STRING
 		}
+	}, {
+		indexes: [
+			{
+				name: "startTime",
+				unique: false,
+				fields: ["startTime"]
+			},
+			{
+				name: "endTime",
+				unique: false,
+				fields: ["endTime"]
+			}
+		]
 	})
 ;

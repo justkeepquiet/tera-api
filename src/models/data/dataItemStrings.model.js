@@ -27,5 +27,20 @@ module.exports = (sequelize, DataTypes) =>
 		toolTip: {
 			type: DataTypes.STRING(4096)
 		}
+	}, {
+		indexes: [
+			{
+				name: "string",
+				unique: false,
+				fields: ["string"],
+				type: "FULLTEXT"
+			},
+			{
+				name: "toolTip",
+				unique: false,
+				fields: ["toolTip"],
+				type: "FULLTEXT"
+			}
+		]
 	})
 ;

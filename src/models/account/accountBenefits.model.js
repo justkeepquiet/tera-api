@@ -14,7 +14,11 @@ module.exports = (sequelize, DataTypes) =>
 		accountDBID: {
 			type: DataTypes.BIGINT(20),
 			primaryKey: true,
-			allowNull: false
+			allowNull: false,
+			references: {
+				model: "account_info",
+				key: "accountDBID"
+			}
 		},
 		benefitId: {
 			type: DataTypes.INTEGER(11),
@@ -25,5 +29,13 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.DATE,
 			allowNull: false
 		}
+	}, {
+		indexes: [
+			{
+				name: "availableUntil",
+				unique: false,
+				fields: ["availableUntil"]
+			}
+		]
 	})
 ;

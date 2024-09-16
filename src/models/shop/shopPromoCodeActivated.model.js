@@ -19,17 +19,23 @@ module.exports = (sequelize, DataTypes) =>
 		},
 		promoCodeId: {
 			type: DataTypes.INTEGER(11),
-			unique: "promoCodeId",
+			unique: "unique",
 			allowNull: false
 		},
 		accountDBID: {
 			type: DataTypes.BIGINT(20),
-			unique: "promoCodeId",
+			unique: "unique",
 			allowNull: false
-		},
-		createdAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW
 		}
+	}, {
+		indexes: [
+			{
+				name: "unique",
+				unique: true,
+				fields: ["promoCodeId", "accountDBID"]
+			}
+		],
+		timestamps: true,
+		updatedAt: false
 	})
 ;

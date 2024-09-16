@@ -28,10 +28,16 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.INTEGER(11),
 			allowNull: false,
 			defaultValue: 0
-		},
-		createdAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW
 		}
+	}, {
+		indexes: [
+			{
+				name: "code",
+				unique: false,
+				fields: ["code"]
+			}
+		],
+		timestamps: true,
+		updatedAt: false
 	})
 ;

@@ -19,12 +19,12 @@ module.exports = (sequelize, DataTypes) =>
 		},
 		productId: {
 			type: DataTypes.BIGINT(20),
-			unique: "unique",
+			unique: "UNIQUE",
 			allowNull: false
 		},
 		itemTemplateId: {
 			type: DataTypes.BIGINT(20),
-			unique: "unique",
+			unique: "UNIQUE",
 			allowNull: false
 		},
 		boxItemId: {
@@ -34,15 +34,15 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.INTEGER(11),
 			allowNull: false,
 			defaultValue: 1
-		},
-		createdAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW
-		},
-		updatedAt: {
-			type: DataTypes.DATE,
-			defaultValue: DataTypes.NOW,
-			onUpdate: DataTypes.NOW
 		}
+	}, {
+		indexes: [
+			{
+				name: "UNIQUE",
+				unique: true,
+				fields: ["productId", "itemTemplateId"]
+			}
+		],
+		timestamps: true
 	})
 ;
