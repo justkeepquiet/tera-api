@@ -11,7 +11,15 @@ const { query, body } = require("express-validator");
 const validator = require("validator");
 
 const helpers = require("../utils/helpers");
-const { validationHandler, accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+
+const {
+	accessFunctionHandler,
+	validationHandler,
+	formValidationHandler,
+	formResultErrorHandler,
+	formResultSuccessHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -41,7 +49,7 @@ module.exports.add = ({ logger, i18n, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("accountDBID")
+		query("accountDBID").optional()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
@@ -60,14 +68,8 @@ module.exports.add = ({ logger, i18n, accountModel }) => [
 
 		res.render("adminBansAdd", {
 			layout: "adminLayout",
-			errors: null,
 			moment,
-			accountDBID,
-			startTime: moment(),
-			endTime: moment().add(30, "days"),
-			active: 1,
-			ip: "",
-			description: ""
+			accountDBID
 		});
 	}
 ];
@@ -77,25 +79,20 @@ module.exports.add = ({ logger, i18n, accountModel }) => [
  */
 module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
 		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.bans.findOne({
-				where: {
-					accountDBID: req.body.accountDBID
-				}
+			.custom(value => accountModel.bans.findOne({
+				where: { accountDBID: value }
 			}).then(data => {
-				if (req.body.accountDBID && data !== null) {
+				if (value && data !== null) {
 					return Promise.reject(i18n.__("Account ID field contains already banned account ID."));
 				}
 			}))
-			.custom((value, { req }) => accountModel.info.findOne({
-				where: {
-					accountDBID: req.body.accountDBID
-				}
+			.custom(value => accountModel.info.findOne({
+				where: { accountDBID: value }
 			}).then(data => {
-				if (req.body.accountDBID && data === null) {
+				if (value && data === null) {
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
@@ -114,25 +111,12 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 		body("description").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { accountDBID, startTime, endTime, active, ip, description } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!errors.isEmpty()) {
-			return res.render("adminBansAdd", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				accountDBID,
-				startTime: moment.tz(startTime, req.user.tz),
-				endTime: moment.tz(endTime, req.user.tz),
-				active,
-				ip,
-				description
-			});
-		}
 
 		const account = await accountModel.info.findOne({
 			where: { accountDBID }
@@ -158,41 +142,36 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/bans");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/bans")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ accountModel }) => [
+module.exports.edit = ({ logger, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("accountDBID").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
 
-		if (!accountDBID) {
-			return res.redirect("/bans");
-		}
-
 		const data = await accountModel.bans.findOne({
 			where: { accountDBID }
 		});
 
 		if (data === null) {
-			return res.redirect("/bans");
+			throw Error("Object not found");
 		}
 
 		res.render("adminBansEdit", {
 			layout: "adminLayout",
-			errors: null,
 			accountDBID: data.get("accountDBID"),
 			startTime: moment(data.get("startTime")),
 			endTime: moment(data.get("endTime")),
@@ -208,8 +187,8 @@ module.exports.edit = ({ accountModel }) => [
  */
 module.exports.editAction = ({ i18n, logger, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
+		query("accountDBID").notEmpty(),
 		body("startTime")
 			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
 		body("endTime")
@@ -225,32 +204,17 @@ module.exports.editAction = ({ i18n, logger, hub, reportModel, accountModel }) =
 		body("description").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
 		const { startTime, endTime, active, ip, description } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
 
-		if (!accountDBID) {
-			return res.redirect("/bans");
-		}
-
-		if (!errors.isEmpty()) {
-			return res.render("adminBansEdit", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				accountDBID,
-				startTime: moment.tz(startTime, req.user.tz),
-				endTime: moment.tz(endTime, req.user.tz),
-				active,
-				ip,
-				description
-			});
-		}
-
-		const account = await accountModel.info.findOne({ where: { accountDBID } });
+		const account = await accountModel.info.findOne({
+			where: { accountDBID }
+		});
 
 		await accountModel.bans.update({
 			startTime: moment.tz(startTime, req.user.tz).toDate(),
@@ -273,29 +237,25 @@ module.exports.editAction = ({ i18n, logger, hub, reportModel, accountModel }) =
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/bans");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/bans")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ reportModel, accountModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("accountDBID").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
-
-		if (!accountDBID) {
-			return res.redirect("/bans");
-		}
 
 		await accountModel.bans.destroy({
 			where: { accountDBID }

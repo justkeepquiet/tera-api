@@ -6,11 +6,15 @@
  */
 
 const expressLayouts = require("express-ejs-layouts");
+const query = require("express-validator").query;
 const moment = require("moment-timezone");
 const validator = require("validator");
 const Op = require("sequelize").Op;
 
-const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
+const {
+	validationHandler,
+	accessFunctionHandler
+} = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -50,25 +54,25 @@ module.exports.index = ({ reportModel }) => [
 	}
 ];
 
-module.exports.view = ({ reportModel }) => [
+module.exports.view = ({ logger, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("id").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { id, from, to } = req.query;
 
-		if (!id) {
-			return res.redirect("/operations_report");
-		}
-
 		const report = await reportModel.adminOp.findOne({
 			where: { id }
 		});
 
 		if (report === null) {
-			return res.redirect("/operations_report");
+			throw Error("Object not found");
 		}
 
 		res.render("adminOperationsReportView", {

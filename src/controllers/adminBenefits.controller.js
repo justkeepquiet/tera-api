@@ -9,8 +9,14 @@ const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
 
-const helpers = require("../utils/helpers");
-const { validationHandler, accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+const {
+	validationHandler,
+	formValidationHandler,
+	formResultErrorHandler,
+	formResultSuccessHandler,
+	accessFunctionHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -51,22 +57,21 @@ module.exports.index = ({ i18n, accountModel, datasheetModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ i18n, accountModel, datasheetModel }) => [
+module.exports.add = ({ logger, i18n, accountModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
 		query("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom(value => accountModel.info.findOne({
-				where: {
-					accountDBID: value
-				}
+				where: { accountDBID: value }
 			}).then(data => {
 				if (value && data === null) {
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			}))
 	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -76,12 +81,9 @@ module.exports.add = ({ i18n, accountModel, datasheetModel }) => [
 
 		res.render("adminBenefitsAdd", {
 			layout: "adminLayout",
-			errors: null,
 			moment,
 			accountBenefits,
-			accountDBID,
-			benefitId: "",
-			availableUntil: moment().add(30, "days")
+			accountDBID
 		});
 	}
 ];
@@ -89,18 +91,15 @@ module.exports.add = ({ i18n, accountModel, datasheetModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel, datasheetModel }) => [
+module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
 		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.info.findOne({
-				where: {
-					accountDBID: req.body.accountDBID
-				}
+			.custom(value => accountModel.info.findOne({
+				where: { accountDBID: value }
 			}).then(data => {
-				if (req.body.accountDBID && data === null) {
+				if (value && data === null) {
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
@@ -119,37 +118,25 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel, data
 		body("availableUntil").trim()
 			.isISO8601().withMessage("Available until field must contain a valid date.")
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { accountDBID, benefitId, availableUntil } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
 
-		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()] || new Map();
-
-		if (!errors.isEmpty()) {
-			return res.render("adminBenefitsAdd", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				moment,
-				accountBenefits,
-				accountDBID,
-				benefitId,
-				availableUntil: moment.tz(availableUntil, req.user.tz)
+		try {
+			const online = await accountModel.online.findOne({
+				where: { accountDBID }
 			});
-		}
 
-		accountModel.online.findOne({
-			where: { accountDBID }
-		}).then(online => {
 			if (online !== null && moment.tz(availableUntil, req.user.tz) > moment()) {
-				return hub.addBenefit(online.get("serverId"), online.get("accountDBID"), benefitId,
+				await hub.addBenefit(online.get("serverId"), online.get("accountDBID"), benefitId,
 					moment.duration(moment.tz(availableUntil, req.user.tz).diff()).asSeconds());
 			}
-		}).catch(err =>
-			logger.warn(err.toString())
-		);
+		} catch (err) {
+			logger.warn(err.toString());
+		}
 
 		await accountModel.benefits.create({
 			accountDBID,
@@ -160,11 +147,12 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel, data
 		next();
 	},
 	writeOperationReport(reportModel),
+	formResultErrorHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		res.redirect(`/benefits?accountDBID=${req.body.accountDBID || ""}`);
+		formResultSuccessHandler(`/benefits?accountDBID=${req.body.accountDBID || ""}`)(req, res, next);
 	}
 ];
 
@@ -191,12 +179,11 @@ module.exports.edit = ({ logger, i18n, accountModel, datasheetModel }) => [
 		});
 
 		if (data === null) {
-			return res.redirect(`/benefits?accountDBID=${accountDBID}`);
+			throw Error("Object not found");
 		}
 
 		res.render("adminBenefitsEdit", {
 			layout: "adminLayout",
-			errors: null,
 			moment,
 			accountBenefits,
 			accountDBID: data.get("accountDBID"),
@@ -211,51 +198,36 @@ module.exports.edit = ({ logger, i18n, accountModel, datasheetModel }) => [
  */
 module.exports.editAction = ({ logger, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
 		query("accountDBID").notEmpty(),
-		query("benefitId").notEmpty()
-	],
-	validationHandler(logger),
-	[
+		query("benefitId").notEmpty(),
 		body("availableUntil").trim()
 			.isISO8601().withMessage("Available until field must contain a valid date.")
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { accountDBID, benefitId } = req.query;
 		const { availableUntil } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
 
-		if (!errors.isEmpty()) {
-			return res.render("adminBenefitsEdit", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				moment,
-				accountDBID,
-				benefitId,
-				availableUntil: moment.tz(availableUntil, req.user.tz)
+		try {
+			const online = await accountModel.online.findOne({
+				where: { accountDBID }
 			});
-		}
 
-		accountModel.online.findOne({
-			where: { accountDBID }
-		}).then(online => {
-			if (online === null) {
-				return;
-			}
+			if (online !== null) {
+				await hub.removeBenefit(online.get("serverId"), online.get("accountDBID"), benefitId);
 
-			return hub.removeBenefit(online.get("serverId"), online.get("accountDBID"), benefitId).then(() => {
 				if (moment.tz(availableUntil, req.user.tz) > moment()) {
-					return hub.addBenefit(online.get("serverId"), online.get("accountDBID"), benefitId,
+					await hub.addBenefit(online.get("serverId"), online.get("accountDBID"), benefitId,
 						moment.duration(moment.tz(availableUntil, req.user.tz).diff()).asSeconds());
 				}
-			});
-		}).catch(err =>
-			logger.warn(err.toString())
-		);
+			}
+		} catch (err) {
+			logger.warn(err.toString());
+		}
 
 		await accountModel.benefits.update({
 			availableUntil: moment.tz(availableUntil, req.user.tz).toDate()
@@ -266,11 +238,12 @@ module.exports.editAction = ({ logger, hub, reportModel, accountModel }) => [
 		next();
 	},
 	writeOperationReport(reportModel),
+	formResultErrorHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		res.redirect(`/benefits?accountDBID=${req.query.accountDBID || ""}`);
+		formResultSuccessHandler(`/benefits?accountDBID=${req.query.accountDBID || ""}`)(req, res, next);
 	}
 ];
 

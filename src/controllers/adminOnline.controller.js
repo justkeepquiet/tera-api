@@ -10,7 +10,11 @@ const query = require("express-validator").query;
 const moment = require("moment-timezone");
 
 const helpers = require("../utils/helpers");
-const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+
+const {
+	accessFunctionHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -55,10 +59,8 @@ module.exports.kickAction = ({ i18n, logger, hub, reportModel, accountModel, ser
 	[
 		query("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom((value, { req }) => accountModel.info.findOne({
-				where: {
-					accountDBID: req.query.accountDBID
-				}
+			.custom(value => accountModel.info.findOne({
+				where: { accountDBID: value }
 			}).then(data => {
 				if (data === null) {
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
@@ -66,10 +68,8 @@ module.exports.kickAction = ({ i18n, logger, hub, reportModel, accountModel, ser
 			})),
 		query("serverId")
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain a valid number."))
-			.custom((value, { req }) => serverModel.info.findOne({
-				where: {
-					serverId: req.query.serverId
-				}
+			.custom(value => serverModel.info.findOne({
+				where: { serverId: value }
 			}).then(data => {
 				if (data === null) {
 					return Promise.reject(i18n.__("Server ID field contains not existing server ID."));
@@ -109,10 +109,8 @@ module.exports.kickAllAction = ({ i18n, logger, hub, reportModel, serverModel })
 	[
 		query("serverId")
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain a valid number."))
-			.custom((value, { req }) => serverModel.info.findOne({
-				where: {
-					serverId: req.query.serverId
-				}
+			.custom(value => serverModel.info.findOne({
+				where: { serverId: value }
 			}).then(data => {
 				if (data === null) {
 					return Promise.reject(i18n.__("Server ID field contains not existing server ID."));

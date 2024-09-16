@@ -423,6 +423,25 @@ $(function() {
 
 	$("input[name='itemTemplateIds\\[\\]'][type='text']").loadInputData("/api/getItems",
 		function(suggestion) {
+			// icon for additional info in shop ptoduct
+			var icons = $("#itemIcons");
+			for (var icon of suggestion.data.icons) {
+				if (icons.find("img[data-value='" + icon + "']").length === 0) {
+					icons.append("<label data-id='" + suggestion.value + "'><span><img src='/static/images/tera-icons/" + icon + ".png' class='item-icon-form item-icon-grade-0 itemIcon' data-value='" + icon + "'></span></label>");
+				}
+			}
+			function selectIcon() {
+				$(".itemIcon").each(function() {
+					if ($(this).css("border", "0").data("value") == $("input[name='icon']").val()) {
+						$(this).css("border", "2px solid #0075FF");
+					}
+				});
+			}
+			selectIcon();
+			$(".itemIcon").click(function() {
+				$("input[name='icon']").val($(this).data("value"));
+				selectIcon();
+			});
 			return $("<div class='autocomplete-result'>" +
 				"<div class='item-icon-input'>" +
 					"<img src='/static/images/tera-icons/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
@@ -484,6 +503,26 @@ function addAutocomplete() {
 			"<small class='item-grade-" + suggestion.data.rareGrade + "'>" + $.Autocomplete.defaults.formatResult({ value: value }, currentValue) + "</small>";
 		},
 		function(suggestion) {
+			// icon for additional info in shop ptoduct
+			var icons = $("#itemIcons");
+			for (var icon of suggestion.data.icons) {
+				if (icons.find("img[data-value='" + icon + "']").length === 0) {
+					icons.append("<label data-id='" + suggestion.value + "'><span><img src='/static/images/tera-icons/" + icon + ".png' class='item-icon-form item-icon-grade-0 itemIcon' data-value='" + icon + "'></span></label>");
+				}
+			}
+			function selectIcon() {
+				$(".itemIcon").each(function() {
+					if ($(this).css("border", "0").data("value") == $("input[name='icon']").val()) {
+						$(this).css("border", "2px solid #0075FF");
+					}
+				});
+			}
+			selectIcon();
+			$(".itemIcon").click(function() {
+				$("input[name='icon']").val($(this).data("value"));
+				selectIcon();
+			});
+			$("input[name='icon']").change(selectIcon);
 			return $("<div class='autocomplete-result'>" +
 				"<div class='item-icon-input'>" +
 					"<img src='/static/images/tera-icons/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
@@ -492,6 +531,46 @@ function addAutocomplete() {
 				"<small class='item-grade-" + suggestion.data.rareGrade + "'>(" + suggestion.value + ") " + suggestion.data.title + "</small></div>");
 		}
 	);
+}
+
+function showFormErrors(errors) {
+	var errorsContainer = $("#errors");
+	errorsContainer.empty();
+
+	if (Array.isArray(errors)) {
+		var errorList = $("<ul class='mb-0'></ul>");
+		for (var error of errors) {
+			var listItem = $("<li></li>").text(error.msg);
+			errorList.append(listItem);
+		}
+
+		errorsContainer.append(errorList);
+	} else {
+		errorsContainer.append("<i class='fa fa-warning'></i> " + errors);
+	}
+
+	errorsContainer.show();
+	$(".main-wrapper").animate({ scrollTop: 0 }, "fast");
+}
+
+function onFormSubmit(postUrl) {
+	$.ajax({
+		type: "POST",
+		url: postUrl,
+		data: $("#form").serialize(),
+		success: function(reply) {
+			if (reply.result_code === 0) {
+				location.replace(reply.success_url || location);
+			} else if (reply.errors && reply.errors.length !== 0) {
+				showFormErrors(reply.errors);
+			} else {
+				showFormErrors(reply.msg);
+			}
+		},
+		fail: function(err) {
+			showFormErrors(err);
+		}
+	});
 }
 
 $(function() {

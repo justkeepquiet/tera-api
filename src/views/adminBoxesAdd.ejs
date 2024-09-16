@@ -10,33 +10,33 @@
 		<div class="row">
 			<div class="col form">
 				<div class="card card-block">
-					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) -%>
+					<form id="form">
+						<div class="alert alert-danger" id="errors" style="display: none;"></div>
 						<div class="title-block">
 							<h3 class="title"><%= __("Box Information") %></h3>
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="title"><%= __("Title") %></label>
-							<input type="text" class="form-control boxed" name="title" value="<%= title %>">
+							<input type="text" class="form-control boxed" name="title" value="">
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="content"><%= __("Description") %></label>
-							<textarea type="text" class="form-control boxed" name="content"><%= content %></textarea>
+							<textarea type="text" class="form-control boxed" name="content"></textarea>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="days"><%= __("Days") %></label>
-								<input type="number" class="form-control boxed" name="days" value="<%= days %>">
+								<input type="number" class="form-control boxed" name="days" value="3650">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="icon"><%= __("Icon") %></label>
 								<div>
 									<label>
-										<input class="radio squared" name="icon" value="GiftBox01.bmp" type="radio"<%= icon === "GiftBox01.bmp" ? " checked" : "" %>>
+										<input class="radio squared" name="icon" value="GiftBox01.bmp" type="radio" checked>
 										<span><img src="/static/images/icons/giftbox01.bmp.png" class="item-icon-form"></span>
 									</label>
 									<label>
-										<input class="radio squared" name="icon" value="GiftBox02.bmp" type="radio"<%= icon === "GiftBox02.bmp" ? " checked" : "" %>>
+										<input class="radio squared" name="icon" value="GiftBox02.bmp" type="radio">
 										<span><img src="/static/images/icons/giftbox02.bmp.png" class="item-icon-form"></span>
 									</label>
 								</div>
@@ -47,33 +47,30 @@
 							<h3 class="title"><%= __("Box Items") %></h3>
 						</div>
 						<div id="items">
-							<%_ itemTemplateIds.forEach((itemTemplateId, i) => { _%>
 							<div class="form-group row">
 								<div class="col-sm-6">
 									<label class="control-label" for="itemTemplateIds[]">
 										<%= __("Item template ID") %>
 										<a class="btn btn-secondary btn-sm remove-item" title="" href="#"><i class="fa fa-minus"></i></a>
 									</label>
-									<input type="text" class="form-control boxed" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
+									<input type="text" class="form-control boxed" name="itemTemplateIds[]" value="">
 								</div>
 								<div class="col-sm-2">
 									<label class="control-label" for="boxItemCounts[]"><%= __("Count") %></label>
-									<input type="number" class="form-control boxed mt-2" name="boxItemCounts[]" value="<%= boxItemCounts[i] %>">
+									<input type="number" class="form-control boxed mt-2" name="boxItemCounts[]" value="1">
 								</div>
 								<div class="col-sm-4">
 									<label class="control-label" for="boxItemIds[]"><%= __("Service item ID") %></label>
-									<input type="number" class="form-control boxed mt-2" name="boxItemIds[]" value="<%= boxItemIds[i] %>" placeholder="<%= __("optional") %>">
+									<input type="number" class="form-control boxed mt-2" name="boxItemIds[]" value="" placeholder="<%= __("optional") %>">
 								</div>
 							</div>
-							<%_ }) _%>
 						</div>
 						<div class="form-group">
 							<button type="button" class="btn btn-secondary" id="add-item"><i class="fa fa-plus"></i> <%= __("Add item") %></button>
 						</div>
 						<div class="form-group row"></div>
 						<div class="form-group">
-							<input type="hidden" name="validate" id="validate" value="<%= validate %>">
-							<button type="submit" id="submit" class="btn btn-primary"><%= validate ? __("Validate form") : __("Add") %></button>
+							<button type="button" id="submit" class="btn btn-primary"><%= __("Add") %></button>
 						</div>
 					</form>
 				</div>
@@ -84,18 +81,7 @@
 <%- contentFor("scripts") %>
 <script>
 	$(function() {
-		$(".remove-item").click(function() {
-			$("#validate").val("1");
-			$("#submit").html("<%= __('Validate form') %>");
-			$(this).closest(".row").remove();
-		});
-		$("input[name='itemTemplateIds\\[\\]']").change(function() {
-			$("#validate").val("1");
-			$("#submit").html("<%= __('Validate form') %>");
-		});
 		$("#add-item").click(function() {
-			$("#validate").val("1");
-			$("#submit").html("<%= __('Validate form') %>");
 			$("#items").append(
 				"<div class='form-group row'>" +
 				"	<div class='col-sm-6'>" +
@@ -119,6 +105,9 @@
 				$(this).closest(".row").remove();
 			});
 			addAutocomplete();
+		});
+		$("#submit").click(function() {
+			onFormSubmit(location);
 		});
 	});
 </script>

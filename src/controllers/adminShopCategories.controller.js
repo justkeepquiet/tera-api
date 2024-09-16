@@ -6,10 +6,16 @@
  */
 
 const expressLayouts = require("express-ejs-layouts");
-const body = require("express-validator").body;
+const { query, body } = require("express-validator");
 
-const helpers = require("../utils/helpers");
-const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+const {
+	accessFunctionHandler,
+	validationHandler,
+	formValidationHandler,
+	formResultErrorHandler,
+	formResultSuccessHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
 
 const shopLocales = require("../../config/admin").shopLocales;
 
@@ -54,11 +60,7 @@ module.exports.add = () => [
 	async (req, res, next) => {
 		res.render("adminShopCategoriesAdd", {
 			layout: "adminLayout",
-			errors: null,
-			shopLocales,
-			sort: "0",
-			active: 1,
-			title: []
+			shopLocales
 		});
 	}
 ];
@@ -68,7 +70,6 @@ module.exports.add = () => [
  */
 module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
 		body("sort")
 			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Sort field must contain the value as a number.")),
@@ -77,23 +78,12 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 		body("title.*")
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Title field must be between 1 and 1024 characters."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { sort, active, title } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!errors.isEmpty()) {
-			return res.render("adminShopCategoriesAdd", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				shopLocales,
-				sort,
-				active,
-				title: title || []
-			});
-		}
 
 		await sequelize.transaction(async () => {
 			const category = await shopModel.categories.create({
@@ -119,36 +109,32 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/shop_categories");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/shop_categories")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ shopModel }) => [
+module.exports.edit = ({ logger, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("id").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { id } = req.query;
 
-		if (!id) {
-			return res.redirect("/shop_categories");
-		}
-
 		const category = await shopModel.categories.findOne({
 			where: { id }
 		});
 
 		if (category === null) {
-			return res.redirect("/shop_categories");
+			throw Error("Object not found");
 		}
 
 		const strings = await shopModel.categoryStrings.findAll({
@@ -163,7 +149,6 @@ module.exports.edit = ({ shopModel }) => [
 
 		res.render("adminShopCategoriesEdit", {
 			layout: "adminLayout",
-			errors: null,
 			shopLocales,
 			id: category.get("id"),
 			sort: category.get("sort"),
@@ -178,8 +163,8 @@ module.exports.edit = ({ shopModel }) => [
  */
 module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
+		query("id").notEmpty(),
 		body("sort")
 			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Sort field must contain the value as a number.")),
 		body("active").optional()
@@ -187,36 +172,20 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 		body("title.*")
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Title field must be between 1 and 1024 characters."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { id } = req.query;
 		const { sort, active, title } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!id) {
-			return res.redirect("/shop_categories");
-		}
 
 		const category = await shopModel.categories.findOne({
 			where: { id }
 		});
 
 		if (category === null) {
-			return res.redirect("/shop_categories");
-		}
-
-		if (!errors.isEmpty()) {
-			return res.render("adminShopCategoriesEdit", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				shopLocales,
-				id: category.get("id"),
-				sort,
-				active,
-				title: title || []
-			});
+			throw Error("Object not found");
 		}
 
 		await sequelize.transaction(async () => {
@@ -275,29 +244,25 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/shop_categories");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/shop_categories")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ sequelize, reportModel, shopModel }) => [
+module.exports.deleteAction = ({ logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("id").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { id } = req.query;
-
-		if (!id) {
-			return res.redirect("/shop_categories");
-		}
 
 		await sequelize.transaction(async () => {
 			await shopModel.categories.destroy({

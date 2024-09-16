@@ -6,11 +6,19 @@
  */
 
 const expressLayouts = require("express-ejs-layouts");
-const body = require("express-validator").body;
+const { query, body } = require("express-validator");
 const moment = require("moment-timezone");
 
 const helpers = require("../utils/helpers");
-const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+
+const {
+	accessFunctionHandler,
+	validationHandler,
+	formValidationHandler,
+	formResultErrorHandler,
+	formResultSuccessHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
 
 const shopLocales = require("../../config/admin").shopLocales;
 
@@ -35,8 +43,8 @@ module.exports.index = ({ i18n, shopModel }) => [
 
 		res.render("adminPromocodes", {
 			layout: "adminLayout",
-			promocodes,
-			moment
+			moment,
+			promocodes
 		});
 	}
 ];
@@ -53,15 +61,9 @@ module.exports.add = () => [
 	async (req, res, next) => {
 		res.render("adminPromocodesAdd", {
 			layout: "adminLayout",
-			errors: null,
+			moment,
 			promocodeFunctions: helpers.getPromocodeFunctionsNames(),
-			shopLocales,
-			promoCode: "",
-			aFunction: "",
-			validAfter: moment(),
-			validBefore: moment().add(365, "days"),
-			active: 1,
-			description: []
+			shopLocales
 		});
 	}
 ];
@@ -71,14 +73,11 @@ module.exports.add = () => [
  */
 module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
 		body("promoCode")
 			.isLength({ min: 6, max: 16 }).withMessage(i18n.__("Promo code field must be between 6 and 16 characters."))
-			.custom((value, { req }) => shopModel.promoCodes.findOne({
-				where: {
-					promoCode: req.body.promoCode
-				}
+			.custom(value => shopModel.promoCodes.findOne({
+				where: { promoCode: value }
 			}).then(data => {
 				if (data) {
 					return Promise.reject(i18n.__("Promo code field contains an existing promo code."));
@@ -96,27 +95,12 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 		body("description.*")
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Description must be between 1 and 2048 characters."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { promoCode, aFunction, validAfter, validBefore, active, description } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!errors.isEmpty()) {
-			return res.render("adminPromocodesAdd", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				promocodeFunctions: helpers.getPromocodeFunctionsNames(),
-				shopLocales,
-				promoCode,
-				aFunction,
-				validAfter: moment.tz(validAfter, req.user.tz),
-				validBefore: moment.tz(validBefore, req.user.tz),
-				active,
-				description: description || []
-			});
-		}
 
 		await sequelize.transaction(async () => {
 			const promocode = await shopModel.promoCodes.create({
@@ -145,35 +129,32 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/promocodes");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/promocodes")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ shopModel }) => [
+module.exports.edit = ({ logger, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("promoCodeId").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { promoCodeId } = req.query;
 
-		if (!promoCodeId) {
-			return res.redirect("/promocodes");
-		}
-
 		const promocode = await shopModel.promoCodes.findOne({
 			where: { promoCodeId }
 		});
+
 		if (promocode === null) {
-			return res.redirect("/promocodes");
+			throw Error("Object not found");
 		}
 
 		const strings = await shopModel.promoCodeStrings.findAll({
@@ -207,8 +188,8 @@ module.exports.edit = ({ shopModel }) => [
  */
 module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
+		query("promoCodeId").notEmpty(),
 		body("aFunction")
 			.custom(value => helpers.getPromocodeFunctionsNames().includes(value))
 			.withMessage(i18n.__("Assigned function field contains invalid function.")),
@@ -221,40 +202,20 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 		body("description.*")
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Description field must be between 1 and 2048 characters."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { promoCodeId } = req.query;
 		const { aFunction, validAfter, validBefore, active, description } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!promoCodeId) {
-			return res.redirect("/promocodes");
-		}
 
 		const promocode = await shopModel.promoCodes.findOne({
 			where: { promoCodeId }
 		});
 
 		if (promocode === null) {
-			return res.redirect("/promocodes");
-		}
-
-		if (!errors.isEmpty()) {
-			return res.render("adminPromocodesEdit", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				promocodeFunctions: helpers.getPromocodeFunctionsNames(),
-				shopLocales,
-				promoCodeId: promocode.get("promoCodeId"),
-				promoCode: promocode.get("promoCode"),
-				aFunction,
-				validAfter: moment.tz(validAfter, req.user.tz),
-				validBefore: moment.tz(validBefore, req.user.tz),
-				active,
-				description: description || []
-			});
+			throw Error("Object not found");
 		}
 
 		await sequelize.transaction(async () => {
@@ -315,29 +276,25 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/promocodes");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/promocodes")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ sequelize, reportModel, shopModel }) => [
+module.exports.deleteAction = ({ logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("promoCodeId").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { promoCodeId } = req.query;
-
-		if (!promoCodeId) {
-			return res.redirect("/promocodes");
-		}
 
 		await sequelize.transaction(async () => {
 			await shopModel.promoCodes.destroy({

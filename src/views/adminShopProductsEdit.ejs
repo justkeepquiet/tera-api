@@ -13,8 +13,8 @@ _%>
 		<div class="row">
 			<div class="col form">
 				<div class="card card-block">
-					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) -%>
+					<form id="form">
+						<div class="alert alert-danger" id="errors" style="display: none;"></div>
 						<div class="title-block">
 							<h3 class="title"><%= __("Product Information") %></h3>
 						</div>
@@ -109,13 +109,7 @@ _%>
 							</div>
 							<div class="form-group row">
 								<div class="col-sm-6">
-									<div>
-										<%_ itemIcons.forEach(itemIcon => { _%>
-										<label>
-											<span><img src="/static/images/tera-icons/<%= itemIcon %>.png" class="item-icon-form item-icon-grade-0 itemIcon" data-value="<%= itemIcon %>"></span>
-										</label>
-										<%_ }) _%>
-									</div>
+									<div id="itemIcons"></div>
 								</div>
 							</div>
 							<div class="form-group">
@@ -151,8 +145,7 @@ _%>
 							<div class="form-group row"></div>
 						</div>
 						<div class="form-group">
-							<input type="hidden" name="validate" id="validate" value="<%= validate %>">
-							<button type="submit" id="submit" class="btn btn-primary"><%= validate ? __("Validate form") : __("Save") %></button>
+							<button type="button" class="btn btn-primary" id="submit"><%= __("Save") %></button>
 						</div>
 					</form>
 				</div>
@@ -163,19 +156,6 @@ _%>
 <%- contentFor("scripts") %>
 <script>
 	$(function() {
-		function selectIcon() {
-			$(".itemIcon").each(function() {
-				if ($(this).css("border", "0").data("value") == $("input[name='icon']").val()) {
-					$(this).css("border", "2px solid #0075FF");
-				}
-			});
-		}
-		selectIcon();
-		$(".itemIcon").click(function() {
-			$("input[name='icon']").val($(this).data("value"));
-			selectIcon();
-		});
-		$("input[name='icon']").change(selectIcon);
 		$("#add-info-on").click(function() {
 			$("#add-info").slideDown("fast");
 			$("#add-info-off").show();
@@ -186,18 +166,19 @@ _%>
 			$("#add-info-on").show();
 			$(this).hide();
 		});
-		$(".remove-item").click(function() {
-			$("#validate").val("1");
-			$("#submit").html("<%= __('Validate form') %>");
-			$(this).closest(".row").remove();
-		});
-		$("input[name='itemTemplateIds\\[\\]']").change(function() {
-			$("#validate").val("1");
-			$("#submit").html("<%= __('Validate form') %>");
-		});
+		function onItemAdded() {
+			$('input[name="itemTemplateIds[]"]').change(function() {
+				$(this).closest('.row').find('input[name="boxItemIds[]"]').val('');
+			});
+			$(".remove-item").click(function () {
+				var row = $(this).closest(".row");
+				let itemTemplateId = row.find('input[name="itemTemplateIds[]"]').val();
+				row.remove();
+				$("label[data-id='" + itemTemplateId + "']").remove();
+			});
+		}
+		onItemAdded();
 		$("#add-item").click(function() {
-			$("#validate").val("1");
-			$("#submit").html("<%= __('Validate form') %>");
 			$("#items").append(
 				"<div class='form-group row'>" +
 				"	<div class='col-sm-6'>" +
@@ -217,10 +198,12 @@ _%>
 				"	</div>" +
 				"</div>"
 			);
-			$(".remove-item").click(function() {
-				$(this).closest(".row").remove();
-			});
+			onItemAdded()
 			addAutocomplete();
+		});
+
+		$("#submit").click(function() {
+			onFormSubmit(location);
 		});
 	});
 </script>

@@ -10,77 +10,77 @@
 		<div class="row">
 			<div class="col form">
 				<div class="card card-block">
-					<form id="form" method="POST" action="">
-						<%_ if (isSlsOverrided) { %>
+					<form id="form">
+						<%_ if (isSlsOverridden) { %>
 							<!-- div class="form-group alert alert-warning">
 								<%= __("The API settings contain a dynamic overriding of the server information.") %>
 							</div -->
 						<%_ } _%>
-						<%- include("partials/adminFormErrors", { errors }) -%>
+						<div class="alert alert-danger" id="errors" style="display: none;"></div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="serverId"><%= __("Server ID") %></label>
-								<input type="number" class="form-control boxed" name="serverId" value="<%= serverId %>">
+								<input type="number" class="form-control boxed" name="serverId" value="">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="language"><%= __("Language code") %></label>
-								<input type="text" class="form-control boxed" name="language" value="<%= language %>">
+								<input type="text" class="form-control boxed" name="language" value="<%= i18n.getLocale() %>">
 							</div>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="loginIp"><%= __("Login IP") %></label>
-								<input type="text" class="form-control boxed" name="loginIp" value="<%= loginIp %>">
+								<input type="text" class="form-control boxed" name="loginIp" value="">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="loginPort"><%= __("Login port") %></label>
-								<input type="number" class="form-control boxed" name="loginPort" value="<%= loginPort %>">
+								<input type="number" class="form-control boxed" name="loginPort" value="7801">
 							</div>
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="nameString"><%= __("Name string") %></label>
-							<input type="text" class="form-control boxed" name="nameString" value="<%= nameString %>">
+							<input type="text" class="form-control boxed" name="nameString" value="">
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="descrString"><%= __("Description string") %></label>
-							<input type="text" class="form-control boxed" name="descrString" value="<%= descrString %>">
+							<input type="text" class="form-control boxed" name="descrString" value="">
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
-								<label class="control-label" for="tresholdLow"><%= __("Treshold low") %></label>
-								<input type="number" class="form-control boxed" name="tresholdLow" value="<%= tresholdLow %>">
+								<label class="control-label" for="thresholdLow"><%= __("Threshold low") %></label>
+								<input type="number" class="form-control boxed" name="thresholdLow" value="100">
 							</div>
 							<div class="col-sm-6">
-								<label class="control-label" for="tresholdMedium"><%= __("Treshold medium") %></label>
-								<input type="number" class="form-control boxed" name="tresholdMedium" value="<%= tresholdMedium %>">
+								<label class="control-label" for="thresholdMedium"><%= __("Threshold medium") %></label>
+								<input type="number" class="form-control boxed" name="thresholdMedium" value="500">
 							</div>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="permission"><%= __("Permission") %></label>
-								<input type="number" class="form-control boxed" name="permission" value="<%= permission %>">
+								<input type="number" class="form-control boxed" name="permission" value="0">
 							</div>
 						</div>
 						<div class="form-group">
 							<label>
-								<input type="checkbox" class="checkbox" name="isPvE" <%- isPvE ? "checked=\"checked\"" : "" %>>
+								<input type="checkbox" class="checkbox" name="isPvE">
 								<span><%= __("Only PvE") %></span>
 							</label>
 							<label>
-								<input type="checkbox" class="checkbox" name="isCrowdness" <%- isCrowdness ? "checked=\"checked\"" : "" %>>
+								<input type="checkbox" class="checkbox" name="isCrowdness">
 								<span><%= __("Is crowdness") %></span>
 							</label>
 							<label>
-								<input type="checkbox" class="checkbox" name="isAvailable" <%- isAvailable ? "checked=\"checked\"" : "" %>>
+								<input type="checkbox" class="checkbox" name="isAvailable">
 								<span><%= __("Is available") %></span>
 							</label>
 							<label>
-								<input type="checkbox" class="checkbox" name="isEnabled" <%- isEnabled ? "checked=\"checked\"" : "" %>>
+								<input type="checkbox" class="checkbox" name="isEnabled" checked="checked">
 								<span><%= __("Is enabled") %></span>
 							</label>
 						</div>
 						<div class="form-group">
-							<button type="submit" class="btn btn-primary"><%= __("Add") %></button>
+							<button type="button" class="btn btn-primary" id="submit"><%= __("Add") %></button>
 						</div>
 					</form>
 				</div>
@@ -88,3 +88,11 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<script>
+	$(function() {
+		$("#submit").click(function() {
+			onFormSubmit(location);
+		});
+	});
+</script>

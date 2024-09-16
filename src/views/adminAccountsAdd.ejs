@@ -10,31 +10,31 @@
 		<div class="row">
 			<div class="col form">
 				<div class="card card-block">
-					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) -%>
+					<form id="form">
+						<div class="alert alert-danger" id="errors" style="display: none;"></div>
 						<div class="title-block">
 							<h3 class="title"><%= __("Account Information") %></h3>
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="userName"><%= __("Name") %></label>
-							<input type="text" class="form-control boxed" name="userName" value="<%= userName %>">
+							<input type="text" class="form-control boxed" name="userName" value="">
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="passWord"><%= __("Password") %></label>
-							<input type="text" class="form-control boxed" name="passWord" value="<%= passWord %>">
+							<input type="text" class="form-control boxed" name="passWord" value="">
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="email"><%= __("Email") %></label>
-							<input type="email" class="form-control boxed" name="email" value="<%= email %>">
+							<input type="email" class="form-control boxed" name="email" value="">
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="permission"><%= __("Permission") %></label>
-								<input type="number" class="form-control boxed" name="permission" value="<%= permission %>">
+								<input type="number" class="form-control boxed" name="permission" value="0">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="privilege"><%= __("Privilege") %></label>
-								<input type="number" class="form-control boxed" name="privilege" value="<%= permission %>">
+								<input type="number" class="form-control boxed" name="privilege" value="0">
 							</div>
 						</div>
 						<div class="form-group row">
@@ -88,7 +88,7 @@
 						</div>
 						<div class="form-group row"></div>
 						<div class="form-group">
-							<button type="submit" class="btn btn-primary"><%= __("Add") %></button>
+							<button type="button" class="btn btn-primary" id="submit"><%= __("Add") %></button>
 						</div>
 					</form>
 				</div>
@@ -138,6 +138,9 @@
 			$(".remove-benefit").click(function() {
 				$(this).closest(".row").remove();
 			});
+		});
+		$("#submit").click(function() {
+			onFormSubmit(location);
 		});
 	});
 </script>

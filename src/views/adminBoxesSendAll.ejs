@@ -10,8 +10,8 @@
 		<div class="row">
 			<div class="col form">
 				<div class="card card-block">
-					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) -%>
+					<form id="form">
+						<div class="alert alert-danger" id="errors" style="display: none;"></div>
 						<div class="title-block">
 							<h3 class="title"><%= __("Recipient Information") %></h3>
 						</div>
@@ -21,13 +21,13 @@
 								<select class="form-control boxed" name="serverId">
 									<option value="">- <%= __("All") %> -</option>
 								<%_ servers.forEach(s => { _%>
-									<option value="<%= s.get("serverId") %>" <%= s.get("serverId") == serverId ? "selected" : "" %>>(<%= s.get("serverId") %>) <%= s.get("nameString") %></option>
+									<option value="<%= s.get("serverId") %>">(<%= s.get("serverId") %>) <%= s.get("nameString") %></option>
 								<%_ }) _%>
 								</select>
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="loginAfterTime"><%= __("Last login") %></label>
-								<input type="datetime-local" class="form-control boxed" name="loginAfterTime" value="<%= loginAfterTime.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
+								<input type="datetime-local" class="form-control boxed" name="loginAfterTime" value="<%= moment().subtract(30, "days").tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
 							</div>
 						</div>
 						<div class="form-group row"></div>
@@ -99,7 +99,7 @@
 						</div>
 						<div class="form-group row"></div>
 						<div class="form-group">
-							<button type="submit" id="submit" class="btn btn-primary"><%= __("Send") %></button>
+							<button type="button" id="submit" class="btn btn-primary"><%= __("Send") %></button>
 						</div>
 					</form>
 				</div>
@@ -107,3 +107,11 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<script>
+	$(function() {
+		$("#submit").click(function() {
+			onFormSubmit(location);
+		});
+	});
+</script>

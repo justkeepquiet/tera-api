@@ -7,10 +7,16 @@
 
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
-const body = require("express-validator").body;
+const { query, body } = require("express-validator");
 
-const helpers = require("../utils/helpers");
-const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+const {
+	accessFunctionHandler,
+	validationHandler,
+	formValidationHandler,
+	formResultErrorHandler,
+	formResultSuccessHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -44,10 +50,7 @@ module.exports.add = () => [
 	async (req, res, next) => {
 		res.render("adminMaintenanceAdd", {
 			layout: "adminLayout",
-			errors: null,
-			startTime: moment(),
-			endTime: moment(),
-			description: ""
+			moment
 		});
 	}
 ];
@@ -57,7 +60,6 @@ module.exports.add = () => [
  */
 module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
 		body("startTime")
 			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
@@ -66,22 +68,12 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 		body("description").optional().trim()
 			.isLength({ max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { startTime, endTime, description } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!errors.isEmpty()) {
-			return res.render("adminMaintenanceAdd", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				startTime: moment.tz(startTime, req.user.tz),
-				endTime: moment.tz(endTime, req.user.tz),
-				description
-			});
-		}
 
 		await serverModel.maintenance.create({
 			startTime: moment.tz(startTime, req.user.tz).toDate(),
@@ -92,39 +84,34 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/maintenance");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/maintenance")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ serverModel }) => [
+module.exports.edit = ({ logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("id").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { id } = req.query;
 
-		if (!id) {
-			return res.redirect("/maintenance");
-		}
-
 		const data = await serverModel.maintenance.findOne({ where: { id } });
 
 		if (data === null) {
-			return res.redirect("/maintenance");
+			throw Error("Object not found");
 		}
 
 		res.render("adminMaintenanceEdit", {
 			layout: "adminLayout",
-			errors: null,
 			startTime: moment(data.get("startTime")),
 			endTime: moment(data.get("endTime")),
 			description: data.get("description"),
@@ -138,8 +125,8 @@ module.exports.edit = ({ serverModel }) => [
  */
 module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
+		query("id").notEmpty(),
 		body("startTime")
 			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
 		body("endTime")
@@ -147,28 +134,13 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 		body("description").optional().trim()
 			.isLength({ max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { id } = req.query;
 		const { startTime, endTime, description } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!id) {
-			return res.redirect("/maintenance");
-		}
-
-		if (!errors.isEmpty()) {
-			return res.render("adminMaintenanceEdit", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				startTime: moment.tz(startTime, req.user.tz),
-				endTime: moment.tz(endTime, req.user.tz),
-				description,
-				id
-			});
-		}
 
 		await serverModel.maintenance.update({
 			startTime: moment.tz(startTime, req.user.tz).toDate(),
@@ -181,31 +153,29 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/maintenance");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/maintenance")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ reportModel, serverModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("id").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { id } = req.query;
 
-		if (!id) {
-			return res.redirect("/maintenance");
-		}
-
-		await serverModel.maintenance.destroy({ where: { id } });
+		await serverModel.maintenance.destroy({
+			where: { id }
+		});
 
 		next();
 	},

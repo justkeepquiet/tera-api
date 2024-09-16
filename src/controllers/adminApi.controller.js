@@ -314,7 +314,7 @@ module.exports.getItems = ({ logger, i18n, sequelize, dataModel }) => [
 	async (req, res, next) => {
 		const searchParts = req.query.query ? req.query.query.replace(/[-_+:\\"\\']/g, " ").split(" ") : [];
 
-		const accounts = await dataModel.itemStrings.findAll({
+		const items = await dataModel.itemStrings.findAll({
 			offset: 0, limit: 8,
 			where: {
 				[Op.or]: req.query.value ? [{ itemTemplateId: req.query.value }] : [
@@ -323,26 +323,59 @@ module.exports.getItems = ({ logger, i18n, sequelize, dataModel }) => [
 				],
 				language: i18n.getLocale()
 			},
-			include: [{
-				as: "template",
-				model: dataModel.itemTemplates,
-				required: true,
-				attributes: ["icon", "rareGrade"]
-			}],
+			include: [
+				{
+					as: "template",
+					model: dataModel.itemTemplates,
+					required: true,
+					attributes: ["icon", "rareGrade", "linkSkillId"],
+					include: [
+						{
+							as: "conversion",
+							model: dataModel.itemConversions,
+							include: [{
+								as: "template",
+								model: dataModel.itemTemplates
+							}],
+							required: false
+						},
+						{
+							as: "skillIcon",
+							model: dataModel.skillIcons,
+							required: false
+						}
+					]
+				}
+			],
 			attributes: ["itemTemplateId", "string"]
 		});
 
 		res.json({
 			result_code: 0,
 			msg: "success",
-			suggestions: accounts.map(a => ({
-				value: a.itemTemplateId.toString(),
-				data: {
-					title: a.string,
-					icon: a.template.icon,
-					rareGrade: a.template.rareGrade
+			suggestions: items.map(item => {
+				const icons = new Set();
+
+				if (item) {
+					icons.add(item.template.icon);
+					item.template.conversion.forEach(conversion =>
+						icons.add(conversion.template.icon)
+					);
+					item.template.skillIcon.forEach(skillIcon =>
+						icons.add(skillIcon.icon)
+					);
 				}
-			}))
+
+				return {
+					value: item.itemTemplateId.toString(),
+					data: {
+						title: item.string,
+						icon: item.template.icon,
+						rareGrade: item.template.rareGrade,
+						icons: [...icons]
+					}
+				};
+			})
 		});
 	}
 ];

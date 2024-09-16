@@ -1,6 +1,3 @@
-<%_
-const addInfoShow = icon || rareGrade !== null || Object.values(title).join("") || Object.values(description).join("");
-_%>
 <%- contentFor("content") %>
 <article class="content">
 	<div class="title-block">
@@ -13,21 +10,21 @@ _%>
 		<div class="row">
 			<div class="col form">
 				<div class="card card-block">
-					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) -%>
+					<form id="form">
+						<div class="alert alert-danger" id="errors" style="display: none;"></div>
 						<div class="title-block">
 							<h3 class="title"><%= __("Product Information") %></h3>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="price"><%= __("Price") %></label>
-								<input type="number" class="form-control boxed" name="price" value="<%= price %>">
+								<input type="number" class="form-control boxed" name="price" value="0">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="userName"><%= __("Category ID") %></label>
 								<select class="form-control boxed" name="categoryId">
 								<%_ categories.forEach(category => { _%>
-									<option value="<%= category.get("id") %>" <%= categoryId == category.get("id") ? 'selected' : "" %>>(<%= category.get("id") %>) <%= category.get("strings")[0]?.get("title") || __("[unknown]") %></option>
+									<option value="<%= category.get("id") %>">(<%= category.get("id") %>) <%= category.get("strings")[0]?.get("title") || __("[unknown]") %></option>
 								<%_ }) _%>
 								</select>
 							</div>
@@ -35,16 +32,16 @@ _%>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="validAfter"><%= __("Valid from") %></label>
-								<input type="datetime-local" class="form-control boxed" name="validAfter" value="<%= validAfter.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
+								<input type="datetime-local" class="form-control boxed" name="validAfter" value="<%= moment().tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="validBefore"><%= __("Valid to") %></label>
-								<input type="datetime-local" class="form-control boxed" name="validBefore" value="<%= validBefore.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
+								<input type="datetime-local" class="form-control boxed" name="validBefore" value="<%= moment().add(3600, "days").tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
 							</div>
 						</div>
 						<div class="form-group">
 							<label>
-								<input type="checkbox" class="checkbox" name="active" <%- active ? "checked=\"checked\"" : "" %>>
+								<input type="checkbox" class="checkbox" name="active" checked="checked">
 								<span><%= __("Active") %></span>
 							</label>
 						</div>
@@ -52,25 +49,23 @@ _%>
 							<h3 class="title"><%= __("Product Items") %></h3>
 						</div>
 						<div id="items">
-							<%_ itemTemplateIds.forEach((itemTemplateId, i) => { _%>
 							<div class="form-group row">
 								<div class="col-sm-6">
 									<label class="control-label" for="itemTemplateIds[]">
 										<%= __("Item template ID") %>
 										<a class="btn btn-secondary btn-sm remove-item" title="" href="#"><i class="fa fa-minus"></i></a>
 									</label>
-									<input type="text" class="form-control boxed" name="itemTemplateIds[]" value="<%= itemTemplateIds[i] %>">
+									<input type="text" class="form-control boxed" name="itemTemplateIds[]" value="">
 								</div>
 								<div class="col-sm-2">
 									<label class="control-label" for="boxItemCounts[]"><%= __("Count") %></label>
-									<input type="number" class="form-control boxed mt-2" name="boxItemCounts[]" value="<%= boxItemCounts[i] %>">
+									<input type="number" class="form-control boxed mt-2" name="boxItemCounts[]" value="1">
 								</div>
 								<div class="col-sm-4">
 									<label class="control-label" for="boxItemIds[]"><%= __("Service item ID") %></label>
-									<input type="number" class="form-control boxed mt-2" name="boxItemIds[]" value="<%= boxItemIds[i] %>" placeholder="<%= __("optional") %>">
+									<input type="number" class="form-control boxed mt-2" name="boxItemIds[]" value="" placeholder="<%= __("optional") %>">
 								</div>
 							</div>
-							<%_ }) _%>
 						</div>
 						<div class="form-group">
 							<button type="button" class="btn btn-secondary" id="add-item"><i class="fa fa-plus"></i> <%= __("Add item") %></button>
@@ -79,39 +74,31 @@ _%>
 						<div class="title-block">
 							<h3 class="title">
 								<%= __("Additional Information") %>
-								<a class="btn btn-secondary btn-sm" id="add-info-off" title="" href="#" <%- addInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-up"></i></a>
-								<a class="btn btn-secondary btn-sm" id="add-info-on" title="" href="#" <%- !addInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-down"></i></a>
+								<a class="btn btn-secondary btn-sm" id="add-info-off" title="" href="#" style="display: none;"><i class="fa fa-chevron-up"></i></a>
+								<a class="btn btn-secondary btn-sm" id="add-info-on" title="" href="#"><i class="fa fa-chevron-down"></i></a>
 							</h3>
 						</div>
-						<div id="add-info" <%- addInfoShow ? "" : 'style="display: none;"' %>>
+						<div id="add-info" style="display: none;">
 							<div class="form-group row">
 								<div class="col-sm-6">
 									<label class="control-label" for="icon"><%= __("Icon") %> <span class="text-secondary">(<%= __("example") %>: gift_box01_tex)</span></label>
-									<input type="text" class="form-control boxed" name="icon" value="<%= icon %>" placeholder="<%= __("optional") %>">
+									<input type="text" class="form-control boxed" name="icon" value="" placeholder="<%= __("optional") %>">
 								</div>
 								<div class="col-sm-6">
 									<label class="control-label" for="rareGrade"><%= __("Rare grade") %></label>
 									<select class="form-control boxed" name="rareGrade">
 										<option value="">- <%= __("None") %> -</option>
-										<option value="0" class="item-grade-0" <%= rareGrade === 0 ? "selected" : "" %>>(0) <%= __("Common") %></option>
-										<option value="1" class="item-grade-1" <%= rareGrade === 1 ? "selected" : "" %>>(1) <%= __("Uncommon") %></option>
-										<option value="2" class="item-grade-2" <%= rareGrade === 2 ? "selected" : "" %>>(2) <%= __("Rare") %></option>
-										<option value="3" class="item-grade-3" <%= rareGrade === 3 ? "selected" : "" %>>(3) <%= __("Superior") %></option>
-										<option value="4" class="item-grade-4" <%= rareGrade === 4 ? "selected" : "" %>>(4) <%= __("Mythic") %></option>
+										<option value="0" class="item-grade-0">(0) <%= __("Common") %></option>
+										<option value="1" class="item-grade-1">(1) <%= __("Uncommon") %></option>
+										<option value="2" class="item-grade-2">(2) <%= __("Rare") %></option>
+										<option value="3" class="item-grade-3">(3) <%= __("Superior") %></option>
+										<option value="4" class="item-grade-4">(4) <%= __("Mythic") %></option>
 									</select>
 								</div>
 							</div>
 							<div class="form-group row">
 								<div class="col-sm-6">
-									<div>
-										<%_ itemIcons.forEach(itemIcon => { _%>
-										<label>
-											<span>
-												<img src="/static/images/tera-icons/<%= itemIcon %>.png" class="item-icon-form item-icon-grade-0 itemIcon" data-value="<%= itemIcon %>">
-											</span>
-										</label>
-										<%_ }) _%>
-									</div>
+									<div id="itemIcons"></div>
 								</div>
 							</div>
 							<div class="form-group">
@@ -122,7 +109,7 @@ _%>
 										<label for="title[<%= shopLocale %>]" class="control-label"><small><%= __(shopLocale) %></small></label>
 									</div>
 									<div class="col-sm-10">
-										<input type="text" class="form-control boxed" name="title[<%= shopLocale %>]" value="<%= title[shopLocale] || "" %>" placeholder="<%= __("optional") %>">
+										<input type="text" class="form-control boxed" name="title[<%= shopLocale %>]" value="" placeholder="<%= __("optional") %>">
 									</div>
 								</div>
 								<%_ }) _%>
@@ -135,7 +122,7 @@ _%>
 										<label for="description[<%= shopLocale %>]" class="control-label"><small><%= __(shopLocale) %></small></label>
 									</div>
 									<div class="col-sm-10">
-										<input type="text" class="form-control boxed" name="description[<%= shopLocale %>]" value="<%= description[shopLocale] || "" %>" placeholder="<%= __("optional") %>">
+										<input type="text" class="form-control boxed" name="description[<%= shopLocale %>]" value="" placeholder="<%= __("optional") %>">
 									</div>
 								</div>
 								<%_ }) _%>
@@ -147,8 +134,7 @@ _%>
 							<div class="form-group row"></div>
 						</div>
 						<div class="form-group">
-							<input type="hidden" name="validate" id="validate" value="<%= validate %>">
-							<button type="submit" id="submit" class="btn btn-primary"><%= validate ? __("Validate form") : __("Add") %></button>
+							<button type="button" class="btn btn-primary" id="submit"><%= __("Add") %></button>
 						</div>
 					</form>
 				</div>
@@ -159,19 +145,6 @@ _%>
 <%- contentFor("scripts") %>
 <script>
 	$(function() {
-		function selectIcon() {
-			$(".itemIcon").each(function() {
-				if ($(this).css("border", "0").data("value") == $("input[name='icon']").val()) {
-					$(this).css("border", "2px solid #0075FF");
-				}
-			});
-		}
-		selectIcon();
-		$(".itemIcon").click(function() {
-			$("input[name='icon']").val($(this).data("value"));
-			selectIcon();
-		});
-		$("input[name='icon']").change(selectIcon);
 		$("#add-info-on").click(function() {
 			$("#add-info").slideDown("fast");
 			$("#add-info-off").show();
@@ -182,18 +155,19 @@ _%>
 			$("#add-info-on").show();
 			$(this).hide();
 		});
-		$(".remove-item").click(function() {
-			$("#validate").val("1");
-			$("#submit").html("<%= __('Validate form') %>");
-			$(this).closest(".row").remove();
-		});
-		$("input[name='itemTemplateIds\\[\\]']").change(function() {
-			$("#validate").val("1");
-			$("#submit").html("<%= __('Validate form') %>");
-		});
+		function onItemAdded() {
+			$('input[name="itemTemplateIds[]"]').change(function() {
+				$(this).closest('.row').find('input[name="boxItemIds[]"]').val('');
+			});
+			$(".remove-item").click(function () {
+				var row = $(this).closest(".row");
+				let itemTemplateId = row.find('input[name="itemTemplateIds[]"]').val();
+				row.remove();
+				$("label[data-id='" + itemTemplateId + "']").remove();
+			});
+		}
+		onItemAdded();
 		$("#add-item").click(function() {
-			$("#validate").val("1");
-			$("#submit").html("<%= __('Validate form') %>");
 			$("#items").append(
 				"<div class='form-group row'>" +
 				"	<div class='col-sm-6'>" +
@@ -213,10 +187,11 @@ _%>
 				"	</div>" +
 				"</div>"
 			);
-			$(".remove-item").click(function() {
-				$(this).closest(".row").remove();
-			});
+			onItemAdded();
 			addAutocomplete();
+		});
+		$("#submit").click(function() {
+			onFormSubmit(location);
 		});
 	});
 </script>

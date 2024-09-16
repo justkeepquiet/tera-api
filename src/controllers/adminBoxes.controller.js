@@ -6,13 +6,21 @@
  */
 
 const expressLayouts = require("express-ejs-layouts");
-const body = require("express-validator").body;
+const { query, body } = require("express-validator");
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 
 const helpers = require("../utils/helpers");
 const ServiceItem = require("../utils/boxHelper").ServiceItem;
-const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+
+const {
+	accessFunctionHandler,
+	validationHandler,
+	formValidationHandler,
+	formResultErrorHandler,
+	formResultSuccessHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -72,15 +80,15 @@ module.exports.index = ({ i18n, queue, boxModel, dataModel }) => [
 			}
 		});
 
-		(await Promise.all(tasks)).forEach(task => {
-			if (task !== null && task[0] !== undefined) {
-				const boxId = Number(task[0].get("tag"));
+		// (await Promise.all(tasks)).forEach(task => {
+		// 	if (task !== null && task[0] !== undefined) {
+		// 		const boxId = Number(task[0].get("tag"));
 
-				if (boxes.has(boxId)) {
-					boxes.get(boxId).processing = true;
-				}
-			}
-		});
+		// 		if (boxes.has(boxId)) {
+		// 			boxes.get(boxId).processing = true;
+		// 		}
+		// 	}
+		// });
 
 		res.render("adminBoxes", {
 			layout: "adminLayout",
@@ -100,17 +108,7 @@ module.exports.add = () => [
 	 */
 	async (req, res, next) => {
 		res.render("adminBoxesAdd", {
-			layout: "adminLayout",
-			errors: null,
-			title: "",
-			content: "",
-			icon: "GiftBox01.bmp",
-			days: 3650,
-			resolvedItems: [],
-			itemTemplateIds: [""],
-			boxItemIds: [""],
-			boxItemCounts: ["1"],
-			validate: 1
+			layout: "adminLayout"
 		});
 	}
 ];
@@ -120,7 +118,6 @@ module.exports.add = () => [
  */
 module.exports.addAction = modules => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
 		body("title").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(modules.i18n.__("Title must be between 1 and 1024 characters.")),
@@ -134,9 +131,7 @@ module.exports.addAction = modules => [
 		body("itemTemplateIds.*")
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => modules.dataModel.itemTemplates.findOne({
-				where: {
-					itemTemplateId: value || null
-				}
+				where: { itemTemplateId: value || null }
 			}).then(data => {
 				if (value && !data) {
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
@@ -157,12 +152,13 @@ module.exports.addAction = modules => [
 		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the box."))
 	],
+	formValidationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { validate, title, content, icon, days, itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
-		const errors = helpers.validationResultLog(req, modules.logger);
+		const { title, content, icon, days, itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
+
 		const serviceItem = new ServiceItem(modules);
 		const itemsPromises = [];
 		const resolvedItems = {};
@@ -186,22 +182,6 @@ module.exports.addAction = modules => [
 				resolvedItems[item.get("itemTemplateId")] = item;
 			}
 		});
-
-		if (!errors.isEmpty() || validate == 1) {
-			return res.render("adminBoxesAdd", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				title,
-				content,
-				icon,
-				days,
-				resolvedItems,
-				itemTemplateIds: itemTemplateIds || [],
-				boxItemIds: boxItemIds || [],
-				boxItemCounts: boxItemCounts || [],
-				validate: Number(!errors.isEmpty())
-			});
-		}
 
 		await modules.sequelize.transaction(async () => {
 			const box = await modules.boxModel.info.create({
@@ -240,20 +220,20 @@ module.exports.addAction = modules => [
 		next();
 	},
 	writeOperationReport(modules.reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/boxes");
-	}
+	formResultErrorHandler(modules.logger),
+	formResultSuccessHandler("/boxes")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ boxModel }) => [
+module.exports.edit = ({ logger, boxModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("id").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -272,7 +252,7 @@ module.exports.edit = ({ boxModel }) => [
 		});
 
 		if (box === null) {
-			return res.redirect("/boxes");
+			throw Error("Object not found");
 		}
 
 		const itemTemplateIds = [];
@@ -287,7 +267,6 @@ module.exports.edit = ({ boxModel }) => [
 
 		res.render("adminBoxesEdit", {
 			layout: "adminLayout",
-			errors: null,
 			id,
 			title: box.get("title"),
 			content: box.get("content"),
@@ -306,8 +285,8 @@ module.exports.edit = ({ boxModel }) => [
  */
 module.exports.editAction = modules => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
+		query("id").notEmpty(),
 		body("title").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(modules.i18n.__("Title must be between 1 and 1024 characters.")),
 		body("content").trim()
@@ -320,9 +299,7 @@ module.exports.editAction = modules => [
 		body("itemTemplateIds.*")
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => modules.dataModel.itemTemplates.findOne({
-				where: {
-					itemTemplateId: value || null
-				}
+				where: { itemTemplateId: value || null }
 			}).then(data => {
 				if (value && !data) {
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
@@ -343,18 +320,15 @@ module.exports.editAction = modules => [
 		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the box."))
 	],
+	formValidationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { id } = req.query;
-		const { validate, title, content, icon, days, itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
-		const errors = helpers.validationResultLog(req, modules.logger);
-		const serviceItem = new ServiceItem(modules);
+		const { title, content, icon, days, itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
 
-		if (!id) {
-			return res.redirect("/boxes");
-		}
+		const serviceItem = new ServiceItem(modules);
 
 		const box = await modules.boxModel.info.findOne({
 			where: { id },
@@ -368,7 +342,7 @@ module.exports.editAction = modules => [
 		});
 
 		if (box === null) {
-			return res.redirect("/boxes");
+			throw Error("Object not found");
 		}
 
 		const items = [];
@@ -393,22 +367,6 @@ module.exports.editAction = modules => [
 				resolvedItems[item.get("itemTemplateId")] = item;
 			}
 		});
-
-		if (!errors.isEmpty() || validate == 1) {
-			return res.render("adminBoxesEdit", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				id: box.get("id"),
-				title,
-				content,
-				icon,
-				days,
-				itemTemplateIds: itemTemplateIds || [],
-				boxItemIds: boxItemIds || [],
-				boxItemCounts: boxItemCounts || [],
-				validate: Number(!errors.isEmpty())
-			});
-		}
 
 		await modules.sequelize.transaction(async () => {
 			const promises = [
@@ -501,12 +459,8 @@ module.exports.editAction = modules => [
 		next();
 	},
 	writeOperationReport(modules.reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/boxes");
-	}
+	formResultErrorHandler(modules.logger),
+	formResultSuccessHandler("/boxes")
 ];
 
 /**
@@ -515,16 +469,16 @@ module.exports.editAction = modules => [
 module.exports.deleteAction = modules => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("id").notEmpty()
+	],
+	validationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { id } = req.query;
 		const serviceItem = new ServiceItem(modules);
-
-		if (!id) {
-			return res.redirect("/boxes");
-		}
 
 		const boxItems = await modules.boxModel.items.findAll({
 			where: { boxId: id }
@@ -584,6 +538,10 @@ module.exports.deleteAction = modules => [
 module.exports.send = modules => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("id").notEmpty()
+	],
+	validationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -603,7 +561,7 @@ module.exports.send = modules => [
 		});
 
 		if (box === null || box.get("item").length === 0) {
-			return res.redirect("/boxes");
+			throw Error("Object not found");
 		}
 
 		const servers = await modules.serverModel.info.findAll({
@@ -627,12 +585,8 @@ module.exports.send = modules => [
 
 		res.render("adminBoxesSend", {
 			layout: "adminLayout",
-			errors: null,
 			servers,
 			id,
-			serverId: "",
-			accountDBID: "",
-			characterId: "",
 			title: box.get("title"),
 			content: box.get("content"),
 			icon: box.get("icon"),
@@ -648,14 +602,12 @@ module.exports.send = modules => [
  */
 module.exports.sendAction = modules => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
+		query("id").notEmpty(),
 		body("serverId").optional({ checkFalsy: true })
 			.isInt().withMessage(modules.i18n.__("Server ID field must contain a valid number."))
 			.custom((value, { req }) => modules.serverModel.info.findOne({
-				where: {
-					...req.body.serverId ? { serverId: req.body.serverId } : {}
-				}
+				where: { ...req.body.serverId ? { serverId: req.body.serverId } : {} }
 			}).then(data => {
 				if (data === null) {
 					return Promise.reject(modules.i18n.__("Server ID field contains not existing server ID."));
@@ -663,12 +615,10 @@ module.exports.sendAction = modules => [
 			})),
 		body("accountDBID")
 			.isInt().withMessage(modules.i18n.__("Account ID field must contain a valid number."))
-			.custom((value, { req }) => modules.accountModel.info.findOne({
-				where: {
-					accountDBID: req.body.accountDBID
-				}
+			.custom(value => modules.accountModel.info.findOne({
+				where: { accountDBID: value }
 			}).then(data => {
-				if (req.body.accountDBID && data === null) {
+				if (value && data === null) {
 					return Promise.reject(modules.i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
@@ -686,13 +636,14 @@ module.exports.sendAction = modules => [
 				}
 			}))
 	],
+	formValidationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { id } = req.query;
 		const { serverId, accountDBID, characterId } = req.body;
-		const errors = helpers.validationResultLog(req, modules.logger).array();
+
 		const serviceItem = new ServiceItem(modules);
 
 		const box = await modules.boxModel.info.findOne({
@@ -707,15 +658,11 @@ module.exports.sendAction = modules => [
 		});
 
 		if (box === null || box.get("item").length === 0) {
-			return res.redirect("/boxes");
+			throw Error("Object not found");
 		}
 
 		const user = await modules.accountModel.info.findOne({
 			where: { accountDBID }
-		});
-
-		const servers = await modules.serverModel.info.findAll({
-			where: { isEnabled: 1 }
 		});
 
 		const promises = [];
@@ -733,6 +680,8 @@ module.exports.sendAction = modules => [
 
 		await Promise.all(promises);
 
+		const errors = [];
+
 		if (box.get("item").length !== itemChecks.size) {
 			errors.push({
 				msg: modules.i18n.__("There are no Service Items for the specified service item IDs.")
@@ -748,21 +697,8 @@ module.exports.sendAction = modules => [
 		}
 
 		if (errors.length > 0) {
-			return res.render("adminBoxesSend", {
-				layout: "adminLayout",
-				errors,
-				servers,
-				id,
-				serverId,
-				accountDBID,
-				characterId,
-				title: box.get("title"),
-				content: box.get("content"),
-				icon: box.get("icon"),
-				days: box.get("days"),
-				items: box.get("item"),
-				itemChecks
-			});
+			res.json({ result_code: 2, msg: "", errors });
+			return;
 		}
 
 		// Send to accountDBID via hub
@@ -790,11 +726,12 @@ module.exports.sendAction = modules => [
 		next();
 	},
 	writeOperationReport(modules.reportModel),
+	formResultErrorHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		res.redirect(`/boxes/send_result?id=${req.query.id || ""}`);
+		formResultSuccessHandler(`/boxes/send_result?id=${req.query.id || ""}`)(req, res, next);
 	}
 ];
 
@@ -804,6 +741,10 @@ module.exports.sendAction = modules => [
 module.exports.sendAll = modules => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("id").notEmpty()
+	],
+	validationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -847,11 +788,9 @@ module.exports.sendAll = modules => [
 
 		res.render("adminBoxesSendAll", {
 			layout: "adminLayout",
-			errors: null,
+			moment,
 			servers,
 			id,
-			serverId: "",
-			loginAfterTime: moment().subtract(30, "days"),
 			title: box.get("title"),
 			content: box.get("content"),
 			icon: box.get("icon"),
@@ -867,14 +806,12 @@ module.exports.sendAll = modules => [
  */
 module.exports.sendAllAction = modules => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
+		query("id").notEmpty(),
 		body("serverId").optional({ checkFalsy: true })
 			.isInt().withMessage(modules.i18n.__("Server ID field must contain a valid number."))
 			.custom((value, { req }) => modules.serverModel.info.findOne({
-				where: {
-					...req.body.serverId ? { serverId: req.body.serverId } : {}
-				}
+				where: { ...req.body.serverId ? { serverId: req.body.serverId } : {} }
 			}).then(data => {
 				if (data === null) {
 					return Promise.reject(modules.i18n.__("Server ID field contains not existing server ID."));
@@ -883,13 +820,14 @@ module.exports.sendAllAction = modules => [
 		body("loginAfterTime")
 			.isISO8601().withMessage(modules.i18n.__("Last login field must contain a valid date."))
 	],
+	formValidationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { id } = req.query;
 		const { serverId, loginAfterTime } = req.body;
-		const errors = helpers.validationResultLog(req, modules.logger).array();
+
 		const serviceItem = new ServiceItem(modules);
 
 		const box = await modules.boxModel.info.findOne({
@@ -904,12 +842,8 @@ module.exports.sendAllAction = modules => [
 		});
 
 		if (box === null || box.get("item").length === 0) {
-			return res.redirect("/boxes");
+			throw Error("Object not found");
 		}
-
-		const servers = await modules.serverModel.info.findAll({
-			where: { isEnabled: 1 }
-		});
 
 		const users = await modules.accountModel.info.findAll({
 			where: {
@@ -935,6 +869,8 @@ module.exports.sendAllAction = modules => [
 
 		await Promise.all(promises);
 
+		const errors = [];
+
 		if (box.get("item").length !== itemChecks.size) {
 			errors.push({
 				msg: modules.i18n.__("There are no Service Items for the specified service item IDs.")
@@ -950,20 +886,8 @@ module.exports.sendAllAction = modules => [
 		}
 
 		if (errors.length > 0) {
-			return res.render("adminBoxesSendAll", {
-				layout: "adminLayout",
-				errors,
-				servers,
-				id,
-				serverId,
-				loginAfterTime: moment.tz(loginAfterTime, req.user.tz),
-				title: box.get("title"),
-				content: box.get("content"),
-				icon: box.get("icon"),
-				days: box.get("days"),
-				items: box.get("item"),
-				itemChecks
-			});
+			res.json({ result_code: 2, msg: "", errors });
+			return;
 		}
 
 		// Send to all users via hub
@@ -993,29 +917,30 @@ module.exports.sendAllAction = modules => [
 		next();
 	},
 	writeOperationReport(modules.reportModel),
+	formResultErrorHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		res.redirect(`/boxes/send_result?id=${req.query.id || ""}`);
+		formResultSuccessHandler(`/boxes/send_result?id=${req.query.id || ""}`)(req, res, next);
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.sendResult = ({ queue }) => [
+module.exports.sendResult = ({ logger, queue }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("id").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { id } = req.query;
-
-		if (!id) {
-			return res.redirect("/boxes");
-		}
 
 		const tasks = await queue.findByTag("createBox", id, 10);
 

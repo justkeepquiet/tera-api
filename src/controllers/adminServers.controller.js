@@ -6,12 +6,20 @@
  */
 
 const expressLayouts = require("express-ejs-layouts");
-const body = require("express-validator").body;
+const { query, body } = require("express-validator");
 
 const helpers = require("../utils/helpers");
-const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
-const isSlsOverrided = (serverId = null) => {
+const {
+	accessFunctionHandler,
+	validationHandler,
+	formValidationHandler,
+	formResultErrorHandler,
+	formResultSuccessHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
+
+const isSlsOverridden = (serverId = null) => {
 	try {
 		const slsOverride = helpers.requireReload("../../config/slsOverride");
 
@@ -40,7 +48,7 @@ module.exports.index = modules => [
 		res.render("adminServers", {
 			layout: "adminLayout",
 			servers,
-			isSlsOverrided
+			isSlsOverridden
 		});
 	}
 ];
@@ -57,21 +65,9 @@ module.exports.add = ({ i18n }) => [
 	async (req, res, next) => {
 		res.render("adminServersAdd", {
 			layout: "adminLayout",
-			errors: null,
-			serverId: "",
-			loginIp: "",
-			loginPort: 7801,
+			i18n,
 			language: i18n.getLocale(),
-			nameString: "",
-			descrString: "",
-			permission: 0,
-			tresholdLow: 100,
-			tresholdMedium: 500,
-			isPvE: 0,
-			isCrowdness: 0,
-			isAvailable: 0,
-			isEnabled: 1,
-			isSlsOverrided: isSlsOverrided()
+			isSlsOverridden: isSlsOverridden()
 		});
 	}
 ];
@@ -81,14 +77,11 @@ module.exports.add = ({ i18n }) => [
  */
 module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
 		body("serverId")
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain the value as a number."))
-			.custom((value, { req }) => serverModel.info.findOne({
-				where: {
-					serverId: req.body.serverId
-				}
+			.custom(value => serverModel.info.findOne({
+				where: { serverId: value }
 			}).then(data => {
 				if (data) {
 					return Promise.reject(i18n.__("Server ID field contains an existing server ID."));
@@ -107,10 +100,10 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field string must be between 1 and 1024 characters.")),
 		body("permission")
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain the value as a number.")),
-		body("tresholdLow")
-			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Treshold low field must contain the value as a number.")),
-		body("tresholdMedium")
-			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Treshold medium field must contain the value as a number.")),
+		body("thresholdLow")
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Threshold low field must contain the value as a number.")),
+		body("thresholdMedium")
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Threshold medium field must contain the value as a number.")),
 		body("isPvE").optional()
 			.isIn(["on"]).withMessage(i18n.__("Only PvE field has invalid value.")),
 		body("isCrowdness").optional()
@@ -120,34 +113,13 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 		body("isEnabled").optional()
 			.isIn(["on"]).withMessage(i18n.__("Is enabled field has invalid value."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { serverId, loginIp, loginPort, language, nameString, descrString, permission,
-			tresholdLow, tresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!errors.isEmpty()) {
-			return res.render("adminServersAdd", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				serverId,
-				loginIp,
-				loginPort,
-				language,
-				nameString,
-				descrString,
-				permission,
-				tresholdLow,
-				tresholdMedium,
-				isPvE,
-				isCrowdness,
-				isAvailable,
-				isEnabled,
-				isSlsOverrided: isSlsOverrided()
-			});
-		}
+			thresholdLow, thresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
 
 		await serverModel.info.create({
 			serverId,
@@ -157,8 +129,8 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 			nameString,
 			descrString,
 			permission,
-			tresholdLow,
-			tresholdMedium,
+			tresholdLow: thresholdLow,
+			tresholdMedium: thresholdMedium,
 			isPvE: isPvE == "on",
 			isCrowdness: isCrowdness == "on",
 			isAvailable: isAvailable == "on",
@@ -168,12 +140,8 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/servers");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/servers")
 ];
 
 /**
@@ -182,21 +150,26 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 module.exports.edit = ({ logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("serverId").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { serverId } = req.query;
 
-		const data = await serverModel.info.findOne({ where: { serverId } });
+		const data = await serverModel.info.findOne({
+			where: { serverId }
+		});
 
 		if (data === null) {
-			return res.redirect("/servers");
+			throw Error("Object not found");
 		}
 
 		res.render("adminServersEdit", {
 			layout: "adminLayout",
-			errors: null,
 			serverId: data.get("serverId"),
 			loginIp: data.get("loginIp"),
 			loginPort: data.get("loginPort"),
@@ -204,13 +177,13 @@ module.exports.edit = ({ logger, serverModel }) => [
 			nameString: data.get("nameString"),
 			descrString: data.get("descrString"),
 			permission: data.get("permission"),
-			tresholdLow: data.get("tresholdLow"),
-			tresholdMedium: data.get("tresholdMedium"),
+			thresholdLow: data.get("tresholdLow"),
+			thresholdMedium: data.get("tresholdMedium"),
 			isPvE: data.get("isPvE"),
 			isCrowdness: data.get("isCrowdness"),
 			isAvailable: data.get("isAvailable"),
 			isEnabled: data.get("isEnabled"),
-			isSlsOverrided: isSlsOverrided(serverId)
+			isSlsOverridden: isSlsOverridden(serverId)
 		});
 	}
 ];
@@ -220,8 +193,8 @@ module.exports.edit = ({ logger, serverModel }) => [
  */
 module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
+		query("serverId").notEmpty(),
 		body("loginIp").trim()
 			.isIP().withMessage(i18n.__("Login IP field must contain a valid IP value.")),
 		body("loginPort")
@@ -235,10 +208,10 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description string field must be between 1 and 1024 characters.")),
 		body("permission")
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain the value as a number.")),
-		body("tresholdLow")
-			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Treshold low field must contain the value as a number.")),
-		body("tresholdMedium")
-			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Treshold medium field must contain the value as a number.")),
+		body("thresholdLow")
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Threshold low field must contain the value as a number.")),
+		body("thresholdMedium")
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Threshold medium field must contain the value as a number.")),
 		body("isPvE").optional()
 			.isIn(["on"]).withMessage(i18n.__("Only PvE field has invalid value.")),
 		body("isCrowdness").optional()
@@ -248,39 +221,14 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 		body("isEnabled").optional()
 			.isIn(["on"]).withMessage(i18n.__("Is enabled field has invalid value."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { serverId } = req.query;
 		const { loginIp, loginPort, language, nameString, descrString, permission,
-			tresholdLow, tresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!serverId) {
-			return res.redirect("/servers");
-		}
-
-		if (!errors.isEmpty()) {
-			return res.render("adminServersEdit", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				serverId,
-				loginIp,
-				loginPort,
-				language,
-				nameString,
-				descrString,
-				permission,
-				tresholdLow,
-				tresholdMedium,
-				isPvE,
-				isCrowdness,
-				isAvailable,
-				isEnabled,
-				isSlsOverrided: isSlsOverrided(serverId)
-			});
-		}
+			thresholdLow, thresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
 
 		await serverModel.info.update({
 			loginIp,
@@ -289,8 +237,8 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 			nameString,
 			descrString,
 			permission,
-			tresholdLow,
-			tresholdMedium,
+			tresholdLow: thresholdLow,
+			tresholdMedium: thresholdMedium,
 			isPvE: isPvE == "on",
 			isCrowdness: isCrowdness == "on",
 			isAvailable: isAvailable == "on",
@@ -302,31 +250,29 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/servers");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/servers")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ reportModel, serverModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("serverId").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { serverId } = req.query;
 
-		if (!serverId) {
-			return res.redirect("/servers");
-		}
-
-		await serverModel.info.destroy({ where: { serverId } });
+		await serverModel.info.destroy({
+			where: { serverId }
+		});
 
 		next();
 	},

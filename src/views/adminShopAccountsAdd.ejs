@@ -10,24 +10,24 @@
 		<div class="row">
 			<div class="col form">
 				<div class="card card-block">
-					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) -%>
+					<form id="form">
+						<div class="alert alert-danger" id="errors" style="display: none;"></div>
 						<div class="form-group">
 							<label class="control-label" for="accountDBID"><%= __("Account ID") %></label>
 							<input type="text" class="form-control boxed" name="accountDBID" value="<%= accountDBID %>">
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="balance"><%= __("Balance") %></label>
-							<input type="number" class="form-control boxed" name="balance" value="<%= balance %>">
+							<input type="number" class="form-control boxed" name="balance" value="0">
 						</div>
 						<div class="form-group">
 							<label>
-								<input type="checkbox" class="checkbox" name="active" <%- active ? "checked=\"checked\"" : "" %>>
+								<input type="checkbox" class="checkbox" name="active" checked="checked">
 								<span><%= __("Active") %></span>
 							</label>
 						</div>
 						<div class="form-group">
-							<button type="submit" class="btn btn-primary"><%= __("Add") %></button>
+							<button type="button" class="btn btn-primary" id="submit"><%= __("Add") %></button>
 						</div>
 					</form>
 				</div>
@@ -35,3 +35,11 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<script>
+	$(function() {
+		$("#submit").click(function() {
+			onFormSubmit(location);
+		});
+	});
+</script>

@@ -6,10 +6,16 @@
  */
 
 const expressLayouts = require("express-ejs-layouts");
-const body = require("express-validator").body;
+const { query, body } = require("express-validator");
 
-const helpers = require("../utils/helpers");
-const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+const {
+	accessFunctionHandler,
+	validationHandler,
+	formValidationHandler,
+	formResultErrorHandler,
+	formResultSuccessHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -41,18 +47,7 @@ module.exports.add = () => [
 	 */
 	async (req, res, next) => {
 		res.render("adminServerStringsAdd", {
-			layout: "adminLayout",
-			errors: null,
-			language: "",
-			categoryPvE: "",
-			categoryPvP: "",
-			serverOffline: "",
-			serverLow: "",
-			serverMedium: "",
-			serverHigh: "",
-			crowdNo: "",
-			crowdYes: "",
-			popup: ""
+			layout: "adminLayout"
 		});
 	}
 ];
@@ -62,7 +57,6 @@ module.exports.add = () => [
  */
 module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
 		body("language").trim().toLowerCase()
 			.isAlpha().withMessage(i18n.__("Language field must be a valid value."))
@@ -86,30 +80,13 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 		body("popup").trim()
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Popup field must be between 1 and 2048 characters."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { language, categoryPvE, categoryPvP, serverOffline,
 			serverLow, serverMedium, serverHigh, crowdNo, crowdYes, popup } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!errors.isEmpty()) {
-			return res.render("adminServerStringsAdd", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				language,
-				categoryPvE,
-				categoryPvP,
-				serverOffline,
-				serverLow,
-				serverMedium,
-				serverHigh,
-				crowdNo,
-				crowdYes,
-				popup
-			});
-		}
 
 		await serverModel.strings.create({
 			language,
@@ -127,20 +104,20 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/server_strings");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/server_strings")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ serverModel }) => [
+module.exports.edit = ({ logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("language").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -152,12 +129,11 @@ module.exports.edit = ({ serverModel }) => [
 		});
 
 		if (data === null) {
-			return res.redirect("/server_strings");
+			throw Error("Object not found");
 		}
 
 		res.render("adminServerStringsEdit", {
 			layout: "adminLayout",
-			errors: null,
 			language: data.get("language"),
 			categoryPvE: data.get("categoryPvE"),
 			categoryPvP: data.get("categoryPvP"),
@@ -177,8 +153,8 @@ module.exports.edit = ({ serverModel }) => [
  */
 module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
+		query("language").notEmpty(),
 		body("categoryPvE").trim()
 			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Category PvE field must be between 1 and 50 characters.")),
 		body("categoryPvP").trim()
@@ -198,6 +174,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 		body("popup").trim()
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Popup field must be between 1 and 2048 characters."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -205,28 +182,6 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 		const { language } = req.query;
 		const { categoryPvE, categoryPvP, serverOffline,
 			serverLow, serverMedium, serverHigh, crowdNo, crowdYes, popup } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!language) {
-			return res.redirect("/server_strings");
-		}
-
-		if (!errors.isEmpty()) {
-			return res.render("adminServerStringsEdit", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				language,
-				categoryPvE,
-				categoryPvP,
-				serverOffline,
-				serverLow,
-				serverMedium,
-				serverHigh,
-				crowdNo,
-				crowdYes,
-				popup
-			});
-		}
 
 		await serverModel.strings.update({
 			categoryPvE,
@@ -245,31 +200,29 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/server_strings");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/server_strings")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ reportModel, serverModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("language").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { language } = req.query;
 
-		if (!language) {
-			return res.redirect("/server_strings");
-		}
-
-		await serverModel.strings.destroy({ where: { language } });
+		await serverModel.strings.destroy({
+			where: { language }
+		});
 
 		next();
 	},

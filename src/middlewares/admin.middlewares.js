@@ -2,6 +2,7 @@
 
 /**
  * @typedef {import("express").RequestHandler} RequestHandler
+ * @typedef {import("express").ErrorRequestHandler} ErrorRequestHandler
  * @typedef {import("../models/report.model").reportModel} reportModel
  */
 
@@ -19,6 +20,40 @@ module.exports.validationHandler = logger =>
 		}
 
 		next();
+	}
+;
+
+module.exports.formValidationHandler = logger =>
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
+		const errors = helpers.validationResultLog(req, logger);
+
+		if (!errors.isEmpty()) {
+			res.json({ result_code: 2, msg: "invalid parameter", errors: errors.array() });
+		} else {
+			next();
+		}
+	}
+;
+
+module.exports.formResultErrorHandler = logger =>
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+		res.json({ result_code: err.code || 1, msg: `${res.locals.__("Operation failed")}: ${err.message || err}` });
+	}
+;
+
+module.exports.formResultSuccessHandler = successUrl =>
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
+		res.json({ result_code: 0, msg: "success", success_url: req.query.successUrl || successUrl });
 	}
 ;
 

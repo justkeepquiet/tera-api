@@ -9,8 +9,14 @@ const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
 
-const helpers = require("../utils/helpers");
-const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+const {
+	accessFunctionHandler,
+	validationHandler,
+	formValidationHandler,
+	formResultErrorHandler,
+	formResultSuccessHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -25,9 +31,7 @@ module.exports.index = ({ shopModel }) => [
 		const { accountDBID } = req.query;
 
 		const accounts = await shopModel.accounts.findAll({
-			where: {
-				...accountDBID ? { accountDBID } : {}
-			}
+			where: { ...accountDBID ? { accountDBID } : {} }
 		});
 
 		res.render("adminShopAccounts", {
@@ -42,13 +46,14 @@ module.exports.index = ({ shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ i18n }) => [
+module.exports.add = ({ logger, i18n }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
 		query("accountDBID").optional()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -57,11 +62,7 @@ module.exports.add = ({ i18n }) => [
 
 		res.render("adminShopAccountsAdd", {
 			layout: "adminLayout",
-			errors: null,
-			moment,
-			accountDBID,
-			balance: 0,
-			active: 1
+			accountDBID
 		});
 	}
 ];
@@ -71,25 +72,20 @@ module.exports.add = ({ i18n }) => [
  */
 module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
 		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
-			.custom((value, { req }) => shopModel.accounts.findOne({
-				where: {
-					accountDBID: req.body.accountDBID
-				}
+			.custom(value => shopModel.accounts.findOne({
+				where: { accountDBID: value }
 			}).then(data => {
-				if (req.body.accountDBID && data !== null) {
+				if (value && data !== null) {
 					return Promise.reject(i18n.__("Shop account with specified account ID already exists."));
 				}
 			}))
-			.custom((value, { req }) => accountModel.info.findOne({
-				where: {
-					accountDBID: req.body.accountDBID
-				}
+			.custom(value => accountModel.info.findOne({
+				where: { accountDBID: value }
 			}).then(data => {
-				if (req.body.accountDBID && data === null) {
+				if (value && data === null) {
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
@@ -98,22 +94,12 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { accountDBID, balance, active } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!errors.isEmpty()) {
-			return res.render("adminShopAccountsAdd", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				accountDBID,
-				balance,
-				active
-			});
-		}
 
 		await shopModel.accounts.create({
 			accountDBID,
@@ -124,41 +110,36 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/shop_accounts");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/shop_accounts")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ shopModel }) => [
+module.exports.edit = ({ logger, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("accountDBID").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
 
-		if (!accountDBID) {
-			return res.redirect("/shop_accounts");
-		}
-
 		const data = await shopModel.accounts.findOne({
 			where: { accountDBID }
 		});
 
 		if (data === null) {
-			return res.redirect("/shop_accounts");
+			throw Error("Object not found");
 		}
 
 		res.render("adminShopAccountsEdit", {
 			layout: "adminLayout",
-			errors: null,
 			accountDBID: data.get("accountDBID"),
 			balance: data.get("balance"),
 			active: data.get("active")
@@ -171,34 +152,20 @@ module.exports.edit = ({ shopModel }) => [
  */
 module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
+		query("accountDBID").notEmpty(),
 		body("balance")
 			.isInt({ min: 0 }).withMessage(i18n.__("Balance field must contain a valid number.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
 		const { balance, active } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!accountDBID) {
-			return res.redirect("/shop_accounts");
-		}
-
-		if (!errors.isEmpty()) {
-			return res.render("adminShopAccountsEdit", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				accountDBID,
-				balance,
-				active
-			});
-		}
 
 		await shopModel.accounts.update({
 			balance,
@@ -210,31 +177,29 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/shop_accounts");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/shop_accounts")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ reportModel, shopModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("accountDBID").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
 
-		if (!accountDBID) {
-			return res.redirect("/shop_accounts");
-		}
-
-		await shopModel.accounts.destroy({ where: { accountDBID } });
+		await shopModel.accounts.destroy({
+			where: { accountDBID }
+		});
 
 		next();
 	},

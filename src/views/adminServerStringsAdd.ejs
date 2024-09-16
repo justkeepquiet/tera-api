@@ -10,60 +10,60 @@
 		<div class="row">
 			<div class="col form">
 				<div class="card card-block">
-					<form id="form" method="POST" action="">
-						<%- include("partials/adminFormErrors", { errors }) -%>
+					<form id="form">
+						<div class="alert alert-danger" id="errors" style="display: none;"></div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="language"><%= __("Language") %></label>
-								<input type="text" class="form-control boxed" name="language" value="<%= language %>">
+								<input type="text" class="form-control boxed" name="language" value="">
 							</div>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="categoryPvE"><%= __("Category PvE") %></label>
-								<input type="text" class="form-control boxed" name="categoryPvE" value="<%= categoryPvE %>">
+								<input type="text" class="form-control boxed" name="categoryPvE" value="">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="categoryPvP"><%= __("Category PvP") %></label>
-								<input type="text" class="form-control boxed" name="categoryPvP" value="<%= categoryPvP %>">
+								<input type="text" class="form-control boxed" name="categoryPvP" value="">
 							</div>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="serverOffline"><%= __("Server offline") %></label>
-								<input type="text" class="form-control boxed" name="serverOffline" value="<%= serverOffline %>">
+								<input type="text" class="form-control boxed" name="serverOffline" value="">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="serverLow"><%= __("Server low") %></label>
-								<input type="text" class="form-control boxed" name="serverLow" value="<%= serverLow %>">
+								<input type="text" class="form-control boxed" name="serverLow" value="">
 							</div>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="serverMedium"><%= __("Server medium") %></label>
-								<input type="text" class="form-control boxed" name="serverMedium" value="<%= serverMedium %>">
+								<input type="text" class="form-control boxed" name="serverMedium" value="">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="serverHigh"><%= __("Server high") %></label>
-								<input type="text" class="form-control boxed" name="serverHigh" value="<%= serverHigh %>">
+								<input type="text" class="form-control boxed" name="serverHigh" value="">
 							</div>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="crowdNo"><%= __("Crowdness no") %></label>
-								<input type="text" class="form-control boxed" name="crowdNo" value="<%= crowdNo %>">
+								<input type="text" class="form-control boxed" name="crowdNo" value="">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="crowdYes"><%= __("Crowdness yes") %></label>
-								<input type="text" class="form-control boxed" name="crowdYes" value="<%= crowdYes %>">
+								<input type="text" class="form-control boxed" name="crowdYes" value="">
 							</div>
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="popup"><%= __("Popup") %></label>
-							<textarea class="form-control boxed" name="popup"><%= popup %></textarea>
+							<textarea class="form-control boxed" name="popup"></textarea>
 						</div>
 						<div class="form-group">
-							<button type="submit" class="btn btn-primary"><%= __("Add") %></button>
+							<button type="button" class="btn btn-primary" id="submit"><%= __("Add") %></button>
 						</div>
 					</form>
 				</div>
@@ -71,3 +71,11 @@
 		</div>
 	</section>
 </article>
+<%- contentFor("scripts") %>
+<script>
+	$(function() {
+		$("#submit").click(function() {
+			onFormSubmit(location);
+		});
+	});
+</script>

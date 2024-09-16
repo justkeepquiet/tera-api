@@ -9,9 +9,16 @@ const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
 
-const helpers = require("../utils/helpers");
 const PromoCodeActions = require("../actions/promoCode.actions");
-const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+
+const {
+	accessFunctionHandler,
+	validationHandler,
+	formValidationHandler,
+	formResultErrorHandler,
+	formResultSuccessHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -59,15 +66,16 @@ module.exports.index = ({ shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ i18n, shopModel }) => [
+module.exports.add = ({ logger, i18n, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("promoCodeId").optional()
+		query("promoCodeId").optional({ checkFalsy: true })
 			.isInt({ min: 0 }).withMessage(i18n.__("Promo code ID field must contain a valid number.")),
-		query("accountDBID").optional()
+		query("accountDBID").optional({ checkFalsy: true })
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -91,27 +99,22 @@ module.exports.add = ({ i18n, shopModel }) => [
  */
 module.exports.addAction = modules => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
 		body("promoCodeId")
 			.isInt({ min: 0 }).withMessage(modules.i18n.__("Promo code ID field must contain a valid number."))
-			.custom((value, { req }) => modules.shopModel.promoCodes.findOne({
-				where: {
-					promoCodeId: req.body.promoCodeId
-				}
+			.custom(value => modules.shopModel.promoCodes.findOne({
+				where: { promoCodeId: value }
 			}).then(data => {
-				if (req.body.promoCodeId && data === null) {
+				if (value && data === null) {
 					return Promise.reject(modules.i18n.__("Promo code ID field contains not existing promo code ID."));
 				}
 			})),
 		body("accountDBID")
 			.isInt({ min: 0 }).withMessage(modules.i18n.__("Account ID field must contain a valid number."))
-			.custom((value, { req }) => modules.accountModel.info.findOne({
-				where: {
-					accountDBID: req.body.accountDBID
-				}
+			.custom(value => modules.accountModel.info.findOne({
+				where: { accountDBID: value }
 			}).then(data => {
-				if (req.body.accountDBID && data === null) {
+				if (value && data === null) {
 					return Promise.reject(modules.i18n.__("Account ID contains not existing account ID."));
 				}
 			}))
@@ -126,25 +129,12 @@ module.exports.addAction = modules => [
 				}
 			}))
 	],
+	formValidationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { promoCodeId, accountDBID } = req.body;
-		const errors = helpers.validationResultLog(req, modules.logger);
-
-		const promocodes = await modules.shopModel.promoCodes.findAll();
-
-		if (!errors.isEmpty()) {
-			return res.render("adminPromocodesActivatedAdd", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				moment,
-				promoCodeId,
-				accountDBID,
-				promocodes
-			});
-		}
 
 		const account = await modules.accountModel.info.findOne({
 			where: { accountDBID }
@@ -170,36 +160,37 @@ module.exports.addAction = modules => [
 		next();
 	},
 	writeOperationReport(modules.reportModel),
+	formResultErrorHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		res.redirect(`/promocodes_activated?accountDBID=${req.body.accountDBID}`);
+		formResultSuccessHandler(`/promocodes_activated?accountDBID=${req.body.accountDBID}`)(req, res, next);
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ reportModel, shopModel }) => [
+module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("id").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { id } = req.query;
 
-		if (!id) {
-			return res.redirect("/promocodes_activated");
-		}
-
 		const promocode = await shopModel.promoCodeActivated.findOne({
 			where: { id }
 		});
 
 		if (promocode === null) {
-			return res.redirect("/promocodes_activated");
+			throw Error("Object not found");
 		}
 
 		req.accountDBID = promocode.get("accountDBID");

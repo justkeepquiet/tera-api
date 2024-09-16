@@ -7,11 +7,19 @@
 
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
-const body = require("express-validator").body;
+const { query, body } = require("express-validator");
 const Op = require("sequelize").Op;
 
 const helpers = require("../utils/helpers");
-const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+
+const {
+	validationHandler,
+	formValidationHandler,
+	formResultErrorHandler,
+	formResultSuccessHandler,
+	accessFunctionHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
 
 const encryptPasswords = /^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWORDS);
 
@@ -36,7 +44,6 @@ module.exports.index = ({ accountModel, serverModel }) => [
 				{
 					as: "banned",
 					model: accountModel.bans,
-					where: { active: 1 },
 					required: false
 				},
 				{
@@ -83,14 +90,8 @@ module.exports.add = ({ i18n, datasheetModel }) => [
 
 		res.render("adminAccountsAdd", {
 			layout: "adminLayout",
-			errors: null,
 			moment,
 			accountBenefits,
-			userName: "",
-			passWord: "",
-			email: "",
-			permission: 0,
-			privilege: 0,
 			benefitIds,
 			availableUntils
 		});
@@ -100,16 +101,14 @@ module.exports.add = ({ i18n, datasheetModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel, datasheetModel }) => [
+module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
 		body("userName").trim()
 			.isLength({ min: 1, max: 64 }).withMessage(i18n.__("Name field must be between 1 and 64 characters."))
 			.custom(value => accountModel.info.findOne({
-				where: {
-					userName: value
-				}
+				where: { userName: value }
 			}).then(data => {
 				if (data) {
 					return Promise.reject(i18n.__("Name field contains already existing name."));
@@ -120,9 +119,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 		body("email").trim()
 			.isEmail().withMessage(i18n.__("Email field must contain a valid email."))
 			.custom(value => accountModel.info.findOne({
-				where: {
-					email: value
-				}
+				where: { email: value }
 			}).then(data => {
 				if (data) {
 					return Promise.reject(i18n.__("Email field contains already existing email."));
@@ -145,29 +142,12 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 		body("availableUntils.*").optional()
 			.isISO8601().withMessage("Available field until must contain a valid date.")
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { userName, passWord, email, permission, privilege, benefitIds, availableUntils } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()] || new Map();
-
-		if (!errors.isEmpty()) {
-			return res.render("adminAccountsAdd", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				moment,
-				accountBenefits,
-				userName,
-				passWord: helpers.getPasswordString(passWord),
-				email,
-				permission,
-				privilege,
-				benefitIds: benefitIds || [],
-				availableUntils: availableUntils || []
-			});
-		}
 
 		await sequelize.transaction(async () => {
 			const account = await accountModel.info.create({
@@ -200,39 +180,36 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/accounts");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/accounts")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ accountModel }) => [
+module.exports.edit = ({ logger, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("accountDBID").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
 
-		if (!accountDBID) {
-			return res.redirect("/accounts");
-		}
-
-		const data = await accountModel.info.findOne({ where: { accountDBID } });
+		const data = await accountModel.info.findOne({
+			where: { accountDBID }
+		});
 
 		if (data === null) {
-			return res.redirect("/accounts");
+			throw Error("Object not found");
 		}
 
 		res.render("adminAccountsEdit", {
 			layout: "adminLayout",
-			errors: null,
 			encryptPasswords,
 			moment,
 			accountDBID,
@@ -250,8 +227,8 @@ module.exports.edit = ({ accountModel }) => [
  */
 module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
+		query("accountDBID").notEmpty(),
 		body("userName").trim()
 			.isLength({ min: 1, max: 64 }).withMessage(i18n.__("Name field must be between 1 and 64 characters."))
 			.custom((value, { req }) => accountModel.info.findOne({
@@ -283,32 +260,13 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 		body("privilege")
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Privilege field must contain a valid number."))
 	],
+	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
 		const { userName, passWord, email, permission, privilege, benefitIds, availableUntils } = req.body;
-		const errors = helpers.validationResultLog(req, logger);
-
-		if (!accountDBID) {
-			return res.redirect("/accounts");
-		}
-
-		if (!errors.isEmpty()) {
-			return res.render("adminAccountsEdit", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				encryptPasswords,
-				moment,
-				accountDBID,
-				userName,
-				passWord,
-				email,
-				permission,
-				privilege
-			});
-		}
 
 		await accountModel.info.update({
 			userName,
@@ -325,12 +283,8 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 		next();
 	},
 	writeOperationReport(reportModel),
-	/**
-	 * @type {RequestHandler}
-	 */
-	(req, res, next) => {
-		res.redirect("/accounts");
-	}
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/accounts")
 ];
 
 /**
@@ -339,15 +293,15 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("accountDBID").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
-
-		if (!accountDBID) {
-			return res.redirect("/accounts");
-		}
 
 		const online = await accountModel.online.findOne({ where: { accountDBID } });
 

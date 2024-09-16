@@ -6,13 +6,21 @@
  */
 
 const expressLayouts = require("express-ejs-layouts");
-const body = require("express-validator").body;
+const { query, body } = require("express-validator");
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 
 const helpers = require("../utils/helpers");
 const ServiceItem = require("../utils/boxHelper").ServiceItem;
-const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
+
+const {
+	accessFunctionHandler,
+	validationHandler,
+	formValidationHandler,
+	formResultErrorHandler,
+	formResultSuccessHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
 
 const shopLocales = require("../../config/admin").shopLocales;
 
@@ -160,21 +168,7 @@ module.exports.add = ({ i18n, shopModel }) => [
 			shopLocales,
 			categories,
 			fromCategoryId,
-			categoryId,
-			validAfter: moment(),
-			validBefore: moment().add(3600, "days"),
-			active: 1,
-			price: "",
-			title: "",
-			description: "",
-			icon: "",
-			rareGrade: null,
-			resolvedItems: [],
-			itemTemplateIds: [""],
-			boxItemIds: [""],
-			boxItemCounts: ["1"],
-			itemIcons: new Set(),
-			validate: 1
+			categoryId
 		});
 	}
 ];
@@ -184,7 +178,6 @@ module.exports.add = ({ i18n, shopModel }) => [
  */
 module.exports.addAction = modules => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
 		body("price")
 			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
@@ -240,32 +233,20 @@ module.exports.addAction = modules => [
 		body("description.*").optional().trim()
 			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters."))
 	],
+	formValidationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { fromCategoryId } = req.query;
-		const { categoryId, validate, validAfter, validBefore, active, price,
+		const { categoryId, validAfter, validBefore, active, price,
 			title, description, icon, rareGrade,
 			itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
-		const errors = helpers.validationResultLog(req, modules.logger);
+
 		const serviceItem = new ServiceItem(modules);
 
 		const itemsPromises = [];
 		const resolvedItems = {};
 		const itemIcons = new Set();
-
-		const categories = await modules.shopModel.categories.findAll({
-			include: [{
-				as: "strings",
-				model: modules.shopModel.categoryStrings,
-				where: { language: modules.i18n.getLocale() },
-				required: false
-			}],
-			order: [
-				["sort", "DESC"]
-			]
-		});
 
 		if (itemTemplateIds) {
 			itemTemplateIds.forEach(itemTemplateId => {
@@ -312,32 +293,6 @@ module.exports.addAction = modules => [
 				resolvedItems[item.get("itemTemplateId")] = item;
 			}
 		});
-
-		if (!errors.isEmpty() || validate == 1) {
-			return res.render("adminShopProductsAdd", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				moment,
-				shopLocales,
-				categories,
-				fromCategoryId,
-				categoryId,
-				validAfter: moment.tz(validAfter, req.user.tz),
-				validBefore: moment.tz(validBefore, req.user.tz),
-				active,
-				price,
-				title: title || [],
-				description: description || [],
-				icon,
-				rareGrade: rareGrade === "" ? null : Number(rareGrade),
-				resolvedItems,
-				itemTemplateIds: itemTemplateIds || [],
-				boxItemIds: boxItemIds || [],
-				boxItemCounts: boxItemCounts || [],
-				itemIcons,
-				validate: Number(!errors.isEmpty())
-			});
-		}
 
 		await modules.sequelize.transaction(async () => {
 			const product = await modules.shopModel.products.create({
@@ -390,20 +345,25 @@ module.exports.addAction = modules => [
 		next();
 	},
 	writeOperationReport(modules.reportModel),
+	formResultErrorHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		res.redirect(`/shop_products?categoryId=${req.query.fromCategoryId || ""}`);
+		formResultSuccessHandler(`/shop_products?categoryId=${req.query.fromCategoryId || ""}`)(req, res, next);
 	}
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ i18n, shopModel, dataModel }) => [
+module.exports.edit = ({ logger, i18n, shopModel, dataModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
+	[
+		query("id").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -538,8 +498,8 @@ module.exports.edit = ({ i18n, shopModel, dataModel }) => [
  */
 module.exports.editAction = modules => [
 	accessFunctionHandler,
-	expressLayouts,
 	[
+		query("id").notEmpty(),
 		body("price")
 			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
 		body("sort")
@@ -596,20 +556,17 @@ module.exports.editAction = modules => [
 		body("description.*").optional().trim()
 			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters."))
 	],
+	formValidationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { id, fromCategoryId } = req.query;
-		const { validate, categoryId, validAfter, validBefore, active, price, sort,
+		const { id } = req.query;
+		const { categoryId, validAfter, validBefore, active, price, sort,
 			title, description, icon, rareGrade,
 			itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
-		const errors = helpers.validationResultLog(req, modules.logger);
-		const serviceItem = new ServiceItem(modules);
 
-		if (!id) {
-			return res.redirect("/shop_products");
-		}
+		const serviceItem = new ServiceItem(modules);
 
 		const itemsPromises = [];
 		const resolvedItems = {};
@@ -635,20 +592,8 @@ module.exports.editAction = modules => [
 		});
 
 		if (product === null) {
-			return res.redirect("/shop_products");
+			throw Error("Object not found");
 		}
-
-		const categories = await modules.shopModel.categories.findAll({
-			include: [{
-				as: "strings",
-				model: modules.shopModel.categoryStrings,
-				where: { language: modules.i18n.getLocale() },
-				required: false
-			}],
-			order: [
-				["sort", "DESC"]
-			]
-		});
 
 		if (itemTemplateIds) {
 			itemTemplateIds.forEach(itemTemplateId => {
@@ -695,33 +640,6 @@ module.exports.editAction = modules => [
 				resolvedItems[item.get("itemTemplateId")] = item;
 			}
 		});
-
-		if (!errors.isEmpty() || validate == 1) {
-			return res.render("adminShopProductsEdit", {
-				layout: "adminLayout",
-				errors: errors.array(),
-				moment,
-				shopLocales,
-				categories,
-				id: product.get("id"),
-				fromCategoryId,
-				categoryId,
-				validAfter: moment.tz(validAfter, req.user.tz),
-				validBefore: moment.tz(validBefore, req.user.tz),
-				active,
-				price,
-				sort,
-				title: title || [],
-				description: description || [],
-				icon,
-				rareGrade: rareGrade === "" ? null : Number(rareGrade),
-				itemTemplateIds: itemTemplateIds || [],
-				boxItemIds: boxItemIds || [],
-				boxItemCounts: boxItemCounts || [],
-				itemIcons,
-				validate: Number(!errors.isEmpty())
-			});
-		}
 
 		await modules.sequelize.transaction(async () => {
 			const promises = [
@@ -854,11 +772,12 @@ module.exports.editAction = modules => [
 		next();
 	},
 	writeOperationReport(modules.reportModel),
+	formResultErrorHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		res.redirect(`/shop_products?categoryId=${req.query.fromCategoryId || ""}`);
+		formResultSuccessHandler(`/shop_products?categoryId=${req.query.fromCategoryId || ""}`)(req, res, next);
 	}
 ];
 
@@ -901,7 +820,7 @@ module.exports.editAllAction = modules => [
 		const productIds = new Set(Array.isArray(id) ? id : [id]);
 
 		if (productIds.size === 0) {
-			return res.redirect("/shop_products");
+			throw Error("Object not found");
 		}
 
 		const products = await modules.shopModel.products.findAll({
@@ -909,7 +828,7 @@ module.exports.editAllAction = modules => [
 		});
 
 		if (products.length === 0) {
-			return res.redirect("/shop_products");
+			throw Error("Object not found");
 		}
 
 		const categories = await modules.shopModel.categories.findAll({
@@ -986,7 +905,7 @@ module.exports.deleteAction = modules => [
 		const productIds = new Set(Array.isArray(id) ? id : [id]);
 
 		if (productIds.size === 0) {
-			return res.redirect("/shop_products");
+			throw Error("Object not found");
 		}
 
 		for (const productId of productIds) {

@@ -54,7 +54,9 @@
 const tableData = [];
 
 accounts.forEach(account => {
-	const banned = moment(account.get("banned")?.get("startTime")) < moment() && moment(account.get("banned")?.get("endTime")) > moment();
+	const banned = account.get("banned")?.get("active") &&
+		moment(account.get("banned")?.get("startTime")) < moment() &&
+		moment(account.get("banned")?.get("endTime")) > moment();
 
 	tableData.push([
 		account.get("accountDBID"),
@@ -78,7 +80,7 @@ accounts.forEach(account => {
 			(account.get("lastLoginServer") ?
 				`<a class="btn btn-secondary btn-sm" href="/characters?accountDBID=${account.get("accountDBID")}&amp;serverId=${account.get("lastLoginServer")}"><i class="fa fa-user"></i></a> ` : ""
 			) +
-			`<a class="btn btn-secondary btn-sm" href="/bans/${account.get("bannedStartTime") ? "edit" : "add"}?accountDBID=${account.get("accountDBID")}"><i class="fa fa-ban"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/bans/${account.get("banned") ? "edit" : "add"}?accountDBID=${account.get("accountDBID")}&amp;successUrl=/accounts"><i class="fa fa-ban"></i></a> ` +
 			`<a class="btn btn-secondary btn-sm ml-2" href="/accounts/edit?accountDBID=${account.get("accountDBID")}"><i class="fa fa-pencil"></i></a> ` +
 			`<a class="btn btn-secondary btn-sm" href="/accounts/delete?accountDBID=${account.get("accountDBID")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
 	]);
