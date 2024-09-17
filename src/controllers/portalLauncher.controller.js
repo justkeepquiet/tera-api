@@ -158,64 +158,66 @@ module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel 
 			throw new ApiError("email verify disabled", 100);
 		}
 
-		const { email } = req.body;
-
-		const handler = async () => {
-			const token = uuid();
-			const code = helpers.generateVerificationCode();
-
-			await accountModel.resetPassword.destroy({
-				where: { email }
-			});
-
-			await accountModel.resetPassword.create({
-				token,
-				code,
-				email
-			});
-
-			app.render("email/resetPasswordVerify", { ...res.locals,
-				protocol: req.protocol,
-				host: req.hostname,
-				brandName,
-				code
-			}, async (err, html) => {
-				if (err) {
-					logger.error(err);
-					throw new ApiError("internal error", 1);
-				}
-
-				try {
-					await mailer.sendMail({
-						from: `"${process.env.API_PORTAL_EMAIL_FROM_NAME}" <${process.env.API_PORTAL_EMAIL_FROM_ADDRESS}>`,
-						to: email,
-						subject: i18n.__("Instructions to reset your password"),
-						html
-					});
-				} catch (_) {
-					logger.error(err);
-				}
-
-				res.json({
-					Return: true,
-					ReturnCode: 0,
-					Msg: "success",
-					VerifyToken: token
-				});
-			});
-		};
-
-		if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
-			recaptcha.verify(req, error => {
+		if (recaptcha) {
+			recaptcha.verify(req, async error => {
 				if (error) {
-					throw new ApiError("captcha error", 2);
+					next(new ApiError("captcha error", 12));
+				} else {
+					next();
 				}
-
-				handler();
 			});
 		} else {
-			handler();
+			next();
 		}
+	},
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { email } = req.body;
+
+		const token = uuid();
+		const code = helpers.generateVerificationCode();
+
+		await accountModel.resetPassword.destroy({
+			where: { email }
+		});
+
+		await accountModel.resetPassword.create({
+			token,
+			code,
+			email
+		});
+
+		app.render("email/resetPasswordVerify", { ...res.locals,
+			protocol: req.protocol,
+			host: req.hostname,
+			brandName,
+			code
+		}, async (err, html) => {
+			if (err) {
+				logger.error(err);
+				return next(new ApiError("internal error", 1));
+			}
+
+			try {
+				await mailer.sendMail({
+					from: `"${process.env.API_PORTAL_EMAIL_FROM_NAME}" <${process.env.API_PORTAL_EMAIL_FROM_ADDRESS}>`,
+					to: email,
+					subject: i18n.__("Instructions to reset your password"),
+					html
+				});
+			} catch (error) {
+				logger.error(error);
+			}
+
+			res.json({
+				Return: true,
+				ReturnCode: 0,
+				Msg: "success",
+				VerifyToken: token
+			});
+		});
 	}
 ];
 
@@ -455,103 +457,105 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { login, password, email } = req.body;
-
-		const handler = async () => {
-			const token = uuid();
-
-			if (isEmailVerifyEnabled) {
-				const code = helpers.generateVerificationCode();
-
-				await accountModel.verify.destroy({
-					where: { email }
-				});
-
-				await accountModel.verify.create({
-					token,
-					userName: login,
-					code,
-					passWord: helpers.getPasswordString(password),
-					email
-				});
-
-				app.render("email/emailVerify", { ...res.locals,
-					protocol: req.protocol,
-					host: req.hostname,
-					brandName,
-					code
-				}, async (err, html) => {
-					if (err) {
-						logger.error(err);
-						throw new ApiError("internal error", 1);
-					}
-
-					try {
-						await mailer.sendMail({
-							from: `"${process.env.API_PORTAL_EMAIL_FROM_NAME}" <${process.env.API_PORTAL_EMAIL_FROM_ADDRESS}>`,
-							to: email,
-							subject: `${i18n.__("Confirm your registration in")} ${brandName}`,
-							html
-						});
-					} catch (_) {
-						logger.error(err);
-					}
-
-					res.json({
-						Return: true,
-						ReturnCode: 0,
-						Msg: "success",
-						VerifyToken: token
-					});
-				});
-			} else {
-				await sequelize.transaction(async () => {
-					// Create user account
-					const account = await accountModel.info.create({
-						userName: login,
-						passWord: helpers.getPasswordString(password),
-						authKey: uuid(),
-						email
-					});
-
-					const promises = [];
-
-					helpers.getInitialBenefits().forEach((benefitDays, benefitId) => {
-						promises.push(accountModel.benefits.create({
-							accountDBID: account.get("accountDBID"),
-							benefitId: benefitId,
-							availableUntil: sequelize.fn("ADDDATE", sequelize.fn("NOW"), benefitDays)
-						}));
-					});
-
-					await Promise.all(promises);
-
-					// Login account
-					res.json({
-						Return: true,
-						ReturnCode: 0,
-						Msg: "success",
-						UserNo: account.get("accountDBID"),
-						AuthKey: account.get("authKey")
-					});
-				});
-			}
-		};
-
 		if (isRegistrationDisabled) {
 			throw new ApiError("registration disabled", 100);
 		}
 
-		if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
-			recaptcha.verify(req, error => {
+		if (recaptcha) {
+			recaptcha.verify(req, async error => {
 				if (error) {
-					throw new ApiError("captcha error", 2);
+					next(new ApiError("captcha error", 15));
+				} else {
+					next();
 				}
-
-				handler();
 			});
 		} else {
-			handler();
+			next();
+		}
+	},
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { login, password, email } = req.body;
+
+		const token = uuid();
+
+		if (isEmailVerifyEnabled) {
+			const code = helpers.generateVerificationCode();
+
+			await accountModel.verify.destroy({
+				where: { email }
+			});
+
+			await accountModel.verify.create({
+				token,
+				userName: login,
+				code,
+				passWord: helpers.getPasswordString(password),
+				email
+			});
+
+			app.render("email/emailVerify", { ...res.locals,
+				protocol: req.protocol,
+				host: req.hostname,
+				brandName,
+				code
+			}, async (err, html) => {
+				if (err) {
+					logger.error(err);
+					return next(new ApiError("internal error", 1));
+				}
+
+				try {
+					await mailer.sendMail({
+						from: `"${process.env.API_PORTAL_EMAIL_FROM_NAME}" <${process.env.API_PORTAL_EMAIL_FROM_ADDRESS}>`,
+						to: email,
+						subject: `${i18n.__("Confirm your registration in")} ${brandName}`,
+						html
+					});
+				} catch (error) {
+					logger.error(error);
+				}
+
+				res.json({
+					Return: true,
+					ReturnCode: 0,
+					Msg: "success",
+					VerifyToken: token
+				});
+			});
+		} else {
+			await sequelize.transaction(async () => {
+				// Create user account
+				const account = await accountModel.info.create({
+					userName: login,
+					passWord: helpers.getPasswordString(password),
+					authKey: uuid(),
+					email
+				});
+
+				const promises = [];
+
+				helpers.getInitialBenefits().forEach((benefitDays, benefitId) => {
+					promises.push(accountModel.benefits.create({
+						accountDBID: account.get("accountDBID"),
+						benefitId: benefitId,
+						availableUntil: sequelize.fn("ADDDATE", sequelize.fn("NOW"), benefitDays)
+					}));
+				});
+
+				await Promise.all(promises);
+
+				// Login account
+				res.json({
+					Return: true,
+					ReturnCode: 0,
+					Msg: "success",
+					UserNo: account.get("accountDBID"),
+					AuthKey: account.get("authKey")
+				});
+			});
 		}
 	}
 ];
