@@ -49,6 +49,10 @@
 						alert("<%= __('This email address is already exists.') %>");
 						break;
 
+					case 15:
+						alert("<%= __('Captcha verification failed.') %>");
+						break;
+
 					default:
 						alert(result.Msg);
 						console.log(result.Msg);

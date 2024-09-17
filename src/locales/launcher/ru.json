@@ -23,6 +23,7 @@
 	"Please enter valid email address.": "Введите правильный Email адрес.",
 	"Please enter 8-128 alphanumeric characters password.": "Введите пароль, содержащий буквы и цифры длиной 8-128 символов.",
 	"Two password entries do not match.": "Введенные пароли не совпадают.",
+	"Captcha verification failed.": "Ошибка проверки Captcha.",
 	"Enter login": "Логин",
 	"Enter email": "Email",
 	"Enter password": "Пароль",
