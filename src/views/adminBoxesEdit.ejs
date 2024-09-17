@@ -83,9 +83,18 @@
 <%- contentFor("scripts") %>
 <script>
 	$(function() {
-		$(".remove-item").click(function() {
-			$(this).closest(".row").remove();
-		});
+		function onItemAdded() {
+			$('input[name="itemTemplateIds[]"]').change(function() {
+				$(this).closest('.row').find('input[name="boxItemIds[]"]').val('');
+			});
+			$(".remove-item").click(function () {
+				var row = $(this).closest(".row");
+				let itemTemplateId = row.find('input[name="itemTemplateIds[]"]').val();
+				row.remove();
+				$("label[data-id='" + itemTemplateId + "']").remove();
+			});
+		}
+		onItemAdded();
 		$("#add-item").click(function() {
 			$("#items").append(
 				"<div class='form-group row'>" +
@@ -106,9 +115,7 @@
 				"	</div>" +
 				"</div>"
 			);
-			$(".remove-item").click(function() {
-				$(this).closest(".row").remove();
-			});
+			onItemAdded();
 			addAutocomplete();
 		});
 		$("#submit").click(function() {
