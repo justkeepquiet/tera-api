@@ -110,7 +110,7 @@ module.exports.writeOperationReport = (reportModel, params = {}) =>
 			userTz: req?.user?.tz,
 			ip: req.ip,
 			function: req.path,
-			payload: JSON.stringify([req.query, req.body]),
+			payload: JSON.stringify([req.query || {}, req.body || {}]),
 			reportType: params.reportType || 1
 		}).catch(err => {
 			databaseLogger.error(err);
