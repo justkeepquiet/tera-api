@@ -49,7 +49,7 @@ module.exports.add = ({ logger, i18n, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("accountDBID").optional()
+		query("accountDBID").optional({ checkFalsy: true })
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
