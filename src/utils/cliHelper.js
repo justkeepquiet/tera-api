@@ -1,6 +1,7 @@
 "use strict";
 
 const moment = require("moment");
+const { program } = require("commander");
 
 module.exports = logger => ({
 	printReady: () => {
@@ -35,5 +36,12 @@ module.exports = logger => ({
 		);
 
 		logger.info("-".repeat(30));
-	}
+	},
+
+	addOption: (flags, description, defaultValue) => {
+		program.option(flags, description, defaultValue);
+	},
+
+	getOptions: () =>
+		program.parse(process.argv).opts()
 });

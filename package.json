@@ -29,6 +29,7 @@
     "@maxmind/geoip2-node": "^5.0.0",
     "bencode": "^2.0.3",
     "cls-hooked": "^4.2.2",
+    "commander": "^12.1.0",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.1",
@@ -63,6 +64,7 @@
     "xmlbuilder": "^15.1.1"
   },
   "devDependencies": {
+    "@types/commander": "^2.12.2",
     "@types/express": "^4.17.21",
     "@types/netmask": "^2.0.5",
     "@types/node-cron": "^3.0.11",
