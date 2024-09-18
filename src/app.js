@@ -234,6 +234,7 @@ moduleLoader.final().then(
 	 */
 	modules => {
 		const serverLoader = new CoreLoader();
+		const schedulerConfig = require("../config/scheduler");
 
 		if (checkComponent("arbiter_api")) {
 			serverLoader.setPromise("arbiterApi", () => {
@@ -356,14 +357,13 @@ moduleLoader.final().then(
 				serverCheckActions.all();
 			}
 
+			if (checkComponent("portal_api")) {
+				modules.scheduler.startTasks(schedulerConfig.portalApi, require("./schedules/portalApi.schedule"), modules);
+			}
+
 			if (checkComponent("admin_panel")) {
 				modules.scheduler.start({ name: "backgroundQueue", schedule: expr.EVERY_MINUTE }, () =>
 					modules.queue.start().catch(err => modules.queue.logger.error(err))
-				);
-				modules.scheduler.startTasks(
-					require("../config/scheduler"),
-					require("./controllers/scheduler.controller"),
-					modules
 				);
 			}
 

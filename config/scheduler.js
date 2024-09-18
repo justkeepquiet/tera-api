@@ -2,7 +2,7 @@
 
 const expr = require("../src/lib/scheduler").expr;
 
-module.exports = [
+module.exports.portalApi = [
 	{
 		name: "opAccountVerifyModel",
 		schedule: expr.EVERY_FIVE_MINUTES
