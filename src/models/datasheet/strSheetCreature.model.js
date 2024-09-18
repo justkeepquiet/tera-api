@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * @typedef {import("../datasheet.model").data} data
+ * @typedef {object[]} data
  */
 
 /**
