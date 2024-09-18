@@ -7,6 +7,11 @@ const DB_VERSION = 3;
  * @typedef {import("sequelize").DataTypes} DataTypes
  * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
  *
+ * @typedef {object} datasheetModel
+ * @property {Map[]} strSheetAccountBenefit
+ * @property {Map[]} strSheetDungeon
+ * @property {[][]} strSheetCreature
+ *
  * @typedef {object} modules
  * @property {Sequelize} sequelize
  * @property {HubFunctions} hub
@@ -17,7 +22,6 @@ const DB_VERSION = 3;
  * @property {import("./utils/logger").logger} logger
  * @property {import("./lib/expressServer").app} app
  * @property {import("./lib/scheduler").Scheduler} scheduler
- * @property {import("./models/datasheet.model").datasheetModel} datasheetModel
  * @property {import("./models/queue.model").queueModel} queueModel
  * @property {import("./models/data.model").dataModel} dataModel
  * @property {import("./models/account.model").accountModel} accountModel
@@ -26,28 +30,30 @@ const DB_VERSION = 3;
  * @property {import("./models/shop.model").shopModel} shopModel
  * @property {import("./models/box.model").boxModel} boxModel
  * @property {import("./models/launcher.model").launcherModel} launcherModel
+ * @property {datasheetModel} datasheetModel
  */
 
 require("dotenv").config();
 
 const fs = require("fs");
 const path = require("path");
-const geoip = require("@maxmind/geoip2-node");
 const { Sequelize, DataTypes } = require("sequelize");
 const cls = require("cls-hooked");
 const nodemailer = require("nodemailer");
+const geoip = require("@maxmind/geoip2-node");
+const CoreLoader = require("./lib/coreLoader");
+const { Scheduler, expr } = require("./lib/scheduler");
+const HubFunctions = require("./lib/hubFunctions");
+const SteerFunctions = require("./lib/steerFunctions");
+const serverCategory = require("./lib/teraPlatformGuid").serverCategory;
+const BackgroundQueue = require("./lib/backgroundQueue");
+const DatasheetLoader = require("./lib/datasheetLoader");
+const ExpressServer = require("./lib/expressServer");
+const TasksActions = require("./actions/tasks.actions");
+const ServerCheckActions = require("./actions/serverCheck.actions");
 const MigrationManager = require("./utils/migrationManager");
 const createLogger = require("./utils/logger").createLogger;
 const cliHelper = require("./utils/cliHelper");
-const CoreLoader = require("./lib/coreLoader");
-const BackgroundQueue = require("./lib/backgroundQueue");
-const { Scheduler, expr } = require("./lib/scheduler");
-const ExpressServer = require("./lib/expressServer");
-const serverCategory = require("./lib/teraPlatformGuid").serverCategory;
-const HubFunctions = require("./lib/hubFunctions");
-const SteerFunctions = require("./lib/steerFunctions");
-const TasksActions = require("./actions/tasks.actions");
-const ServerCheckActions = require("./actions/serverCheck.actions");
 
 const moduleLoader = new CoreLoader();
 const logger = createLogger("CL");
@@ -58,14 +64,18 @@ cli.addOption("-c, --component <items...>", "List of components");
 const options = cli.getOptions();
 const checkComponent = name => !options.component || options.component.includes(name);
 
-moduleLoader.setAsync("logger", () => logger);
+moduleLoader.setPromise("logger", async () => logger);
 
-moduleLoader.setAsync("queue", () => new BackgroundQueue({
+moduleLoader.setPromise("scheduler", async () => new Scheduler(
+	createLogger("Scheduler", { colors: { debug: "gray" } })
+));
+
+moduleLoader.setPromise("queue", async () => new BackgroundQueue({
 	concurrent: 5,
 	logger: createLogger("Background Queue")
 }));
 
-moduleLoader.setPromise("hub", () => new Promise(resolve => {
+moduleLoader.setPromise("hub", async () => {
 	const hub = new HubFunctions(
 		process.env.HUB_HOST,
 		process.env.HUB_PORT,
@@ -74,12 +84,12 @@ moduleLoader.setPromise("hub", () => new Promise(resolve => {
 		}
 	);
 
-	return hub.connect().then(() =>
-		resolve(hub)
-	);
-}));
+	await hub.connect();
 
-moduleLoader.setPromise("steer", () => new Promise(resolve => {
+	return hub;
+});
+
+moduleLoader.setPromise("steer", async () => {
 	const steer = new SteerFunctions(
 		process.env.STEER_HOST,
 		process.env.STEER_PORT,
@@ -88,21 +98,18 @@ moduleLoader.setPromise("steer", () => new Promise(resolve => {
 		}
 	);
 
-	if (!/^true$/i.test(process.env.STEER_ENABLE)) {
-		steer.params.logger.warn("Not configured or disabled. QA authorization for Admin Panel is used.");
-		return resolve(steer);
+	if (checkComponent("admin_panel")) {
+		if (/^true$/i.test(process.env.STEER_ENABLE)) {
+			await steer.connect();
+		} else {
+			steer.params.logger.warn("Not configured or disabled. QA authorization for Admin Panel is used.");
+		}
 	}
 
-	return steer.connect().then(() =>
-		resolve(steer)
-	);
-}));
+	return steer;
+});
 
-moduleLoader.setAsync("scheduler", () => new Scheduler(
-	createLogger("Scheduler", { colors: { debug: "gray" } })
-));
-
-moduleLoader.setAsync("mailer", () => {
+moduleLoader.setPromise("mailer", async () => {
 	const settings = {
 		host: process.env.MAILER_SMTP_HOST,
 		port: process.env.MAILER_SMTP_PORT,
@@ -119,7 +126,7 @@ moduleLoader.setAsync("mailer", () => {
 	return nodemailer.createTransport(settings);
 });
 
-moduleLoader.setAsync("geoip", () => {
+moduleLoader.setPromise("geoip", async () => {
 	const geoipLogger = createLogger("GeoIP", { colors: { debug: "gray" } });
 	const filePath = path.join(__dirname, "..", "data", "geoip", "GeoLite2-City.mmdb");
 
@@ -127,28 +134,36 @@ moduleLoader.setAsync("geoip", () => {
 		const geoIpData = fs.readFileSync(filePath);
 		const reader = geoip.Reader.openBuffer(geoIpData);
 
-		geoipLogger.debug("Loaded.");
+		geoipLogger.info(`Loaded: ${filePath}`);
 		return reader;
 	} else {
-		geoipLogger.debug("File GeoLite2-City.mmdb is not found. Skip loading.");
+		geoipLogger.debug(`File ${filePath} is not found. Skip loading.`);
 	}
 });
 
-moduleLoader.setPromise("datasheetModel", () =>
-	require("./models/datasheet.model")(createLogger("Datasheet", { colors: { debug: "gray" } }))
-);
+moduleLoader.setPromise("datasheetModel", async () => {
+	const datasheetLoader = new DatasheetLoader(createLogger("Datasheet", { colors: { debug: "gray" } }));
 
-moduleLoader.setPromise("sequelize", () => new Promise((resolve, reject) => {
+	if (checkComponent("admin_panel")) {
+		datasheetLoader.add("strSheetAccountBenefit", "StrSheet_AccountBenefit", require("./models/datasheet/strSheetAccountBenefit.model"));
+		datasheetLoader.add("strSheetDungeon", "StrSheet_Dungeon", require("./models/datasheet/strSheetDungeon.model"));
+		datasheetLoader.add("strSheetCreature", "StrSheet_Creature", require("./models/datasheet/strSheetCreature.model"));
+	}
+
+	return await datasheetLoader.final();
+});
+
+moduleLoader.setPromise("sequelize", async () => {
 	if (!process.env.DB_HOST) {
-		return reject("Invalid configuration parameter: DB_HOST");
+		throw "Invalid configuration parameter: DB_HOST";
 	}
 
 	if (!process.env.DB_DATABASE) {
-		return reject("Invalid configuration parameter: DB_DATABASE");
+		throw "Invalid configuration parameter: DB_DATABASE";
 	}
 
 	if (!process.env.DB_USERNAME) {
-		return reject("Invalid configuration parameter: DB_USERNAME");
+		throw "Invalid configuration parameter: DB_USERNAME";
 	}
 
 	const sequelizeLogger = createLogger("Database", { colors: { debug: "cyan" } });
@@ -178,206 +193,196 @@ moduleLoader.setPromise("sequelize", () => new Promise((resolve, reject) => {
 		}
 	);
 
-	sequelize.authenticate().then(async () => {
-		sequelizeLogger.info("Connected.");
+	try {
+		await sequelize.authenticate();
+	} catch (err) {
+		sequelizeLogger.error(`Connection error: ${err}`);
+		throw "";
+	}
 
-		const migrationsDir = path.join(__dirname, "migrations");
-		const migrationManager = new MigrationManager(sequelize, sequelizeLogger, migrationsDir);
-		await migrationManager.init();
+	sequelizeLogger.info("Connected.");
 
-		const currentDbVersion = await migrationManager.getCurrentVersion();
-		let syncTables = false;
+	const migrationsDir = path.join(__dirname, "migrations");
+	const migrationManager = new MigrationManager(sequelize, sequelizeLogger, migrationsDir);
+	await migrationManager.init();
 
-		if (currentDbVersion === 0) {
-			sequelizeLogger.info("DB version is not found.");
+	const currentDbVersion = await migrationManager.getCurrentVersion();
+	let syncTables = false;
 
-			syncTables = true;
-			const isDbNotClean = await migrationManager.queryInterface.showAllTables()
-				.then(tables => tables.includes("server_info"));
+	if (currentDbVersion === 0) {
+		sequelizeLogger.info("DB version is not found.");
 
-			if (!isDbNotClean) {
-				sequelizeLogger.debug(`Database is clean, set DB version: ${DB_VERSION}`);
-				await migrationManager.setVersion(DB_VERSION);
-			} else {
-				await migrationManager.runMigrations();
-			}
-		} else if (currentDbVersion !== DB_VERSION) {
-			syncTables = true;
+		syncTables = true;
+		const isDbNotClean = await migrationManager.queryInterface.showAllTables()
+			.then(tables => tables.includes("server_info"));
+
+		if (!isDbNotClean) {
+			sequelizeLogger.debug(`Database is clean, set DB version: ${DB_VERSION}`);
+			await migrationManager.setVersion(DB_VERSION);
+		} else {
 			await migrationManager.runMigrations();
 		}
+	} else if (currentDbVersion !== DB_VERSION) {
+		syncTables = true;
+		await migrationManager.runMigrations();
+	}
 
-		if (syncTables) {
-			sequelizeLogger.info("Syncing tables.");
+	if (syncTables) {
+		sequelizeLogger.info("Syncing tables.");
+	}
+
+	await moduleLoader.setAsync("queueModel", require("./models/queue.model"), sequelize, DataTypes, syncTables);
+	await moduleLoader.setAsync("serverModel", require("./models/server.model"), sequelize, DataTypes, syncTables);
+	await moduleLoader.setAsync("dataModel", require("./models/data.model"), sequelize, DataTypes, syncTables);
+	await moduleLoader.setAsync("accountModel", require("./models/account.model"), sequelize, DataTypes, syncTables);
+	await moduleLoader.setAsync("reportModel", require("./models/report.model"), sequelize, DataTypes, syncTables);
+	await moduleLoader.setAsync("shopModel", require("./models/shop.model"), sequelize, DataTypes, syncTables);
+	await moduleLoader.setAsync("boxModel", require("./models/box.model"), sequelize, DataTypes, syncTables);
+	await moduleLoader.setAsync("launcherModel", require("./models/launcher.model"), sequelize, DataTypes, syncTables);
+
+	sequelizeLogger.info(`DB version: ${DB_VERSION}`);
+
+	return sequelize;
+});
+
+/**
+ * @param {modules} modules
+ */
+const startServers = async modules => {
+	const schedulerConfig = require("../config/scheduler");
+
+	if (checkComponent("arbiter_api")) {
+		if (!process.env.API_ARBITER_LISTEN_PORT) {
+			throw "Invalid configuration parameter: API_ARBITER_LISTEN_PORT";
 		}
 
-		await moduleLoader.setAsync("queueModel", require("./models/queue.model"), sequelize, DataTypes, syncTables);
-		await moduleLoader.setAsync("serverModel", require("./models/server.model"), sequelize, DataTypes, syncTables);
-		await moduleLoader.setAsync("dataModel", require("./models/data.model"), sequelize, DataTypes, syncTables);
-		await moduleLoader.setAsync("accountModel", require("./models/account.model"), sequelize, DataTypes, syncTables);
-		await moduleLoader.setAsync("reportModel", require("./models/report.model"), sequelize, DataTypes, syncTables);
-		await moduleLoader.setAsync("shopModel", require("./models/shop.model"), sequelize, DataTypes, syncTables);
-		await moduleLoader.setAsync("boxModel", require("./models/box.model"), sequelize, DataTypes, syncTables);
-		await moduleLoader.setAsync("launcherModel", require("./models/launcher.model"), sequelize, DataTypes, syncTables);
-
-		sequelizeLogger.info(`DB version: ${DB_VERSION}`);
-
-		resolve(sequelize);
-	}).catch(err => {
-		sequelizeLogger.error("Connection error:", err);
-		reject();
-	});
-}));
-
-moduleLoader.final().then(
-	/**
-	 * @param {modules} modules
-	 */
-	modules => {
-		const serverLoader = new CoreLoader();
-		const schedulerConfig = require("../config/scheduler");
-
-		if (checkComponent("arbiter_api")) {
-			serverLoader.setPromise("arbiterApi", () => {
-				if (!process.env.API_ARBITER_LISTEN_PORT) {
-					return Promise.reject("Invalid configuration parameter: API_ARBITER_LISTEN_PORT");
-				}
-
-				const es = new ExpressServer(modules, {
-					logger: createLogger("Arbiter API", { colors: { debug: "bold blue" } }),
-					disableCache: true
-				});
-
-				es.setLogging();
-				es.setRouter("../routes/arbiter.index");
-
-				return es.bind(
-					process.env.API_ARBITER_LISTEN_HOST,
-					process.env.API_ARBITER_LISTEN_PORT
-				);
-			});
-		}
-
-		if (checkComponent("portal_api")) {
-			serverLoader.setPromise("portalApi", () => {
-				if (!process.env.API_PORTAL_LISTEN_PORT) {
-					return Promise.reject("Invalid configuration parameter: API_PORTAL_LISTEN_PORT");
-				}
-
-				if (!process.env.API_PORTAL_LOCALE) {
-					return Promise.reject("Invalid configuration parameter: API_PORTAL_LOCALE");
-				}
-
-				if (!process.env.API_PORTAL_CLIENT_DEFAULT_REGION) {
-					return Promise.reject("Invalid configuration parameter: API_PORTAL_CLIENT_DEFAULT_REGION");
-				}
-
-				const es = new ExpressServer(modules, {
-					logger: createLogger("Portal API", { colors: { debug: "blue" } }),
-					disableCache: !/^true$/i.test(process.env.API_PORTAL_ENABLE_CACHE)
-				});
-
-				if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
-					es.setStatic("/public/shop/images/tera-icons", "data/tera-icons");
-					es.setStatic("/public/launcher/images/launcher-slides-bg", "data/launcher-slides-bg"); // launcher v2
-					es.setStatic("/public", "public");
-				}
-
-				es.setLogging();
-				es.setRouter("../routes/portal.index");
-
-				return es.bind(
-					process.env.API_PORTAL_LISTEN_HOST,
-					process.env.API_PORTAL_LISTEN_PORT
-				);
-			});
-		}
-
-		if (checkComponent("gateway_api")) {
-			serverLoader.setPromise("gatewayApi", () => {
-				if (!process.env.API_GATEWAY_LISTEN_PORT) {
-					return Promise.reject("Invalid configuration parameter: API_GATEWAY_LISTEN_PORT");
-				}
-
-				const es = new ExpressServer(modules, {
-					logger: createLogger("Gateway API", { colors: { debug: "italic blue" } }),
-					disableCache: true
-				});
-
-				es.setLogging();
-				es.setRouter("../routes/gateway.index");
-
-				return es.bind(
-					process.env.API_GATEWAY_LISTEN_HOST,
-					process.env.API_GATEWAY_LISTEN_PORT
-				);
-			});
-		}
-
-		if (checkComponent("admin_panel")) {
-			const tasksActions = new TasksActions(modules);
-
-			serverLoader.setPromise("adminPanel", () => {
-				if (!process.env.ADMIN_PANEL_LISTEN_PORT) {
-					return Promise.reject("Invalid configuration parameter: ADMIN_PANEL_LISTEN_PORT");
-				}
-
-				if (!process.env.ADMIN_PANEL_LOCALE) {
-					return Promise.reject("Invalid configuration parameter: ADMIN_PANEL_LOCALE");
-				}
-
-				const es = new ExpressServer(modules, {
-					logger: createLogger("Admin Panel", { colors: { debug: "dim blue" } }),
-					enableCompression: true
-				});
-
-				es.setStatic("/static/images/tera-icons", "data/tera-icons");
-				es.setStatic("/static/images/launcher-slides-bg", "data/launcher-slides-bg"); // launcher v2
-				es.setStatic("/static", "src/static/admin");
-				es.setLogging();
-				es.setRouter("../routes/admin.index");
-
-				return es.bind(
-					process.env.ADMIN_PANEL_LISTEN_HOST,
-					process.env.ADMIN_PANEL_LISTEN_PORT
-				);
-			});
-
-			modules.queue.setModel(modules.queueModel.tasks);
-			modules.queue.setHandlers(tasksActions);
-		}
-
-		return serverLoader.final().then(() => {
-			logger.info(`Served components: ${options.component || "all"}`);
-
-			modules.scheduler.start({ name: "printMemoryUsage", schedule: expr.EVERY_THIRTY_MINUTES }, () => cli.printMemoryUsage());
-
-			if (checkComponent("arbiter_api")) {
-				const serverCheckActions = new ServerCheckActions(modules);
-				modules.scheduler.start({ name: "serverCheckActions", schedule: expr.EVERY_TEN_SECONDS }, () => serverCheckActions.all());
-				serverCheckActions.all();
-			}
-
-			if (checkComponent("portal_api")) {
-				modules.scheduler.startTasks(schedulerConfig.portalApi, require("./schedules/portalApi.schedule"), modules);
-			}
-
-			if (checkComponent("admin_panel")) {
-				modules.scheduler.start({ name: "backgroundQueue", schedule: expr.EVERY_MINUTE }, () =>
-					modules.queue.start().catch(err => modules.queue.logger.error(err))
-				);
-			}
-
-			cli.printInfo();
-			cli.printMemoryUsage();
-			cli.printReady();
+		const es = new ExpressServer(modules, {
+			logger: createLogger("Arbiter API", { colors: { debug: "bold blue" } }),
+			disableCache: true
 		});
-	})
-	.catch(err => {
-		if (err) {
-			logger.error(err);
+
+		es.setLogging();
+		es.setRouter("../routes/arbiter.index");
+
+		await es.bind(
+			process.env.API_ARBITER_LISTEN_HOST,
+			process.env.API_ARBITER_LISTEN_PORT
+		);
+	}
+
+	if (checkComponent("portal_api")) {
+		if (!process.env.API_PORTAL_LISTEN_PORT) {
+			throw "Invalid configuration parameter: API_PORTAL_LISTEN_PORT";
 		}
 
-		cli.printEnded();
-		process.exit();
-	})
-;
+		if (!process.env.API_PORTAL_LOCALE) {
+			throw "Invalid configuration parameter: API_PORTAL_LOCALE";
+		}
+
+		if (!process.env.API_PORTAL_CLIENT_DEFAULT_REGION) {
+			throw "Invalid configuration parameter: API_PORTAL_CLIENT_DEFAULT_REGION";
+		}
+
+		const es = new ExpressServer(modules, {
+			logger: createLogger("Portal API", { colors: { debug: "blue" } }),
+			disableCache: !/^true$/i.test(process.env.API_PORTAL_ENABLE_CACHE)
+		});
+
+		if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
+			es.setStatic("/public/shop/images/tera-icons", "data/tera-icons");
+			es.setStatic("/public/launcher/images/launcher-slides-bg", "data/launcher-slides-bg"); // launcher v2
+			es.setStatic("/public", "public");
+		}
+
+		es.setLogging();
+		es.setRouter("../routes/portal.index");
+
+		await es.bind(
+			process.env.API_PORTAL_LISTEN_HOST,
+			process.env.API_PORTAL_LISTEN_PORT
+		);
+	}
+
+	if (checkComponent("gateway_api")) {
+		if (!process.env.API_GATEWAY_LISTEN_PORT) {
+			throw "Invalid configuration parameter: API_GATEWAY_LISTEN_PORT";
+		}
+
+		const es = new ExpressServer(modules, {
+			logger: createLogger("Gateway API", { colors: { debug: "italic blue" } }),
+			disableCache: true
+		});
+
+		es.setLogging();
+		es.setRouter("../routes/gateway.index");
+
+		await es.bind(
+			process.env.API_GATEWAY_LISTEN_HOST,
+			process.env.API_GATEWAY_LISTEN_PORT
+		);
+	}
+
+	if (checkComponent("admin_panel")) {
+		const tasksActions = new TasksActions(modules);
+
+		if (!process.env.ADMIN_PANEL_LISTEN_PORT) {
+			throw "Invalid configuration parameter: ADMIN_PANEL_LISTEN_PORT";
+		}
+
+		if (!process.env.ADMIN_PANEL_LOCALE) {
+			throw "Invalid configuration parameter: ADMIN_PANEL_LOCALE";
+		}
+
+		const es = new ExpressServer(modules, {
+			logger: createLogger("Admin Panel", { colors: { debug: "dim blue" } }),
+			enableCompression: true
+		});
+
+		es.setStatic("/static/images/tera-icons", "data/tera-icons");
+		es.setStatic("/static/images/launcher-slides-bg", "data/launcher-slides-bg"); // launcher v2
+		es.setStatic("/static", "src/static/admin");
+		es.setLogging();
+		es.setRouter("../routes/admin.index");
+
+		await es.bind(
+			process.env.ADMIN_PANEL_LISTEN_HOST,
+			process.env.ADMIN_PANEL_LISTEN_PORT
+		);
+
+		modules.queue.setModel(modules.queueModel.tasks);
+		modules.queue.setHandlers(tasksActions);
+	}
+
+	logger.info(`Served components: ${options.component || "all"}`);
+
+	modules.scheduler.start({ name: "printMemoryUsage", schedule: expr.EVERY_THIRTY_MINUTES }, () => cli.printMemoryUsage());
+
+	if (checkComponent("arbiter_api")) {
+		const serverCheckActions = new ServerCheckActions(modules);
+		modules.scheduler.start({ name: "serverCheckActions", schedule: expr.EVERY_TEN_SECONDS }, () => serverCheckActions.all());
+		serverCheckActions.all();
+	}
+
+	if (checkComponent("portal_api")) {
+		modules.scheduler.startTasks(schedulerConfig.portalApi, require("./schedules/portalApi.schedule"), modules);
+	}
+
+	if (checkComponent("admin_panel")) {
+		modules.scheduler.start({ name: "backgroundQueue", schedule: expr.EVERY_MINUTE }, () =>
+			modules.queue.start().catch(err => modules.queue.logger.error(err))
+		);
+	}
+
+	cli.printInfo();
+	cli.printMemoryUsage();
+	cli.printReady();
+};
+
+moduleLoader.final().then(startServers).catch(err => {
+	if (err) {
+		logger.error(err);
+	}
+
+	cli.printEnded();
+	process.exit();
+});

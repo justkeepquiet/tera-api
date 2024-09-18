@@ -1,25 +1,24 @@
 "use strict";
 
 class CoreLoader {
-	constructor() {
+	constructor(modules = {}) {
+		this.modules = modules;
 		this.promises = [];
-		this.resolved = {};
 	}
 
 	async setAsync(name, callback, ...args) {
-		this.resolved[name] = await callback(...args, this.resolved);
+		this.modules[name] = await callback(...args, this.modules);
 	}
 
 	setPromise(name, callback, ...args) {
-		this.promises.push(callback(...args, this.resolved).then(resolved =>
-			this.resolved[name] = resolved
+		this.promises.push(callback(...args, this.modules).then(modules =>
+			this.modules[name] = modules
 		));
 	}
 
-	final() {
-		return Promise.all(this.promises).then(() =>
-			Promise.resolve(this.resolved)
-		);
+	async final() {
+		await Promise.all(this.promises);
+		return this.modules;
 	}
 }
 
