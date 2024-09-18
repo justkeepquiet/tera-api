@@ -53,6 +53,11 @@ const moduleLoader = new CoreLoader();
 const logger = createLogger("CL");
 const cli = cliHelper(logger);
 
+cli.addOption("-c, --component <items...>", "List of components");
+
+const options = cli.getOptions();
+const checkComponent = name => !options.component || options.component.includes(name);
+
 moduleLoader.setAsync("logger", () => logger);
 
 moduleLoader.setAsync("queue", () => new BackgroundQueue({
@@ -229,122 +234,139 @@ moduleLoader.final().then(
 	 */
 	modules => {
 		const serverLoader = new CoreLoader();
-		const tasksActions = new TasksActions(modules);
-		const serverCheckActions = new ServerCheckActions(modules);
 
-		serverLoader.setPromise("arbiterApi", () => {
-			if (!process.env.API_ARBITER_LISTEN_PORT) {
-				return Promise.reject("Invalid configuration parameter: API_ARBITER_LISTEN_PORT");
-			}
+		if (checkComponent("arbiter_api")) {
+			serverLoader.setPromise("arbiterApi", () => {
+				if (!process.env.API_ARBITER_LISTEN_PORT) {
+					return Promise.reject("Invalid configuration parameter: API_ARBITER_LISTEN_PORT");
+				}
 
-			const es = new ExpressServer(modules, {
-				logger: createLogger("Arbiter API", { colors: { debug: "bold blue" } }),
-				disableCache: true
+				const es = new ExpressServer(modules, {
+					logger: createLogger("Arbiter API", { colors: { debug: "bold blue" } }),
+					disableCache: true
+				});
+
+				es.setLogging();
+				es.setRouter("../routes/arbiter.index");
+
+				return es.bind(
+					process.env.API_ARBITER_LISTEN_HOST,
+					process.env.API_ARBITER_LISTEN_PORT
+				);
+			});
+		}
+
+		if (checkComponent("portal_api")) {
+			serverLoader.setPromise("portalApi", () => {
+				if (!process.env.API_PORTAL_LISTEN_PORT) {
+					return Promise.reject("Invalid configuration parameter: API_PORTAL_LISTEN_PORT");
+				}
+
+				if (!process.env.API_PORTAL_LOCALE) {
+					return Promise.reject("Invalid configuration parameter: API_PORTAL_LOCALE");
+				}
+
+				if (!process.env.API_PORTAL_CLIENT_DEFAULT_REGION) {
+					return Promise.reject("Invalid configuration parameter: API_PORTAL_CLIENT_DEFAULT_REGION");
+				}
+
+				const es = new ExpressServer(modules, {
+					logger: createLogger("Portal API", { colors: { debug: "blue" } }),
+					disableCache: !/^true$/i.test(process.env.API_PORTAL_ENABLE_CACHE)
+				});
+
+				if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
+					es.setStatic("/public/shop/images/tera-icons", "data/tera-icons");
+					es.setStatic("/public/launcher/images/launcher-slides-bg", "data/launcher-slides-bg"); // launcher v2
+					es.setStatic("/public", "public");
+				}
+
+				es.setLogging();
+				es.setRouter("../routes/portal.index");
+
+				return es.bind(
+					process.env.API_PORTAL_LISTEN_HOST,
+					process.env.API_PORTAL_LISTEN_PORT
+				);
+			});
+		}
+
+		if (checkComponent("gateway_api")) {
+			serverLoader.setPromise("gatewayApi", () => {
+				if (!process.env.API_GATEWAY_LISTEN_PORT) {
+					return Promise.reject("Invalid configuration parameter: API_GATEWAY_LISTEN_PORT");
+				}
+
+				const es = new ExpressServer(modules, {
+					logger: createLogger("Gateway API", { colors: { debug: "italic blue" } }),
+					disableCache: true
+				});
+
+				es.setLogging();
+				es.setRouter("../routes/gateway.index");
+
+				return es.bind(
+					process.env.API_GATEWAY_LISTEN_HOST,
+					process.env.API_GATEWAY_LISTEN_PORT
+				);
+			});
+		}
+
+		if (checkComponent("admin_panel")) {
+			const tasksActions = new TasksActions(modules);
+
+			serverLoader.setPromise("adminPanel", () => {
+				if (!process.env.ADMIN_PANEL_LISTEN_PORT) {
+					return Promise.reject("Invalid configuration parameter: ADMIN_PANEL_LISTEN_PORT");
+				}
+
+				if (!process.env.ADMIN_PANEL_LOCALE) {
+					return Promise.reject("Invalid configuration parameter: ADMIN_PANEL_LOCALE");
+				}
+
+				const es = new ExpressServer(modules, {
+					logger: createLogger("Admin Panel", { colors: { debug: "dim blue" } }),
+					enableCompression: true
+				});
+
+				es.setStatic("/static/images/tera-icons", "data/tera-icons");
+				es.setStatic("/static/images/launcher-slides-bg", "data/launcher-slides-bg"); // launcher v2
+				es.setStatic("/static", "src/static/admin");
+				es.setLogging();
+				es.setRouter("../routes/admin.index");
+
+				return es.bind(
+					process.env.ADMIN_PANEL_LISTEN_HOST,
+					process.env.ADMIN_PANEL_LISTEN_PORT
+				);
 			});
 
-			es.setLogging();
-			es.setRouter("../routes/arbiter.index");
-
-			return es.bind(
-				process.env.API_ARBITER_LISTEN_HOST,
-				process.env.API_ARBITER_LISTEN_PORT
-			);
-		});
-
-		serverLoader.setPromise("portalApi", () => {
-			if (!process.env.API_PORTAL_LISTEN_PORT) {
-				return Promise.reject("Invalid configuration parameter: API_PORTAL_LISTEN_PORT");
-			}
-
-			if (!process.env.API_PORTAL_LOCALE) {
-				return Promise.reject("Invalid configuration parameter: API_PORTAL_LOCALE");
-			}
-
-			if (!process.env.API_PORTAL_CLIENT_DEFAULT_REGION) {
-				return Promise.reject("Invalid configuration parameter: API_PORTAL_CLIENT_DEFAULT_REGION");
-			}
-
-			const es = new ExpressServer(modules, {
-				logger: createLogger("Portal API", { colors: { debug: "blue" } }),
-				disableCache: !/^true$/i.test(process.env.API_PORTAL_ENABLE_CACHE)
-			});
-
-			if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
-				es.setStatic("/public/shop/images/tera-icons", "data/tera-icons");
-				es.setStatic("/public/launcher/images/launcher-slides-bg", "data/launcher-slides-bg"); // launcher v2
-				es.setStatic("/public", "public");
-			}
-
-			es.setLogging();
-			es.setRouter("../routes/portal.index");
-
-			return es.bind(
-				process.env.API_PORTAL_LISTEN_HOST,
-				process.env.API_PORTAL_LISTEN_PORT
-			);
-		});
-
-		serverLoader.setPromise("gatewayApi", () => {
-			if (!process.env.API_GATEWAY_LISTEN_PORT) {
-				return Promise.reject("Invalid configuration parameter: API_GATEWAY_LISTEN_PORT");
-			}
-
-			const es = new ExpressServer(modules, {
-				logger: createLogger("Gateway API", { colors: { debug: "italic blue" } }),
-				disableCache: true
-			});
-
-			es.setLogging();
-			es.setRouter("../routes/gateway.index");
-
-			return es.bind(
-				process.env.API_GATEWAY_LISTEN_HOST,
-				process.env.API_GATEWAY_LISTEN_PORT
-			);
-		});
-
-		serverLoader.setPromise("adminPanel", () => {
-			if (!process.env.ADMIN_PANEL_LISTEN_PORT) {
-				return Promise.reject("Invalid configuration parameter: ADMIN_PANEL_LISTEN_PORT");
-			}
-
-			if (!process.env.ADMIN_PANEL_LOCALE) {
-				return Promise.reject("Invalid configuration parameter: ADMIN_PANEL_LOCALE");
-			}
-
-			const es = new ExpressServer(modules, {
-				logger: createLogger("Admin Panel", { colors: { debug: "dim blue" } }),
-				enableCompression: true
-			});
-
-			es.setStatic("/static/images/tera-icons", "data/tera-icons");
-			es.setStatic("/static/images/launcher-slides-bg", "data/launcher-slides-bg"); // launcher v2
-			es.setStatic("/static", "src/static/admin");
-			es.setLogging();
-			es.setRouter("../routes/admin.index");
-
-			return es.bind(
-				process.env.ADMIN_PANEL_LISTEN_HOST,
-				process.env.ADMIN_PANEL_LISTEN_PORT
-			);
-		});
-
-		modules.queue.setModel(modules.queueModel.tasks);
-		modules.queue.setHandlers(tasksActions);
+			modules.queue.setModel(modules.queueModel.tasks);
+			modules.queue.setHandlers(tasksActions);
+		}
 
 		return serverLoader.final().then(() => {
-			modules.scheduler.start({ name: "serverCheckActions", schedule: expr.EVERY_TEN_SECONDS }, () => serverCheckActions.all());
-			modules.scheduler.start({ name: "printMemoryUsage", schedule: expr.EVERY_THIRTY_MINUTES }, () => cli.printMemoryUsage());
-			modules.scheduler.start({ name: "backgroundQueue", schedule: expr.EVERY_MINUTE }, () =>
-				modules.queue.start().catch(err => modules.queue.logger.error(err))
-			);
-			modules.scheduler.startTasks(
-				require("../config/scheduler"),
-				require("./controllers/scheduler.controller"),
-				modules
-			);
+			logger.info(`Served components: ${options.component || "all"}`);
 
-			serverCheckActions.all();
+			modules.scheduler.start({ name: "printMemoryUsage", schedule: expr.EVERY_THIRTY_MINUTES }, () => cli.printMemoryUsage());
+
+			if (checkComponent("arbiter_api")) {
+				const serverCheckActions = new ServerCheckActions(modules);
+				modules.scheduler.start({ name: "serverCheckActions", schedule: expr.EVERY_TEN_SECONDS }, () => serverCheckActions.all());
+				serverCheckActions.all();
+			}
+
+			if (checkComponent("admin_panel")) {
+				modules.scheduler.start({ name: "backgroundQueue", schedule: expr.EVERY_MINUTE }, () =>
+					modules.queue.start().catch(err => modules.queue.logger.error(err))
+				);
+				modules.scheduler.startTasks(
+					require("../config/scheduler"),
+					require("./controllers/scheduler.controller"),
+					modules
+				);
+			}
+
 			cli.printInfo();
 			cli.printMemoryUsage();
 			cli.printReady();
