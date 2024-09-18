@@ -169,7 +169,7 @@ module.exports.homeStats = ({ i18n, datasheetModel, dataModel, serverModel, acco
 				name,
 				skill: `${skillId} ${a}/${b}`,
 				dungeon: `(${huntingZoneId}) ${dungeon || huntingZoneId}`,
-				creature: `(${templateId}) ${creature.name || templateId}`,
+				creature: `(${templateId}) ${creature?.name || templateId}`,
 				coords: `${x}, ${y}, ${z}`,
 				ip: report.get("ip"),
 				serverId: report.get("serverId")

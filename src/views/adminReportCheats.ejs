@@ -49,7 +49,7 @@ reports.forEach(report => {
 		report.get("accountDBID"),
 		name,
 		`${skillId} ${a}/${b}`,
-		`(${huntingZoneId}) ${dungeon || huntingZoneId}<br>(${templateId}) ${creature.name || templateId}<br>${x}, ${y}, ${z}`,
+		`(${huntingZoneId}) ${dungeon || huntingZoneId}<br>(${templateId}) ${creature?.name || templateId}<br>${x}, ${y}, ${z}`,
 		report.get("ip"),
 		`(${report.get("serverId")}) ${report.get("server")?.get("nameString") || ""}`
 	]);
