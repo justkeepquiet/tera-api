@@ -106,13 +106,15 @@ class ExpressServer {
 		);
 
 		return new Promise((resolve, reject) => {
-			this.app.listen(port, host || "0.0.0.0", () => {
-				this.logger.info(`Listening at: ${!host ? "*" : host}:${port}`);
-				resolve();
-			}).on("error", err => {
-				this.logger.error(`Error: ${err.message}`);
-				reject();
-			});
+			this.app.listen(port, host || "0.0.0.0")
+				.on("listening", () => {
+					this.logger.info(`Listening at: ${!host ? "*" : host}:${port}`);
+					resolve();
+				})
+				.on("error", err => {
+					this.logger.error(`Error: ${err.message}`);
+					reject();
+				});
 		});
 	}
 }
