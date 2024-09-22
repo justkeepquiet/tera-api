@@ -144,17 +144,19 @@ module.exports.addAction = modules => [
 			where: { promoCodeId }
 		});
 
-		const actions = new PromoCodeActions(
-			modules,
-			account.get("lastLoginServer"),
-			account.get("accountDBID")
-		);
+		await modules.sequelize.transaction(async () => {
+			const actions = new PromoCodeActions(
+				modules,
+				account.get("lastLoginServer"),
+				account.get("accountDBID")
+			);
 
-		await actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
+			await modules.shopModel.promoCodeActivated.create({
+				promoCodeId: promocode.get("promoCodeId"),
+				accountDBID: account.get("accountDBID")
+			});
 
-		await modules.shopModel.promoCodeActivated.create({
-			promoCodeId: promocode.get("promoCodeId"),
-			accountDBID: account.get("accountDBID")
+			return await actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
 		});
 
 		next();
