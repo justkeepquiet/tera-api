@@ -42,12 +42,12 @@ class StrSheetAccountBenefitModel {
 		this.data = data;
 	}
 
-	getOne(id) {
-		return this.data.get(Number(id));
+	getOne(itemTemplateId) {
+		return this.data.get(Number(itemTemplateId));
 	}
 
 	getAll() {
-		return this.data;
+		return this.data.values();
 	}
 }
 

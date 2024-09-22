@@ -17,7 +17,7 @@ class StrSheetAccountBenefitModel {
 				elements.forEach(element => {
 					if (element.attributes?.templateId) {
 						conversions.push({
-							templateId: element.attributes.templateId,
+							itemTemplateId: element.attributes.templateId,
 							class: element.attributes?.class || null,
 							gender: element.attributes?.gender || null,
 							race: element.attributes?.race || null
@@ -40,12 +40,12 @@ class StrSheetAccountBenefitModel {
 		this.data = data;
 	}
 
-	getOne(id) {
-		return this.data.get(Number(id));
+	getOne(itemTemplateId) {
+		return this.data.get(Number(itemTemplateId));
 	}
 
 	getAll() {
-		return this.data;
+		return this.data.values();
 	}
 }
 

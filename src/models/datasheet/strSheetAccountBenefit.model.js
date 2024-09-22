@@ -35,7 +35,7 @@ class StrSheetAccountBenefitModel {
 	}
 
 	getAll() {
-		return this.data;
+		return this.data.values();
 	}
 }
 

@@ -31,12 +31,12 @@ class StrSheetAccountBenefitModel {
 		this.data = data;
 	}
 
-	getOne(id) {
-		return this.data.get(Number(id));
+	getOne(skillId) {
+		return this.data.get(Number(skillId));
 	}
 
 	getAll() {
-		return this.data;
+		return this.data.values();
 	}
 }
 

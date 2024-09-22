@@ -5,7 +5,13 @@ const { Index } = require("flexsearch");
 class StrSheetAccountBenefitModel {
 	constructor() {
 		this.data = new Map();
-		this.stringIndex = new Index({ preset: "memory" });
+		this.stringIndex = new Index({
+			preset: "memory",
+			tokenize: "forward",
+			threshold: 0,
+			resolution: 3,
+			cache: true
+		});
 	}
 
 	get section() {
@@ -19,7 +25,8 @@ class StrSheetAccountBenefitModel {
 
 				this.data.set(attributes.id, {
 					itemTemplateId: attributes.id,
-					string: attributes.string
+					string: attributes.string,
+					toolTip: attributes.toolTip
 				});
 			}
 		};
@@ -37,16 +44,18 @@ class StrSheetAccountBenefitModel {
 		);
 	}
 
-	getOne(id) {
-		return this.data.get(Number(id));
+	getOne(itemTemplateId) {
+		return this.data.get(Number(itemTemplateId));
 	}
 
 	getAll() {
-		return this.data;
+		return this.data.values();
 	}
 
-	findAll(string) {
-		return this.stringIndex.search(string).map(id => this.data.get(id));
+	findAll(string, options = {}) {
+		return this.stringIndex.search(string, options).map(
+			itemTemplateId => this.data.get(itemTemplateId)
+		);
 	}
 }
 
