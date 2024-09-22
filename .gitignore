@@ -1,5 +1,8 @@
 node_modules/*
 data/*
+!data/datasheets/*.txt
+!data/geoip/*.txt
+!data/tera-icons/*.txt
 logs/*
 sessions/*
 public/fontawesome/*
