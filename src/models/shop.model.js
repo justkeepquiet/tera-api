@@ -49,25 +49,6 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		await model.promoCodeActivated.sync();
 	}
 
-	// productItems
-	model.productItems.hasOne(modules.dataModel.itemTemplates, {
-		foreignKey: "itemTemplateId",
-		sourceKey: "itemTemplateId",
-		as: "template"
-	});
-
-	model.productItems.hasMany(modules.dataModel.itemStrings, {
-		foreignKey: "itemTemplateId",
-		sourceKey: "itemTemplateId",
-		as: "strings"
-	});
-
-	model.productItems.hasMany(modules.dataModel.itemConversions, {
-		foreignKey: "itemTemplateId",
-		sourceKey: "itemTemplateId",
-		as: "conversion"
-	});
-
 	// products
 	model.products.hasMany(model.productStrings, {
 		foreignKey: "productId",

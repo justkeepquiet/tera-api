@@ -29,29 +29,22 @@ class ItemClaim {
 				return;
 			}
 
-			promises.push(
-				this.modules.dataModel.itemTemplates.findOne({
-					where: { itemTemplateId: item.item_template_id },
-					include: [{
-						as: "strings",
-						model: this.modules.dataModel.itemStrings,
-						required: false
-					}]
-				}).then(itemTemplate => {
-					if (itemTemplate !== null) {
-						const title = itemTemplate.get("strings")[0]?.get("string") || "undefined";
-						const description = formatStrsheet(itemTemplate.get("strings")[0]?.get("toolTip")) || "undefined";
+			const modelLocale = this.getModelLocale();
+			const itemData = this.modules.datasheetModel.itemData[modelLocale]?.getOne(item.item_template_id);
 
-						return this.serviceItem.getCreate(item.item_template_id, title, description).then(serviceItemId => {
-							if (serviceItemId) {
-								context.items[i].item_id = serviceItemId;
-							}
-						});
-					} else {
-						this.modules.logger.error(`Cannot create Service Item for ItemTemplateId ${item.item_template_id}: non-existent template`);
+			if (itemData) {
+				const strSheetItem = this.modules.datasheetModel.strSheetItem[modelLocale]?.getOne(item.item_template_id);
+				const title = strSheetItem.string || "undefined";
+				const description = formatStrsheet(strSheetItem.toolTip) || "undefined";
+
+				promises.push(this.serviceItem.getCreate(item.item_template_id, title, description).then(serviceItemId => {
+					if (serviceItemId) {
+						context.items[i].item_id = serviceItemId;
 					}
-				})
-			);
+				}));
+			} else {
+				this.modules.logger.error(`Cannot create Service Item for ItemTemplateId ${item.item_template_id}: non-existent template`);
+			}
 		});
 
 		return Promise.all(promises).then(() =>
@@ -73,6 +66,14 @@ class ItemClaim {
 				})
 			)
 		);
+	}
+
+	getModelLocale() {
+		if (this.modules.datasheetModel.itemData["en"] !== undefined) {
+			return "en";
+		}
+
+		return Object.keys(this.modules.datasheetModel.itemData)[0];
 	}
 }
 

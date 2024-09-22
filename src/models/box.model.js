@@ -25,19 +25,6 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		await model.items.sync();
 	}
 
-	// items
-	model.items.hasOne(modules.dataModel.itemTemplates, {
-		foreignKey: "itemTemplateId",
-		sourceKey: "itemTemplateId",
-		as: "template"
-	});
-
-	model.items.hasMany(modules.dataModel.itemStrings, {
-		foreignKey: "itemTemplateId",
-		sourceKey: "itemTemplateId",
-		as: "strings"
-	});
-
 	// info
 	model.info.hasMany(model.items, {
 		foreignKey: "boxId",

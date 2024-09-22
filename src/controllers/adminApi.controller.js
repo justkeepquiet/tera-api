@@ -47,7 +47,7 @@ module.exports.notifications = ({ queue }) => [
 /**
  * @param {modules} modules
  */
-module.exports.homeStats = ({ i18n, datasheetModel, dataModel, serverModel, accountModel, reportModel }) => [
+module.exports.homeStats = ({ i18n, datasheetModel, serverModel, accountModel, reportModel }) => [
 	apiAccessHandler,
 	/**
 	 * @type {RequestHandler}
@@ -141,9 +141,12 @@ module.exports.homeStats = ({ i18n, datasheetModel, dataModel, serverModel, acco
 					}
 				}).then(chatacter => {
 					if (chatacter !== null) {
-						return dataModel.skillIcons.findOne({
-							where: { skillId, class: classIds[chatacter.get("classId")] }
-						}).then(skill =>
+						const skill = datasheetModel.skillIconData[i18n.getLocale()]?.getAll().find(s =>
+							s.skillId === skillId &&
+							s.class === classIds[chatacter.get("classId")]
+						);
+
+						if (skill) {
 							cachedSkills.set(key, skill);
 						);
 					}
@@ -302,7 +305,7 @@ module.exports.getCharacters = ({ logger, sequelize, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.getItems = ({ logger, i18n, sequelize, dataModel }) => [
+module.exports.getItems = ({ logger, i18n, datasheetModel }) => [
 	apiAccessHandler,
 	[query("value").optional({ checkFalsy: true }).isInt()],
 	validationHandler(logger),
@@ -310,43 +313,31 @@ module.exports.getItems = ({ logger, i18n, sequelize, dataModel }) => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const searchParts = req.query.query ? req.query.query.replace(/[-_+:\\"\\']/g, " ").split(" ") : [];
+		let queryResult = [];
 
-		const items = await dataModel.itemStrings.findAll({
-			offset: 0, limit: 8,
-			where: {
-				[Op.or]: req.query.value ? [{ itemTemplateId: req.query.value }] : [
-					sequelize.where(sequelize.col("template.itemTemplateId"), Op.like, `%${req.query.query}%`),
-					{ [Op.and]: searchParts.map(s => sequelize.where(sequelize.fn("lower", sequelize.col("string")), Op.like, `%${s}%`)) }
-				],
-				language: i18n.getLocale()
-			},
-			include: [
-				{
-					as: "template",
-					model: dataModel.itemTemplates,
-					required: true,
-					attributes: ["icon", "rareGrade", "linkSkillId"],
-					include: [
-						{
-							as: "conversion",
-							model: dataModel.itemConversions,
-							include: [{
-								as: "template",
-								model: dataModel.itemTemplates
-							}],
-							required: false
-						},
-						{
-							as: "skillIcon",
-							model: dataModel.skillIcons,
-							required: false
-						}
-					]
-				}
-			],
-			attributes: ["itemTemplateId", "string"]
-		});
+		if (req.query.value || !isNaN(req.query.query)) {
+			const result = datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(req.query.value || req.query.query);
+
+			if (result) {
+				queryResult = [result];
+			}
+		} else if (req.query.query) {
+			queryResult = datasheetModel.strSheetItem[i18n.getLocale()]?.findAll(req.query.query, { limit: 25 });
+		}
+
+		const items = queryResult
+			.map(({ itemTemplateId, string, toolTip }) => ({
+				...datasheetModel.itemData[i18n.getLocale()]?.getOne(itemTemplateId),
+				string, toolTip
+			}))
+			.map(itemData => ({
+				...itemData,
+				itemConversion: (datasheetModel.itemConversion[i18n.getLocale()]?.getOne(itemData.itemTemplateId) || [])
+					.map(({ itemTemplateId }) =>
+						datasheetModel.itemData[i18n.getLocale()]?.getOne(itemTemplateId)
+					),
+				skillIconData: datasheetModel.skillIconData[i18n.getLocale()]?.getOne(itemData.linkSkillId)
+			}));
 
 		res.json({
 			result_code: 0,
@@ -355,21 +346,23 @@ module.exports.getItems = ({ logger, i18n, sequelize, dataModel }) => [
 				const icons = new Set();
 
 				if (item) {
-					icons.add(item.template.icon);
-					item.template.conversion.forEach(conversion =>
-						icons.add(conversion.template.icon)
+					icons.add(item.icon);
+
+					item.itemConversion.forEach(data =>
+						icons.add(data.icon)
 					);
-					item.template.skillIcon.forEach(skillIcon =>
-						icons.add(skillIcon.icon)
-					);
+
+					if (item.skillIconData) {
+						icons.add(item.skillIconData.icon);
+					}
 				}
 
 				return {
 					value: item.itemTemplateId.toString(),
 					data: {
 						title: item.string,
-						icon: item.template.icon,
-						rareGrade: item.template.rareGrade,
+						icon: item.icon,
+						rareGrade: item.rareGrade,
 						icons: [...icons]
 					}
 				};

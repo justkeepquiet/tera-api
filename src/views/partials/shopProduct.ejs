@@ -48,30 +48,30 @@
 			<tr>
 				<td style="width: 30px;">
 					<div class="item-icon-block2">
-						<img src="/public/shop/images/tera-icons/<%= item.get("template").get("icon") %>.png" class="icon_grade_<%= item.get("template").get("rareGrade") %> item-icon2" alt="">
-						<img src="/public/shop/images/icons/icon_grade_<%= item.get("template").get("rareGrade") %>.png" class="item-icon-grade2" alt="">
+						<img src="/public/shop/images/tera-icons/<%= item.icon %>.png" class="icon_grade_<%= item.rareGrade %> item-icon2" alt="">
+						<img src="/public/shop/images/icons/icon_grade_<%= item.rareGrade %>.png" class="item-icon-grade2" alt="">
 					</div>
 				</td>
 				<td class="name">
-					<span class="item_grade_<%= item.get("template").get("rareGrade") %>"><%- item.get("strings")[0]?.get("string") || __("[unknown]") %></span> &ndash; <%- item.get("boxItemCount") %> <%= __("pc.") %>
+					<span class="item_grade_<%= item.rareGrade %>"><%- item.string || __("[unknown]") %></span> &ndash; <%- item.boxItemCount %> <%= __("pc.") %>
 				</td>
 			</tr>
 			<%_ }) _%>
 		</table>
 		<%_ } _%>
-		<%_ if (conversions.length > 0) { _%>
+		<%_ if (conversions.length > 0) { console.log(conversions); _%>
 		<hr><%= __("Possible items") %>:<br>
 		<br><table class="table" style="margin-bottom: 0;">
 			<%_ conversions.forEach(conversion => { _%>
 			<tr>
 				<td style="width: 30px;">
 					<div class="item-icon-block2">
-						<img src="/public/shop/images/tera-icons/<%= conversion.get("template").get("icon") %>.png" class="icon_grade_<%= conversion.get("template").get("rareGrade") %> item-icon2" alt="">
-						<img src="/public/shop/images/icons/icon_grade_<%= conversion.get("template").get("rareGrade") %>.png" class="item-icon-grade2" alt="">
+						<img src="/public/shop/images/tera-icons/<%= conversion.icon %>.png" class="icon_grade_<%= conversion.rareGrade %> item-icon2" alt="">
+						<img src="/public/shop/images/icons/icon_grade_<%= conversion.rareGrade %>.png" class="item-icon-grade2" alt="">
 					</div>
 				</td>
 				<td class="name">
-					<span class="item_grade_<%= conversion.get("template").get("rareGrade") %>"><%- conversion.get("strings")[0]?.get("string") || __("[unknown]") %></span>
+					<span class="item_grade_<%= conversion.rareGrade %>"><%- conversion.string || __("[unknown]") %></span>
 				</td>
 			</tr>
 			<%_ }) _%>

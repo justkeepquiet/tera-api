@@ -27,7 +27,7 @@ const shopLocales = require("../../config/admin").shopLocales;
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ i18n, shopModel, dataModel }) => [
+module.exports.index = ({ i18n, shopModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -66,20 +66,7 @@ module.exports.index = ({ i18n, shopModel, dataModel }) => [
 				},
 				{
 					as: "item",
-					model: shopModel.productItems,
-					include: [
-						{
-							as: "template",
-							model: dataModel.itemTemplates,
-							required: true
-						},
-						{
-							as: "strings",
-							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() },
-							required: false
-						}
-					]
+					model: shopModel.productItems
 				}
 			],
 			order: [
@@ -106,17 +93,20 @@ module.exports.index = ({ i18n, shopModel, dataModel }) => [
 			};
 
 			product.get("item").forEach(productItem => {
+				const itemData = datasheetModel.itemData[i18n.getLocale()]?.getOne(productItem.get("itemTemplateId"));
+				const strSheetItem = datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(productItem.get("itemTemplateId"));
+
 				if (!productInfo.title) {
-					productInfo.title = productItem.get("strings")[0]?.get("string");
+					productInfo.title = strSheetItem.string;
 				}
 				if (!productInfo.description) {
-					productInfo.description = productItem.get("strings")[0]?.get("toolTip");
+					productInfo.description = strSheetItem.toolTip;
 				}
 				if (!productInfo.icon) {
-					productInfo.icon = productItem.get("template").get("icon");
+					productInfo.icon = itemData.icon;
 				}
 				if (productInfo.rareGrade === null) {
-					productInfo.rareGrade = productItem.get("template").get("rareGrade");
+					productInfo.rareGrade = itemData.rareGrade;
 				}
 				if (!productInfo.itemCount) {
 					productInfo.itemCount = productItem.get("boxItemCount");
@@ -200,15 +190,12 @@ module.exports.addAction = modules => [
 		// Items
 		body("itemTemplateIds.*")
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
-			.custom(value => modules.dataModel.itemTemplates.findOne({
-				where: {
-					itemTemplateId: value || null
-				}
-			}).then(data => {
-				if (value && !data) {
+			.custom(value => {
+				if (value && !modules.datasheetModel.itemData[modules.i18n.getLocale()]?.getOne(value)) {
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
 				}
-			}))
+				return true;
+			})
 			.custom((value, { req }) => {
 				const itemTemplateIds = req.body.itemTemplateIds.filter((e, i) =>
 					req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
@@ -243,60 +230,13 @@ module.exports.addAction = modules => [
 			itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
 
 		const serviceItem = new ServiceItem(modules);
-
-		const itemsPromises = [];
 		const resolvedItems = {};
-		const itemIcons = new Set();
 
 		if (itemTemplateIds) {
-			itemTemplateIds.forEach(itemTemplateId => {
-				itemsPromises.push(modules.dataModel.itemTemplates.findOne({
-					where: { itemTemplateId },
-					include: [
-						{
-							as: "strings",
-							model: modules.dataModel.itemStrings,
-							where: { language: modules.i18n.getLocale() },
-							required: false
-						}
-						/*
-						{
-							as: "conversion",
-							model: modules.dataModel.itemConversions,
-							include: [{
-								as: "template",
-								model: modules.dataModel.itemTemplates
-							}],
-							required: false
-						},
-						{
-							as: "skillIcon",
-							model: modules.dataModel.skillIcons,
-							required: false
-						}
-						*/
-					]
-				}));
-			});
+			itemTemplateIds.forEach(itemTemplateId =>
+				resolvedItems[itemTemplateId] = modules.datasheetModel.strSheetItem[modules.i18n.getLocale()]?.getOne(itemTemplateId)
+			);
 		}
-
-		(await Promise.all(itemsPromises)).forEach(item => {
-			if (item) {
-				itemIcons.add(item.get("icon"));
-
-				/*
-				item.get("conversion").forEach(conversion =>
-					itemIcons.add(conversion.get("template").get("icon"))
-				);
-
-				item.get("skillIcon").forEach(skillIcon =>
-					itemIcons.add(skillIcon.get("icon"))
-				);
-				*/
-
-				resolvedItems[item.get("itemTemplateId")] = item;
-			}
-		});
 
 		await modules.sequelize.transaction(async () => {
 			const product = await modules.shopModel.products.create({
@@ -318,8 +258,8 @@ module.exports.addAction = modules => [
 					promises.push(serviceItem.checkCreate(
 						boxItemIds[index],
 						itemTemplateId,
-						resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
-						helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
+						resolvedItems[itemTemplateId].string,
+						helpers.formatStrsheet(resolvedItems[itemTemplateId].toolTip),
 						req.user.userSn || 0
 					).then(boxItemId =>
 						modules.shopModel.productItems.create({
@@ -361,7 +301,7 @@ module.exports.addAction = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, i18n, shopModel, dataModel }) => [
+module.exports.edit = ({ logger, i18n, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -379,8 +319,6 @@ module.exports.edit = ({ logger, i18n, shopModel, dataModel }) => [
 		const itemTemplateIds = [];
 		const boxItemIds = [];
 		const boxItemCounts = [];
-		const promises = [];
-		const itemIcons = new Set();
 
 		const product = await shopModel.products.findOne({
 			where: { id },
@@ -428,52 +366,6 @@ module.exports.edit = ({ logger, i18n, shopModel, dataModel }) => [
 			boxItemCounts.push(productItem.get("boxItemCount"));
 		});
 
-		itemTemplateIds.forEach(itemTemplateId => {
-			promises.push(dataModel.itemTemplates.findOne({
-				where: { itemTemplateId },
-				include: [
-					{
-						as: "strings",
-						model: dataModel.itemStrings,
-						where: { language: i18n.getLocale() },
-						required: false
-					}
-					/*
-					{
-						as: "conversion",
-						model: dataModel.itemConversions,
-						include: [{
-							as: "template",
-							model: dataModel.itemTemplates
-						}],
-						required: false
-					},
-					{
-						as: "skillIcon",
-						model: dataModel.skillIcons,
-						required: false
-					}
-					*/
-				]
-			}));
-		});
-
-		(await Promise.all(promises)).forEach(item => {
-			if (item) {
-				itemIcons.add(item.get("icon"));
-
-				/*
-				item.get("conversion").forEach(conversion =>
-					itemIcons.add(conversion.get("template").get("icon"))
-				);
-
-				item.get("skillIcon").forEach(skillIcon =>
-					itemIcons.add(skillIcon.get("icon"))
-				);
-				*/
-			}
-		});
-
 		res.render("adminShopProductsEdit", {
 			layout: "adminLayout",
 			errors: null,
@@ -495,7 +387,6 @@ module.exports.edit = ({ logger, i18n, shopModel, dataModel }) => [
 			itemTemplateIds,
 			boxItemIds,
 			boxItemCounts,
-			itemIcons,
 			validate: 0
 		});
 	}
@@ -531,15 +422,12 @@ module.exports.editAction = modules => [
 		// Items
 		body("itemTemplateIds.*")
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
-			.custom(value => modules.dataModel.itemTemplates.findOne({
-				where: {
-					itemTemplateId: value || null
-				}
-			}).then(data => {
-				if (value && !data) {
+			.custom(value => {
+				if (value && !modules.datasheetModel.itemData[modules.i18n.getLocale()]?.getOne(value)) {
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
 				}
-			}))
+				return true;
+			})
 			.custom((value, { req }) => {
 				const itemTemplateIds = req.body.itemTemplateIds.filter((e, i) =>
 					req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
@@ -575,10 +463,7 @@ module.exports.editAction = modules => [
 			itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
 
 		const serviceItem = new ServiceItem(modules);
-
-		const itemsPromises = [];
 		const resolvedItems = {};
-		const itemIcons = new Set();
 
 		const product = await modules.shopModel.products.findOne({
 			where: { id },
@@ -604,54 +489,10 @@ module.exports.editAction = modules => [
 		}
 
 		if (itemTemplateIds) {
-			itemTemplateIds.forEach(itemTemplateId => {
-				itemsPromises.push(modules.dataModel.itemTemplates.findOne({
-					where: { itemTemplateId },
-					include: [
-						{
-							as: "strings",
-							model: modules.dataModel.itemStrings,
-							where: { language: modules.i18n.getLocale() },
-							required: false
-						},
-						/*
-						{
-							as: "conversion",
-							model: modules.dataModel.itemConversions,
-							include: [{
-								as: "template",
-								model: modules.dataModel.itemTemplates
-							}],
-							required: false
-						},
-						{
-							as: "skillIcon",
-							model: modules.dataModel.skillIcons,
-							required: false
-						}
-						*/
-					]
-				}));
-			});
+			itemTemplateIds.forEach(itemTemplateId =>
+				resolvedItems[itemTemplateId] = modules.datasheetModel.strSheetItem[modules.i18n.getLocale()]?.getOne(itemTemplateId)
+			);
 		}
-
-		(await Promise.all(itemsPromises)).forEach(item => {
-			if (item) {
-				itemIcons.add(item.get("icon"));
-
-				/*
-				item.get("conversion").forEach(conversion =>
-					itemIcons.add(conversion.get("template").get("icon"))
-				);
-
-				item.get("skillIcon").forEach(skillIcon =>
-					itemIcons.add(skillIcon.get("icon"))
-				);
-				*/
-
-				resolvedItems[item.get("itemTemplateId")] = item;
-			}
-		});
 
 		await modules.sequelize.transaction(async () => {
 			const promises = [
@@ -677,11 +518,13 @@ module.exports.editAction = modules => [
 					if (boxItemIds[index] != productItem.get("boxItemId") ||
 						boxItemCounts[index] != productItem.get("boxItemCount")
 					) {
+						if (!resolvedItems[itemTemplateId]) return;
+
 						promises.push(serviceItem.checkCreate(
 							boxItemIds[index],
 							itemTemplateId,
-							resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
-							helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
+							resolvedItems[itemTemplateId].string,
+							helpers.formatStrsheet(resolvedItems[itemTemplateId].toolTip),
 							req.user.userSn || 0
 						).then(boxItemId =>
 							modules.shopModel.productItems.update({
@@ -727,8 +570,8 @@ module.exports.editAction = modules => [
 						return serviceItem.checkCreate(
 							boxItemIds[index],
 							itemTemplateId,
-							resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
-							helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
+							resolvedItems[itemTemplateId].string,
+							helpers.formatStrsheet(resolvedItems[itemTemplateId].toolTip),
 							req.user.userSn || 0
 						).then(boxItemId =>
 							modules.shopModel.productItems.create({

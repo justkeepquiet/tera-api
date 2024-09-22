@@ -25,7 +25,7 @@ const {
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ i18n, queue, boxModel, dataModel }) => [
+module.exports.index = ({ i18n, queue, boxModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -39,31 +39,35 @@ module.exports.index = ({ i18n, queue, boxModel, dataModel }) => [
 		(await boxModel.info.findAll({
 			include: [{
 				as: "item",
-				model: boxModel.items,
-				include: [
-					{
-						as: "template",
-						model: dataModel.itemTemplates
-					},
-					{
-						as: "strings",
-						model: dataModel.itemStrings,
-						where: { language: i18n.getLocale() },
-						required: false
-					}
-				]
+				model: boxModel.items
 			}],
 			order: [
 				["id", "DESC"],
 				[{ as: "item", model: boxModel.items }, "createdAt", "ASC"]
 			]
 		})).forEach(box => {
+			const items = [];
+
+			box.get("item").forEach(item => {
+				const itemData = datasheetModel.itemData[i18n.getLocale()]?.getOne(item.get("itemTemplateId"));
+				const strSheetItem = datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(item.get("itemTemplateId"));
+
+				items.push({
+					itemTemplateId: item.get("itemTemplateId"),
+					boxItemId: item.get("boxItemId"),
+					boxItemCount: item.get("boxItemCount"),
+					icon: itemData?.icon,
+					rareGrade: itemData?.rareGrade,
+					string: strSheetItem?.string
+				});
+			});
+
 			boxes.set(box.get("id"), {
 				title: box.get("title"),
 				content: box.get("content"),
 				icon: box.get("icon"),
 				days: box.get("days"),
-				items: box.get("item"),
+				items,
 				processing: false
 			});
 
@@ -130,18 +134,16 @@ module.exports.addAction = modules => [
 		// Items
 		body("itemTemplateIds.*")
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
-			.custom(value => modules.dataModel.itemTemplates.findOne({
-				where: { itemTemplateId: value || null }
-			}).then(data => {
-				if (value && !data) {
+			.custom(value => {
+				if (value && !modules.datasheetModel.itemData[modules.i18n.getLocale()]?.getOne(value)) {
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
 				}
-			}))
+				return true;
+			})
 			.custom((value, { req }) => {
 				const itemTemplateIds = req.body.itemTemplateIds.filter((e, i) =>
 					req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
 				);
-
 				return !itemTemplateIds.includes(value);
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
@@ -160,28 +162,13 @@ module.exports.addAction = modules => [
 		const { title, content, icon, days, itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
 
 		const serviceItem = new ServiceItem(modules);
-		const itemsPromises = [];
 		const resolvedItems = {};
 
 		if (itemTemplateIds) {
-			itemTemplateIds.forEach(itemTemplateId => {
-				itemsPromises.push(modules.dataModel.itemTemplates.findOne({
-					where: { itemTemplateId },
-					include: [{
-						as: "strings",
-						model: modules.dataModel.itemStrings,
-						where: { language: modules.i18n.getLocale() },
-						required: false
-					}]
-				}));
-			});
+			itemTemplateIds.forEach(itemTemplateId =>
+				resolvedItems[itemTemplateId] = modules.datasheetModel.strSheetItem[modules.i18n.getLocale()]?.getOne(itemTemplateId)
+			);
 		}
-
-		(await Promise.all(itemsPromises)).forEach(item => {
-			if (item) {
-				resolvedItems[item.get("itemTemplateId")] = item;
-			}
-		});
 
 		await modules.sequelize.transaction(async () => {
 			const box = await modules.boxModel.info.create({
@@ -200,8 +187,8 @@ module.exports.addAction = modules => [
 					promises.push(serviceItem.checkCreate(
 						boxItemIds[index],
 						itemTemplateId,
-						resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
-						helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
+						resolvedItems[itemTemplateId].string,
+						helpers.formatStrsheet(resolvedItems[itemTemplateId].toolTip),
 						req.user.userSn || 0
 					).then(boxItemId =>
 						modules.boxModel.items.create({
@@ -298,18 +285,16 @@ module.exports.editAction = modules => [
 		// Items
 		body("itemTemplateIds.*")
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
-			.custom(value => modules.dataModel.itemTemplates.findOne({
-				where: { itemTemplateId: value || null }
-			}).then(data => {
-				if (value && !data) {
+			.custom(value => {
+				if (value && !modules.datasheetModel.itemData[modules.i18n.getLocale()]?.getOne(value)) {
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
 				}
-			}))
+				return true;
+			})
 			.custom((value, { req }) => {
 				const itemTemplateIds = req.body.itemTemplateIds.filter((e, i) =>
 					req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
 				);
-
 				return !itemTemplateIds.includes(value);
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
@@ -345,28 +330,13 @@ module.exports.editAction = modules => [
 			throw Error("Object not found");
 		}
 
-		const items = [];
 		const resolvedItems = {};
 
 		if (itemTemplateIds) {
-			itemTemplateIds.forEach(itemTemplateId => {
-				items.push(modules.dataModel.itemTemplates.findOne({
-					where: { itemTemplateId },
-					include: [{
-						as: "strings",
-						model: modules.dataModel.itemStrings,
-						where: { language: modules.i18n.getLocale() },
-						required: false
-					}]
-				}));
-			});
+			itemTemplateIds.forEach(itemTemplateId =>
+				resolvedItems[itemTemplateId] = modules.datasheetModel.strSheetItem[modules.i18n.getLocale()]?.getOne(itemTemplateId)
+			);
 		}
-
-		(await Promise.all(items)).forEach(item => {
-			if (item) {
-				resolvedItems[item.get("itemTemplateId")] = item;
-			}
-		});
 
 		await modules.sequelize.transaction(async () => {
 			const promises = [
@@ -388,11 +358,13 @@ module.exports.editAction = modules => [
 					if (boxItemIds[index] != boxItem.get("boxItemId") ||
 						boxItemCounts[index] != boxItem.get("boxItemCount")
 					) {
+						if (!resolvedItems[itemTemplateId]) return;
+
 						promises.push(serviceItem.checkCreate(
 							boxItemIds[index],
 							itemTemplateId,
-							resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
-							helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
+							resolvedItems[itemTemplateId].string,
+							helpers.formatStrsheet(resolvedItems[itemTemplateId].toolTip),
 							req.user.userSn || 0
 						).then(boxItemId =>
 							modules.boxModel.items.update({
@@ -438,8 +410,8 @@ module.exports.editAction = modules => [
 						return serviceItem.checkCreate(
 							boxItemIds[index],
 							itemTemplateId,
-							resolvedItems[itemTemplateId].get("strings")[0]?.get("string"),
-							helpers.formatStrsheet(resolvedItems[itemTemplateId].get("strings")[0]?.get("toolTip")),
+							resolvedItems[itemTemplateId].string,
+							helpers.formatStrsheet(resolvedItems[itemTemplateId].toolTip),
 							req.user.userSn || 0
 						).then(boxItemId =>
 							modules.boxModel.items.create({

@@ -27,7 +27,6 @@ const DB_VERSION = 3;
  * @property {import("./lib/expressServer").app} app
  * @property {import("./lib/scheduler").Scheduler} scheduler
  * @property {import("./models/queue.model").queueModel} queueModel
- * @property {import("./models/data.model").dataModel} dataModel
  * @property {import("./models/account.model").accountModel} accountModel
  * @property {import("./models/server.model").serverModel} serverModel
  * @property {import("./models/report.model").reportModel} reportModel
@@ -227,7 +226,6 @@ moduleLoader.setPromise("sequelize", async () => {
 
 	await moduleLoader.setAsync("queueModel", require("./models/queue.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("serverModel", require("./models/server.model"), sequelize, DataTypes, syncTables);
-	await moduleLoader.setAsync("dataModel", require("./models/data.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("accountModel", require("./models/account.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("reportModel", require("./models/report.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("shopModel", require("./models/shop.model"), sequelize, DataTypes, syncTables);
@@ -323,8 +321,11 @@ const startServers = async modules => {
 
 			if (checkComponent("admin_panel") || checkComponent("portal_api")) {
 				addModel("itemConversion", require("./models/datasheet/itemConversion.model"));
-				addModel("itemData", require("./models/datasheet/itemData.model"));
 				addModel("skillIconData", require("./models/datasheet/skillIconData.model"));
+			}
+
+			if (checkComponent("admin_panel") || checkComponent("portal_api") || checkComponent("arbiter_api")) {
+				addModel("itemData", require("./models/datasheet/itemData.model"));
 				addModel("strSheetItem", require("./models/datasheet/strSheetItem.model"));
 			}
 

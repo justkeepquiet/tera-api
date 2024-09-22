@@ -101,7 +101,7 @@ module.exports.PartialMenuHtml = ({ i18n, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataModel }) => [
+module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datasheetModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[
@@ -122,6 +122,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 		}
 
 		const products = new Map();
+		const searchParts = search ? search.replace(/[-_+:\\"\\']/g, " ").split(" ") : [];
 
 		const whereProduct = {
 			active: 1,
@@ -130,31 +131,32 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 			...category ? { categoryId: category } : {}
 		};
 
-		const searchParts = search ? search.replace(/[-_+:\\"\\']/g, " ").split(" ") : [];
-		const whereSearch = searchParts.length !== 0 ? {
-			[Op.or]: [
-				{ [Op.and]: searchParts.map(s => sequelize.where(sequelize.fn("lower", sequelize.col("strings.title")), Op.like, `%${s}%`)) },
-				{ id: { [Op.in]: (await shopModel.products.findAll({
-					where: whereProduct,
-					attributes: ["id"],
-					include: [{
-						as: "item",
-						model: shopModel.productItems,
-						attributes: [],
-						include: [{
-							as: "strings",
-							model: dataModel.itemStrings,
-							attributes: [],
-							where: [
-								{ [Op.and]: searchParts.map(s => sequelize.where(sequelize.fn("lower", sequelize.col("string")), Op.like, `%${s}%`)) },
-								{ language: { [Op.eq]: i18n.getLocale() } }
-							]
-						}],
-						required: true
-					}]
-				})).map(item => item.get("id")) } }
-			]
-		} : {};
+		let whereSearch = {};
+
+		if (searchParts.length !== 0) {
+			const foundItems = datasheetModel.strSheetItem[i18n.getLocale()]?.findAll(search);
+
+			const foundProducts = await shopModel.products.findAll({
+				where: whereProduct,
+				attributes: ["id"],
+				include: [{
+					as: "item",
+					model: shopModel.productItems,
+					attributes: ["itemTemplateId"],
+					where: [
+						{ itemTemplateId: { [Op.in]: foundItems.map(item => item.itemTemplateId) } }
+					],
+					required: true
+				}]
+			});
+
+			whereSearch = {
+				[Op.or]: [
+					{ [Op.and]: searchParts.map(s => sequelize.where(sequelize.fn("lower", sequelize.col("strings.title")), Op.like, `%${s}%`)) },
+					{ id: { [Op.in]: foundProducts.map(item => item.get("id")) } }
+				]
+			};
+		}
 
 		(await shopModel.products.findAll({
 			where: { ...whereProduct, ...whereSearch },
@@ -167,20 +169,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 				},
 				{
 					as: "item",
-					model: shopModel.productItems,
-					include: [
-						{
-							as: "template",
-							model: dataModel.itemTemplates,
-							required: true
-						},
-						{
-							as: "strings",
-							model: dataModel.itemStrings,
-							where: { language: i18n.getLocale() },
-							required: false
-						}
-					]
+					model: shopModel.productItems
 				}
 			],
 			order: [
@@ -200,17 +189,20 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 			};
 
 			product.get("item").forEach(productItem => {
+				const itemData = datasheetModel.itemData[i18n.getLocale()]?.getOne(productItem.get("itemTemplateId"));
+				const strSheetItem = datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(productItem.get("itemTemplateId"));
+
 				if (!productInfo.title) {
-					productInfo.title = productItem.get("strings")[0]?.get("string");
+					productInfo.title = strSheetItem.string;
 				}
 				if (!productInfo.description) {
-					productInfo.description = productItem.get("strings")[0]?.get("toolTip");
+					productInfo.description = strSheetItem.toolTip;
 				}
 				if (!productInfo.icon) {
-					productInfo.icon = productItem.get("template").get("icon");
+					productInfo.icon = itemData.icon;
 				}
 				if (productInfo.rareGrade === null) {
-					productInfo.rareGrade = productItem.get("template").get("rareGrade");
+					productInfo.rareGrade = itemData.rareGrade;
 				}
 				if (!productInfo.itemCount) {
 					productInfo.itemCount = productItem.get("boxItemCount");
@@ -229,7 +221,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, dataM
 /**
  * @param {modules} modules
  */
-module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataModel }) => [
+module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datasheetModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[
@@ -272,79 +264,69 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, dataM
 			rareGrade: product.get("rareGrade")
 		};
 
-		const items = await shopModel.productItems.findAll({
+		const productItems = await shopModel.productItems.findAll({
 			where: { productId: product.get("id") },
-			include: [
-				{
-					as: "template",
-					model: dataModel.itemTemplates
-				},
-				{
-					as: "strings",
-					model: dataModel.itemStrings,
-					where: { language: i18n.getLocale() },
-					required: false
-				}
-			],
 			order: [
 				["createdAt", "ASC"]
 			]
 		});
 
-		if (items.length === 0) {
+		if (productItems.length === 0) {
 			return res.status(500).send();
 		}
 
-		const firstItem = items[0];
+		const items = [];
 		const conversions = [];
-		const promises = [];
 
-		items.forEach(item => {
-			promises.push(dataModel.itemConversions.findAll({
-				where: { itemTemplateId: item.get("itemTemplateId") },
-				include: [
-					{
-						as: "template",
-						model: dataModel.itemTemplates
-					},
-					{
-						as: "strings",
-						model: dataModel.itemStrings,
-						where: { language: i18n.getLocale() },
-						required: false
-					}
-				]
-			}));
+		productItems.forEach(item => {
+			const itemData = datasheetModel.itemData[i18n.getLocale()]?.getOne(item.get("itemTemplateId"));
+			const strSheetItem = datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(item.get("itemTemplateId"));
+
+			items.push({
+				itemTemplateId: item.get("itemTemplateId"),
+				boxItemId: item.get("boxItemId"),
+				boxItemCount: item.get("boxItemCount"),
+				icon: itemData?.icon,
+				rareGrade: itemData?.rareGrade,
+				string: strSheetItem?.string
+			});
+
+			const conversion = (datasheetModel.itemConversion[i18n.getLocale()]?.getOne(item.itemTemplateId) || [])
+				.map(({ itemTemplateId }) => ({
+					...datasheetModel.itemData[i18n.getLocale()]?.getOne(itemTemplateId) || {},
+					...datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(itemTemplateId) || {}
+				}));
+
+			conversions.push(...conversion);
 		});
 
-		(await Promise.all(promises)).forEach(ItemConversion =>
-			ItemConversion.forEach(conversion => conversions.push(conversion))
-		);
+		const itemData = datasheetModel.itemData[i18n.getLocale()]?.getOne(items[0].itemTemplateId);
+		const strSheetItem = datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(items[0].itemTemplateId);
 
 		if (!productObj.title) {
-			productObj.title = firstItem.get("strings")[0]?.get("string");
+			productObj.title = strSheetItem.string;
 		}
 
 		if (!productObj.description) {
-			productObj.description = firstItem.get("strings")[0]?.get("toolTip");
+			productObj.description = strSheetItem.toolTip;
 		}
 
 		if (!productObj.icon) {
-			productObj.icon = firstItem.get("template").get("icon");
+			productObj.icon = itemData.icon;
 		}
 
 		if (!productObj.rareGrade) {
-			productObj.rareGrade = firstItem.get("template").get("rareGrade");
+			productObj.rareGrade = itemData.rareGrade;
 		}
 
-		productObj.requiredLevel = firstItem.get("template").get("requiredLevel");
-		productObj.requiredClass = firstItem.get("template").get("requiredClass")?.split(";") || [];
-		productObj.requiredGender = firstItem.get("template").get("requiredGender");
-		productObj.requiredRace = (firstItem.get("template").get("requiredRace")?.split(";") || [])
+		productObj.requiredLevel = itemData.requiredLevel;
+		productObj.requiredClass = itemData.requiredClass?.split(";") || [];
+		productObj.requiredGender = itemData.requiredGender;
+		productObj.requiredRace = (itemData.requiredRace?.split(";") || [])
 			.map(race => (race === "popori" && productObj.requiredGender === "female" ? "elin" : race));
 
-		productObj.tradable = firstItem.get("template").get("tradable");
-		productObj.warehouseStorable = firstItem.get("template").get("warehouseStorable");
+		productObj.tradable = itemData.tradable;
+		productObj.warehouseStorable = itemData.warehouseStorable;
 
 		res.render("partials/shopProduct", { helpers, product: productObj, items, conversions, search, back });
 	}
@@ -488,13 +470,7 @@ module.exports.PurchaseAction = modules => [
 			},
 			include: [{
 				as: "item",
-				model: modules.shopModel.productItems,
-				include: [{
-					// all locales
-					as: "strings",
-					model: modules.dataModel.itemStrings,
-					required: false
-				}]
+				model: modules.shopModel.productItems
 			}]
 		});
 
@@ -526,12 +502,14 @@ module.exports.PurchaseAction = modules => [
 		const promises = [];
 		const items = [];
 
-		shopProduct.get("item").forEach(item =>
+		shopProduct.get("item").forEach(item => {
+			const strSheetItem = modules.datasheetModel.strSheetItem[modules.i18n.getLocale()]?.getOne(item.get("itemTemplateId"));
+
 			promises.push(serviceItem.checkCreate(
 				item.get("boxItemId"),
 				item.get("itemTemplateId"),
-				item.get("strings")[0]?.get("string"),
-				helpers.formatStrsheet(item.get("strings")[0]?.get("toolTip")),
+				strSheetItem?.string,
+				helpers.formatStrsheet(strSheetItem?.toolTip),
 				0
 			).then(boxItemId => {
 				items.push({
@@ -545,8 +523,8 @@ module.exports.PurchaseAction = modules => [
 						where: { id: item.get("id") }
 					});
 				}
-			}))
-		);
+			}));
+		});
 
 		await Promise.all(promises);
 
@@ -554,13 +532,14 @@ module.exports.PurchaseAction = modules => [
 			throw new ApiError("items not exists", 3000);
 		}
 
-		await modules.sequelize.transaction(async () => {
-			await modules.shopModel.accounts.decrement({
-				balance: shopProduct.get("price")
-			}, {
-				where: { accountDBID: shopAccount.get("accountDBID") }
-			});
+		await modules.shopModel.accounts.decrement({
+			balance: shopProduct.get("price")
+		}, {
+			where: { accountDBID: shopAccount.get("accountDBID") }
+		});
 
+		// no awaiting
+		modules.sequelize.transaction(async () => {
 			const boxId = await (new ItemClaim(
 				modules,
 				req.user.accountDBID,
@@ -583,6 +562,20 @@ module.exports.PurchaseAction = modules => [
 			}, {
 				where: { id: logResult.get("id") }
 			});
+		}).catch(async err => {
+			modules.logger.error(err);
+
+			return modules.shopModel.accounts.increment({
+				balance: shopProduct.get("price")
+			}, {
+				where: { accountDBID: shopAccount.get("accountDBID") }
+			}).then(() =>
+				modules.reportModel.shopPay.update({
+					status: "rejected"
+				}, {
+					where: { id: logResult.get("id") }
+				})
+			);
 		});
 
 		res.json({
@@ -631,19 +624,29 @@ module.exports.PromoCodeAction = modules => [
 			throw new ApiError("invalid promocode", 1010);
 		}
 
-		await modules.sequelize.transaction(async () => {
+		await modules.shopModel.promoCodeActivated.create({
+			promoCodeId: promocode.get("promoCodeId"),
+			accountDBID: req.user.accountDBID
+		});
+
+		// no awaiting
+		modules.sequelize.transaction(async () => {
 			const actions = new PromoCodeActions(
 				modules,
 				req.user.lastLoginServer,
 				req.user.accountDBID
 			);
 
-			await modules.shopModel.promoCodeActivated.create({
-				promoCodeId: promocode.get("promoCodeId"),
-				accountDBID: req.user.accountDBID
-			});
+			return await actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
+		}).catch(err => {
+			modules.logger.error(err);
 
-			return actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
+			return modules.shopModel.promoCodeActivated.destroy({
+				where: {
+					promoCodeId: promocode.get("promoCodeId"),
+					accountDBID: req.user.accountDBID
+				}
+			});
 		});
 
 		res.json({
