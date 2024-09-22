@@ -158,17 +158,15 @@ module.exports.homeStats = ({ i18n, datasheetModel, dataModel, serverModel, acco
 		cheatsReport.forEach(report => {
 			const [account, name, a, b, skillId, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
 
-			const dungeon = datasheetModel.strSheetDungeon[i18n.getLocale()].get(Number(huntingZoneId));
-			const creature = datasheetModel.strSheetCreature[i18n.getLocale()].find(
-				c => c.huntingZoneId == huntingZoneId && c.templateId == templateId
-			);
+			const dungeon = datasheetModel.strSheetDungeon[i18n.getLocale()]?.getOne(huntingZoneId);
+			const creature = datasheetModel.strSheetCreature[i18n.getLocale()]?.getOne(huntingZoneId, templateId);
 
 			cheatsReportItems.push({
 				reportTime: moment(report.get("reportTime")).tz(req.user.tz).format("YYYY-MM-DD HH:mm"),
 				accountDBID: report.get("accountDBID"),
 				name,
 				skill: `${skillId} ${a}/${b}`,
-				dungeon: `(${huntingZoneId}) ${dungeon || huntingZoneId}`,
+				dungeon: `(${huntingZoneId}) ${dungeon?.string || huntingZoneId}`,
 				creature: `(${templateId}) ${creature?.name || templateId}`,
 				coords: `${x}, ${y}, ${z}`,
 				ip: report.get("ip"),

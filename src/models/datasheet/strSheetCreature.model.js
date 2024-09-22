@@ -1,28 +1,43 @@
 "use strict";
 
-/**
- * @typedef {object[]} data
- */
+class StrSheetAccountBenefitModel {
+	constructor() {
+		this.data = new Map();
+	}
 
-/**
- * @param {data} data
- */
-module.exports = data => {
-	const result = [];
-	let length = 0;
+	get section() {
+		return "StrSheet_Creature";
+	}
 
-	data.forEach(huntingZone => {
-		if (!huntingZone.elements) return;
+	get bindings() {
+		return {
+			"/StrSheet_Creature/HuntingZone": ({ attributes, elements }) => {
+				elements.forEach(element => {
+					this.data.set(`${attributes.id},${element.attributes.templateId}`, {
+						zoneId: attributes.id,
+						templateId: element.attributes.templateId,
+						name: element.attributes.name
+					});
+				});
+			}
+		};
+	}
 
-		length += huntingZone.elements.length;
-		huntingZone.elements.forEach(string => {
-			if (!huntingZone.attributes) return;
+	export() {
+		return this.data;
+	}
 
-			result.push({
-				huntingZoneId: huntingZone.attributes.id, ...string.attributes
-			});
-		});
-	});
+	import(data) {
+		this.data = data;
+	}
 
-	return result;
-};
+	getOne(huntingZoneId, templateId) {
+		return this.data.get(`${huntingZoneId},${templateId}`);
+	}
+
+	getAll() {
+		return this.data;
+	}
+}
+
+module.exports = StrSheetAccountBenefitModel;

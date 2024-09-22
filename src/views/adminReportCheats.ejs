@@ -39,17 +39,15 @@ const tableData = [];
 reports.forEach(report => {
 	const [account, name, a, b, skillId, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
 
-	const dungeon = datasheetModel.strSheetDungeon[locale].get(Number(huntingZoneId));
-	const creature = datasheetModel.strSheetCreature[locale].find(
-		c => c.huntingZoneId == huntingZoneId && c.templateId == templateId
-	);
+	const dungeon = datasheetModel.strSheetDungeon[locale]?.getOne(huntingZoneId);
+	const creature = datasheetModel.strSheetCreature[locale]?.getOne(huntingZoneId, templateId);
 
 	tableData.push([
 		moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		report.get("accountDBID"),
 		name,
 		`${skillId} ${a}/${b}`,
-		`(${huntingZoneId}) ${dungeon || huntingZoneId}<br>(${templateId}) ${creature?.name || templateId}<br>${x}, ${y}, ${z}`,
+		`(${huntingZoneId}) ${dungeon?.string || huntingZoneId}<br>(${templateId}) ${creature?.name || templateId}<br>${x}, ${y}, ${z}`,
 		report.get("ip"),
 		`(${report.get("serverId")}) ${report.get("server")?.get("nameString") || ""}`
 	]);

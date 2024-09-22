@@ -258,7 +258,8 @@ module.exports.addAction = modules => [
 							model: modules.dataModel.itemStrings,
 							where: { language: modules.i18n.getLocale() },
 							required: false
-						},
+						}
+						/*
 						{
 							as: "conversion",
 							model: modules.dataModel.itemConversions,
@@ -273,6 +274,7 @@ module.exports.addAction = modules => [
 							model: modules.dataModel.skillIcons,
 							required: false
 						}
+						*/
 					]
 				}));
 			});
@@ -282,6 +284,7 @@ module.exports.addAction = modules => [
 			if (item) {
 				itemIcons.add(item.get("icon"));
 
+				/*
 				item.get("conversion").forEach(conversion =>
 					itemIcons.add(conversion.get("template").get("icon"))
 				);
@@ -289,6 +292,7 @@ module.exports.addAction = modules => [
 				item.get("skillIcon").forEach(skillIcon =>
 					itemIcons.add(skillIcon.get("icon"))
 				);
+				*/
 
 				resolvedItems[item.get("itemTemplateId")] = item;
 			}
@@ -433,7 +437,8 @@ module.exports.edit = ({ logger, i18n, shopModel, dataModel }) => [
 						model: dataModel.itemStrings,
 						where: { language: i18n.getLocale() },
 						required: false
-					},
+					}
+					/*
 					{
 						as: "conversion",
 						model: dataModel.itemConversions,
@@ -448,6 +453,7 @@ module.exports.edit = ({ logger, i18n, shopModel, dataModel }) => [
 						model: dataModel.skillIcons,
 						required: false
 					}
+					*/
 				]
 			}));
 		});
@@ -456,6 +462,7 @@ module.exports.edit = ({ logger, i18n, shopModel, dataModel }) => [
 			if (item) {
 				itemIcons.add(item.get("icon"));
 
+				/*
 				item.get("conversion").forEach(conversion =>
 					itemIcons.add(conversion.get("template").get("icon"))
 				);
@@ -463,6 +470,7 @@ module.exports.edit = ({ logger, i18n, shopModel, dataModel }) => [
 				item.get("skillIcon").forEach(skillIcon =>
 					itemIcons.add(skillIcon.get("icon"))
 				);
+				*/
 			}
 		});
 
@@ -606,6 +614,7 @@ module.exports.editAction = modules => [
 							where: { language: modules.i18n.getLocale() },
 							required: false
 						},
+						/*
 						{
 							as: "conversion",
 							model: modules.dataModel.itemConversions,
@@ -620,6 +629,7 @@ module.exports.editAction = modules => [
 							model: modules.dataModel.skillIcons,
 							required: false
 						}
+						*/
 					]
 				}));
 			});
@@ -629,6 +639,7 @@ module.exports.editAction = modules => [
 			if (item) {
 				itemIcons.add(item.get("icon"));
 
+				/*
 				item.get("conversion").forEach(conversion =>
 					itemIcons.add(conversion.get("template").get("icon"))
 				);
@@ -636,6 +647,7 @@ module.exports.editAction = modules => [
 				item.get("skillIcon").forEach(skillIcon =>
 					itemIcons.add(skillIcon.get("icon"))
 				);
+				*/
 
 				resolvedItems[item.get("itemTemplateId")] = item;
 			}

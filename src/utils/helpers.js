@@ -10,6 +10,7 @@
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
+const CRC32 = require("crc-32");
 const bencode = require("bencode");
 const validationResult = require("express-validator").validationResult;
 const logger = require("../utils/logger");
@@ -292,4 +293,42 @@ module.exports.getFilenamesFromDirectory = (directory, exts = [".png", ".jpg"]) 
 		exts.includes(path.extname(file).toLowerCase())
 	);
 	return imageFiles;
+};
+
+/**
+* @param {import("fs").PathLike} filePath
+* @return {number}
+*/
+module.exports.getRevision = filePath => {
+	const stats = fs.statSync(filePath);
+
+	if (stats.isFile()) {
+		const mtimeMs = stats.mtimeMs;
+		return CRC32.str(mtimeMs.toString());
+	}
+
+	if (stats.isDirectory()) {
+		let mtimeSum = "";
+
+		const calculateDirectoryCrc = dirPath => {
+			const files = fs.readdirSync(dirPath);
+
+			files.forEach(file => {
+				const fullPath = path.join(dirPath, file);
+				const fileStats = fs.statSync(fullPath);
+
+				if (fileStats.isFile()) {
+					mtimeSum += fileStats.mtimeMs.toString();
+				} else if (fileStats.isDirectory()) {
+					calculateDirectoryCrc(fullPath);
+				}
+			});
+		};
+
+		calculateDirectoryCrc(filePath);
+
+		return CRC32.str(mtimeSum);
+	}
+
+	throw new Error("The specified path is not a file or directory.");
 };

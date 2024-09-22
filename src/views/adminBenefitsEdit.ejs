@@ -20,7 +20,7 @@
 							<div class="col-sm-6">
 								<label class="control-label" for="benefitId"><%= __("Benefit ID") %></label>
 								<select class="form-control boxed" name="benefitIds[]" disabled>
-								<%_ accountBenefits.forEach((string, id) => { _%>
+								<%_ accountBenefits.getAll().forEach(({ string }, id) => { _%>
 									<option value="<%= id %>" <%= benefitId == id ? 'selected' : "" %>>(<%= id %>) <%= string %></option>
 								<%_ }) _%>
 								</select>

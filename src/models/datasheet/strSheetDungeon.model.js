@@ -1,18 +1,40 @@
 "use strict";
 
-/**
- * @typedef {object[]} data
- */
+class StrSheetAccountBenefitModel {
+	constructor() {
+		this.data = new Map();
+	}
 
-/**
- * @param {data} data
- */
-module.exports = data => {
-	const result = new Map();
+	get section() {
+		return "StrSheet_Dungeon";
+	}
 
-	data.forEach(element =>
-		result.set(Number(element.attributes.id), element.attributes.string)
-	);
+	get bindings() {
+		return {
+			"/StrSheet_Dungeon/String": ({ attributes }) => {
+				this.data.set(attributes.id, {
+					id: attributes.id,
+					string: attributes.string
+				});
+			}
+		};
+	}
 
-	return result;
-};
+	export() {
+		return this.data;
+	}
+
+	import(data) {
+		this.data = data;
+	}
+
+	getOne(id) {
+		return this.data.get(Number(id));
+	}
+
+	getAll() {
+		return this.data;
+	}
+}
+
+module.exports = StrSheetAccountBenefitModel;

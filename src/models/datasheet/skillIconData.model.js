@@ -6,18 +6,19 @@ class StrSheetAccountBenefitModel {
 	}
 
 	get section() {
-		return "StrSheet_AccountBenefit";
+		return "SkillIconData";
 	}
 
 	get bindings() {
 		return {
-			"/StrSheet_AccountBenefit/String": ({ attributes }) => {
-				if (attributes.id < 1999) {
-					this.data.set(attributes.id, {
-						id: attributes.id,
-						string: attributes.string
-					});
-				}
+			"/SkillIconData/Icon": ({ attributes }) => {
+				this.data.set(attributes.skillId, {
+					skillId: attributes.skillId,
+					class: attributes.class.toLowerCase(),
+					race: attributes.race.toLowerCase(),
+					gender: attributes.gender.toLowerCase(),
+					icon: attributes.iconName.split(".").at(-1).toLowerCase()
+				});
 			}
 		};
 	}

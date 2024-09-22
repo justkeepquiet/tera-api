@@ -60,7 +60,7 @@ const tableData = [];
 	tableData.push([
 		benefit.get("accountDBID"),
 		benefit.get("benefitId"),
-		accountBenefits.get(benefit.get("benefitId")) || "-",
+		accountBenefits?.getOne(benefit.get("benefitId"))?.string || "-",
 		moment(benefit.get("availableUntil")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		`<span class="text-${active ? "success" : "danger"}">${active ? __("Yes") : __("No")}</span>`,
 		`<a class="btn btn-secondary btn-sm" href="/benefits/edit?benefitId=${benefit.get("benefitId")}&amp;accountDBID=${benefit.get("accountDBID")}"><i class="fa fa-pencil"></i></a> ` +

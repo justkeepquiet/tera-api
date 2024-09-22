@@ -4,71 +4,167 @@ const fs = require("fs");
 const path = require("path");
 const xmljs = require("xml-js");
 
+const Packer = require("./datacenter/packer");
+const Reader = require("./datacenter/reader");
+const Datacenter = require("./datacenter/datacenter");
+
 class DatasheetLoader {
-	constructor(logger) {
+	constructor(logger = null) {
 		this.logger = logger;
-
-		this.direcory = path.join(__dirname, "..", "..", "data", "datasheets");
-		this.locales = fs.readdirSync(this.direcory);
-
-		this.promises = [];
-		this.results = {};
+		this.loader = null;
+		this.bindings = {};
 	}
 
-	add(datasheet, datasheetOrigin, parserFunc) {
-		this.results[datasheet] = {};
+	fromBinary(filePath, key, iv, params = { isCompressed: true, hasPadding: true }) {
+		return this.loader = new BinaryLoader(filePath, key, iv, params, this.logger);
+	}
 
-		this.locales.forEach(locale => {
-			this.promises.push(this._parseXml(datasheetOrigin, locale).then(data => {
-				const result = parserFunc(data);
-				const elements = result.size || result.length;
+	fromXml(directoryPath) {
+		return this.loader = new XmlLoader(directoryPath, this.logger);
+	}
 
-				this.results[datasheet][locale] = result;
+	addModel(instance) {
+		if (!this.loader) {
+			throw "DatasheetLoader: Loader is not loaded";
+		}
 
-				this.logger.info(`Loaded: ${locale}:${datasheet}, elements: ${elements}`);
-			}));
+		if (instance.section === undefined || instance.bindings === undefined) {
+			throw "Invalid model format.";
+		}
+
+		this.bindings = { ...this.bindings, ...instance.bindings };
+		this.loader.addSection(instance.section);
+
+		return instance;
+	}
+
+	load() {
+		if (!this.loader) {
+			throw "DatasheetLoader: Loader is not loaded";
+		}
+
+		if (this.loader.sections.length !== 0) {
+			this.loader.load(this.bindings);
+		}
+	}
+}
+class BinaryLoader {
+	constructor(filePath, key, iv, params, logger) {
+		this.logger = logger;
+		this.sections = [];
+
+		this.packer = new Packer(key, iv, filePath, params.isCompressed, logger);
+		this.reader = new Reader(params.isCompressed, logger);
+		this.datacenter = new Datacenter(logger);
+	}
+
+	addSection(section) {
+		this.sections.push(section);
+	}
+
+	load(bindings) {
+		const time = Date.now();
+
+		if (this.logger) {
+			this.logger.info(`BinaryLoader: Begin loading: file: ${this.packer.filePath}`);
+		}
+
+		const dataUnpacked = this.packer.unpack();
+		this.reader.read(dataUnpacked, this.datacenter);
+		const parsedData = this.datacenter.parse(this.sections, bindings);
+
+		if (this.logger) {
+			const used = process.memoryUsage();
+
+			this.logger.info("BinaryLoader: Loading done took " +
+				`${((Date.now() - time) / 1000).toFixed(2)}s ` +
+				`rss: ${Math.round(used.rss / 1024 / 1024 * 100) / 100} MB`
+			);
+		}
+
+		return parsedData;
+	}
+}
+
+class XmlLoader {
+	constructor(directoryPath, logger) {
+		this.directoryPath = directoryPath;
+		this.logger = logger;
+		this.sections = [];
+	}
+
+	addSection(section) {
+		this.sections.push(section);
+	}
+
+	load(bindings) {
+		const time = Date.now();
+
+		if (this.logger) {
+			this.logger.info(`XmlLoader: Begin loading: file: ${this.directoryPath}, bindings: ${Object.keys(bindings).length}`);
+		}
+
+		const sections = fs.readdirSync(this.directoryPath);
+		const parsedData = [];
+
+		sections.forEach(section => {
+			if (this.sections.length !== 0 && !this.sections.includes(section)) {
+				return;
+			}
+
+			this.logger.info(`XmlLoader: Parse section: ${section}`);
+			const elements = this.parseSection(section, bindings);
+
+			parsedData.push(...elements);
 		});
+
+		if (this.logger) {
+			this.logger.info(`XmlLoader: Loading done took ${((Date.now() - time) / 1000).toFixed(2)}s`);
+		}
+
+		return parsedData;
 	}
 
-	final() {
-		return new Promise(resolve =>
-			Promise.all(this.promises)
-				.then(() => resolve({ ...this.results }))
-		);
-	}
+	parseSection(section, bindings) {
+		const directory = path.join(this.directoryPath, section);
+		const files = fs.readdirSync(directory);
+		const filesData = [];
 
-	_parseXml(datasheet, locale) {
-		const direcory = path.join(this.direcory, locale, datasheet);
+		files.forEach(file => {
+			if (path.extname(file) !== ".xml") {
+				return;
+			}
 
-		return fs.promises.readdir(direcory, { withFileTypes: true }).then(filenames => {
-			const promises = [];
+			this.logger.debug(`XmlLoader: Parse file: ${file}`);
 
-			filenames.forEach((file, index) => {
-				if (path.extname(file.name) !== ".xml") {
-					return;
+			const content = fs.readFileSync(path.join(directory, file), { encoding: "utf8" });
+			const reference = xmljs.xml2js(content, { ignoreComment: true, nativeTypeAttributes: true });
+
+			if (reference) {
+				if (reference.elements) {
+					filesData.push(reference.elements[0]);
 				}
 
-				promises.push(
-					fs.promises.readFile(path.join(direcory, file.name), { encoding: "utf8" }).then(content => {
-						const data = xmljs.xml2js(content, { ignoreComment: true }).elements[0];
-						const elements = [];
+				this.callElements(reference, "", bindings);
+			}
+		});
 
-						if (data) {
-							data.elements.forEach(element =>
-								elements.push(element)
-							);
-						}
+		return filesData;
+	}
 
-						this.logger.debug(`Parsed: [${locale}] ${filenames.length - index}/${filenames.length}: ${file.name}`);
+	callElements(ref, pathNodes, bindings) {
+		if (ref.elements === undefined) {
+			ref.elements = [];
+		}
 
-						return Promise.resolve(elements);
-					})
-				);
-			});
+		const binding = bindings[pathNodes];
 
-			return Promise.all(promises).then(data =>
-				data.reduce((array, row) => array.concat(row), [])
-			);
+		if (typeof binding === "function") {
+			binding.call(null, ref);
+		}
+
+		ref.elements.forEach(element => {
+			this.callElements(element, `${pathNodes}/${element.name}`, bindings);
 		});
 	}
 }

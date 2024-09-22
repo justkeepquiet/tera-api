@@ -8,9 +8,13 @@ const DB_VERSION = 3;
  * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
  *
  * @typedef {object} datasheetModel
- * @property {Map[]} strSheetAccountBenefit
- * @property {Map[]} strSheetDungeon
- * @property {[][]} strSheetCreature
+ * @property {import("./models/datasheet/strSheetAccountBenefit.model")[]} strSheetAccountBenefit
+ * @property {import("./models/datasheet/strSheetDungeon.model")[]} strSheetDungeon
+ * @property {import("./models/datasheet/strSheetCreature.model")[]} strSheetCreature
+ * @property {import("./models/datasheet/itemConversion.model")[]} itemConversion
+ * @property {import("./models/datasheet/itemData.model")[]} itemData
+ * @property {import("./models/datasheet/skillIconData.model")[]} skillIconData
+ * @property {import("./models/datasheet/strSheetItem.model")[]} strSheetItem
  *
  * @typedef {object} modules
  * @property {Sequelize} sequelize
@@ -52,6 +56,8 @@ const ExpressServer = require("./lib/expressServer");
 const TasksActions = require("./actions/tasks.actions");
 const ServerCheckActions = require("./actions/serverCheck.actions");
 const MigrationManager = require("./utils/migrationManager");
+const CacheManager = require("./utils/cacheManager");
+const helpers = require("./utils/helpers");
 const createLogger = require("./utils/logger").createLogger;
 const cliHelper = require("./utils/cliHelper");
 
@@ -139,18 +145,6 @@ moduleLoader.setPromise("geoip", async () => {
 	} else {
 		geoipLogger.debug(`File ${filePath} is not found. Skip loading.`);
 	}
-});
-
-moduleLoader.setPromise("datasheetModel", async () => {
-	const datasheetLoader = new DatasheetLoader(createLogger("Datasheet", { colors: { debug: "gray" } }));
-
-	if (checkComponent("admin_panel")) {
-		datasheetLoader.add("strSheetAccountBenefit", "StrSheet_AccountBenefit", require("./models/datasheet/strSheetAccountBenefit.model"));
-		datasheetLoader.add("strSheetDungeon", "StrSheet_Dungeon", require("./models/datasheet/strSheetDungeon.model"));
-		datasheetLoader.add("strSheetCreature", "StrSheet_Creature", require("./models/datasheet/strSheetCreature.model"));
-	}
-
-	return await datasheetLoader.final();
 });
 
 moduleLoader.setPromise("sequelize", async () => {
@@ -250,6 +244,107 @@ moduleLoader.setPromise("sequelize", async () => {
  */
 const startServers = async modules => {
 	const schedulerConfig = require("../config/scheduler");
+
+	moduleLoader.setAsync("datasheetModel", async () => {
+		const cacheManager = new CacheManager(
+			path.join(__dirname, "..", "data", "cache"), "dc",
+			createLogger("CacheManager", { colors: { debug: "gray" } })
+		);
+
+		const useBinary = /^true$/i.test(process.env.DATASHEET_USE_BINARY);
+		const directory = path.join(__dirname, "..", "data", "datasheets");
+		const datasheetModel = [];
+		const variants = [];
+		let cacheRevision = null;
+
+		if (useBinary) {
+			fs.readdirSync(directory).forEach(file => {
+				const match = file.match(/_(\w{3})\.dat$/);
+
+				if (match) {
+					variants.push({ region: match[1], locale: helpers.regionToLanguage(match[1]) });
+				}
+			});
+		} else {
+			fs.readdirSync(directory).forEach(file => {
+				const stats = fs.statSync(path.join(directory, file));
+
+				if (stats.isDirectory()) {
+					variants.push({ region: helpers.languageToRegion(file), locale: file });
+				}
+			});
+		}
+
+		for (const { region, locale } of variants) {
+			const datasheetLoader = new DatasheetLoader(createLogger("Datasheet", { colors: { debug: "gray" } }));
+
+			if (useBinary) {
+				const filePath = path.join(directory, `DataCenter_Final_${region}.dat`);
+
+				cacheRevision = helpers.getRevision(filePath);
+				datasheetLoader.fromBinary(filePath,
+					process.env.DATASHEET_DATACENTER_KEY,
+					process.env.DATASHEET_DATACENTER_IV,
+					{
+						isCompressed: /^true$/i.test(process.env.DATASHEET_DATACENTER_IS_COMPRESSED),
+						hasPadding: /^true$/i.test(process.env.DATASHEET_DATACENTER_HAS_PADDING)
+					}
+				);
+			} else {
+				const directoryPath = path.join(directory, locale);
+
+				cacheRevision = helpers.getRevision(directoryPath);
+				datasheetLoader.fromXml(directoryPath);
+			}
+
+			const addModel = (section, model) => {
+				if (datasheetModel[section] === undefined) {
+					datasheetModel[section] = {};
+				}
+
+				const instance = new model();
+				const cache = cacheManager.read(`${locale}-${section}`, cacheRevision); // read cache
+
+				if (cache !== null && typeof instance.import === "function") {
+					instance.import(cache);
+					datasheetModel[section][locale] = instance;
+
+					datasheetLoader.logger.info(`Model loaded from cache: ${section} (${locale})`);
+				} else {
+					datasheetModel[section][locale] = datasheetLoader.addModel(instance);
+				}
+			};
+
+			if (checkComponent("admin_panel")) {
+				addModel("strSheetAccountBenefit", require("./models/datasheet/strSheetAccountBenefit.model"));
+				addModel("strSheetDungeon", require("./models/datasheet/strSheetDungeon.model"));
+				addModel("strSheetCreature", require("./models/datasheet/strSheetCreature.model"));
+			}
+
+			if (checkComponent("admin_panel") || checkComponent("portal_api")) {
+				addModel("itemConversion", require("./models/datasheet/itemConversion.model"));
+				addModel("itemData", require("./models/datasheet/itemData.model"));
+				addModel("skillIconData", require("./models/datasheet/skillIconData.model"));
+				addModel("strSheetItem", require("./models/datasheet/strSheetItem.model"));
+			}
+
+			if (datasheetLoader.loader.sections.length !== 0) {
+				datasheetLoader.load();
+
+				for (const [section, locales] of Object.entries(datasheetModel)) {
+					const instance = locales[locale];
+
+					if (typeof instance.export === "function") {
+						cacheManager.save(`${locale}-${section}`, instance.export(), cacheRevision); // save cache
+
+						datasheetLoader.logger.info(`Model saved to cache: ${section} (${locale})`);
+					}
+				}
+			}
+		}
+
+		modules.datasheetModel = datasheetModel;
+	});
 
 	if (checkComponent("arbiter_api")) {
 		if (!process.env.API_ARBITER_LISTEN_PORT) {
@@ -353,7 +448,10 @@ const startServers = async modules => {
 		modules.queue.setHandlers(tasksActions);
 	}
 
-	logger.info(`Served components: ${options.component || "all"}`);
+	if (global.gc) {
+		modules.scheduler.start({ name: "gcWorks", schedule: expr.EVERY_FIVE_MINUTES }, () => global.gc());
+		global.gc();
+	}
 
 	modules.scheduler.start({ name: "printMemoryUsage", schedule: expr.EVERY_THIRTY_MINUTES }, () => cli.printMemoryUsage());
 
@@ -372,6 +470,8 @@ const startServers = async modules => {
 			modules.queue.start().catch(err => modules.queue.logger.error(err))
 		);
 	}
+
+	logger.info(`Served components: ${options.component || "all"}`);
 
 	cli.printInfo();
 	cli.printMemoryUsage();
