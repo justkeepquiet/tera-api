@@ -1,29 +1,25 @@
 /* eslint-disable no-param-reassign */
 "use strict";
 
+/**
+ * @typedef {import("./datacenter")} Datacenter
+ */
+
+const REFERENCE_TIMESTAMP = -1.0;
+
 class Reader {
 	constructor(padding = true, logger = null) {
 		this.padding = padding;
 		this.logger = logger;
-
 		this.buffer = null;
 		this.offset = 0;
-
-		this.TypeCode = new Map([
-			[1, () => this.readUInt32()],
-			[2, () => this.readFloat()],
-			[5, () => {
-				const value = this.readUInt32();
-
-				if (value !== 0 && value !== 1) {
-					throw `Reader: Attribute not a bool, value: ${value}`;
-				}
-
-				return Boolean(value);
-			}]
-		]);
 	}
 
+	/**
+	 * @param {Buffer} buffer
+	 * @param {Datacenter} datacenter
+	 * @param {string[]} mapStrings
+	 */
 	read(buffer, datacenter = {}, mapStrings = ["Strings", "Names"]) {
 		this.buffer = buffer;
 		this.offset = 0;
@@ -31,54 +27,68 @@ class Reader {
 		const time = Date.now();
 
 		if (this.logger) {
-			this.logger.info(`Reader: Begin reading with raw length: ${this.buffer.length}`);
+			this.logger.info(`Reader: Begin reading with raw size: ${this.buffer.length}`);
 			this.logger.debug(`Reader: Reading header data at offset: ${this.offset}`);
 		}
+
 		datacenter.header = this.readHeader();
 
 		if (this.logger) {
-			this.logger.debug(`Reader: Reading unknown data at offset: ${this.offset}`);
+			this.logger.debug(`Reader: Reading keys data at offset: ${this.offset}`);
 		}
-		datacenter.unk1 = this.readRegion({ type: "Unk1" });
+
+		datacenter.keys = this.readRegion({ reader: this.readKeys.bind(this) });
 
 		if (this.logger) {
 			this.logger.debug(`Reader: Reading attributes data at offset: ${this.offset}`);
 		}
+
 		datacenter.attributes = this.readRegion({
-			type: "Region",
-			options: { type: "Attributes", writeActual: true }
+			reader: this.readRegion.bind(this),
+			options: {
+				reader: this.readAttributes.bind(this),
+				writeActual: true
+			}
 		});
 
 		if (this.logger) {
 			this.logger.debug(`Reader: Reading elements data at offset: ${this.offset}`);
 		}
+
 		datacenter.elements = this.readRegion({
-			type: "Region",
-			options: { type: "Elements", writeActual: true }
+			reader: this.readRegion.bind(this),
+			options: {
+				reader: this.readElements.bind(this),
+				writeActual: true
+			}
 		});
 
 		if (this.logger) {
 			this.logger.debug(`Reader: Reading strings data at offset: ${this.offset}`);
 		}
+
 		datacenter.strings = this.readStringRegion(1024, mapStrings.includes("Strings"));
 
 		if (this.logger) {
 			this.logger.debug(`Reader: Reading names data at offset: ${this.offset}`);
 		}
+
 		datacenter.names = this.readStringRegion(512, mapStrings.includes("Names"));
 
 		if (this.logger) {
 			this.logger.debug(`Reader: Reading footer data at offset: ${this.offset}`);
 		}
+
 		datacenter.footer = this.readFooter();
 
 		if (this.buffer.length !== this.offset) {
-			throw new Error(`${this.buffer.length - this.offset} bytes left`);
+			throw new Error(`Reader: ${this.buffer.length - this.offset} bytes left`);
 		}
 
 		if (this.logger) {
 			this.logger.info(`Reader: Reading done took ${((Date.now() - time) / 1000).toFixed(2)}s: ` +
-				`version: ${datacenter.header.version}, ` +
+				`ver: ${datacenter.header.version}, ` +
+				`rev: ${datacenter.header.revision}, ` +
 				`elements: ${datacenter.elements.data.length}, ` +
 				`strings: ${datacenter.strings.addresses.size}, ` +
 				`names: ${datacenter.names.addresses.size}`
@@ -89,19 +99,30 @@ class Reader {
 	}
 
 	readHeader() {
-		return {
-			unk1: this.readUInt32(),
-			unk2: this.readUInt32(),
-			unk3: this.readUInt32(),
-			version: this.readUInt32(),
-			unk4: this.readUInt32(),
-			unk5: this.readUInt32(),
-			unk6: this.readUInt32(),
-			unk7: this.readUInt32()
-		};
+		const version = this.readUInt32();
+
+		if (version !== 3 && version !== 6) {
+			throw `Reader: Unsupported version: ${version}`;
+		}
+
+		const timestamp = this.readUInt64();
+
+		if (timestamp !== REFERENCE_TIMESTAMP && this.logger) {
+			this.logger.warn(`Reader: Unknown timestamp: ${timestamp}`);
+		}
+
+		const revision = version === 6 ? this.readUInt32() : null;
+
+		const unk1 = this.readUInt16();
+		const unk2 = this.readUInt16();
+		const unk3 = this.readUInt32();
+		const unk4 = this.readUInt32();
+		const unk5 = this.readUInt32();
+
+		return { version, timestamp, revision, unk1, unk2, unk3, unk4, unk5 };
 	}
 
-	readUnk1() {
+	readKeys() {
 		return [this.readUInt32(), this.readUInt32()];
 	}
 
@@ -114,8 +135,16 @@ class Reader {
 		const type = this.readUInt16();
 		let value = null;
 
-		if (this.TypeCode.has(type)) {
-			value = this.TypeCode.get(type)();
+		if (type === 1) {
+			value = this.readUInt32();
+		} else if (type === 2) {
+			value = this.readFloat();
+		} else if (type === 5) {
+			value = this.readUInt32();
+			if (value !== 0 && value !== 1) {
+				throw `Reader: Attribute not a bool, value: ${value}`;
+			}
+			value = Boolean(value);
 		} else {
 			value = this.readAddress();
 		}
@@ -129,7 +158,7 @@ class Reader {
 
 	readElements() {
 		const nameIndex = this.readUInt16();
-		const unk1 = this.readUInt16();
+		const index = this.readUInt16();
 		const attributeCount = this.readUInt16();
 		const childrenCount = this.readUInt16();
 		const attributes = this.readAddress();
@@ -144,26 +173,19 @@ class Reader {
 			this.offset += 4;
 		}
 
-		return {
-			nameIndex,
-			unk1,
-			attributeCount,
-			childrenCount,
-			attributes,
-			children
-		};
+		return { nameIndex, index, attributeCount, childrenCount, attributes, children };
 	}
 
 	readStringRegion(size, mapStrings) {
-		const values = this.readRegion({ type: "String" });
-		const metadata = this.readRegion({
-			type: "Region",
-			options: { type: "Meta" },
+		const values = this.readRegion({ reader: this.readString.bind(this) });
+		const info = this.readRegion({
+			reader: this.readRegion.bind(this),
+			options: { reader: this.readStringInfo.bind(this) },
 			size,
 			writeSize: false
 		});
 		const addresses = this.readRegion({
-			type: "Address",
+			reader: this.readAddress.bind(this),
 			offsetAdjustment: -1
 		});
 
@@ -173,7 +195,7 @@ class Reader {
 			map = this.mapStrings(values.data);
 		}
 
-		return { values, metadata, addresses, map };
+		return { values, info, addresses, map };
 	}
 
 	readString() {
@@ -184,26 +206,28 @@ class Reader {
 		return { size, used, value };
 	}
 
-	readMeta() {
-		const unk1 = this.readUInt32();
+	readStringInfo() {
+		const hash = this.readUInt32();
 		const length = this.readUInt32();
 		const id = this.readUInt32();
 		const address = this.readAddress();
 
-		return { unk1, length, id, address };
+		return { hash, length, id, address };
 	}
 
 	readFooter() {
 		if (this.buffer.length === this.offset) {
-			this.logger.warn("Reader: Missing Footer!");
+			if (this.logger) {
+				this.logger.warn("Reader: Missing Footer!");
+			}
 
-			return { unk1: 0 };
+			return { marker: 0 };
 		}
 
-		return { unk1: this.readUInt32() };
+		return { marker: this.readUInt32() };
 	}
 
-	readRegion({ type, options = {}, size = 0, offsetAdjustment = 0, writeSize = true, writeActual = false }) {
+	readRegion({ reader, options = {}, size = 0, offsetAdjustment = 0, writeSize = true, writeActual = false }) {
 		const data = {};
 
 		if (writeSize) {
@@ -218,7 +242,7 @@ class Reader {
 		const items = [];
 
 		for (let i = 0; i < size; i++) {
-			items.push(this[`read${type}`](options));
+			items.push(reader(options));
 		}
 
 		if (writeSize) {
@@ -233,7 +257,7 @@ class Reader {
 	}
 
 	readBuffer(length) {
-		const data = this.buffer.slice(this.offset, this.offset + length);
+		const data = this.buffer.subarray(this.offset, this.offset + length);
 		this.offset += length;
 
 		return data;
@@ -256,6 +280,13 @@ class Reader {
 	readUInt32() {
 		const value = this.buffer.readUInt32LE(this.offset);
 		this.offset += 4;
+
+		return value;
+	}
+
+	readUInt64() {
+		const value = this.buffer.readDoubleLE(this.offset);
+		this.offset += 8;
 
 		return value;
 	}

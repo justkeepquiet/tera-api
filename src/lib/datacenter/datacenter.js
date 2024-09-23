@@ -15,21 +15,21 @@ class Datacenter {
 		this.bindings = bindings;
 
 		if (this.elements.data.length === 0) {
-			throw new "Datacenter: Data is not loaded";
+			throw "Datacenter: Data is not loaded";
 		}
 
 		const time = Date.now();
-		const refetence = this.elements.data[0].data[0];
+		const reference = this.elements.data[0].data[0];
 
 		if (this.logger) {
-			this.logger.info(`Datacenter: Begin infer data: children count: ${refetence.childrenCount}`);
+			this.logger.info(`Datacenter: Begin infer data: children count: ${reference.childrenCount}`);
 		}
 
-		const elements = this.parseElements(refetence, null, "", filterKeys).elements;
+		const elements = this.parseElements(reference, null, "", filterKeys).elements;
 
 		if (this.logger) {
 			this.logger.info(`Datacenter: Infer data done took ${((Date.now() - time) / 1000).toFixed(2)}s: ` +
-				`sections: ${filterKeys.length}, elements ${elements.length}`
+				`sections: ${filterKeys ? filterKeys.length : "all"}, elements ${elements.length}`
 			);
 		}
 
@@ -43,48 +43,45 @@ class Datacenter {
 			elements: []
 		};
 
-		for (let i = 0; i < ref.childrenCount; i++) {
-			const reference = this.elements.data[ref.children[0]].data[ref.children[1] + i];
+		const children = ref.children;
 
-			if (reference.nameIndex == 0) {
+		for (let i = 0; i < ref.childrenCount; i++) {
+			const reference = this.elements.data[children[0]].data[children[1] + i];
+
+			if (reference.nameIndex === 0) {
 				continue;
 			}
 
 			const key = this.getName(reference);
 
-			if (filterKeys !== null && filterKeys.length !== 0 && !filterKeys.includes(key)) {
+			if (filterKeys && filterKeys.length && !filterKeys.includes(key)) {
 				continue;
 			}
 
 			entry.elements.push(this.parseElements(reference, key, `${pathNodes}/${key}`, null));
 		}
 
-		const binding = this.bindings[pathNodes];
-
-		if (typeof binding === "function") {
-			binding.call(null, entry);
-		}
+		this.applyBinding(pathNodes, entry);
 
 		return entry;
 	}
 
 	parseAttributes(ref) {
 		const attributes = {};
+		const refAttributes = ref.attributes;
 
 		for (let i = 0; i < ref.attributeCount; i++) {
-			const reference = this.attributes.data[ref.attributes[0]].data[ref.attributes[1] + i];
+			const reference = this.attributes.data[refAttributes[0]].data[refAttributes[1] + i];
 
-			if (reference.nameIndex == 0) {
+			if (reference.nameIndex === 0) {
 				continue;
 			}
 
 			const key = this.getName(reference);
 
-			if ([1, 2, 5].includes(reference.type)) {
-				attributes[key] = reference.value;
-			} else {
-				attributes[key] = this.getString(reference.value);
-			}
+			attributes[key] = [1, 2, 5].includes(reference.type)
+				? reference.value
+				: this.getString(reference.value);
 		}
 
 		return attributes;
@@ -99,6 +96,14 @@ class Datacenter {
 
 	getString(ref) {
 		return this.strings.map.get(`${ref[0]},${ref[1]}`);
+	}
+
+	applyBinding(pathNodes, entry) {
+		const binding = this.bindings[pathNodes];
+
+		if (typeof binding === "function") {
+			binding.call(null, entry);
+		}
 	}
 }
 
