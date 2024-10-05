@@ -16,6 +16,21 @@ module.exports = {
 		const transaction = await queryInterface.sequelize.transaction();
 
 		try {
+			// `account_bans`
+			await queryInterface.removeConstraint("account_bans", "PRIMARY", { transaction });
+			await queryInterface.addColumn("account_bans", "id", {
+				type: Sequelize.DataTypes.BIGINT(20),
+				allowNull: false,
+				autoIncrement: true,
+				primaryKey: true,
+				first: true
+			}, { transaction });
+			await queryInterface.addIndex("account_bans", ["accountDBID"], {
+				unique: false,
+				name: "accountDBID",
+				transaction
+			});
+
 			// `account_info`
 			await queryInterface.changeColumn("account_info", "language", {
 				type: Sequelize.DataTypes.STRING(5)
@@ -109,6 +124,16 @@ module.exports = {
 		const transaction = await queryInterface.sequelize.transaction();
 
 		try {
+			// `account_bans`
+			await queryInterface.removeConstraint("account_bans", "PRIMARY", { transaction });
+			await queryInterface.removeColumn("account_bans", "id", { transaction });
+			await queryInterface.removeIndex("account_bans", "accountDBID", { transaction });
+			await queryInterface.addConstraint("account_bans", {
+				fields: ["accountDBID"],
+				type: "primary key",
+				transaction
+			});
+
 			// `account_info`
 			await queryInterface.changeColumn("account_info", "language", {
 				type: Sequelize.DataTypes.STRING(3)
