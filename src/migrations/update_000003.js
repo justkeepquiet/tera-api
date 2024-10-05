@@ -20,7 +20,7 @@ module.exports = {
 			await queryInterface.changeColumn("account_info", "language", {
 				type: Sequelize.DataTypes.STRING(5)
 			}, { transaction });
-			await queryInterface.sequelize.query("ALTER TABLE `account_info` DROP PRIMARY KEY, ADD PRIMARY KEY (`accountDBID`)");
+			await queryInterface.sequelize.query("ALTER TABLE `account_info` DROP PRIMARY KEY, ADD PRIMARY KEY (`accountDBID`)", { transaction });
 			await queryInterface.addIndex("account_info", ["userName"], {
 				unique: true,
 				name: "userName",
@@ -39,7 +39,7 @@ module.exports = {
 			});
 
 			// `shop_promocode_strings`
-			await queryInterface.sequelize.query("ALTER TABLE `shop_promocode_strings` DROP PRIMARY KEY, DROP INDEX `id`, ADD PRIMARY KEY (`id`)");
+			await queryInterface.sequelize.query("ALTER TABLE `shop_promocode_strings` DROP PRIMARY KEY, DROP INDEX `id`, ADD PRIMARY KEY (`id`)", { transaction });
 			await queryInterface.addIndex("shop_promocode_strings", ["language", "promoCodeId"], {
 				unique: true,
 				name: "unique",
@@ -47,7 +47,7 @@ module.exports = {
 			});
 
 			// `shop_category_strings`
-			await queryInterface.sequelize.query("ALTER TABLE `shop_category_strings` DROP PRIMARY KEY, DROP INDEX `id`, ADD PRIMARY KEY (`id`)");
+			await queryInterface.sequelize.query("ALTER TABLE `shop_category_strings` DROP PRIMARY KEY, DROP INDEX `id`, ADD PRIMARY KEY (`id`)", { transaction });
 			await queryInterface.addIndex("shop_category_strings", ["language", "categoryId"], {
 				unique: true,
 				name: "unique",
@@ -115,7 +115,7 @@ module.exports = {
 			}, { transaction });
 			await queryInterface.removeIndex("account_info", "userName", { transaction });
 			await queryInterface.removeIndex("account_info", "email", { transaction });
-			await queryInterface.sequelize.query("ALTER TABLE `account_info` DROP PRIMARY KEY, ADD PRIMARY KEY (`accountDBID`, `userName`)");
+			await queryInterface.sequelize.query("ALTER TABLE `account_info` DROP PRIMARY KEY, ADD PRIMARY KEY (`accountDBID`, `userName`)", { transaction });
 			await queryInterface.addIndex("account_info", ["authKey"], {
 				unique: false,
 				name: "authKey",
@@ -124,7 +124,7 @@ module.exports = {
 
 			// `shop_promocode_strings`
 			await queryInterface.removeIndex("shop_promocode_strings", "unique", { transaction });
-			await queryInterface.sequelize.query("ALTER TABLE `shop_promocode_strings` DROP PRIMARY KEY, DROP INDEX `id`, ADD PRIMARY KEY (`language`, `promoCodeId`)");
+			await queryInterface.sequelize.query("ALTER TABLE `shop_promocode_strings` DROP PRIMARY KEY, DROP INDEX `id`, ADD PRIMARY KEY (`language`, `promoCodeId`)", { transaction });
 			await queryInterface.addIndex("shop_promocode_strings", ["id"], {
 				unique: true,
 				name: "id",
@@ -133,7 +133,7 @@ module.exports = {
 
 			// `shop_category_strings`
 			await queryInterface.removeIndex("shop_category_strings", "unique", { transaction });
-			await queryInterface.sequelize.query("ALTER TABLE `shop_category_strings` DROP PRIMARY KEY, DROP INDEX `id`, ADD PRIMARY KEY (`language`, `categoryId`)");
+			await queryInterface.sequelize.query("ALTER TABLE `shop_category_strings` DROP PRIMARY KEY, DROP INDEX `id`, ADD PRIMARY KEY (`language`, `categoryId`)", { transaction });
 			await queryInterface.addIndex("shop_category_strings", ["id"], {
 				unique: true,
 				name: "id",
