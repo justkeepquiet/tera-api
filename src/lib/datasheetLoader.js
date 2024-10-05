@@ -54,7 +54,7 @@ class BinaryLoader {
 		this.sections = [];
 
 		this.packer = new Packer(key, iv, filePath, params.isCompressed, logger);
-		this.reader = new Reader(params.isCompressed, logger);
+		this.reader = new Reader(params.hasPadding, logger);
 		this.datacenter = new Datacenter(logger);
 	}
 
