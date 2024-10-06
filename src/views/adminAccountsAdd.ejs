@@ -71,7 +71,7 @@
 									</label>
 									<select class="form-control boxed" name="benefitIds[]">
 										<option value="">- <%= __("None") %> -</option>
-									<%_ accountBenefits.forEach((string, id) => { _%>
+									<%_ Array.from(accountBenefits.getAll()).forEach(({ string, id }) => { _%>
 										<option value="<%= id %>" <%= benefitId == id ? 'selected' : "" %>>(<%= id %>) <%= string %></option>
 									<%_ }) _%>
 									</select>
@@ -126,7 +126,7 @@
 				"			<a class='btn btn-secondary btn-sm remove-benefit' title='' href='#''><i class='fa fa-minus'></i></a></label>" +
 				"		<select class='form-control boxed' name='benefitIds[]'>" +
 				"			<option value=''>- <%= __('None') %> -</option>" +
-				"			<% accountBenefits.forEach((string, id) => { %><option value='<%= id %>'>(<%= id %>) <%= string %></option><% }) %>" +
+				"			<% Array.from(accountBenefits).forEach(({ string, id }) => { %><option value='<%= id %>'>(<%= id %>) <%= string %></option><% }) %>" +
 				"		</select>" +
 				"	</div>" +
 				"	<div class='col-sm-6'>" +
