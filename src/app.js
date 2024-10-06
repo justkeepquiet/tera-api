@@ -246,99 +246,105 @@ const loadDatasheetModel = modules => {
 		createLogger("CacheManager", { colors: { debug: "gray" } })
 	);
 
+	const datasheetLogger = createLogger("Datasheet", { colors: { debug: "gray" } });
 	const useBinary = /^true$/i.test(process.env.DATASHEET_USE_BINARY);
 	const directory = path.join(__dirname, "..", "data", "datasheets");
 	const datasheetModel = [];
 	const variants = [];
 	let cacheRevision = null;
 
-	if (useBinary) {
-		fs.readdirSync(directory).forEach(file => {
-			const match = file.match(/_(\w{3})\.dat$/);
-
-			if (match) {
-				variants.push({ region: match[1], locale: helpers.regionToLanguage(match[1]) });
-			}
-		});
-	} else {
-		fs.readdirSync(directory).forEach(file => {
-			const stats = fs.statSync(path.join(directory, file));
-
-			if (stats.isDirectory()) {
-				variants.push({ region: helpers.languageToRegion(file), locale: file });
-			}
-		});
-	}
-
-	for (const { region, locale } of variants) {
-		const datasheetLoader = new DatasheetLoader(createLogger("Datasheet", { colors: { debug: "gray" } }));
-
+	try {
 		if (useBinary) {
-			const filePath = path.join(directory, `DataCenter_Final_${region}.dat`);
+			fs.readdirSync(directory).forEach(file => {
+				const match = file.match(/_(\w{3})\.dat$/);
 
-			cacheRevision = helpers.getRevision(filePath);
-			datasheetLoader.fromBinary(filePath,
-				process.env.DATASHEET_DATACENTER_KEY,
-				process.env.DATASHEET_DATACENTER_IV,
-				{
-					isCompressed: /^true$/i.test(process.env.DATASHEET_DATACENTER_IS_COMPRESSED),
-					hasPadding: /^true$/i.test(process.env.DATASHEET_DATACENTER_HAS_PADDING)
+				if (match) {
+					variants.push({ region: match[1], locale: helpers.regionToLanguage(match[1]) });
 				}
-			);
+			});
 		} else {
-			const directoryPath = path.join(directory, locale);
+			fs.readdirSync(directory).forEach(file => {
+				const stats = fs.statSync(path.join(directory, file));
 
-			cacheRevision = helpers.getRevision(directoryPath);
-			datasheetLoader.fromXml(directoryPath);
+				if (stats.isDirectory()) {
+					variants.push({ region: helpers.languageToRegion(file), locale: file });
+				}
+			});
 		}
 
-		const addModel = (section, model) => {
-			if (datasheetModel[section] === undefined) {
-				datasheetModel[section] = {};
-			}
+		for (const { region, locale } of variants) {
+			const datasheetLoader = new DatasheetLoader(datasheetLogger);
 
-			const instance = new model();
-			const cache = cacheManager.read(`${locale}-${section}`, cacheRevision); // read cache
+			if (useBinary) {
+				const filePath = path.join(directory, `DataCenter_Final_${region}.dat`);
 
-			if (cache !== null && typeof instance.import === "function") {
-				instance.import(cache);
-				datasheetModel[section][locale] = instance;
-
-				datasheetLoader.logger.info(`Model loaded from cache: ${section} (${locale})`);
+				cacheRevision = helpers.getRevision(filePath);
+				datasheetLoader.fromBinary(filePath,
+					process.env.DATASHEET_DATACENTER_KEY,
+					process.env.DATASHEET_DATACENTER_IV,
+					{
+						isCompressed: /^true$/i.test(process.env.DATASHEET_DATACENTER_IS_COMPRESSED),
+						hasPadding: /^true$/i.test(process.env.DATASHEET_DATACENTER_HAS_PADDING)
+					}
+				);
 			} else {
-				datasheetModel[section][locale] = datasheetLoader.addModel(instance);
+				const directoryPath = path.join(directory, locale);
+
+				cacheRevision = helpers.getRevision(directoryPath);
+				datasheetLoader.fromXml(directoryPath);
 			}
-		};
 
-		if (checkComponent("admin_panel")) {
-			addModel("strSheetAccountBenefit", require("./models/datasheet/strSheetAccountBenefit.model"));
-			addModel("strSheetDungeon", require("./models/datasheet/strSheetDungeon.model"));
-			addModel("strSheetCreature", require("./models/datasheet/strSheetCreature.model"));
-		}
+			const addModel = (section, model) => {
+				if (datasheetModel[section] === undefined) {
+					datasheetModel[section] = {};
+				}
 
-		if (checkComponent("admin_panel") || checkComponent("portal_api")) {
-			addModel("itemConversion", require("./models/datasheet/itemConversion.model"));
-			addModel("skillIconData", require("./models/datasheet/skillIconData.model"));
-		}
+				const instance = new model();
+				const cache = cacheManager.read(`${locale}-${section}`, cacheRevision); // read cache
 
-		if (checkComponent("admin_panel") || checkComponent("portal_api") || checkComponent("arbiter_api")) {
-			addModel("itemData", require("./models/datasheet/itemData.model"));
-			addModel("strSheetItem", require("./models/datasheet/strSheetItem.model"));
-		}
+				if (cache !== null && typeof instance.import === "function") {
+					instance.import(cache);
+					datasheetModel[section][locale] = instance;
 
-		if (datasheetLoader.loader.sections.length !== 0) {
-			datasheetLoader.load();
+					datasheetLoader.logger.info(`Model loaded from cache: ${section} (${locale})`);
+				} else {
+					datasheetModel[section][locale] = datasheetLoader.addModel(instance);
+				}
+			};
 
-			for (const [section, locales] of Object.entries(datasheetModel)) {
-				const instance = locales[locale];
+			if (checkComponent("admin_panel")) {
+				addModel("strSheetAccountBenefit", require("./models/datasheet/strSheetAccountBenefit.model"));
+				addModel("strSheetDungeon", require("./models/datasheet/strSheetDungeon.model"));
+				addModel("strSheetCreature", require("./models/datasheet/strSheetCreature.model"));
+			}
 
-				if (typeof instance.export === "function") {
-					cacheManager.save(`${locale}-${section}`, instance.export(), cacheRevision); // save cache
+			if (checkComponent("admin_panel") || checkComponent("portal_api")) {
+				addModel("itemConversion", require("./models/datasheet/itemConversion.model"));
+				addModel("skillIconData", require("./models/datasheet/skillIconData.model"));
+			}
 
-					datasheetLoader.logger.info(`Model saved to cache: ${section} (${locale})`);
+			if (checkComponent("admin_panel") || checkComponent("portal_api") || checkComponent("arbiter_api")) {
+				addModel("itemData", require("./models/datasheet/itemData.model"));
+				addModel("strSheetItem", require("./models/datasheet/strSheetItem.model"));
+			}
+
+			if (datasheetLoader.loader.sections.length !== 0) {
+				datasheetLoader.load();
+
+				for (const [section, locales] of Object.entries(datasheetModel)) {
+					const instance = locales[locale];
+
+					if (typeof instance.export === "function") {
+						cacheManager.save(`${locale}-${section}`, instance.export(), cacheRevision); // save cache
+
+						datasheetLoader.logger.info(`Model saved to cache: ${section} (${locale})`);
+					}
 				}
 			}
 		}
+	} catch (err) {
+		datasheetLogger.error(err.toString());
+		throw "";
 	}
 
 	modules.datasheetModel = datasheetModel;
