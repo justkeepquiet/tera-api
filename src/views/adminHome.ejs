@@ -96,7 +96,7 @@
 											<th><%= __("Account ID") %></th>
 											<th><%= __("Server ID") %></th>
 											<th><%= __("Product ID") %></th>
-											<th><%= __("Price") %></th>
+											<th><%= __("Amount") %></th>
 											<th><%= __("Status") %></th>
 										</tr>
 									</thead>
@@ -195,7 +195,7 @@
 									"<td>" + report.accountDBID + "</td>" +
 									"<td>" + report.serverId + "</td>" +
 									"<td><a href=\"/shop_products/edit?id=" + report.productId + "\">" + report.productId + "</a></td>" +
-									"<td>" + report.price + "</td>" +
+									"<td>" + report.amount + "</td>" +
 									"<td class=\"text-" + (report.status == "completed" ? "success" : "danger") + "\">" + report.statusString + "</td>" +
 								"</tr>"
 							);

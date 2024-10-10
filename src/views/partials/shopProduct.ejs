@@ -84,21 +84,21 @@
 					<%- __("Click the &laquo;Buy&raquo; button to get the item") %>:<br>
 					<b><%- product.title %></b>
 					<br>
-					<%- __("Your account will be debited") %> <b><%= product.price %></b> <%- __("coins") %>.<br>
+					<%- __("Your account will be debited") %> <b class="price-value"><%= product.price %></b> <%- __("coins") %>.<br>
 					<%- __("The item will appear in the &laquo;Item Claim&raquo; window.") %><br>
 					<%- __("You can open it from the main menu in the &laquo;Shop&raquo; section the &laquo;Item Claim&raquo; option.") %>
 				</small>
 			</div>
-			<div class="span3 text-center buy-block-right" style="padding-top: 20px" id="buy_block">
+			<div class="span3 text-center buy-block-right" style="padding-top: 20px;" id="buy_block">
 				<div id="buy_available">
-					<%= __("Your price") %>: <span class="gold"><strong><%= product.price %></strong> <i class="fas fa-coins"></i></span><br>
-					<a class="btn btn-large btn-danger" href="#" id="buy"><%= __("Buy") %></a>
+					<%= __("Your price") %>: <span class="gold"><strong class="price-value"><%= product.price %></strong> <i class="fas fa-coins"></i></span><br>
+					<input id="quantity" type="number" value="1" class="quantity"> <a class="btn btn-large btn-danger" href="#" id="buy"><%= __("Buy") %></a>
 				</div>
 				<span id="buy_nocoins" style="display: none"><%= __("You don't have enough coins to buy.") %><br>
-					<br><span class="gold"><strong><%= product.price %></strong> <i class="fas fa-coins"></i></span>
+					<br><span class="gold"><strong class="price-value"><%= product.price %></strong> <i class="fas fa-coins"></i></span>
 				</span>
 				<span id="buy_success" style="display: none"><%= __("You have success purchased an item.") %><br>
-					<br><%= __("Debited") %>: <span class="gold"><strong><%= product.price %></strong> <i class="fas fa-coins"></i></span>
+					<br><%= __("Debited") %>: <span class="gold"><strong class="price-value"><%= product.price %></strong> <i class="fas fa-coins"></i></span>
 				</span>
 				<span id="buy_error" style="display: none"><br><%= __("An error occurred while purchasing the product") %>:</span>
 			</div>
@@ -116,8 +116,8 @@
 <%_ } _%>
 <script type="text/javascript">
 	$(document).ready(function() {
-		function purchaseProduct(productId) {
-			shopPurchaseAction(productId, function(result) {
+		function purchaseProduct(productId, quantity) {
+			shopPurchaseAction(productId, quantity, function(result) {
 				if (result.ReturnCode == 0) {
 					loadAccountInfo();
 					$('#buy_success').show();
@@ -126,12 +126,21 @@
 				}
 			});
 		}
-		if (parseInt($('#shop_balance').html()) < parseInt('<%= product.price %>')) {
+		var quantity = 1;
+		$(".price-value").html(<%= product.price %> * quantity);
+		$("#quantity").change(function() {
+			quantity = $(this).val();
+			if (quantity < 1) quantity = 1;
+			if (quantity > 99) quantity = 99;
+			$(this).val(quantity);
+			$(".price-value").html(<%= product.price %> * quantity);
+		})
+		if (parseInt($('#shop_balance').html()) < parseInt('<%= product.price %>') * quantity) {
 			$('#buy_available').hide();
 			$('#buy_nocoins').show();
 		}
 		$('#buy').click(function() {
-			purchaseProduct("<%= product.id %>");
+			purchaseProduct(<%= product.id %>, quantity);
 			$('#buy_available').hide();
 		});
 		$('#back').click(backToCatalog);

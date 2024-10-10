@@ -439,12 +439,13 @@ module.exports.PurchaseAction = modules => [
 	shopStatusHandler,
 	authSessionHandler(modules.logger),
 	[body("productId").notEmpty().isNumeric()],
+	[body("quantity").notEmpty().isInt({ min: 1, max: 99 })],
 	validationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { productId } = req.body;
+		const { productId, quantity } = req.body;
 		const serviceItem = new ServiceItem(modules);
 
 		/*
@@ -482,7 +483,7 @@ module.exports.PurchaseAction = modules => [
 			where: { accountDBID: req.user.accountDBID, active: 1 }
 		});
 
-		if (shopAccount === null || shopAccount.get("balance") < shopProduct.get("price")) {
+		if (shopAccount === null || shopAccount.get("balance") < shopProduct.get("price") * quantity) {
 			throw new ApiError("low balance", 1000);
 		}
 
@@ -491,6 +492,7 @@ module.exports.PurchaseAction = modules => [
 			serverId: req.user.lastLoginServer,
 			ip: req.user.lastLoginIP,
 			productId: shopProduct.get("id"),
+			quantity,
 			price: shopProduct.get("price"),
 			status: "deposit"
 		});
@@ -514,7 +516,7 @@ module.exports.PurchaseAction = modules => [
 			).then(boxItemId => {
 				items.push({
 					item_id: boxItemId,
-					item_count: item.get("boxItemCount"),
+					item_count: item.get("boxItemCount") * quantity,
 					item_template_id: item.get("itemTemplateId")
 				});
 
@@ -533,7 +535,7 @@ module.exports.PurchaseAction = modules => [
 		}
 
 		await modules.shopModel.accounts.decrement({
-			balance: shopProduct.get("price")
+			balance: shopProduct.get("price") * quantity
 		}, {
 			where: { accountDBID: shopAccount.get("accountDBID") }
 		});
@@ -566,7 +568,7 @@ module.exports.PurchaseAction = modules => [
 			modules.logger.error(err);
 
 			return modules.shopModel.accounts.increment({
-				balance: shopProduct.get("price")
+				balance: shopProduct.get("price") * quantity
 			}, {
 				where: { accountDBID: shopAccount.get("accountDBID") }
 			}).then(() =>

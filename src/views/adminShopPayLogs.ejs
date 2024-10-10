@@ -21,6 +21,8 @@
 											<th><%= __("Product ID") %></th>
 											<th><%= __("Box ID") %></th>
 											<th><%= __("Price") %></th>
+											<th><%= __("Quantity") %></th>
+											<th><%= __("Amount") %></th>
 											<th><%= __("Status") %></th>
 											<th><%= __("Updated") %></th>
 										</tr>
@@ -47,6 +49,8 @@ logs.forEach(log => {
 		`<a href="/shop_products/edit?id=${log.get("productId")}">${log.get("productId")}</a>`,
 		log.get("boxId") || "-",
 		log.get("price"),
+		log.get("quantity"),
+		log.get("price") * log.get("quantity"),
 		`<span class="text-${log.get("status") == "completed" ? "success" : "danger"}">${__(log.get("status"))}</span>`,
 		moment(log.get("updatedAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss")
 	]);

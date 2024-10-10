@@ -109,6 +109,13 @@ module.exports = {
 				first: true
 			}, { transaction });
 
+			// `report_shop_pay`
+			await queryInterface.addColumn("report_shop_pay", "quantity", {
+				type: Sequelize.DataTypes.INTEGER(11),
+				allowNull: false,
+				defaultValue: 1
+			}, { transaction });
+
 			await transaction.commit();
 		} catch (err) {
 			await transaction.rollback();
@@ -180,6 +187,9 @@ module.exports = {
 
 			// `report_chronoscrolls`
 			await queryInterface.removeColumn("report_chronoscrolls", "id", { transaction });
+
+			// `report_shop_pay`
+			await queryInterface.removeColumn("report_shop_pay", "quantity", { transaction });
 
 			await transaction.commit();
 		} catch (err) {

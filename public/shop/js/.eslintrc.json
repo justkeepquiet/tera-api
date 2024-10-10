@@ -21,7 +21,7 @@
 		"quote-props": ["error", "as-needed"],
 		"no-unneeded-ternary": "error",
 		"rest-spread-spacing": ["error", "never"],
-		"no-param-reassign": "warn",
+		"no-param-reassign": "off",
 		"no-self-compare": "error",
 		"prefer-object-spread": "warn",
 		"indent": ["warn", "tab", { "SwitchCase": 1 }],

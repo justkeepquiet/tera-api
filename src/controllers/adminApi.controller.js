@@ -193,6 +193,8 @@ module.exports.homeStats = ({ i18n, datasheetModel, serverModel, accountModel, r
 				serverId: report.get("serverId"),
 				productId: report.get("productId"),
 				price: report.get("price"),
+				quantity: report.get("quantity"),
+				amount: report.get("price") * report.get("quantity"),
 				status: report.get("status"),
 				statusString: i18n.__(report.get("status"))
 			})
