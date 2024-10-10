@@ -479,11 +479,19 @@ module.exports.PurchaseAction = modules => [
 			throw new ApiError("product not exists", 2000);
 		}
 
-		const shopAccount = await modules.shopModel.accounts.findOne({
+		let shopAccount = await modules.shopModel.accounts.findOne({
 			where: { accountDBID: req.user.accountDBID, active: 1 }
 		});
 
-		if (shopAccount === null || shopAccount.get("balance") < shopProduct.get("price") * quantity) {
+		if (shopAccount === null) {
+			shopAccount = await modules.shopModel.accounts.create({
+				accountDBID: req.user.accountDBID,
+				balance: 0,
+				active: true
+			});
+		}
+
+		if (shopAccount.get("balance") < shopProduct.get("price") * quantity) {
 			throw new ApiError("low balance", 1000);
 		}
 
