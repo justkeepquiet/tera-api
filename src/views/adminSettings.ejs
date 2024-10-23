@@ -23,7 +23,7 @@
 									<%_ settings.forEach(setting => {
 										let value = setting.value;
 
-										if (/(_SECRET|_KEY|_PASSWORD)$/i.test(setting.parameter)) {
+										if (/(_SECRET|_IV|_KEY|_PASSWORD)$/i.test(setting.parameter)) {
 											value = `<span class="text-muted">[${__("hidden")}]</span>`;
 										}
 										if (/^(true|false)$/i.test(value)) {
