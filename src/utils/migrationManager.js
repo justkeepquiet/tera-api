@@ -77,12 +77,24 @@ class MigrationManager {
 			const migration = require(file);
 
 			if (migration.VERSION > currentVersion) {
-				this.logger.info(`Applying migration: ${file}`);
+				try {
+					this.logger.info(`Applying migration: ${file}`);
 
-				await migration.up(this.queryInterface, Sequelize);
-				await this.setVersion(migration.VERSION);
+					await migration.up(this.queryInterface, Sequelize);
+					await this.setVersion(migration.VERSION);
 
-				this.logger.info(`Migration ${file} applied.`);
+					this.logger.info(`Migration ${file} applied.`);
+				} catch (migrationError) {
+					try {
+						this.logger.info(`Rollback migration: ${file}`);
+
+						await migration.down(this.queryInterface, Sequelize);
+					} catch (rollbackError) {
+						this.logger.debug(`Rollback error: ${rollbackError}`);
+					}
+
+					throw `Migration error: ${migrationError}`;
+				}
 			}
 		}
 	}
