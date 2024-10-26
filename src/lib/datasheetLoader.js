@@ -48,6 +48,7 @@ class DatasheetLoader {
 		}
 	}
 }
+
 class BinaryLoader {
 	constructor(filePath, key, iv, params, logger) {
 		this.logger = logger;
