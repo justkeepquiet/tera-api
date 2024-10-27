@@ -19,13 +19,14 @@ module.exports.index = ({ reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	async (req, res, next) => {
-		const { accountDBID } = req.query;
+		const { accountDBID, action } = req.query;
 		const from = req.query.from ? moment.tz(req.query.from, req.user.tz) : moment().subtract(30, "days");
 		const to = req.query.to ? moment.tz(req.query.to, req.user.tz) : moment().add(30, "days");
 
 		const reports = await reportModel.launcher.findAll({
 			where: {
 				...accountDBID ? { accountDBID } : {},
+				...action ? { action } : {},
 				reportTime: {
 					[Op.gt]: from.toDate(),
 					[Op.lt]: to.toDate()
@@ -41,6 +42,7 @@ module.exports.index = ({ reportModel }) => [
 			moment,
 			helpers,
 			reports,
+			action,
 			from,
 			to,
 			accountDBID

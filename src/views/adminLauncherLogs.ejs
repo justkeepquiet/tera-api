@@ -1,4 +1,10 @@
 <%_
+const actions = {
+	"signin": "Sign in",
+	"enter_game": "Enter game",
+	"crash_game": "Crash game"
+};
+
 const gameEndCodes = {
 	"0": {
 		"0": "Standard game exit"
@@ -106,7 +112,32 @@ _%>
 	<div class="title-block">
 		<h1 class="title"><%= __("Launcher Logs") %></h1>
 	</div>
-	<%- include("partials/adminReportForm", { servers: null, from, to, accountDBID }) -%>
+	<section class="section">
+		<form class="form-inline" action="" method="GET">
+			<div class="form-group">
+				<label for="from"><%= __("Period from") %></label>
+				<input type="datetime-local" class="form-control boxed" name="from" value="<%= from.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
+			</div>
+			<div class="form-group">
+				<label for="to"><%= __("to") %></label>
+				<input type="datetime-local" class="form-control boxed" name="to" value="<%= to.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
+			</div>
+			<div class="form-group">
+				<label for="action"><%= __("Action") %></label>
+				<select class="form-control boxed" name="action">
+					<option value="">- <%= __("All") %> -</option>
+				<%_ Object.keys(actions).forEach(key => { _%>
+					<option value="<%= key %>" <%= key == action ? "selected" : "" %>><%= __(actions[key]) %></option>
+				<%_ }) _%>
+				</select>
+			</div>
+			<div class="form-group">
+				<label for="accountDBID"><%= __("Account ID") %></label>
+				<input type="text" class="form-control boxed" name="accountDBID" value="<%= accountDBID %>">
+			</div>
+			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
+		</form>
+	</section>
 	<section class="section" style="display: none;">
 		<div class="row">
 			<div class="col-md-12">
