@@ -1,0 +1,46 @@
+.number-input {
+	position: relative;
+	display: inline-block;
+}
+
+input[type="number"] {
+	-moz-appearance: textfield;
+	-webkit-appearance: none;
+	appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-inner-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.custom-arrows {
+	position: absolute;
+	right: 11px;
+	top: 50%;
+	bottom: 0;
+	margin-top: -1.25em;
+}
+
+.arrow-up, .arrow-down {
+	cursor: pointer;
+	color: black;
+	background-color: white;
+	font-size: 14px;
+	padding: 3px;
+	line-height: 1;
+	user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
+	-webkit-touch-callout: none;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.arrow-up {
+	margin-bottom: -5px;
+}
+
+.arrow-up:active, .arrow-down:active {
+	outline: none;
+}

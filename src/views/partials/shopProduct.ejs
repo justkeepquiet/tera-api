@@ -92,7 +92,7 @@
 			<div class="span3 text-center buy-block-right" style="padding-top: 20px;" id="buy_block">
 				<div id="buy_available">
 					<%= __("Your price") %>: <span class="gold"><strong class="price-value"><%= product.price %></strong> <i class="fas fa-coins"></i></span><br>
-					<input id="quantity" type="number" value="1" min="1" max="99" step="1" class="quantity"> <a class="btn btn-large btn-danger" href="#" id="buy"><%= __("Buy") %></a>
+					<input id="quantity" type="number" value="1" min="1" max="99" step="1" class="quantity"> <button class="btn btn-large btn-danger" href="#" id="buy"><%= __("Buy") %></a>
 				</div>
 				<span id="buy_nocoins" style="display: none"><%= __("You don't have enough coins to buy.") %><br>
 					<br><span class="gold"><strong class="price-value"><%= product.price %></strong> <i class="fas fa-coins"></i></span>
@@ -121,6 +121,9 @@
 				if (result.ReturnCode == 0) {
 					loadAccountInfo();
 					$('#buy_success').show();
+				} else if (result.ReturnCode == 1000) {
+					$('#buy_available').hide();
+					$('#buy_nocoins').show();
 				} else {
 					$('#buy_error').show().append(' #' + result.ReturnCode);
 				}
@@ -134,6 +137,11 @@
 			if (quantity > 99) quantity = 99;
 			$(this).val(quantity);
 			$(".price-value").html(<%= product.price %> * quantity);
+			if (parseInt($('#shop_balance').html()) < parseInt('<%= product.price %>') * quantity) {
+				$('#buy').prop("disabled", true);
+			} else {
+				$('#buy').prop("disabled", false);
+			}
 		})
 		if (parseInt($('#shop_balance').html()) < parseInt('<%= product.price %>') * quantity) {
 			$('#buy_available').hide();
@@ -152,5 +160,6 @@
 		$('#image-modal .modal-body img').click(function() {
 			$("#image-modal").modal('hide');
 		});
+		$('input[type="number"]').numberInput();
 	});
 </script>
