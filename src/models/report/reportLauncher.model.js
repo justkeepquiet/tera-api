@@ -47,6 +47,11 @@ module.exports = (sequelize, DataTypes) =>
 				fields: ["accountDBID"]
 			},
 			{
+				name: "action",
+				unique: false,
+				fields: ["action"]
+			},
+			{
 				name: "reportTime",
 				unique: false,
 				fields: ["reportTime"]

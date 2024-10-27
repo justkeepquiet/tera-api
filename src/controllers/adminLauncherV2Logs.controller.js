@@ -26,7 +26,7 @@ module.exports.index = ({ reportModel }) => [
 		const reports = await reportModel.launcher.findAll({
 			where: {
 				...accountDBID ? { accountDBID } : {},
-				...action ? { action } : {},
+				...action ? { action: { [Op.like]: `${action}%` } } : {},
 				reportTime: {
 					[Op.gt]: from.toDate(),
 					[Op.lt]: to.toDate()
