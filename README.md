@@ -12,7 +12,7 @@ Built-in admin panel for full control of all functionality and viewing API logs.
 
 * [Node.js](https://nodejs.org/en/) v18.1.0
 * [MySQL Server](https://dev.mysql.com/downloads/mysql/5.7.html) v5.7.38
-* [TERA Retail Server](https://forum.ragezone.com/f797/) patch 92.03, 92.04 or 100.02
+* [TERA Retail Server](https://forum.ragezone.com/f797/)
 * [Steer Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
 * [Box Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
 
@@ -23,12 +23,13 @@ Built-in admin panel for full control of all functionality and viewing API logs.
 1. Install latest node.js from [https://nodejs.org](https://nodejs.org/).
 2. Copy the all tera-api files to any directory (e.g. **c:\tera-api**).
 3. Execute the `npm install` command in your tera-api directory, or just run **install.bat**.
-4. Import the [database files](share/db) in file names order to your MySQL server.
-5. Unpack the [tera-icons.zip](share/data) archive to **tera-api\data\tera-icons** folder.
-6. [Download](https://disk.yandex.ru/d/ert9ccPa7BWehA) and unpack fonts to **tera-api\public** folder.
+4. Unpack the [tera-icons.zip](share/data) archive to **tera-api\data\tera-icons** folder.
+5. [Download](https://disk.yandex.ru/d/ert9ccPa7BWehA) and unpack fonts to **tera-api\public** folder.
+6. Copy the **DataCenter_Final_\*.dat** files from your game client to the **data\datasheets** directory.
 7. Copy or rename the **.env.example** file to **.env**.
 8. Configure the parameters in the **.env** file.
-9. Execute the `node src/app` command, or run the file **tera-api.bat** to start TERA API servers.
+9. Execute the `npm start_all` command, or run the file **start__all.bat** to start TERA API components.
+10. Import the [database files](share/db) in file names order to your MySQL database of TERA API.
 
 If you don't plan to use [tera-client-packer](https://github.com/justkeepquiet/tera-client-packer) to automatically update the client through the launcher, set parameter `API_PORTAL_CLIENT_PATCH_NO_CHECK` to `true` in your **.env** config file.
 
@@ -64,7 +65,7 @@ TERA Shop products are configured through the TERA API Admin Panel. The creation
 
 ### Additional Settings
 
-You can further setting of Promo codes, Chronoscrolls (Premium Items), Admin Panel and Shop by editing the files in the **config** directory.
+You can further setting of SLS override, Promo codes, Chronoscrolls (Premium Items), Admin Panel and Shop by editing the files in the **config** directory.
 
 ## Gateway API Server
 
@@ -82,8 +83,28 @@ Endpoint | Method | Arguments | Description
 /shopApi/GetAccountInfoByUserNo | GET | userNo | Request the Shop balance of the specified account ID.
 /shopApi/FundByUserNo | POST | userNo, transactionId, amount | Fund the Shop balance of the specified account ID.
 
+## Separate Launch
+
+It is possible to separately launch components used by TERA API. To do this, use the `--component` parameter, in which you specify the name of the component (the parameter can be repeated multiple times to launch multiple components).
+
+Command example: `node --expose-gc --max_old_space_size=8192 src/app --component arbiter_api`.
+
+There are also npm scripts to run the necessary components:
+
+Command | Comment
+--- | ---
+`npm start_admin_panel` | Starts Admin Panel component
+`npm start_arbiter_api` | Starts Arbiter API component
+`npm start_gateway_api` | Starts Gateway API component
+`npm start_portal_api` | Starts Portal API component
+`npm start_all` | Starts all components
+
+In addition, components can be launched using pre-created bat files: **start_admin_panel.bat**, **start_arbiter_api.bat**, **start_gateway_api.bat** and **start_portal_api.bat**. To run all components use the **start__all.bat**.
+
 ## TERA Client Data (Datasheets)
 
-The API and the Shop require data of item templates, item conversions, item strings etc. This data must be uploaded into the MySQL database (data for patch 100.02 is already included). The API also requires of some client datasheets placed into directory **data\datasheets** (the necessary datasheets for patch 100.02 already included).
+The API and the Shop require data of item templates, item conversions, item strings etc. The API also requires of some client datasheets placed into directory **data\datasheets**.
 
-If you plan to use the API with another TERA patch, you will need to update this data. To update the data in the MySQL database, you can use tool **src\tools\dataItemsUpdater.js**. For it to work, you need to place the client datasheets (unpacked by program [novadrop-dc](https://github.com/vezel-dev/novadrop), [download](https://drive.google.com/drive/folders/1U1w4GgEgEoeayX3dmMryIX70ztdisCl9?usp=sharing)) into directory **share\dataitems\\[lang]** and run command `node src/tools/dataItemsUpdater.js [lang]`. Where **lang** specify your datasheet language code, like **en**, **ru**, etc.
+TERA API supports direct data loading from TERA DataCenter **\*.dat** files, which can be placed in the **data\datasheets** directory, for example: **data\datasheets\DataCenter_Final_EUR.dat** and **data\datasheets\DataCenter_Final_RUS.dat**. After that, configure KEY, IV, padding and compression parameters in the **.env** file.
+
+If you don't know what KEY and IV your game client's DataCenter uses, use [TeraDataTools](https://github.com/Gl0/TeraDataTools) utility ([download](https://drive.google.com/file/d/1cBvP6OCcUbHO8dgtXOnuHOhZNJ9UJ67j/view?usp=sharing)).
