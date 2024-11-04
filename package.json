@@ -4,9 +4,11 @@
   "description": "Tera API implementation on node.js",
   "main": "src/app.js",
   "scripts": {
-    "start": "node src/app",
-    "itemupden": "node src/tools/dataItemsUpdater.js en",
-    "itemupdru": "node src/tools/dataItemsUpdater.js ru"
+    "start_all": "node --expose-gc --max_old_space_size=8192 src/app",
+    "start_admin_panel": "node --expose-gc --max_old_space_size=8192 src/app --component admin_panel",
+    "start_arbiter_api": "node --expose-gc --max_old_space_size=8192 src/app --component arbiter_api",
+    "start_gateway_api": "node --expose-gc --max_old_space_size=8192 src/app --component gateway_api",
+    "start_portal_api": "node --expose-gc --max_old_space_size=8192 src/app --component portal_api"
   },
   "author": "Non-commercial Project 'HSDN' <info@hsdn.org>",
   "keywords": [
