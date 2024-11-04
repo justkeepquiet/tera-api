@@ -28,7 +28,7 @@ Built-in admin panel for full control of all functionality and viewing API logs.
 6. Copy the **DataCenter_Final_\*.dat** files from your game client to the **data\datasheets** directory.
 7. Copy or rename the **.env.example** file to **.env**.
 8. Configure the parameters in the **.env** file.
-9. Execute the `npm start_all` command, or run the file **start__all.bat** to start TERA API components.
+9. Execute the `npm run start_all` command, or run the file **start__all.bat** to start TERA API components.
 10. Import the [database files](share/db) in file names order to your MySQL database of TERA API.
 
 If you don't plan to use [tera-client-packer](https://github.com/justkeepquiet/tera-client-packer) to automatically update the client through the launcher, set parameter `API_PORTAL_CLIENT_PATCH_NO_CHECK` to `true` in your **.env** config file.
@@ -93,11 +93,11 @@ There are also npm scripts to run the necessary components:
 
 Command | Comment
 --- | ---
-`npm start_admin_panel` | Starts Admin Panel component
-`npm start_arbiter_api` | Starts Arbiter API component
-`npm start_gateway_api` | Starts Gateway API component
-`npm start_portal_api` | Starts Portal API component
-`npm start_all` | Starts all components
+`npm run start_admin_panel` | Starts Admin Panel component
+`npm run start_arbiter_api` | Starts Arbiter API component
+`npm run start_gateway_api` | Starts Gateway API component
+`npm run start_portal_api` | Starts Portal API component
+`npm run start_all` | Starts all components
 
 In addition, components can be launched using pre-created bat files: **start_admin_panel.bat**, **start_arbiter_api.bat**, **start_gateway_api.bat** and **start_portal_api.bat**. To run all components use the **start__all.bat**.
 
