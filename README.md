@@ -24,12 +24,11 @@ Built-in admin panel for full control of all functionality and viewing API logs.
 2. Copy the all tera-api files to any directory (e.g. **c:\tera-api**).
 3. Execute the `npm install` command in your tera-api directory, or just run **install.bat**.
 4. Unpack the [tera-icons.zip](share/data) archive to **data\tera-icons** folder.
-5. [Download](https://disk.yandex.ru/d/ert9ccPa7BWehA) and unpack fonts to **public** folder.
-6. Copy the **DataCenter_Final_\*.dat** files from your game client to the **data\datasheets** directory.
-7. Copy or rename the **.env.example** file to **.env**.
-8. Configure the parameters in the **.env** file.
-9. Execute the `npm run start_all` command, or run the file **start__all.bat** to start TERA API components.
-10. Import the [database files](share/db) in file names order to your MySQL database of TERA API.
+5. Copy the **DataCenter_Final_\*.dat** files from your game client to the **data\datasheets** directory.
+6. Copy or rename the **.env.example** file to **.env**.
+7. Configure the parameters in the **.env** file.
+8. Execute the `npm run start_all` command, or run the file **start__all.bat** to start TERA API components.
+9. Import the [database files](share/db) in file names order to your MySQL database of TERA API.
 
 If you don't plan to use [tera-client-packer](https://github.com/justkeepquiet/tera-client-packer) to automatically update the client through the launcher, set parameter `API_PORTAL_CLIENT_PATCH_NO_CHECK` to `true` in your **.env** config file.
 
