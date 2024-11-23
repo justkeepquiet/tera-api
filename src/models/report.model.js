@@ -9,6 +9,7 @@
  * @property {import("sequelize").ModelCtor<Model<any, any>>} activity
  * @property {import("sequelize").ModelCtor<Model<any, any>>} characters
  * @property {import("sequelize").ModelCtor<Model<any, any>>} cheats
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} launcher
  * @property {import("sequelize").ModelCtor<Model<any, any>>} chronoScrolls
  * @property {import("sequelize").ModelCtor<Model<any, any>>} shopFund
  * @property {import("sequelize").ModelCtor<Model<any, any>>} shopPay
