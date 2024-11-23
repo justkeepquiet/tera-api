@@ -23,8 +23,8 @@ Built-in admin panel for full control of all functionality and viewing API logs.
 1. Install latest node.js from [https://nodejs.org](https://nodejs.org/).
 2. Copy the all tera-api files to any directory (e.g. **c:\tera-api**).
 3. Execute the `npm install` command in your tera-api directory, or just run **install.bat**.
-4. Unpack the [tera-icons.zip](share/data) archive to **tera-api\data\tera-icons** folder.
-5. [Download](https://disk.yandex.ru/d/ert9ccPa7BWehA) and unpack fonts to **tera-api\public** folder.
+4. Unpack the [tera-icons.zip](share/data) archive to **data\tera-icons** folder.
+5. [Download](https://disk.yandex.ru/d/ert9ccPa7BWehA) and unpack fonts to **public** folder.
 6. Copy the **DataCenter_Final_\*.dat** files from your game client to the **data\datasheets** directory.
 7. Copy or rename the **.env.example** file to **.env**.
 8. Configure the parameters in the **.env** file.
