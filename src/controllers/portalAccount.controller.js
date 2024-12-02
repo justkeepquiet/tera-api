@@ -47,6 +47,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, sequelize, accountModel }) =>
 			throw new ApiError("account not exist", 50000);
 		}
 
+		let lastLoginServer = 0;
 		let characterCount = "0";
 		let bannedByIp = null;
 
@@ -57,7 +58,11 @@ module.exports.GetAccountInfoByUserNo = ({ logger, sequelize, accountModel }) =>
 				where: { accountDBID: account.get("accountDBID") }
 			});
 
-			characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
+			if (!/^true$/i.test(process.env.API_PORTAL_DISABLE_CLIENT_AUTO_ENTER)) {
+				lastLoginServer = account.get("lastLoginServer");
+			}
+
+			characterCount = helpers.getCharCountString(characters, lastLoginServer, "serverId", "charCount");
 
 			bannedByIp = await accountModel.bans.findOne({
 				where: {

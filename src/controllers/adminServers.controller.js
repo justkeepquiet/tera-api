@@ -79,7 +79,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
 		body("serverId")
-			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain the value as a number."))
+			.isInt({ min: 1 }).withMessage(i18n.__("Server ID field must contain the value as a number."))
 			.custom(value => serverModel.info.findOne({
 				where: { serverId: value }
 			}).then(data => {
