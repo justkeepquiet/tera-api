@@ -21,7 +21,7 @@
 	"This email address is already exists.": "This email address is already exists.",
 	"Please enter 4-13 alphanumeric characters for login.": "Please enter 4-13 alphanumeric characters for login.",
 	"Please enter valid email address.": "Please enter valid email address.",
-	"Please enter 8-128 alphanumeric characters password.": "Please enter 8-128 alphanumeric characters password.",
+	"Please enter 8-128 characters password.": "Please enter 8-128 characters password.",
 	"Two password entries do not match.": "Two password entries do not match.",
 	"Captcha verification failed.": "Captcha verification failed.",
 	"Enter login": "Enter login",

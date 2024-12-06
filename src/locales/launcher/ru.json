@@ -21,7 +21,7 @@
 	"This email address is already exists.": "Указанный Email адрес уже существует.",
 	"Please enter 4-13 alphanumeric characters for login.": "Введите логин, содержащий буквы и цифры длиной 4-13 символов.",
 	"Please enter valid email address.": "Введите правильный Email адрес.",
-	"Please enter 8-128 alphanumeric characters password.": "Введите пароль, содержащий буквы и цифры длиной 8-128 символов.",
+	"Please enter 8-128 characters password.": "Введите пароль длиной 8-128 символов.",
 	"Two password entries do not match.": "Введенные пароли не совпадают.",
 	"Captcha verification failed.": "Ошибка проверки Captcha.",
 	"Enter login": "Логин",

@@ -253,9 +253,7 @@ module.exports.ResetPasswordVerifyFormHtml = ({ accountModel }) => [
 module.exports.ResetPasswordVerifyAction = ({ logger, sequelize, accountModel }) => [
 	[
 		body("password").trim()
-			.isLength({ min: 8, max: 128 }).withMessage(10)
-			// .isStrongPassword().withMessage(10)
-			.isAlphanumeric().withMessage(10),
+			.isLength({ min: 8, max: 128 }).withMessage(10),
 		body("token").notEmpty().withMessage(11),
 		body("code").notEmpty().withMessage(11)
 	],
@@ -438,8 +436,6 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 			})),
 		body("password").trim()
 			.isLength({ min: 8, max: 128 }).withMessage(13)
-			// .isStrongPassword().withMessage(13)
-			.isAlphanumeric().withMessage(13)
 	],
 	/**
 	 * @type {RequestHandler}
