@@ -49,6 +49,7 @@
 	"Activated promo codes": "Activated promo codes",
 	"Please enter your promo code.": "Please enter your promo code.",
 	"The specified promo code does not exist.": "The specified promo code does not exist.",
+	"The specified promo code has expired.": "The specified promo code has expired.",
 	"The specified promo code has already been activated.": "The specified promo code has already been activated.",
 	"Activation error": "Activation error",
 	"warrior": "Warrior",

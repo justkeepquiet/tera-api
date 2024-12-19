@@ -611,16 +611,28 @@ module.exports.PromoCodeAction = modules => [
 		const { promoCode } = req.body;
 
 		const promocode = await modules.shopModel.promoCodes.findOne({
+			attributes: [
+				"promoCodeId",
+				"function",
+				"validAfter",
+				"validBefore",
+				"active",
+				[modules.sequelize.fn("NOW"), "dateNow"]
+			],
 			where: {
 				promoCode: promoCode,
-				active: 1,
-				validAfter: { [Op.lt]: modules.sequelize.fn("NOW") },
-				validBefore: { [Op.gt]: modules.sequelize.fn("NOW") }
+				active: 1
 			}
 		});
 
 		if (promocode === null) {
 			throw new ApiError("invalid promocode", 1000);
+		}
+
+		if (moment(promocode.get("dateNow")).isBefore(promocode.get("validAfter")) ||
+			moment(promocode.get("dateNow")).isAfter(promocode.get("validBefore"))
+		) {
+			throw new ApiError("expired promocode", 1001);
 		}
 
 		const promocodeActivated = await modules.shopModel.promoCodeActivated.findOne({

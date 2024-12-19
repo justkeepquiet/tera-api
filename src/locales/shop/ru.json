@@ -49,6 +49,7 @@
 	"Activated promo codes": "Активированные промокоды",
 	"Please enter your promo code.": "Пожалуйста, укажите ваш промокод.",
 	"The specified promo code does not exist.": "Указанный промокод не существует.",
+	"The specified promo code has expired.": "Указанный промокод просрочен.",
 	"The specified promo code has already been activated.": "Указанный промокод уже активирован.",
 	"Activation error": "Ошибка активации",
 	"warrior": "Воин",

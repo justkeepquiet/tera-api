@@ -20,9 +20,10 @@
 											<th><%= __("Promo code") %></th>
 											<th><%= __("Description") %> (<%= locale %>)</th>
 											<th><%= __("Assigned function") %></th>
-											<th><%= __("Active") %></th>
 											<th><%= __("Valid from") %></th>
 											<th><%= __("Valid to") %></th>
+											<th><%= __("Active") %></th>
+											<th><%= __("Valid") %></th>
 											<th></th>
 										</tr>
 									</thead>
@@ -40,14 +41,19 @@
 const tableData = [];
 
 promocodes.forEach(promocode => {
+	const valid = promocode.get("active") &&
+		moment().isSameOrAfter(moment(promocode.get("validAfter"))) &&
+		moment().isSameOrBefore(moment(promocode.get("validBefore")));
+
 	tableData.push([
 		promocode.get("promoCodeId"),
 		promocode.get("promoCode"),
 		promocode.get("strings")[0]?.get("description") || "-",
 		promocode.get("function"),
-		promocode.get("active") ? __("Yes") : __("No"),
 		moment(promocode.get("validAfter")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		moment(promocode.get("validBefore")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
+		promocode.get("active") ? __("Yes") : __("No"),
+		`<span class="text-${valid ? "success" : "danger"}">${valid ? __("Yes") : __("No")}</span>`,
 		`<a class="btn btn-secondary btn-sm" href="/promocodes/edit?promoCodeId=${promocode.get("promoCodeId")}"><i class="fa fa-pencil"></i></a> ` +
 			`<a class="btn btn-secondary btn-sm" href="/promocodes/delete?promoCodeId=${promocode.get("promoCodeId")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
 	]);
@@ -60,7 +66,7 @@ _%>
 			data: serializedTable,
 			order: [[0, "desc"]],
 			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
+			columns: [null, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});

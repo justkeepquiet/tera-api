@@ -103,10 +103,21 @@ module.exports.addAction = modules => [
 		body("promoCodeId")
 			.isInt({ min: 0 }).withMessage(modules.i18n.__("Promo code ID field must contain a valid number."))
 			.custom(value => modules.shopModel.promoCodes.findOne({
+				attributes: ["validAfter", "validBefore", "active", [modules.sequelize.fn("NOW"), "dateNow"]],
 				where: { promoCodeId: value }
 			}).then(data => {
-				if (value && data === null) {
-					return Promise.reject(modules.i18n.__("Promo code ID field contains not existing promo code ID."));
+				if (value) {
+					if (data === null) {
+						return Promise.reject(modules.i18n.__("Promo code ID field contains not existing promo code ID."));
+					}
+					if (!data.get("active")) {
+						return Promise.reject(modules.i18n.__("Promo code ID field contains inactive promo code ID."));
+					}
+					if (moment(data.get("dateNow")).isBefore(data.get("validAfter")) ||
+						moment(data.get("dateNow")).isAfter(data.get("validBefore"))
+					) {
+						return Promise.reject(modules.i18n.__("Promo code ID field contains expired promo code ID."));
+					}
 				}
 			})),
 		body("accountDBID")
