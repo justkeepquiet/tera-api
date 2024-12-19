@@ -41,6 +41,21 @@ module.exports.index = ({ i18n, shopModel }) => [
 			}]
 		});
 
+		// Correct the `currentActivations` value
+		for (const promocode of promocodes) {
+			if (promocode.get("currentActivations") === 0) {
+				const currentActivations = await shopModel.promoCodeActivated.count({
+					where: { promoCodeId: promocode.get("promoCodeId") }
+				});
+
+				await shopModel.promoCodes.update({
+					currentActivations
+				}, {
+					where: { promoCodeId: promocode.get("promoCodeId") }
+				});
+			}
+		}
+
 		res.render("adminPromocodes", {
 			layout: "adminLayout",
 			moment,
@@ -90,6 +105,8 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 			.isISO8601().withMessage(i18n.__("Valid from field must contain a valid date.")),
 		body("validBefore")
 			.isISO8601().withMessage(i18n.__("Valid to field must contain a valid date.")),
+		body("maxActivations")
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Maximum of activations field must contain the value as a number.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
 		body("description.*")
@@ -100,7 +117,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { promoCode, aFunction, validAfter, validBefore, active, description } = req.body;
+		const { promoCode, aFunction, validAfter, validBefore, maxActivations, active, description } = req.body;
 
 		await sequelize.transaction(async () => {
 			const promocode = await shopModel.promoCodes.create({
@@ -108,7 +125,8 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 				function: aFunction,
 				validAfter: moment.tz(validAfter, req.user.tz).toDate(),
 				validBefore: moment.tz(validBefore, req.user.tz).toDate(),
-				active: active == "on"
+				active: active == "on",
+				maxActivations
 			});
 
 			const promises = [];
@@ -178,6 +196,7 @@ module.exports.edit = ({ logger, shopModel }) => [
 			validAfter: moment(promocode.get("validAfter")),
 			validBefore: moment(promocode.get("validBefore")),
 			active: promocode.get("active"),
+			maxActivations: promocode.get("maxActivations"),
 			description
 		});
 	}
@@ -197,6 +216,8 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 			.isISO8601().withMessage(i18n.__("Valid from field must contain a valid date.")),
 		body("validBefore")
 			.isISO8601().withMessage(i18n.__("Valid to field must contain a valid date.")),
+		body("maxActivations")
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Maximum of activations field must contain the value as a number.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
 		body("description.*")
@@ -208,7 +229,7 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 	 */
 	async (req, res, next) => {
 		const { promoCodeId } = req.query;
-		const { aFunction, validAfter, validBefore, active, description } = req.body;
+		const { aFunction, validAfter, validBefore, maxActivations, active, description } = req.body;
 
 		const promocode = await shopModel.promoCodes.findOne({
 			where: { promoCodeId }
@@ -224,7 +245,8 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 					function: aFunction,
 					validAfter: moment.tz(validAfter, req.user.tz).toDate(),
 					validBefore: moment.tz(validBefore, req.user.tz).toDate(),
-					active: active == "on"
+					active: active == "on",
+					maxActivations
 				}, {
 					where: { promoCodeId }
 				})

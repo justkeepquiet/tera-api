@@ -59,6 +59,9 @@
 						case 1001:
 							$('#promocode_error strong').html("<%= __('The specified promo code has expired.') %>");
 							break;
+						case 1002:
+							$('#promocode_error strong').html("<%= __('The specified promo code has reached its activation limit.') %>");
+							break;
 						case 1010:
 							$('#promocode_error strong').html("<%= __('The specified promo code has already been activated.') %>");
 							break;

@@ -103,7 +103,14 @@ module.exports.addAction = modules => [
 		body("promoCodeId")
 			.isInt({ min: 0 }).withMessage(modules.i18n.__("Promo code ID field must contain a valid number."))
 			.custom(value => modules.shopModel.promoCodes.findOne({
-				attributes: ["validAfter", "validBefore", "active", [modules.sequelize.fn("NOW"), "dateNow"]],
+				attributes: [
+					"validAfter",
+					"validBefore",
+					"active",
+					"currentActivations",
+					"maxActivations",
+					[modules.sequelize.fn("NOW"), "dateNow"]
+				],
 				where: { promoCodeId: value }
 			}).then(data => {
 				if (value) {
@@ -117,6 +124,11 @@ module.exports.addAction = modules => [
 						moment(data.get("dateNow")).isAfter(data.get("validBefore"))
 					) {
 						return Promise.reject(modules.i18n.__("Promo code ID field contains expired promo code ID."));
+					}
+					if (data.get("maxActivations") > 0 &&
+						data.get("currentActivations") >= data.get("maxActivations")
+					) {
+						return Promise.reject(modules.i18n.__("Promo code ID field contains the promo code ID with the activation limit reached."));
 					}
 				}
 			})),
@@ -156,18 +168,39 @@ module.exports.addAction = modules => [
 		});
 
 		await modules.sequelize.transaction(async () => {
+			await modules.shopModel.promoCodeActivated.create({
+				promoCodeId: promocode.get("promoCodeId"),
+				accountDBID: account.get("accountDBID")
+			});
+
+			await modules.shopModel.promoCodes.increment({
+				currentActivations: 1
+			}, {
+				where: { promoCodeId: promocode.get("promoCodeId") }
+			});
+		});
+
+		await modules.sequelize.transaction(async () => {
 			const actions = new PromoCodeActions(
 				modules,
 				account.get("lastLoginServer"),
 				account.get("accountDBID")
 			);
 
-			await modules.shopModel.promoCodeActivated.create({
-				promoCodeId: promocode.get("promoCodeId"),
-				accountDBID: account.get("accountDBID")
-			});
-
 			return await actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
+		}).catch(err => {
+			modules.logger.error(err);
+
+			return modules.shopModel.promoCodeActivated.destroy({
+				where: {
+					promoCodeId: promocode.get("promoCodeId"),
+					accountDBID: req.user.accountDBID
+				}
+			}).then(() => modules.shopModel.promoCodes.decrement({
+				currentActivations: 1
+			}, {
+				where: { promoCodeId: promocode.get("promoCodeId") }
+			}));
 		});
 
 		next();
@@ -185,7 +218,7 @@ module.exports.addAction = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
+module.exports.deleteAction = ({ logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -208,7 +241,15 @@ module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
 
 		req.accountDBID = promocode.get("accountDBID");
 
-		await shopModel.promoCodeActivated.destroy({ where: { id } });
+		await sequelize.transaction(async () => {
+			await shopModel.promoCodeActivated.destroy({ where: { id } });
+
+			await shopModel.promoCodes.decrement({
+				currentActivations: 1
+			}, {
+				where: { promoCodeId: promocode.get("promoCodeId") }
+			});
+		});
 
 		next();
 	},

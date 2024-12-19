@@ -38,6 +38,16 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.BOOLEAN,
 			allowNull: false,
 			defaultValue: true
+		},
+		currentActivations: {
+			type: DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0
+		},
+		maxActivations: {
+			type: DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0
 		}
 	}, {
 		indexes: [
@@ -60,6 +70,16 @@ module.exports = (sequelize, DataTypes) =>
 				name: "active",
 				unique: false,
 				fields: ["active"]
+			},
+			{
+				name: "currentActivations",
+				unique: false,
+				fields: ["currentActivations"]
+			},
+			{
+				name: "maxActivations",
+				unique: false,
+				fields: ["maxActivations"]
 			}
 		],
 		timestamps: true

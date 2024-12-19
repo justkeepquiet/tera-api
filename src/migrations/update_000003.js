@@ -106,6 +106,28 @@ module.exports = {
 			allowNull: false,
 			defaultValue: 1
 		});
+
+		// `shop_promocodes`
+		await queryInterface.addColumn("shop_promocodes", "currentActivations", {
+			type: Sequelize.DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0,
+			after: "active"
+		});
+		await queryInterface.addColumn("shop_promocodes", "maxActivations", {
+			type: Sequelize.DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0,
+			after: "currentActivations"
+		});
+		await queryInterface.addIndex("shop_promocodes", ["currentActivations"], {
+			unique: false,
+			name: "currentActivations"
+		});
+		await queryInterface.addIndex("shop_promocodes", ["maxActivations"], {
+			unique: false,
+			name: "maxActivations"
+		});
 	},
 
 	/**
@@ -154,5 +176,11 @@ module.exports = {
 
 		// `report_shop_pay`
 		await queryInterface.removeColumn("report_shop_pay", "quantity");
+
+		// `shop_promocodes`
+		await queryInterface.removeIndex("shop_promocodes", "currentActivations");
+		await queryInterface.removeIndex("shop_promocodes", "maxActivations");
+		await queryInterface.removeColumn("shop_promocodes", "currentActivations");
+		await queryInterface.removeColumn("shop_promocodes", "maxActivations");
 	}
 };

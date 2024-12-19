@@ -20,6 +20,7 @@
 											<th><%= __("Promo code") %></th>
 											<th><%= __("Description") %> (<%= locale %>)</th>
 											<th><%= __("Assigned function") %></th>
+											<th><%= __("Activations") %></th>
 											<th><%= __("Valid from") %></th>
 											<th><%= __("Valid to") %></th>
 											<th><%= __("Active") %></th>
@@ -42,6 +43,7 @@ const tableData = [];
 
 promocodes.forEach(promocode => {
 	const valid = promocode.get("active") &&
+		(promocode.get("maxActivations") === 0 || promocode.get("currentActivations") < promocode.get("maxActivations")) &&
 		moment().isSameOrAfter(moment(promocode.get("validAfter"))) &&
 		moment().isSameOrBefore(moment(promocode.get("validBefore")));
 
@@ -50,6 +52,7 @@ promocodes.forEach(promocode => {
 		promocode.get("promoCode"),
 		promocode.get("strings")[0]?.get("description") || "-",
 		promocode.get("function"),
+		promocode.get("maxActivations") > 0 ? `${promocode.get("currentActivations")}/${promocode.get("maxActivations")}` : promocode.get("currentActivations"),
 		moment(promocode.get("validAfter")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		moment(promocode.get("validBefore")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		promocode.get("active") ? __("Yes") : __("No"),
@@ -66,7 +69,7 @@ _%>
 			data: serializedTable,
 			order: [[0, "desc"]],
 			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
+			columns: [null, null, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});

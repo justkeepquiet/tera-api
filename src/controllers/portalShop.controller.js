@@ -617,6 +617,8 @@ module.exports.PromoCodeAction = modules => [
 				"validAfter",
 				"validBefore",
 				"active",
+				"currentActivations",
+				"maxActivations",
 				[modules.sequelize.fn("NOW"), "dateNow"]
 			],
 			where: {
@@ -635,6 +637,12 @@ module.exports.PromoCodeAction = modules => [
 			throw new ApiError("expired promocode", 1001);
 		}
 
+		if (promocode.get("maxActivations") > 0 &&
+			promocode.get("currentActivations") >= promocode.get("maxActivations")
+		) {
+			throw new ApiError("reached promocode", 1002);
+		}
+
 		const promocodeActivated = await modules.shopModel.promoCodeActivated.findOne({
 			where: {
 				accountDBID: req.user.accountDBID,
@@ -646,9 +654,17 @@ module.exports.PromoCodeAction = modules => [
 			throw new ApiError("invalid promocode", 1010);
 		}
 
-		await modules.shopModel.promoCodeActivated.create({
-			promoCodeId: promocode.get("promoCodeId"),
-			accountDBID: req.user.accountDBID
+		await modules.sequelize.transaction(async () => {
+			await modules.shopModel.promoCodeActivated.create({
+				promoCodeId: promocode.get("promoCodeId"),
+				accountDBID: req.user.accountDBID
+			});
+
+			await modules.shopModel.promoCodes.increment({
+				currentActivations: 1
+			}, {
+				where: { promoCodeId: promocode.get("promoCodeId") }
+			});
 		});
 
 		// no awaiting
@@ -668,7 +684,11 @@ module.exports.PromoCodeAction = modules => [
 					promoCodeId: promocode.get("promoCodeId"),
 					accountDBID: req.user.accountDBID
 				}
-			});
+			}).then(() => modules.shopModel.promoCodes.decrement({
+				currentActivations: 1
+			}, {
+				where: { promoCodeId: promocode.get("promoCodeId") }
+			}));
 		});
 
 		res.json({
