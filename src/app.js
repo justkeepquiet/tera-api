@@ -471,7 +471,7 @@ const startServers = async modules => {
 		const allowPortCheck = /^true$/i.test(process.env.API_ARBITER_SERVER_PORT_CHECK);
 		const serverCheckActions = new ServerCheckActions(modules);
 
-		modules.scheduler.start({ name: "serverCheckActions", schedule: expr.EVERY_TEN_SECONDS }, () => serverCheckActions.all());
+		modules.scheduler.start({ name: "serverCheckActions", schedule: expr.EVERY_TEN_SECONDS }, () => serverCheckActions.all(allowPortCheck));
 		serverCheckActions.all(allowPortCheck);
 	}
 
