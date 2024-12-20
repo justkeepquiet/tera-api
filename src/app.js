@@ -468,9 +468,11 @@ const startServers = async modules => {
 	modules.scheduler.start({ name: "printMemoryUsage", schedule: expr.EVERY_THIRTY_MINUTES }, () => cli.printMemoryUsage());
 
 	if (checkComponent("arbiter_api")) {
+		const allowPortCheck = /^true$/i.test(process.env.API_ARBITER_SERVER_PORT_CHECK);
 		const serverCheckActions = new ServerCheckActions(modules);
+
 		modules.scheduler.start({ name: "serverCheckActions", schedule: expr.EVERY_TEN_SECONDS }, () => serverCheckActions.all());
-		serverCheckActions.all();
+		serverCheckActions.all(allowPortCheck);
 	}
 
 	if (checkComponent("portal_api")) {
