@@ -343,7 +343,7 @@ const loadDatasheetModel = modules => {
 			}
 		}
 	} catch (err) {
-		datasheetLogger.error(err.toString());
+		datasheetLogger.error(err);
 		throw "";
 	}
 
