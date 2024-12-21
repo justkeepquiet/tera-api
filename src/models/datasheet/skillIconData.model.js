@@ -12,13 +12,15 @@ class StrSheetAccountBenefitModel {
 	get bindings() {
 		return {
 			"/SkillIconData/Icon": ({ attributes }) => {
-				this.data.set(attributes.skillId, {
-					skillId: attributes.skillId,
-					class: attributes.class.toLowerCase(),
-					race: attributes.race.toLowerCase(),
-					gender: attributes.gender.toLowerCase(),
-					icon: attributes.iconName.split(".").at(-1).toLowerCase()
-				});
+				if (attributes.iconName !== undefined) {
+					this.data.set(attributes.skillId, {
+						skillId: attributes.skillId,
+						class: attributes.class.toLowerCase(),
+						race: attributes.race.toLowerCase(),
+						gender: attributes.gender.toLowerCase(),
+						icon: attributes.iconName.split(".").at(-1).toLowerCase()
+					});
+				}
 			}
 		};
 	}
