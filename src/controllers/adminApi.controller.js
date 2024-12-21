@@ -344,19 +344,19 @@ module.exports.getItems = ({ logger, i18n, datasheetModel }) => [
 		res.json({
 			result_code: 0,
 			msg: "success",
-			suggestions: items.map(item => {
+			suggestions: items.filter(item => item && item.itemTemplateId).map(item => {
 				const icons = new Set();
 
-				if (item) {
-					icons.add(item.icon);
+				icons.add(item.icon);
 
+				if (item.itemConversion) {
 					item.itemConversion.forEach(data =>
 						icons.add(data.icon)
 					);
+				}
 
-					if (item.skillIconData) {
-						icons.add(item.skillIconData.icon);
-					}
+				if (item.skillIconData) {
+					icons.add(item.skillIconData.icon);
 				}
 
 				return {

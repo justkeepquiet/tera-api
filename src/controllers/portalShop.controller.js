@@ -192,18 +192,26 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 				const itemData = datasheetModel.itemData[i18n.getLocale()]?.getOne(productItem.get("itemTemplateId"));
 				const strSheetItem = datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(productItem.get("itemTemplateId"));
 
-				if (!productInfo.title) {
-					productInfo.title = strSheetItem.string;
+				if (strSheetItem) {
+					if (!productInfo.title) {
+						productInfo.title = strSheetItem.string;
+					}
+
+					if (!productInfo.description) {
+						productInfo.description = strSheetItem.toolTip;
+					}
 				}
-				if (!productInfo.description) {
-					productInfo.description = strSheetItem.toolTip;
+
+				if (itemData) {
+					if (!productInfo.icon) {
+						productInfo.icon = itemData.icon;
+					}
+
+					if (productInfo.rareGrade === null) {
+						productInfo.rareGrade = itemData.rareGrade;
+					}
 				}
-				if (!productInfo.icon) {
-					productInfo.icon = itemData.icon;
-				}
-				if (productInfo.rareGrade === null) {
-					productInfo.rareGrade = itemData.rareGrade;
-				}
+
 				if (!productInfo.itemCount) {
 					productInfo.itemCount = productItem.get("boxItemCount");
 				}
