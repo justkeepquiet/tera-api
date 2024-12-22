@@ -180,7 +180,7 @@ module.exports.addAction = modules => [
 		body("price")
 			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
 		body("sort")
-			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
+			.isInt({ min: -1e8, max: 1e8 }).withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
 		body("categoryId")
 			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
@@ -413,7 +413,7 @@ module.exports.editAction = modules => [
 		body("price")
 			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
 		body("sort")
-			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
+			.isInt({ min: -1e8, max: 1e8 }).withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
 		body("categoryId")
 			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
@@ -657,7 +657,7 @@ module.exports.editAllAction = modules => [
 		body("price").optional({ checkFalsy: true })
 			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
 		body("sort").optional({ checkFalsy: true })
-			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
+			.isInt({ min: -1e8, max: 1e8 }).withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
 		body("categoryId").optional({ checkFalsy: true })
 			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
