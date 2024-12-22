@@ -179,6 +179,8 @@ module.exports.addAction = modules => [
 	[
 		body("price")
 			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
+		body("sort")
+			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
 		body("categoryId")
 			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
@@ -233,7 +235,7 @@ module.exports.addAction = modules => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { categoryId, validAfter, validBefore, active, price,
+		const { categoryId, validAfter, validBefore, active, price, sort,
 			title, description, icon, rareGrade,
 			itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
 
@@ -251,6 +253,7 @@ module.exports.addAction = modules => [
 				categoryId,
 				active: active == "on",
 				price,
+				sort,
 				icon: icon || null,
 				rareGrade: rareGrade === "" ? null : rareGrade,
 				validAfter: moment.tz(validAfter, req.user.tz).toDate(),
