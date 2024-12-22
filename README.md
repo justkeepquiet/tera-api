@@ -24,7 +24,7 @@ Built-in admin panel for full control of all functionality and viewing API logs.
 2. Copy the all tera-api files to any directory (e.g. **c:\tera-api**).
 3. Execute the `npm install` command in your tera-api directory, or just run **install.bat**.
 4. Unpack the [tera-icons.zip](share/data) archive to **data\tera-icons** folder.
-5. Copy the **DataCenter_Final_\*.dat** files from your game client to the **data\datasheets** directory.
+5. Copy the **DataCenter_Final_XXX.dat** files from your game client to the **data\datasheets** directory.
 6. Copy or rename the **.env.example** file to **.env**.
 7. Configure the parameters in the **.env** file.
 8. Execute the `npm run start_all` command, or run the file **start__all.bat** to start TERA API components.
@@ -104,6 +104,6 @@ In addition, components can be launched using pre-created bat files: **start_adm
 
 The API and the Shop require data of item templates, item conversions, item strings etc. The API also requires of some client datasheets placed into directory **data\datasheets**.
 
-TERA API supports direct data loading from TERA DataCenter **\*.dat** files, which can be placed in the **data\datasheets** directory, for example: **data\datasheets\DataCenter_Final_EUR.dat** and **data\datasheets\DataCenter_Final_RUS.dat**. After that, configure KEY, IV, padding and compression parameters in the **.env** file.
+TERA API supports direct data loading from TERA DataCenter **.dat** files, which can be placed in the **data\datasheets** directory, for example: **data\datasheets\DataCenter_Final_EUR.dat** and **data\datasheets\DataCenter_Final_RUS.dat**. After that, configure KEY, IV, padding and compression parameters in the **.env** file.
 
 If you don't know what KEY and IV your game client's DataCenter uses, use [TeraDataTools](https://github.com/Gl0/TeraDataTools) utility ([download](https://drive.google.com/file/d/1cBvP6OCcUbHO8dgtXOnuHOhZNJ9UJ67j/view?usp=sharing)).
