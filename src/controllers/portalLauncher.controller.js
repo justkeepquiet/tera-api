@@ -190,7 +190,6 @@ module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel 
 		});
 
 		app.render("email/resetPasswordVerify", { ...res.locals,
-			protocol: req.protocol,
 			host: req.hostname,
 			brandName,
 			code
@@ -493,7 +492,6 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 			});
 
 			app.render("email/emailVerify", { ...res.locals,
-				protocol: req.protocol,
 				host: req.hostname,
 				brandName,
 				code
