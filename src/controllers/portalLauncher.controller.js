@@ -174,6 +174,7 @@ module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel 
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
+		const { secure } = req.query;
 		const { email } = req.body;
 
 		const token = uuid();
@@ -190,7 +191,8 @@ module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel 
 		});
 
 		app.render("email/resetPasswordVerify", { ...res.locals,
-			host: req.hostname,
+			host: req.headers.host || req.hostname,
+			secure: secure === "true",
 			brandName,
 			code
 		}, async (err, html) => {
@@ -472,6 +474,7 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
+		const { secure } = req.query;
 		const { login, password, email } = req.body;
 
 		const token = uuid();
@@ -492,7 +495,8 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 			});
 
 			app.render("email/emailVerify", { ...res.locals,
-				host: req.hostname,
+				host: req.headers.host || req.hostname,
+				secure: secure === "true",
 				brandName,
 				code
 			}, async (err, html) => {
