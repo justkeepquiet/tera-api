@@ -9,13 +9,14 @@ const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+const Op = require("sequelize").Op;
 
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
  */
-module.exports.home = ({ logger, serverModel }) => [
+module.exports.home = ({ sequelize, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -23,6 +24,13 @@ module.exports.home = ({ logger, serverModel }) => [
 	 */
 	async (req, res, next) => {
 		const isSteer = req.user.type === "steer";
+
+		const maintenance = await serverModel.maintenance.findOne({
+			where: {
+				startTime: { [Op.lt]: sequelize.fn("NOW") },
+				endTime: { [Op.gt]: sequelize.fn("NOW") }
+			}
+		});
 
 		const servers = await serverModel.info.findAll({
 			where: { isEnabled: 1 }
@@ -32,6 +40,7 @@ module.exports.home = ({ logger, serverModel }) => [
 			layout: "adminLayout",
 			moment,
 			servers,
+			isMaintenance: maintenance !== null,
 			activityReport: !isSteer || Object.values(req.user.functions).includes("/report_activity"),
 			cheatsReport: !isSteer || Object.values(req.user.functions).includes("/report_cheats"),
 			payLogs: !isSteer || Object.values(req.user.functions).includes("/shop_pay_logs")

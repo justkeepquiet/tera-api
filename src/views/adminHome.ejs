@@ -7,7 +7,7 @@
 					<div class="card stats">
 						<div class="card-block">
 							<div class="title-block">
-								<h4 class="title"><%= __("Servers Stats") %></h4>
+								<h4 class="title"><%= __("Servers Stats") %> <span id="isMaintenance" class="text-warning"><%- isMaintenance ? `<i class="fa fa-wrench"></i> ${__("Under maintenance")}` : "" %></span></h4>
 							</div>
 							<%_ if (servers === null || servers.length === 0) { _%>
 							<div class="row stats-col">
@@ -155,6 +155,11 @@
 				success: function(data) {
 					if (data.result_code !== 0) {
 						return;
+					}
+					if (data.isMaintenance) {
+						$("#isMaintenance").html("<i class=\"fa fa-wrench\"></i> <%= __("Under maintenance") %>");
+					} else {
+						$("#isMaintenance").empty();
 					}
 					data.servers.forEach(function(server) {
 						if (server.isAvailable) {

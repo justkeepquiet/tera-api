@@ -47,7 +47,7 @@ module.exports.notifications = ({ queue }) => [
 /**
  * @param {modules} modules
  */
-module.exports.homeStats = ({ i18n, datasheetModel, serverModel, accountModel, reportModel }) => [
+module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, accountModel, reportModel }) => [
 	apiAccessHandler,
 	/**
 	 * @type {RequestHandler}
@@ -58,6 +58,13 @@ module.exports.homeStats = ({ i18n, datasheetModel, serverModel, accountModel, r
 		const activityReportItems = [];
 		const cheatsReportItems = [];
 		const payLogsItems = [];
+
+		const maintenance = await serverModel.maintenance.findOne({
+			where: {
+				startTime: { [Op.lt]: sequelize.fn("NOW") },
+				endTime: { [Op.gt]: sequelize.fn("NOW") }
+			}
+		});
 
 		const servers = await serverModel.info.findAll({
 			where: { isEnabled: 1 }
@@ -204,6 +211,7 @@ module.exports.homeStats = ({ i18n, datasheetModel, serverModel, accountModel, r
 			result_code: 0,
 			msg: "success",
 			servers: seerversItems,
+			isMaintenance: maintenance !== null,
 			activityReport: activityReportItems,
 			cheatsReport: cheatsReportItems,
 			payLogs: payLogsItems
