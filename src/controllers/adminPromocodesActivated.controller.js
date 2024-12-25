@@ -23,7 +23,7 @@ const {
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ shopModel }) => [
+module.exports.index = ({ i18n, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -32,17 +32,20 @@ module.exports.index = ({ shopModel }) => [
 	async (req, res, next) => {
 		const { promoCodeId, accountDBID } = req.query;
 
+		const promocodes = await shopModel.promoCodes.findAll();
+
 		if (!promoCodeId && !accountDBID) {
 			return res.render("adminPromocodesActivated", {
 				layout: "adminLayout",
 				errors: null,
+				promocodesActivated: null,
+				promocodes,
 				promoCodeId,
-				accountDBID,
-				promocodes: null
+				accountDBID
 			});
 		}
 
-		const promocodes = await shopModel.promoCodeActivated.findAll({
+		const promocodesActivated = await shopModel.promoCodeActivated.findAll({
 			where: {
 				...promoCodeId ? { promoCodeId } : {},
 				...accountDBID ? { accountDBID } : {}
@@ -55,6 +58,7 @@ module.exports.index = ({ shopModel }) => [
 
 		res.render("adminPromocodesActivated", {
 			layout: "adminLayout",
+			promocodesActivated,
 			promocodes,
 			promoCodeId,
 			accountDBID,
