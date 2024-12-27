@@ -186,7 +186,11 @@ reports.forEach(report => {
 			break;
 
 		case "crash_game":
-			action = __("Crash game");
+			if (label === "0" || label === "7") {
+				action = __("Exit game");
+			} else {
+				action = __("Crash game");
+			}
 
 			if (gameEndCodes[label]?.[optLabel] !== undefined) {
 				description = `(${label}-${optLabel}) ${gameEndCodes[label][optLabel]}`;
