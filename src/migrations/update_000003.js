@@ -100,6 +100,13 @@ module.exports = {
 			first: true
 		});
 
+		// `report_shop_fund`
+		await queryInterface.addColumn("report_shop_fund", "balance", {
+			type: Sequelize.DataTypes.INTEGER(11),
+			allowNull: false,
+			after: "amount"
+		});
+
 		// `report_shop_pay`
 		await queryInterface.addColumn("report_shop_pay", "quantity", {
 			type: Sequelize.DataTypes.INTEGER(11),
@@ -173,6 +180,9 @@ module.exports = {
 
 		// `report_chronoscrolls`
 		await queryInterface.removeColumn("report_chronoscrolls", "id");
+
+		// `report_shop_fund`
+		await queryInterface.removeColumn("report_shop_fund", "balance");
 
 		// `report_shop_pay`
 		await queryInterface.removeColumn("report_shop_pay", "quantity");

@@ -101,7 +101,7 @@ module.exports.add = ({ i18n, datasheetModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel }) => [
+module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -158,9 +158,9 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 				privilege
 			});
 
-			const promises = [];
-
 			if (benefitIds) {
+				const promises = [];
+
 				benefitIds.forEach((benefitId, i) => {
 					if (availableUntils[i] === undefined) {
 						return;
@@ -172,9 +172,9 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 						availableUntil: moment.tz(availableUntils[i], req.user.tz).toDate()
 					}));
 				});
-			}
 
-			await Promise.all(promises);
+				await Promise.all(promises);
+			}
 		});
 
 		next();
@@ -326,12 +326,25 @@ module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, accountMod
 			await accountModel.online.destroy({
 				where: { accountDBID }
 			});
-			await shopModel.accounts.destroy({
-				where: { accountDBID }
-			});
 			await shopModel.promoCodeActivated.destroy({
 				where: { accountDBID }
 			});
+
+			const shopAccount = await shopModel.accounts.findOne({
+				where: { accountDBID }
+			});
+
+			if (shopAccount !== null) {
+				await shopModel.accounts.destroy({
+					where: { accountDBID }
+				});
+				await reportModel.shopFund.create({
+					accountDBID,
+					amount: -shopAccount.get("balance"),
+					balance: 0,
+					description: "AccountDeletion"
+				});
+			}
 		});
 
 		next();

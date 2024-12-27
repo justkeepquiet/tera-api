@@ -15,29 +15,34 @@ class Shop {
 		this.params = params;
 	}
 
-	fund(amount) {
-		return this.modules.shopModel.accounts.findOne({
-			where: { accountDBID: this.userId }
-		}).then(account => {
-			if (account !== null) {
-				return this.modules.shopModel.accounts.increment({
-					balance: amount
-				}, {
-					where: { accountDBID: this.userId }
-				});
-			}
+	async fund(amount) {
+		let balance = amount;
 
-			return this.modules.shopModel.accounts.create({
+		const account = await this.modules.shopModel.accounts.findOne({
+			where: { accountDBID: this.userId }
+		});
+
+		if (account !== null) {
+			balance = account.get("balance") + amount;
+
+			await this.modules.shopModel.accounts.increment({
+				balance: amount
+			}, {
+				where: { accountDBID: this.userId }
+			});
+		} else {
+			await this.modules.shopModel.accounts.create({
 				accountDBID: this.userId,
 				balance: amount
 			});
-		}).then(() =>
-			this.modules.reportModel.shopFund.create({
-				accountDBID: this.userId,
-				amount: amount,
-				description: this.params.report
-			})
-		);
+		}
+
+		await this.modules.reportModel.shopFund.create({
+			accountDBID: this.userId,
+			amount: amount,
+			balance,
+			description: this.params.report
+		});
 	}
 }
 

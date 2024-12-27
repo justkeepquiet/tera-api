@@ -34,6 +34,7 @@
 											<th><%= __("Log time") %></th>
 											<th><%= __("Account ID") %></th>
 											<th><%= __("Amount") %></th>
+											<th><%= __("Balance") %></th>
 											<th><%= __("Type") %></th>
 											<th><%= __("Value") %></th>
 											<th><%= __("Info") %></th>
@@ -58,7 +59,8 @@ logs.forEach(log => {
 		log.get("id"),
 		moment(log.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
 		log.get("accountDBID"),
-		log.get("amount"),
+		log.get("amount") > 0 ? `+${log.get("amount")}` : log.get("amount"),
+		log.get("balance"),
 		__(type) || "-",
 		value || "-",
 		info || "-"

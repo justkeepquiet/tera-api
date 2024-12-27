@@ -11,6 +11,8 @@ const moment = require("moment-timezone");
 const body = require("express-validator").body;
 const Recaptcha = require("express-recaptcha").RecaptchaV3;
 
+const Benefit = require("../actions/handlers/benefit");
+const Shop = require("../actions/handlers/shop");
 const helpers = require("../utils/helpers");
 const ApiError = require("../lib/apiError");
 const { validationHandler } = require("../middlewares/portalLauncher.middlewares");
@@ -410,12 +412,12 @@ module.exports.SignupFormHtml = () => [
 /**
  * @param {modules} modules
  */
-module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountModel }) => [
+module.exports.SignupAction = modules => [
 	[
 		body("login").trim()
 			.isLength({ min: 3, max: 13 }).withMessage(11)
 			.isAlphanumeric().withMessage(11)
-			.custom(value => accountModel.info.findOne({
+			.custom(value => modules.accountModel.info.findOne({
 				where: {
 					userName: value
 				}
@@ -426,7 +428,7 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 			})),
 		body("email").trim()
 			.isEmail().withMessage(12)
-			.custom(value => accountModel.info.findOne({
+			.custom(value => modules.accountModel.info.findOne({
 				where: {
 					email: value
 				}
@@ -442,7 +444,7 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		const errors = helpers.validationResultLog(req, logger);
+		const errors = helpers.validationResultLog(req, modules.logger);
 
 		if (!errors.isEmpty()) {
 			throw new ApiError("invalid parameter", errors.array()[0].msg);
@@ -482,11 +484,11 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 		if (isEmailVerifyEnabled) {
 			const code = helpers.generateVerificationCode();
 
-			await accountModel.verify.destroy({
+			await modules.accountModel.verify.destroy({
 				where: { email }
 			});
 
-			await accountModel.verify.create({
+			await modules.accountModel.verify.create({
 				token,
 				userName: login,
 				code,
@@ -494,26 +496,26 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 				email
 			});
 
-			app.render("email/emailVerify", { ...res.locals,
+			modules.app.render("email/emailVerify", { ...res.locals,
 				host: req.headers.host || req.hostname,
 				secure: secure === "true",
 				brandName,
 				code
 			}, async (err, html) => {
 				if (err) {
-					logger.error(err);
+					modules.logger.error(err);
 					return next(new ApiError("internal error", 1));
 				}
 
 				try {
-					await mailer.sendMail({
+					await modules.mailer.sendMail({
 						from: `"${process.env.API_PORTAL_EMAIL_FROM_NAME}" <${process.env.API_PORTAL_EMAIL_FROM_ADDRESS}>`,
 						to: email,
-						subject: `${i18n.__("Confirm your registration in")} ${brandName}`,
+						subject: `${modules.i18n.__("Confirm your registration in")} ${brandName}`,
 						html
 					});
 				} catch (error) {
-					logger.error(error);
+					modules.logger.error(error);
 				}
 
 				res.json({
@@ -524,26 +526,33 @@ module.exports.SignupAction = ({ app, logger, mailer, i18n, sequelize, accountMo
 				});
 			});
 		} else {
-			await sequelize.transaction(async () => {
+			await modules.sequelize.transaction(async () => {
 				// Create user account
-				const account = await accountModel.info.create({
+				const account = await modules.accountModel.info.create({
 					userName: login,
 					passWord: helpers.getPasswordString(password),
 					authKey: uuid(),
 					email
 				});
 
+				const benefit = new Benefit(modules, account.get("accountDBID"));
 				const promises = [];
 
 				helpers.getInitialBenefits().forEach((benefitDays, benefitId) => {
-					promises.push(accountModel.benefits.create({
-						accountDBID: account.get("accountDBID"),
-						benefitId: benefitId,
-						availableUntil: sequelize.fn("ADDDATE", sequelize.fn("NOW"), benefitDays)
-					}));
+					promises.push(benefit.addBenefit(benefitId, benefitDays));
 				});
 
 				await Promise.all(promises);
+
+				const initialShopBalance = parseInt(process.env.API_PORTAL_SHOP_INITIAL_BALANCE || 0);
+
+				if (initialShopBalance > 0) {
+					const shop = new Shop(modules, account.get("accountDBID"), null, {
+						report: "SignUp"
+					});
+
+					await shop.fund(initialShopBalance);
+				}
 
 				// Login account
 				res.json({

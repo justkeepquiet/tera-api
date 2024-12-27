@@ -550,10 +550,19 @@ module.exports.PurchaseAction = modules => [
 			throw new ApiError("items not exists", 3000);
 		}
 
+		const cost = shopProduct.get("price") * quantity;
+
 		await modules.shopModel.accounts.decrement({
-			balance: shopProduct.get("price") * quantity
+			balance: cost
 		}, {
 			where: { accountDBID: shopAccount.get("accountDBID") }
+		});
+
+		await modules.reportModel.shopFund.create({
+			accountDBID: shopAccount.get("accountDBID"),
+			amount: -cost,
+			balance: shopAccount.get("balance") - cost,
+			description: `Buy,ID: ${shopProduct.get("id")},Log ID: ${logResult.get("id")}`
 		});
 
 		// no awaiting
@@ -574,7 +583,7 @@ module.exports.PurchaseAction = modules => [
 				items
 			});
 
-			return await modules.reportModel.shopPay.update({
+			await modules.reportModel.shopPay.update({
 				boxId,
 				status: "completed"
 			}, {
@@ -583,17 +592,24 @@ module.exports.PurchaseAction = modules => [
 		}).catch(async err => {
 			modules.logger.error(err);
 
-			return modules.shopModel.accounts.increment({
-				balance: shopProduct.get("price") * quantity
+			await modules.shopModel.accounts.increment({
+				balance: cost
 			}, {
 				where: { accountDBID: shopAccount.get("accountDBID") }
-			}).then(() =>
-				modules.reportModel.shopPay.update({
-					status: "rejected"
-				}, {
-					where: { id: logResult.get("id") }
-				})
-			);
+			});
+
+			await modules.reportModel.shopPay.update({
+				status: "rejected"
+			}, {
+				where: { id: logResult.get("id") }
+			});
+
+			await modules.reportModel.shopFund.create({
+				accountDBID: shopAccount.get("accountDBID"),
+				amount: cost,
+				balance: shopAccount.get("balance"),
+				description: `BuyCancel,ID: ${shopProduct.get("id")},Log ID: ${logResult.get("id")}`
+			});
 		});
 
 		res.json({
@@ -683,20 +699,22 @@ module.exports.PromoCodeAction = modules => [
 				req.user.accountDBID
 			);
 
-			return await actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
-		}).catch(err => {
+			await actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
+		}).catch(async err => {
 			modules.logger.error(err);
 
-			return modules.shopModel.promoCodeActivated.destroy({
+			await modules.shopModel.promoCodeActivated.destroy({
 				where: {
 					promoCodeId: promocode.get("promoCodeId"),
 					accountDBID: req.user.accountDBID
 				}
-			}).then(() => modules.shopModel.promoCodes.decrement({
+			});
+
+			await modules.shopModel.promoCodes.decrement({
 				currentActivations: 1
 			}, {
 				where: { promoCodeId: promocode.get("promoCodeId") }
-			}));
+			});
 		});
 
 		res.json({

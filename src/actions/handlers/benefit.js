@@ -10,7 +10,7 @@ class Benefit {
 	/**
 	 * @param {modules} modules
 	 */
-	constructor(modules, userId, serverId, params = {}) {
+	constructor(modules, userId, serverId = null, params = {}) {
 		this.modules = modules;
 		this.userId = userId;
 		this.serverId = serverId;
@@ -54,9 +54,11 @@ class Benefit {
 					);
 				}
 
-				this.modules.hub.addBenefit(this.serverId, this.userId, benefitId, totalDays * 86400).catch(err =>
-					this.modules.logger.warn(err.toString())
-				);
+				if (this.serverId !== null) {
+					this.modules.hub.addBenefit(this.serverId, this.userId, benefitId, totalDays * 86400).catch(err =>
+						this.modules.logger.warn(err.toString())
+					);
+				}
 
 				return Promise.resolve();
 			});

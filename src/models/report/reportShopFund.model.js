@@ -25,6 +25,10 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.INTEGER(11),
 			allowNull: false
 		},
+		balance: {
+			type: DataTypes.INTEGER(11),
+			allowNull: false
+		},
 		description: {
 			type: DataTypes.STRING(255)
 		}

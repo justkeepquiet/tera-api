@@ -107,6 +107,13 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 			active: active == "on"
 		});
 
+		await reportModel.shopFund.create({
+			accountDBID,
+			amount: balance,
+			balance,
+			description: "SignUp"
+		});
+
 		next();
 	},
 	writeOperationReport(reportModel),
@@ -130,19 +137,19 @@ module.exports.edit = ({ logger, shopModel }) => [
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
 
-		const data = await shopModel.accounts.findOne({
+		const account = await shopModel.accounts.findOne({
 			where: { accountDBID }
 		});
 
-		if (data === null) {
+		if (account === null) {
 			throw Error("Object not found");
 		}
 
 		res.render("adminShopAccountsEdit", {
 			layout: "adminLayout",
-			accountDBID: data.get("accountDBID"),
-			balance: data.get("balance"),
-			active: data.get("active")
+			accountDBID: account.get("accountDBID"),
+			balance: account.get("balance"),
+			active: account.get("active")
 		});
 	}
 ];
@@ -167,12 +174,31 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 		const { accountDBID } = req.query;
 		const { balance, active } = req.body;
 
-		await shopModel.accounts.update({
-			balance,
-			active: active == "on"
-		}, {
+		const account = await shopModel.accounts.findOne({
 			where: { accountDBID }
 		});
+
+		if (account === null) {
+			throw Error("Object not found");
+		}
+
+		const amount = balance - account.get("balance");
+
+		if (amount !== 0) {
+			await shopModel.accounts.update({
+				balance,
+				active: active == "on"
+			}, {
+				where: { accountDBID }
+			});
+
+			await reportModel.shopFund.create({
+				accountDBID,
+				amount,
+				balance,
+				description: "BalanceChange"
+			});
+		}
 
 		next();
 	},
@@ -197,8 +223,23 @@ module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
 
+		const account = await shopModel.accounts.findOne({
+			where: { accountDBID }
+		});
+
+		if (account === null) {
+			throw Error("Object not found");
+		}
+
 		await shopModel.accounts.destroy({
 			where: { accountDBID }
+		});
+
+		await reportModel.shopFund.create({
+			accountDBID,
+			amount: -account.get("balance"),
+			balance: 0,
+			description: "Delete"
 		});
 
 		next();
