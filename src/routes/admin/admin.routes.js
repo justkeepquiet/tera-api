@@ -36,7 +36,7 @@ const adminBoxesController = require("../../controllers/adminBoxes.controller");
 const adminShopLogsController = require("../../controllers/adminShopLogs.controller");
 const adminTasksController = require("../../controllers/adminTasks.controller");
 const adminLauncherSlidesController = require("../../controllers/adminLauncherV2Slides.controller");
-const adminLauncherLogsController = require("../../controllers/adminLauncherV2Logs.controller");
+const adminLauncherLogsController = require("../../controllers/adminLauncherLogs.controller");
 
 /**
 * @param {modules} modules

@@ -53,6 +53,8 @@ module.exports = modules => {
 		.get("/LauncherResetPasswordVerifyForm", portalLauncherController.ResetPasswordVerifyFormHtml(mod))
 		.post("/LauncherResetPasswordVerifyAction", portalLauncherController.ResetPasswordVerifyAction(mod))
 
+		.post("/LauncherReportAction", portalLauncherController.ReportAction(mod))
+
 		.use(
 			/**
 			 * @type {ErrorRequestHandler}

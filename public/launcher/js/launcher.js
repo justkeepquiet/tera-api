@@ -95,6 +95,34 @@ function setAccountInfoByUserNo(userNo, authKey, language) {
 	});
 }
 
+function launcherEndGameReport(userNo, authKey, code1, code2, version) {
+	return apiRequest("LauncherReportAction", {
+		userNo: userNo,
+		authKey: authKey,
+		code1: code1,
+		code2: code2,
+		version: version
+	});
+}
+
+function launcherActionReport(userNo, authKey, action, label, optLabel) {
+	var data = {
+		userNo: userNo,
+		authKey: authKey,
+		action: action
+	};
+
+	if (label) {
+		data.label = label;
+	}
+
+	if (optLabel) {
+		data.optLabel = optLabel;
+	}
+
+	return apiRequest("LauncherReportAction", data);
+}
+
 function launcherMaintenanceStatus() {
 	return apiRequest("LauncherMaintenanceStatus");
 }
@@ -161,6 +189,17 @@ var Launcher = {
 	},
 
 	/*
+	 * Reporting handlers
+	 */
+	gameEnd: function(code1, code2) {
+		launcherEndGameReport(loginIFrame.ACCOUNT_ID, loginIFrame.AUTH_KEY, code1, code2, null);
+	},
+
+	logAction: function(action, label, optLabel) {
+		launcherActionReport(loginIFrame.ACCOUNT_ID, loginIFrame.AUTH_KEY, action, label, optLabel);
+	},
+
+	/*
 	 * Login frame events
 	 */
 	loginSuccess: function() {
@@ -172,6 +211,7 @@ var Launcher = {
 
 		Launcher.sendCommand("login|" + loginIFrame.ACCOUNT_ID);
 		Launcher.sendCommand("check_p");
+		Launcher.logAction("signin", "BHS");
 
 		loginIFrame.$("#userLoginForm")[0].reset();
 	},
@@ -263,6 +303,7 @@ var Launcher = {
 		if ((loginIFrame.QA_MODE && loginIFrame.QA_MODE_NOCHECK) || START_NO_CHECK || PATCH_NO_CHECK) { // no check files in QA mode
 			Launcher.status = 0;
 			Launcher.sendCommand("execute|" + REGION);
+			Launcher.logAction("enter_game", "BHS");
 		} else {
 			Launcher.sendCommand("start_p|0");
 		}
@@ -394,6 +435,7 @@ function l2w_patchResult(patch_result, patch_error, file, reason, code) {
 				Launcher.disableLaunchButton("Wait", "btn-wait");
 				Launcher.status = 4;
 				Launcher.sendCommand("execute|" + REGION);
+				Launcher.logAction("enter_game", "BHS");
 			} else {
 				Launcher.status = 0;
 				Launcher.enableLaunchButton("Play", "btn-gamestart");
@@ -490,6 +532,8 @@ function l2w_gameEvent(event) {
 }
 
 function l2w_gameEnd(end_type1, end_type2) {
+	Launcher.gameEnd(end_type1, end_type2);
+
 	debug(sprintf("Game end 0x%X, 0x%X", end_type1, end_type2));
 	displayLauncherError(end_type1, end_type2);
 

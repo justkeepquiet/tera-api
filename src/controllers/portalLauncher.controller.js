@@ -676,3 +676,56 @@ module.exports.SignupVerifyAction = ({ logger, sequelize, accountModel }) => [
 		});
 	}
 ];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.ReportAction = ({ accountModel, reportModel }) => [
+	[
+		body("userNo").notEmpty(),
+		body("authKey").notEmpty()
+	],
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res) => {
+		const account = await accountModel.info.findOne({
+			where: {
+				accountDBID: req.body.userNo,
+				authKey: req.body.authKey
+			},
+			attributes: ["accountDBID"]
+		});
+
+		if (account === null) {
+			throw new ApiError("account not exist", 50000);
+		}
+
+		let action = req.body.action;
+		let label = req.body.label;
+		let optLabel = req.body.optLabel;
+		let version = null;
+
+		if (req.body.version !== undefined && req.body.code1 !== undefined && req.body.code2 !== undefined) {
+			action = "crash_game";
+			label = req.body.code1;
+			optLabel = req.body.code2;
+			version = req.body.version;
+		}
+
+		await reportModel.launcher.create({
+			accountDBID: req.body.userNo,
+			ip: req.ip,
+			action,
+			label,
+			optLabel,
+			version
+		});
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success"
+		});
+	}
+];

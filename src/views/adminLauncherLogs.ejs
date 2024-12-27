@@ -182,7 +182,7 @@ reports.forEach(report => {
 	switch (action) {
 		case "enter_game":
 			action = __("Enter game");
-			description = `OSID: ${label}`;
+			description = !isNaN(label) ? `OSID: ${label}` : label;
 			break;
 
 		case "crash_game":
@@ -197,6 +197,7 @@ reports.forEach(report => {
 
 		case "signin":
 			action = __("Sign in");
+			description = label;
 			break;
 
 		case "start_dl":
