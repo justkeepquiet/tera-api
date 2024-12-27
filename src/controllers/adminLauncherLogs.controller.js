@@ -23,10 +23,21 @@ module.exports.index = ({ reportModel }) => [
 		const from = req.query.from ? moment.tz(req.query.from, req.user.tz) : moment().subtract(30, "days");
 		const to = req.query.to ? moment.tz(req.query.to, req.user.tz) : moment().add(30, "days");
 
+		let label = null;
+
+		if (action === "exit_game") {
+			label = { [Op.in]: ["0", "7"] };
+		}
+
+		if (action === "crash_game") {
+			label = { [Op.notIn]: ["0", "7"] };
+		}
+
 		const reports = await reportModel.launcher.findAll({
 			where: {
 				...accountDBID ? { accountDBID } : {},
-				...action ? { action: { [Op.like]: `${action}%` } } : {},
+				...action ? { action: { [Op.like]: `${label ? "crash_game" : action}%` } } : {},
+				...label ? { label } : {},
 				reportTime: {
 					[Op.gt]: from.toDate(),
 					[Op.lt]: to.toDate()
