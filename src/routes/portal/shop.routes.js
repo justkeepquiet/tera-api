@@ -63,7 +63,7 @@ module.exports = modules => {
 		})
 	);
 
-	modules.app.use("/tera", session({
+	modules.app.use("/shop", session({
 		name: "shop.sid",
 		genid: () => uuid(),
 		store: new MemoryStore(),
@@ -72,8 +72,8 @@ module.exports = modules => {
 		saveUninitialized: true
 	}));
 
-	modules.app.use("/tera", passport.initialize());
-	modules.app.use("/tera", passport.session());
+	modules.app.use("/shop", passport.initialize());
+	modules.app.use("/shop", passport.session());
 
 	modules.app.use((req, res, next) => {
 		const locale = (req?.user?.language || process.env.API_PORTAL_LOCALE).split("-")[0];

@@ -1,6 +1,7 @@
 "use strict";
 
 /**
+ * @typedef {import("express").RequestHandler} RequestHandler
  * @typedef {import("express").ErrorRequestHandler} ErrorRequestHandler
  * @typedef {import("../../app").modules} modules
  */
@@ -15,11 +16,30 @@ const portalAccountController = require("../../controllers/portalAccount.control
  * @param {modules} modules
  */
 module.exports = modules => express.Router()
+	// SLS
 	.get("/ServerList", portalSlsController.GetServerList(modules, "xml"))
 	.get("/ServerList.xml", portalSlsController.GetServerList(modules, "xml"))
 	.get("/ServerList.json", portalSlsController.GetServerList(modules, "json"))
+
+	// Account API (deprecated)
 	.post("/GetAccountInfoByUserNo", portalAccountController.GetAccountInfoByUserNo(modules))
 	.post("/SetAccountInfoByUserNo", portalAccountController.SetAccountInfoByUserNo(modules))
+
+	/**
+	 * Launcher
+	 * @type {RequestHandler}
+	 */
+	.get("/LauncherMain", (req, res) => {
+		res.redirect(301, `/launcher/LauncherMain?${new URLSearchParams(req.query).toString()}`);
+	})
+
+	/**
+	 * Shop
+	 * @type {RequestHandler}
+	 */
+	.get("/ShopAuth", (req, res) => {
+		res.redirect(301, `/shop/ShopAuth?${new URLSearchParams(req.query).toString()}`);
+	})
 
 	.use(
 		/**

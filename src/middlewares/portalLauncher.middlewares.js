@@ -19,3 +19,29 @@ module.exports.validationHandler = logger =>
 		next();
 	}
 ;
+
+module.exports.authSessionHandler = () =>
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
+		if (!req.isAuthenticated()) {
+			return res.redirect(`/launcher/LauncherMain?lang=${req.query.lang}`);
+		}
+
+		next();
+	}
+;
+
+module.exports.apiAuthSessionHandler = () =>
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
+		if (!req.isAuthenticated()) {
+			throw new ApiError("access denied", 3);
+		}
+
+		next();
+	}
+;

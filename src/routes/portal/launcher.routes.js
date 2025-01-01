@@ -11,6 +11,7 @@ const express = require("express");
 
 const ApiError = require("../../lib/apiError");
 const portalLauncherController = require("../../controllers/portalLauncher.controller");
+const portalAccountController = require("../../controllers/portalAccount.controller");
 
 /**
  * @param {modules} modules
@@ -54,6 +55,10 @@ module.exports = modules => {
 		.post("/LauncherResetPasswordVerifyAction", portalLauncherController.ResetPasswordVerifyAction(mod))
 
 		.post("/LauncherReportAction", portalLauncherController.ReportAction(mod))
+
+		// TBD
+		.post("/GetAccountInfoByUserNo", portalAccountController.GetAccountInfoByUserNo(mod))
+		.post("/SetAccountInfoByUserNo", portalAccountController.SetAccountInfoByUserNo(mod))
 
 		.use(
 			/**

@@ -131,7 +131,7 @@ function apiRequest(action, params) {
 	var response = null;
 
 	$.ajax({
-		url: "/tera/" + action + "?lang=" + urlParam("lang") + "&secure=" + (location.protocol == "https:") + "&ts=" + Date.now(),
+		url: "/launcher/" + action + "?lang=" + urlParam("lang") + "&secure=" + (location.protocol == "https:") + "&ts=" + Date.now(),
 		method: params ? "post" : "get",
 		data: params,
 		async: false,

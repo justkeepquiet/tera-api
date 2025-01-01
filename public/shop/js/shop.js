@@ -94,7 +94,7 @@ function shopPromoCodeAction(promoCode, callback) {
 
 function apiRequest(event, params, dataType, callback) {
 	if (!params) {
-		return $.get("/tera/" + event, callback, dataType).fail(function(err) {
+		return $.get("/shop/" + event, callback, dataType).fail(function(err) {
 			console.log(err);
 			loadContent("Error");
 		});
@@ -102,7 +102,7 @@ function apiRequest(event, params, dataType, callback) {
 
 	return $.post({
 		traditional: true,
-		url: "/tera/" + event,
+		url: "/shop/" + event,
 		contentType: "application/json",
 		data: JSON.stringify(params),
 		dataType: dataType,
