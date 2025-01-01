@@ -95,6 +95,13 @@ module.exports.PartialMenuHtml = ({ i18n, logger, shopModel }) => [
 		});
 
 		res.render("partials/shopMenu", { categories, active });
+	},
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+		res.render("partials/shopError");
 	}
 ];
 
@@ -223,6 +230,13 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 		});
 
 		res.render("partials/shopCatalog", { helpers, products, search: search || "" });
+	},
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+		res.render("partials/shopError");
 	}
 ];
 
@@ -337,6 +351,13 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 		productObj.warehouseStorable = itemData.warehouseStorable;
 
 		res.render("partials/shopProduct", { helpers, product: productObj, items, conversions, search, back });
+	},
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+		res.render("partials/shopError");
 	}
 ];
 
@@ -364,6 +385,13 @@ module.exports.PartialWelcomeHtml = ({ logger, accountModel, serverModel }) => [
 			benefits,
 			shopConfig: helpers.requireReload("../../config/shop")
 		});
+	},
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+		res.render("partials/shopError");
 	}
 ];
 
@@ -399,6 +427,13 @@ module.exports.PartialPromoCodeHtml = ({ i18n, logger, shopModel }) => [
 		});
 
 		res.render("partials/shopPromoCode", { moment, promoCodesAcrivated, tzOffset: Number(tzOffset) });
+	},
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+		res.render("partials/shopError");
 	}
 ];
 
