@@ -25,20 +25,14 @@ module.exports = modules => express.Router()
 	.post("/GetAccountInfoByUserNo", portalAccountController.GetAccountInfoByUserNo(modules))
 	.post("/SetAccountInfoByUserNo", portalAccountController.SetAccountInfoByUserNo(modules))
 
-	/**
-	 * Launcher
-	 * @type {RequestHandler}
-	 */
+	// Launcher
 	.get("/LauncherMain", (req, res) => {
-		res.redirect(301, `/launcher/LauncherMain?${new URLSearchParams(req.query).toString()}`);
+		res.redirect(301, `/launcher/Main?${new URLSearchParams(req.query).toString()}`);
 	})
 
-	/**
-	 * Shop
-	 * @type {RequestHandler}
-	 */
+	// Shop
 	.get("/ShopAuth", (req, res) => {
-		res.redirect(301, `/shop/ShopAuth?${new URLSearchParams(req.query).toString()}`);
+		res.redirect(301, `/shop/Auth?${new URLSearchParams(req.query).toString()}`);
 	})
 
 	.use(
