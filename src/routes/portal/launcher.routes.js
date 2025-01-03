@@ -9,6 +9,7 @@ const path = require("path");
 const I18n = require("i18n").I18n;
 const express = require("express");
 const uuid = require("uuid").v4;
+const Op = require("sequelize").Op;
 const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const Passport = require("passport").Passport;
@@ -17,7 +18,6 @@ const LocalStrategy = require("passport-local").Strategy;
 const ApiError = require("../../lib/apiError");
 const helpers = require("../../utils/helpers");
 const portalLauncherController = require("../../controllers/portalLauncher.controller");
-const portalAccountController = require("../../controllers/portalAccount.controller");
 
 /**
  * @param {modules} modules
@@ -51,7 +51,9 @@ module.exports = modules => {
 	passport.use(new LocalStrategy({ usernameField: "login", passReqToCallback: true },
 		(req, userName, password, done) => {
 			modules.accountModel.info.findOne({
-				where: { userName }
+				where: {
+					[Op.or]: [{ userName }, { email: userName }]
+				}
 			}).then(account => {
 				if (account === null || account.get("passWord") !== helpers.getPasswordString(password)) {
 					done("Invalid login or password.", null);
