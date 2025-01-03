@@ -993,16 +993,22 @@ module.exports.CaptchaCreate = () => [
 /**
  * @param {modules} modules
  */
-module.exports.CaptchaVerify = () => [
+module.exports.CaptchaVerify = ({ logger }) => [
+	[
+		body("answer").notEmpty()
+	],
+	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		const verified = captcha.verify(req.session.captchaQuestion, req.body.answer);
 
-		if (verified) {
-			req.session.captchaVerified = true;
+		if (!verified) {
+			req.session.captchaQuestion = undefined;
 		}
+
+		req.session.captchaVerified = verified;
 
 		res.json({ verified });
 	}

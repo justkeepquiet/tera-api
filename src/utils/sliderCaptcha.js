@@ -110,7 +110,7 @@ class SliderCaptcha {
 	}
 
 	verify(question, answer) {
-		return Math.abs(answer - question) < this.tolerance;
+		return question > 0 && Math.abs(answer - question) < this.tolerance;
 	}
 }
 
