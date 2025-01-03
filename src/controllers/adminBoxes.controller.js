@@ -150,7 +150,7 @@ module.exports.addAction = modules => [
 		body("boxItemIds.*").optional({ checkFalsy: true })
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
 		body("boxItemCounts.*")
-			.isInt({ min: 1, max: 1e4 }).withMessage(modules.i18n.__("Count field has invalid value.")),
+			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("Count field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the box."))
 	],
@@ -301,7 +301,7 @@ module.exports.editAction = modules => [
 		body("boxItemIds.*").optional({ checkFalsy: true })
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
 		body("boxItemCounts.*")
-			.isInt({ min: 1, max: 1e4 }).withMessage(modules.i18n.__("Count field has invalid value.")),
+			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("Count field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the box."))
 	],
