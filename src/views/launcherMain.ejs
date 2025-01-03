@@ -12,16 +12,31 @@
 	var accountBlockedString = "<%= __('Account blocked. Please contact support.') %>";
 	var serverMaintenanceString = "<%= __('The server is under maintenance. Please try again later.') %>";
 
+	var ACCOUNT_ID = null;
+	var ACCOUNT_NAME = null;
+	var AUTH_KEY = null;
+	var PERMISSION = null;
+	var PRIVILEGE = null;
+	var BANNED = false;
+	var CHAR_COUNT = null;
+	var REGION = null;
+
+	var QA_MODE = false;
+	var QA_PRIVILEGE = "<%= qaPrivilege %>";
+	var QA_MODE_NOCHECK = false;
+
 	var PATCH_NO_CHECK = <%= patchNoCheck %>;
 	var START_NO_CHECK = <%= startNoCheck %>;
 	var PATCH_URL = "<%= patchUrl %>";
+
 	var USER_LANG = (navigator.language || navigator.userLanguage).split('-')[0];
-	var REGION = localStorage.REGION ? localStorage.REGION : "<%= region %>";
+
 	var REGIONS = {
 		<%_ regions.forEach(element => { _%>
 			"<%= element.locale %>": "<%= element.region %>",
 		<%_ }) _%>
 	};
+
 	var PATCH_INFO_STRINGS = {
 		"0": "<%= __('Preparing...') %>",
 		"1": "<%= __('Download') %>",
@@ -47,16 +62,29 @@
 <script type="text/javascript" src="/public/launcher/js/launcher.js"></script>
 <script>
 	$(function() {
-		var langParam = urlParam("lang");
-		if (langParam) {
-			$("#loginIFrame").attr("src", "/launcher/LauncherLoginForm?lang=" + langParam);
-		}
+		Launcher.setAccountInfo(function() {
+			if (QA_MODE) {
+				Launcher.setQaBox();
+			}
+
+			Launcher.login();
+		});
 
 		$(".region").click(function() {
-			localStorage.REGION = $(this).data("region");
-			Launcher.setRegion($(this).data("region"), true);
 			Launcher.abortPatch();
+			Launcher.setRegion($(this).data("region"), true);
+			return false;
 		});
+
+		$("#btn-logout").click(function() {
+			Launcher.abortPatch();
+			Launcher.goTo("LogoutAction", true);
+			return false;
+		});
+	});
+
+	$(window).on("load", function() {
+		Launcher.loaded(960, 610);
 	});
 </script>
 <style type="text/css">
@@ -86,7 +114,7 @@
 		<!--/header-->
 		<div class="content">
 			<div class="notice">
-				<h3><%= __("Welcome") %>, <span id="userName""></span>! <a href="#" class="btn-logout" onclick="loginIFrame.logout();"></a></h3>
+				<h3><%= __("Welcome") %>, <%= user.userName %>! <a href="#" class="btn-logout" id="btn-logout"></a></h3>
 				<div id="qaBox" class="qa-box" style="display: none;">
 					<fieldset>
 						<legend><%= __("QA Operations Menu") %></legend>
@@ -143,8 +171,5 @@
 		<button class="btn-close" onclick="Launcher.sendCommand('close');">Close</button>
 	</div>
 	<!--/wrap-->
-	<div id="loginScreen" class="modalScreen">
-		<iframe src="" id="loginIFrame" name="loginIFrame"></iframe>
-	</div>
 </body>
 </html>

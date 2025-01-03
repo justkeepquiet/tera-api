@@ -31,6 +31,7 @@
     "@maxmind/geoip2-node": "^5.0.0",
     "@msgpack/msgpack": "^3.0.0-beta2",
     "bencode": "^2.0.3",
+    "canvas": "^3.0.0",
     "cls-hooked": "^4.2.2",
     "commander": "^12.1.0",
     "compression": "^1.7.4",

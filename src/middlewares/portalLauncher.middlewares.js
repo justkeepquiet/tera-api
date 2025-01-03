@@ -26,7 +26,7 @@ module.exports.authSessionHandler = () =>
 	 */
 	(req, res, next) => {
 		if (!req.isAuthenticated()) {
-			return res.redirect(`/launcher/LauncherMain?lang=${req.query.lang}`);
+			return res.redirect("/launcher/LoginForm");
 		}
 
 		next();

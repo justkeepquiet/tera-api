@@ -30,7 +30,7 @@ table {
 	border-collapse: collapse;
 	border-spacing: 0;
 }
-* {
+input, select, button {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
@@ -61,12 +61,13 @@ a {
 	margin: 200px auto;
 }
 .wrap {
+	top: 50px;
+	left: 5px;
 	background-image: url(../images/bg.jpg);
 	background-repeat: no-repeat;
 	background-position: 0px 0px;
 	width: 325px;
-	height: 500px;
-	/*margin: 0px auto 0px;*/
+	height: 550px;
 	position: relative;
 	padding-top: 1px;
 }
@@ -114,6 +115,15 @@ a {
 	text-decoration: none;
 	color: #8ea8df;
 }
+.form-error {
+	margin-top: 200px;
+	text-align: center;
+	font-size: 18px;
+}
+.form-error h1 {
+	margin-bottom: 20px;
+	font-weight: bold;
+}
 .quick_link {
 	float: right;
 	line-height: 30px;
@@ -133,10 +143,6 @@ a {
 }
 .btn-close:hover {
 	background-position: 0px -22px;
-}
-.grecaptcha-badge { 
-	visibility: hidden;
-	top: -1000px;
 }
 button.btn-orange {
 	background-image: url(../images/btn.png);
@@ -170,4 +176,22 @@ button.btn-blue {
 	background-position: 0 -70px;
 	text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px 0px 0 #000,
 		0px 1px 0 #000, -1px 0px 0 #000, 0px -1px 0 #000, 1px 1px 0px rgba(0,0,0,0);
+}
+.error-modal {
+	display: none;
+	position: absolute;
+	margin-left: 30px;
+	margin-top: 45px;
+	padding: 8px 10px;
+	width: 240px;
+	font-size: 14px;
+	line-height: 16px;
+	background: #ff4040;
+	border: 1px solid #5e0c0c;
+	text-align: center;
+	border-radius: 5px;
+	z-index: 9999;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.9);
+	text-shadow: 0 0 1px rgba(0,0,0,0.8);
+	cursor: default;
 }

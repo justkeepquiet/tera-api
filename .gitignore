@@ -1,5 +1,6 @@
 node_modules/*
 data/*
+!data/captcha-images/*.jpg
 !data/datasheets/*.txt
 !data/geoip/*.txt
 !data/tera-icons/*.txt

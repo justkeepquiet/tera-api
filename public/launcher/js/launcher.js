@@ -37,35 +37,34 @@ $(function() {
  * API calls
  */
 function launcherLoginAction(login, password) {
-	return apiRequest("LauncherLoginAction", {
+	return apiRequest("LoginAction", {
 		login: login,
 		password: password
 	});
 }
 
 function launcherLogoutAction(authKey) {
-	return apiRequest("LauncherLogoutAction", {
+	return apiRequest("LogoutAction", {
 		authKey: authKey
 	});
 }
 
 function launcherResetPasswordAction(email, captcha) {
-	return apiRequest("LauncherResetPasswordAction", {
+	return apiRequest("ResetPasswordAction", {
 		"g-recaptcha-response": captcha,
 		email: email
 	});
 }
 
-function launcherResetPasswordVerifyAction(token, code, password) {
-	return apiRequest("LauncherResetPasswordVerifyAction", {
-		token: token,
+function launcherResetPasswordVerifyAction(code, password) {
+	return apiRequest("ResetPasswordVerifyAction", {
 		code: code,
 		password: password
 	});
 }
 
 function launcherSignupAction(login, email, password, captcha) {
-	return apiRequest("LauncherSignupAction", {
+	return apiRequest("SignupAction", {
 		"g-recaptcha-response": captcha,
 		login: login,
 		email: email,
@@ -73,42 +72,32 @@ function launcherSignupAction(login, email, password, captcha) {
 	});
 }
 
-function launcherSignupVerifyAction(token, code) {
-	return apiRequest("LauncherSignupVerifyAction", {
-		token: token,
+function launcherSignupVerifyAction(code) {
+	return apiRequest("SignupVerifyAction", {
 		code: code
 	});
 }
 
-function getAccountInfoByUserNo(userNo, authKey) {
-	return apiRequest("GetAccountInfoByUserNo", {
-		userNo: userNo,
-		authKey: authKey
-	});
+function getAccountInfoAction() {
+	return apiRequest("GetAccountInfoAction");
 }
 
-function setAccountInfoByUserNo(userNo, authKey, language) {
-	return apiRequest("SetAccountInfoByUserNo", {
-		userNo: userNo,
-		authKey: authKey,
+function setAccountLanguageAction(language) {
+	return apiRequest("SetAccountLanguageAction", {
 		language: language
 	});
 }
 
-function launcherEndGameReport(userNo, authKey, code1, code2, version) {
-	return apiRequest("LauncherReportAction", {
-		userNo: userNo,
-		authKey: authKey,
+function launcherEndGameReport(code1, code2, version) {
+	return apiRequest("ReportAction", {
 		code1: code1,
 		code2: code2,
 		version: version
 	});
 }
 
-function launcherActionReport(userNo, authKey, action, label, optLabel) {
+function launcherActionReport(action, label, optLabel) {
 	var data = {
-		userNo: userNo,
-		authKey: authKey,
 		action: action
 	};
 
@@ -120,11 +109,11 @@ function launcherActionReport(userNo, authKey, action, label, optLabel) {
 		data.optLabel = optLabel;
 	}
 
-	return apiRequest("LauncherReportAction", data);
+	return apiRequest("ReportAction", data);
 }
 
 function launcherMaintenanceStatus() {
-	return apiRequest("LauncherMaintenanceStatus");
+	return apiRequest("MaintenanceStatus");
 }
 
 function apiRequest(action, params) {
@@ -154,77 +143,128 @@ var Launcher = {
 		Launcher.sendCommand("client|0,80,1024,768");
 		Launcher.sendCommand("loaded");
 
-		$("#progressBar1").width(0);
-		$("#progressBar2").width(0);
-		$("#fileName").text("");
-		$("#totalText").text("");
+		$("#error-modal").click(function(e) {
+			e.stopPropagation();
+		});
 
-		if (!urlParam("lang")) {
-			if (localStorage.REGION) {
-				Launcher.setRegion(localStorage.REGION, true);
-			} else {
-				Launcher.setRegion(REGIONS[USER_LANG] || REGIONS["en-US"] || REGION, true);
-			}
+		$(document).click(function() {
+			Launcher.hideError();
+		});
+	},
+
+	loaded: function(w, h) {
+		Launcher.sendCommand("size|" + w + "," + h);
+		$(".form-horizontal").show();
+	},
+
+	goTo: function(page, hide) {
+		if (hide) {
+			Launcher.sendCommand("size|0,0");
 		}
+
+		$(".form-horizontal").hide();
+		location.replace(page);
 	},
 
 	/*
 	 * Command wrapper
 	 */
 	sendCommand: function(command) {
-		document.location.replace("command:" + command);
+		if (window.document.documentMode) {
+			document.location.replace("command:" + command);
+		}
 	},
 
 	/*
 	 * Error handling
 	 */
-	showError: function(strTitle, strError) {
-		$("#errorTitle", $("#errorIFrame").contents()).html(strTitle);
-		$("#errorText", $("#errorIFrame").contents()).html(strError);
-		$("#errorScreen").show();
+	showError: function(strError) {
+		$("#error-modal").html(strError);
+		$("#error-modal").fadeIn(100);
 	},
 
 	hideError: function() {
-		$("#errorScreen").hide();
+		$("#error-modal").fadeOut(100);
 	},
 
 	/*
 	 * Reporting handlers
 	 */
 	gameEnd: function(code1, code2) {
-		launcherEndGameReport(loginIFrame.ACCOUNT_ID, loginIFrame.AUTH_KEY, code1, code2, null);
+		launcherEndGameReport(code1, code2, null);
 	},
 
 	logAction: function(action, label, optLabel) {
-		launcherActionReport(loginIFrame.ACCOUNT_ID, loginIFrame.AUTH_KEY, action, label, optLabel);
+		launcherActionReport(action, label, optLabel);
 	},
 
 	/*
-	 * Login frame events
+	 * Main frame events
 	 */
-	loginSuccess: function() {
-		$("#userName").html(loginIFrame.ACCOUNT_NAME);
+	setAccountInfo: function(cb) {
+		var result = getAccountInfoAction();
+
+		if (result && result.Return) {
+			ACCOUNT_ID = result.UserNo;
+			ACCOUNT_NAME = result.UserName;
+			AUTH_KEY = result.AuthKey;
+			PERMISSION = result.Permission.toString();
+			PRIVILEGE = result.Privilege.toString();
+			BANNED = result.Banned;
+			CHAR_COUNT = result.CharacterCount;
+			REGION = result.Region;
+			QA_MODE = PRIVILEGE == QA_PRIVILEGE;
+
+			if (typeof cb == "function") {
+				cb();
+			}
+		} else {
+			alert("Internal error");
+			Launcher.disableLaunchButton("Error", "btn-wrong");
+		}
+	},
+
+	/*
+	 * Login action events
+	 */
+	login: function() {
+		$("#progressBar1").width(0);
+		$("#progressBar2").width(0);
+		$("#fileName").text("");
+		$("#totalText").text("");
+
 		$("#launcherMain").show().focus();
 
-		Launcher.hideLoginIFrame();
 		Launcher.isLoginSuccess = true;
 
-		Launcher.sendCommand("login|" + loginIFrame.ACCOUNT_ID);
+		Launcher.sendCommand("login|" + ACCOUNT_ID);
 		Launcher.sendCommand("check_p");
+
 		Launcher.logAction("signin", "BHS");
-
-		loginIFrame.$("#userLoginForm")[0].reset();
 	},
 
-	showLoginIFrame: function() {
-		Launcher.sendCommand("size|320,500");
-		$("#loginScreen").show();
-		$("#launcherMain").hide();
-	},
+	/*
+	 * QA form events
+	 */
+	setQaBox: function() {
+		$("#qaRegion option[value=" + REGION + "]").attr("selected", "selected");
+		$("#qaBox").show();
 
-	hideLoginIFrame: function() {
-		Launcher.sendCommand("size|960,610");
-		$("#loginScreen").hide();
+		$("#qaHide").click(function() {
+			$("#qaBox a, #qaBox fieldset").hide();
+			$("#qaBox").fadeOut("fast");
+		});
+
+		$("#qaRegion").on("change", function() {
+			Launcher.abortPatch();
+			Launcher.setRegion(this.value, true);
+		});
+
+		$("#qaModeCheck").click(function() {
+			QA_MODE_NOCHECK = $(this).is(":checked");
+		});
+
+		QA_MODE_NOCHECK = $("#qaModeCheck").is(":checked");
 	},
 
 	/*
@@ -280,33 +320,34 @@ var Launcher = {
 	 */
 	launchGame: function() {
 		Launcher.disableLaunchButton("Wait", "btn-wait");
-		Launcher.setRegion(REGION, false);
 
-		if (!loginIFrame.QA_MODE && loginIFrame.PERMISSION < 256) {
-			var maintenance = launcherMaintenanceStatus();
+		Launcher.setAccountInfo(function() {
+			if (!QA_MODE && PERMISSION < 256) {
+				var maintenance = launcherMaintenanceStatus();
 
-			if (maintenance && maintenance.Return && maintenance.StartTime) {
-				alert(maintenance.Description || serverMaintenanceString);
-				Launcher.enableLaunchButton("Play", "btn-gamestart");
+				if (maintenance && maintenance.Return && maintenance.StartTime) {
+					alert(maintenance.Description || serverMaintenanceString);
+					Launcher.enableLaunchButton("Play", "btn-gamestart");
+					return;
+				}
+			}
+
+			if (BANNED) {
+				alert(accountBlockedString);
+				Launcher.disableLaunchButton("Error", "btn-wrong");
 				return;
 			}
-		}
 
-		if (loginIFrame.BANNED) {
-			alert(accountBlockedString);
-			Launcher.disableLaunchButton("Error", "btn-wrong");
-			return;
-		}
+			Launcher.status = 3;
 
-		Launcher.status = 3;
-
-		if ((loginIFrame.QA_MODE && loginIFrame.QA_MODE_NOCHECK) || START_NO_CHECK || PATCH_NO_CHECK) { // no check files in QA mode
-			Launcher.status = 0;
-			Launcher.sendCommand("execute|" + REGION);
-			Launcher.logAction("enter_game", "BHS");
-		} else {
-			Launcher.sendCommand("start_p|0");
-		}
+			if ((QA_MODE && QA_MODE_NOCHECK) || START_NO_CHECK || PATCH_NO_CHECK) { // no check files in QA mode
+				Launcher.status = 0;
+				Launcher.sendCommand("execute|" + REGION);
+				Launcher.logAction("enter_game", "BHS");
+			} else {
+				Launcher.sendCommand("start_p|0");
+			}
+		});
 	},
 
 	patchGame: function() {
@@ -334,12 +375,10 @@ var Launcher = {
 		var language = regionToLanguage(region);
 
 		if (language) {
-			if (loginIFrame.ACCOUNT_ID && loginIFrame.AUTH_KEY) {
-				setAccountInfoByUserNo(loginIFrame.ACCOUNT_ID, loginIFrame.AUTH_KEY, language);
-			}
+			setAccountLanguageAction(language);
 
 			if (reload) {
-				location.replace("LauncherMain" + "?lang=" + language);
+				Launcher.goTo("Main" + "?lang=" + language);
 			}
 		}
 
@@ -372,15 +411,15 @@ function l2w_getServerList() {
 }
 
 function l2w_getOTP() {
-	return loginIFrame.AUTH_KEY;
+	return AUTH_KEY;
 }
 
 function l2w_getUserPermission() {
-	return loginIFrame.PERMISSION;
+	return PERMISSION;
 }
 
 function l2w_getUserCharCnt() {
-	return loginIFrame.CHAR_COUNT;
+	return CHAR_COUNT;
 }
 
 function l2w_tooManyRetry() {
@@ -391,7 +430,7 @@ function l2w_tooManyRetry() {
 function l2w_checkPatchResult(patch_result, patch_error, file, reason, code) {
 	debug(sprintf("Check patch finished with %d %d [%s] %d, %d", patch_result, patch_error, file, reason, code));
 
-	if ((loginIFrame.QA_MODE && loginIFrame.QA_MODE_NOCHECK) || PATCH_NO_CHECK) { // no check files in QA mode
+	if ((QA_MODE && QA_MODE_NOCHECK) || PATCH_NO_CHECK) { // no check files in QA mode
 		Launcher.enableLaunchButton("Play", "btn-gamestart");
 		return;
 	}

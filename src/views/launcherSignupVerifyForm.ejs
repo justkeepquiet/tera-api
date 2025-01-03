@@ -8,52 +8,56 @@
 <link rel="stylesheet" href="/public/launcher/css/buttons-<%= locale %>.css">
 <script type="text/javascript" src="/public/launcher/js/jquery-1.11.1.min.js"></script>
 <script>
-	function signupVerifyAction(token, code) {
-		var result = parent.launcherSignupVerifyAction(token, code);
+	var PATCH_URL = "<%= patchUrl %>";
+</script>
+<script type="text/javascript" src="/public/launcher/js/launcher-util.js"></script>
+<script type="text/javascript" src="/public/launcher/js/launcher-errors.js"></script>
+<script type="text/javascript" src="/public/launcher/js/launcher.js"></script>
+<script>
+	function signupVerifyAction(code) {
+		var result = launcherSignupVerifyAction(code);
 
 		if (result) {
 			if (result.Return) {
-				localStorage.VERIFY_TOKEN = null;
-				localStorage.ACCOUNT_ID = result.UserNo;
-				localStorage.AUTH_KEY = result.AuthKey;
-				document.location.replace("LauncherLoginForm?lang=<%= locale %>");
+				Launcher.goTo("Main?lang=<%= locale %>", true);
 			} else {
 				switch (result.ReturnCode) {
 					case 10:
-						alert("<%= __('Invalid verification code.') %>");
+						Launcher.showError("<%= __('Invalid verification code.') %>");
 						break;
 
 					case 11:
-						alert("<%= __('The number of verification code entry attempts has been exceeded.') %>");
-						document.location.replace("LauncherLoginForm?lang=<%= locale %>");
+						Launcher.showError("<%= __('The number of verification code entry attempts has been exceeded.') %>");
+						Launcher.goTo("LoginForm?lang=<%= locale %>");
 						break;
 
 					default:
-						alert(result.Msg);
-						console.log(result.Msg);
+						Launcher.showError(result.ReturnCode + ": " + result.Msg);
+						console.log(result);
 				}
 			}
 		}
 	}
 
 	$(function () {
-		$("#loader").hide();
-		$("#userSignupVerifyForm").show();
-
 		$("#userSignupVerifyForm").submit(function() {
-			signupVerifyAction(localStorage.VERIFY_TOKEN, $('#code').val());
+			signupVerifyAction($('#code').val());
 			return false;
 		});
 
 		$("#btnToLogin").click(function() {
-			document.location.replace("LauncherLoginForm?lang=<%= locale %>");
+			Launcher.goTo("LoginForm?lang=<%= locale %>");
+		});
+
+		$(window).on("load", function() {
+			Launcher.loaded(320, 570);
 		});
 	});
 </script>
 </head>
 <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false" style="overflow: hidden;">
 <div class="wrap">
-	<div class="loader" id="loader"></div>
+	<div class="error-modal" id="error-modal"></div>
 	<form class="form-horizontal" name="userSignupVerifyForm"  method="post" action="" id="userSignupVerifyForm" style="display: none;">
 		<div class="form-group" style="padding-top: 70px;">
 			<div class="col">
@@ -74,7 +78,7 @@
 			</div>
 		</div>
 	</form>
-	<button class="btn-close" onclick="parent.Launcher.sendCommand('close');">Close</button>
+	<button class="btn-close" onclick="Launcher.sendCommand('close');">Close</button>
 </div>
 <!--/wrap-->
 </body>

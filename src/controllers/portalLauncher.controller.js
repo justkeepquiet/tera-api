@@ -3,34 +3,31 @@
 /**
  * @typedef {import("../app").modules} modules
  * @typedef {import("express").RequestHandler} RequestHandler
+ * @typedef {import("express").ErrorRequestHandler} ErrorRequestHandler
  */
 
+const path = require("path");
 const uuid = require("uuid").v4;
 const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
-const Recaptcha = require("express-recaptcha").RecaptchaV3;
 
 const Benefit = require("../actions/handlers/benefit");
 const Shop = require("../actions/handlers/shop");
 const helpers = require("../utils/helpers");
+const SliderCaptcha = require("../utils/sliderCaptcha");
 const ApiError = require("../lib/apiError");
-const { validationHandler } = require("../middlewares/portalLauncher.middlewares");
+const { validationHandler, apiAuthSessionHandler, authSessionHandler } = require("../middlewares/portalLauncher.middlewares");
 
 const isRegistrationDisabled = /^true$/i.test(process.env.API_PORTAL_LAUNCHER_DISABLE_REGISTRATION);
 const isEmailVerifyEnabled = /^true$/i.test(process.env.API_PORTAL_LAUNCHER_ENABLE_EMAIL_VERIFY);
 const ipFromLauncher = /^true$/i.test(process.env.API_ARBITER_USE_IP_FROM_LAUNCHER);
 const brandName = process.env.API_PORTAL_BRAND_NAME || "Tera Private Server";
 
-let recaptcha = null;
+let captcha = null;
 
-if (/^true$/i.test(process.env.API_PORTAL_RECAPTCHA_ENABLE)) {
-	recaptcha = new Recaptcha(
-		process.env.API_PORTAL_RECAPTCHA_SITE_KEY,
-		process.env.API_PORTAL_RECAPTCHA_SECRET_KEY, {
-			callback: "bindFormAction"
-		}
-	);
+if (/^true$/i.test(process.env.API_PORTAL_CAPTCHA_ENABLE)) {
+	captcha = new SliderCaptcha(path.join(__dirname, "../../data/captcha-images"), 5);
 }
 
 /**
@@ -70,21 +67,41 @@ module.exports.MaintenanceStatus = ({ sequelize, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.MainHtml = () => [
+module.exports.MainHtml = ({ logger }) => [
+	authSessionHandler(),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
+		if (!req.query.lang) {
+			const lang = req?.user?.language || process.env.API_PORTAL_LOCALE;
+			return res.redirect(`/launcher/Main?lang=${lang}`);
+		}
+
 		res.render("launcherMain", {
 			brandName,
 			patchNoCheck: /^true$/i.test(process.env.API_PORTAL_CLIENT_PATCH_NO_CHECK),
 			startNoCheck: /^true$/i.test(process.env.API_PORTAL_LAUNCHER_DISABLE_CONSISTENCY_CHECK),
 			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
-			region: helpers.languageToRegion(req.query.lang || process.env.API_PORTAL_LOCALE),
+			region: helpers.languageToRegion(req.user.language || process.env.API_PORTAL_LOCALE),
+			regions: helpers.getClientRegions(),
 			lang: req.query.lang,
 			localeSelector: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR),
-			regions: helpers.getClientRegions(),
+			qaPrivilege: process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE,
+			host: req.headers.host || req.hostname,
+			user: req.user,
 			helpers
+		});
+	},
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+
+		res.render("launcherErrorForm", {
+			error: err,
+			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL
 		});
 	}
 ];
@@ -92,15 +109,26 @@ module.exports.MainHtml = () => [
 /**
  * @param {modules} modules
  */
-module.exports.LoginFormHtml = () => [
+module.exports.LoginFormHtml = ({ logger }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		res.render("launcherLoginForm", {
-			qaPrivilege: process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE,
+			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
 			isRegistrationDisabled,
 			isEmailVerifyEnabled
+		});
+	},
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+
+		res.render("launcherErrorForm", {
+			error: err,
+			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL
 		});
 	}
 ];
@@ -108,17 +136,115 @@ module.exports.LoginFormHtml = () => [
 /**
  * @param {modules} modules
  */
-module.exports.ResetPasswordFormHtml = () => [
+module.exports.LoginAction = ({ logger, passport, accountModel }) => [
+	[
+		body("login").trim().notEmpty().withMessage(10),
+		body("password").trim().notEmpty().withMessage(11)
+	],
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
+		const errors = helpers.validationResultLog(req, logger);
+
+		if (!errors.isEmpty()) {
+			throw new ApiError("invalid parameter", errors.array()[0].msg);
+		}
+
+		next();
+	},
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		passport.authenticate("local", (error, user) => {
+			if (error) {
+				return next(new ApiError("invalid login or password", 12));
+			}
+
+			req.login(user, () => next());
+		})(req, res, next);
+	},
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const authKey = uuid();
+
+		await accountModel.info.update({
+			authKey: authKey,
+			...ipFromLauncher ? { lastLoginIP: req.ip } : {}
+		}, {
+			where: { accountDBID: req.user.accountDBID }
+		});
+
+		next();
+	},
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			Language: req?.user?.language || process.env.API_PORTAL_LOCALE
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.LogoutAction = () => [
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		req.logout(() =>
+			res.redirect("/launcher/LoginForm")
+		);
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.ResetPasswordFormHtml = ({ i18n, logger }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		if (!isEmailVerifyEnabled) {
-			return res.redirect("LauncherLoginForm");
+			return res.redirect("/launcher/LoginForm");
 		}
 
+		req.session.captchaVerified = !captcha;
+
+		const captchaHtml = captcha ? captcha.render("captcha", {
+			modal: true,
+			width: 280,
+			height: 124,
+			formText: i18n.__("I am human"),
+			loadingText: i18n.__("Loading..."),
+			barText: i18n.__("Slide To Verify"),
+			serverUrl: "/launcher/GetCaptcha"
+		}) : "";
+
 		res.render("launcherResetPasswordForm", {
-			captcha: recaptcha ? recaptcha.render() : ""
+			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
+			captcha: captchaHtml
+		});
+	},
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+
+		res.render("launcherErrorForm", {
+			error: err,
+			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL
 		});
 	}
 ];
@@ -160,16 +286,10 @@ module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel 
 			throw new ApiError("email verify disabled", 100);
 		}
 
-		if (recaptcha) {
-			recaptcha.verify(req, async error => {
-				if (error) {
-					next(new ApiError("captcha error", 12));
-				} else {
-					next();
-				}
-			});
-		} else {
+		if (req.session.captchaVerified) {
 			next();
+		} else {
+			next(new ApiError("captcha error", 12));
 		}
 	},
 	/**
@@ -214,11 +334,13 @@ module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel 
 				logger.error(error);
 			}
 
+			req.session.token = token;
+			req.session.captchaVerified = false;
+
 			res.json({
 				Return: true,
 				ReturnCode: 0,
-				Msg: "success",
-				VerifyToken: token
+				Msg: "success"
 			});
 		});
 	}
@@ -227,25 +349,37 @@ module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel 
 /**
  * @param {modules} modules
  */
-module.exports.ResetPasswordVerifyFormHtml = ({ accountModel }) => [
+module.exports.ResetPasswordVerifyFormHtml = ({ logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		if (!req.query.token || !isEmailVerifyEnabled) {
-			return res.redirect("LauncherLoginForm");
+		if (!req.session.token || !isEmailVerifyEnabled) {
+			return res.redirect("LoginForm");
 		}
 
 		const accountResetPassword = await accountModel.resetPassword.findOne({
-			where: { token: req.query.token }
+			where: { token: req.session.token }
 		});
 
 		if (accountResetPassword === null) {
-			return res.redirect("LauncherLoginForm");
+			return res.redirect("LoginForm");
 		}
 
 		res.render("launcherResetPasswordVerifyForm", {
+			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
 			email: helpers.maskEmail(accountResetPassword.get("email"))
+		});
+	},
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+
+		res.render("launcherErrorForm", {
+			error: err,
+			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL
 		});
 	}
 ];
@@ -257,8 +391,7 @@ module.exports.ResetPasswordVerifyAction = ({ logger, sequelize, accountModel })
 	[
 		body("password").trim()
 			.isLength({ min: 8, max: 128 }).withMessage(10),
-		body("token").notEmpty().withMessage(11),
-		body("code").notEmpty().withMessage(11)
+		body("code").trim().notEmpty().withMessage(11)
 	],
 	/**
 	 * @type {RequestHandler}
@@ -280,10 +413,10 @@ module.exports.ResetPasswordVerifyAction = ({ logger, sequelize, accountModel })
 			throw new ApiError("email verify disabled", 100);
 		}
 
-		const { token, code, password } = req.body;
+		const { code, password } = req.body;
 
 		const accountResetPassword = await accountModel.resetPassword.findOne({
-			where: { token }
+			where: { token: req.session.token }
 		});
 
 		if (accountResetPassword === null) {
@@ -292,7 +425,7 @@ module.exports.ResetPasswordVerifyAction = ({ logger, sequelize, accountModel })
 
 		if (accountResetPassword.get("failsCount") >= 10) {
 			await accountModel.resetPassword.destroy({
-				where: { token }
+				where: { token: req.session.token }
 			});
 
 			throw new ApiError("attempts has been exceeded", 12);
@@ -300,15 +433,15 @@ module.exports.ResetPasswordVerifyAction = ({ logger, sequelize, accountModel })
 
 		if (accountResetPassword.get("code") !== code.toString().replaceAll(",", "").toUpperCase()) {
 			await accountModel.resetPassword.increment({ failsCount: 1 }, {
-				where: { token }
+				where: { token: req.session.token }
 			});
 
-			throw new ApiError("invalid verification code", 2);
+			throw new ApiError("invalid verification code", 11);
 		}
 
 		await sequelize.transaction(async () => {
 			await accountModel.resetPassword.destroy({
-				where: { token }
+				where: { token: req.session.token }
 			});
 
 			await accountModel.info.update({
@@ -329,82 +462,41 @@ module.exports.ResetPasswordVerifyAction = ({ logger, sequelize, accountModel })
 /**
  * @param {modules} modules
  */
-module.exports.LoginAction = ({ logger, sequelize, accountModel }) => [
-	[body("login").notEmpty(), body("password").notEmpty()],
-	validationHandler(logger),
-	/**
-	 * @type {RequestHandler}
-	 */
-	async (req, res, next) => {
-		const { login, password } = req.body;
-
-		const account = await accountModel.info.findOne({ where: { userName: login } });
-
-		if (account === null) {
-			throw new ApiError("account not exist", 50000);
-		}
-
-		if (account === null || account.get("passWord") !== helpers.getPasswordString(password)) {
-			logger.warn("Invalid login or password");
-			throw new ApiError("password error", 50015);
-		}
-
-		const authKey = uuid();
-
-		try {
-			await accountModel.info.update({
-				authKey: authKey,
-				...ipFromLauncher ? { lastLoginIP: req.ip } : {}
-			}, {
-				where: { accountDBID: account.get("accountDBID") }
-			});
-
-			let characterCount = "0";
-
-			try {
-				const characters = await accountModel.characters.findAll({
-					attributes: ["serverId", [sequelize.fn("COUNT", "characterId"), "charCount"]],
-					group: ["serverId"],
-					where: { accountDBID: account.get("accountDBID") }
-				});
-
-				characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
-			} catch (err) {
-				logger.error(err);
-			}
-
-			res.json({
-				Return: true,
-				ReturnCode: 0,
-				Msg: "success",
-				CharacterCount: characterCount,
-				Permission: account.get("permission"),
-				Privilege: account.get("privilege"),
-				UserNo: account.get("accountDBID"),
-				UserName: account.get("userName"),
-				AuthKey: authKey
-			});
-		} catch (err) {
-			logger.error(err);
-			throw new ApiError("failure update auth token", 50811);
-		}
-	}
-];
-
-/**
- * @param {modules} modules
- */
-module.exports.SignupFormHtml = () => [
+module.exports.SignupFormHtml = ({ i18n, logger }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		if (isRegistrationDisabled) {
-			return res.redirect("LauncherLoginForm");
+			return res.redirect("LoginForm");
 		}
 
+		req.session.captchaVerified = !captcha;
+
+		const captchaHtml = captcha ? captcha.render("captcha", {
+			modal: true,
+			width: 280,
+			height: 124,
+			formText: i18n.__("I am human"),
+			loadingText: i18n.__("Loading..."),
+			barText: i18n.__("Slide To Verify"),
+			serverUrl: "/launcher/GetCaptcha"
+		}) : "";
+
 		res.render("launcherSignupForm", {
-			captcha: recaptcha ? recaptcha.render() : ""
+			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
+			captcha: captchaHtml
+		});
+	},
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+
+		res.render("launcherErrorForm", {
+			error: err,
+			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL
 		});
 	}
 ];
@@ -460,16 +552,10 @@ module.exports.SignupAction = modules => [
 			throw new ApiError("registration disabled", 100);
 		}
 
-		if (recaptcha) {
-			recaptcha.verify(req, async error => {
-				if (error) {
-					next(new ApiError("captcha error", 15));
-				} else {
-					next();
-				}
-			});
-		} else {
+		if (req.session.captchaVerified) {
 			next();
+		} else {
+			next(new ApiError("captcha error", 15));
 		}
 	},
 	/**
@@ -518,11 +604,13 @@ module.exports.SignupAction = modules => [
 					modules.logger.error(error);
 				}
 
+				req.session.token = token;
+				req.session.captchaVerified = false;
+
 				res.json({
 					Return: true,
 					ReturnCode: 0,
-					Msg: "success",
-					VerifyToken: token
+					Msg: "success"
 				});
 			});
 		} else {
@@ -532,7 +620,8 @@ module.exports.SignupAction = modules => [
 					userName: login,
 					passWord: helpers.getPasswordString(password),
 					authKey: uuid(),
-					email
+					email,
+					language: helpers.regionToLanguage(process.env.API_PORTAL_CLIENT_DEFAULT_REGION)
 				});
 
 				const benefit = new Benefit(modules, account.get("accountDBID"));
@@ -554,13 +643,15 @@ module.exports.SignupAction = modules => [
 					await shop.fund(initialShopBalance);
 				}
 
+				req.session.captchaVerified = false;
+
 				// Login account
-				res.json({
-					Return: true,
-					ReturnCode: 0,
-					Msg: "success",
-					UserNo: account.get("accountDBID"),
-					AuthKey: account.get("authKey")
+				req.login(account, () => {
+					res.json({
+						Return: true,
+						ReturnCode: 0,
+						Msg: "success"
+					});
 				});
 			});
 		}
@@ -570,27 +661,39 @@ module.exports.SignupAction = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.SignupVerifyFormHtml = ({ accountModel }) => [
+module.exports.SignupVerifyFormHtml = ({ logger, accountModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		if (!req.query.token || !isEmailVerifyEnabled || isRegistrationDisabled) {
-			return res.redirect("LauncherLoginForm");
+		if (!req.session.token || !isEmailVerifyEnabled || isRegistrationDisabled) {
+			return res.redirect("Main");
 		}
 
 		const accountVerify = await accountModel.verify.findOne({
 			where: {
-				token: req.query.token
+				token: req.session.token
 			}
 		});
 
 		if (accountVerify === null) {
-			return res.redirect("LauncherLoginForm");
+			return res.redirect("LoginForm");
 		}
 
 		res.render("launcherSignupVerifyForm", {
+			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
 			email: helpers.maskEmail(accountVerify.get("email"))
+		});
+	},
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+
+		res.render("launcherErrorForm", {
+			error: err,
+			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL
 		});
 	}
 ];
@@ -598,16 +701,15 @@ module.exports.SignupVerifyFormHtml = ({ accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.SignupVerifyAction = ({ logger, sequelize, accountModel }) => [
+module.exports.SignupVerifyAction = modules => [
 	[
-		body("token").notEmpty().withMessage(10),
-		body("code").notEmpty().withMessage(10)
+		body("code").trim().notEmpty().withMessage(10)
 	],
 	/**
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		const errors = helpers.validationResultLog(req, logger);
+		const errors = helpers.validationResultLog(req, modules.logger);
 
 		if (!errors.isEmpty()) {
 			throw new ApiError("invalid parameter", errors.array()[0].msg);
@@ -623,10 +725,10 @@ module.exports.SignupVerifyAction = ({ logger, sequelize, accountModel }) => [
 			throw new ApiError("registration disabled", 100);
 		}
 
-		const { token, code } = req.body;
+		const { code } = req.body;
 
-		const accountVerify = await accountModel.verify.findOne({
-			where: { token }
+		const accountVerify = await modules.accountModel.verify.findOne({
+			where: { token: req.session.token }
 		});
 
 		if (accountVerify === null) {
@@ -634,53 +736,61 @@ module.exports.SignupVerifyAction = ({ logger, sequelize, accountModel }) => [
 		}
 
 		if (accountVerify.get("failsCount") >= 10) {
-			await accountModel.verify.destroy({
-				where: { token }
+			await modules.accountModel.verify.destroy({
+				where: { token: req.session.token }
 			});
 
 			throw new ApiError("attempts has been exceeded", 11);
 		}
 
 		if (accountVerify.get("code") !== code.toString().replaceAll(",", "").toUpperCase()) {
-			await accountModel.verify.increment({ failsCount: 1 }, {
-				where: { token }
+			await modules.accountModel.verify.increment({ failsCount: 1 }, {
+				where: { token: req.session.token }
 			});
 
 			throw new ApiError("invalid verification code", 10);
 		}
 
-		await sequelize.transaction(async () => {
-			await accountModel.verify.destroy({
-				where: { token }
+		await modules.sequelize.transaction(async () => {
+			await modules.accountModel.verify.destroy({
+				where: { token: req.session.token }
 			});
 
 			// Create user account
-			const account = await accountModel.info.create({
+			const account = await modules.accountModel.info.create({
 				userName: accountVerify.get("userName"),
 				passWord: helpers.getPasswordString(accountVerify.get("passWord")),
 				authKey: uuid(),
-				email: accountVerify.get("email")
+				email: accountVerify.get("email"),
+				language: helpers.regionToLanguage(process.env.API_PORTAL_CLIENT_DEFAULT_REGION)
 			});
 
+			const benefit = new Benefit(modules, account.get("accountDBID"));
 			const promises = [];
 
 			helpers.getInitialBenefits().forEach((benefitDays, benefitId) => {
-				promises.push(accountModel.benefits.create({
-					accountDBID: account.get("accountDBID"),
-					benefitId: benefitId,
-					availableUntil: sequelize.fn("ADDDATE", sequelize.fn("NOW"), benefitDays)
-				}));
+				promises.push(benefit.addBenefit(benefitId, benefitDays));
 			});
 
 			await Promise.all(promises);
 
+			const initialShopBalance = parseInt(process.env.API_PORTAL_SHOP_INITIAL_BALANCE || 0);
+
+			if (initialShopBalance > 0) {
+				const shop = new Shop(modules, account.get("accountDBID"), null, {
+					report: "SignUp"
+				});
+
+				await shop.fund(initialShopBalance);
+			}
+
 			// Login account
-			res.json({
-				Return: true,
-				ReturnCode: 0,
-				Msg: "success",
-				UserNo: account.get("accountDBID"),
-				AuthKey: account.get("authKey")
+			req.login(account, () => {
+				res.json({
+					Return: true,
+					ReturnCode: 0,
+					Msg: "success"
+				});
 			});
 		});
 	}
@@ -689,20 +799,134 @@ module.exports.SignupVerifyAction = ({ logger, sequelize, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.ReportAction = ({ accountModel, reportModel }) => [
+module.exports.GetAccountInfoAction = ({ logger, sequelize, accountModel }) => [
+	apiAuthSessionHandler(),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const account = await accountModel.info.findOne({
+			where: { accountDBID: req.user.accountDBID },
+			include: [{
+				as: "banned",
+				model: accountModel.bans,
+				where: {
+					active: 1,
+					startTime: { [Op.lt]: sequelize.fn("NOW") },
+					endTime: { [Op.gt]: sequelize.fn("NOW") }
+				},
+				required: false
+			}]
+		});
+
+		if (account === null) {
+			throw new ApiError("account not exist", 50000);
+		}
+
+		let lastLoginServer = 0;
+		let characterCount = "0";
+		let bannedByIp = null;
+
+		try {
+			const characters = await accountModel.characters.findAll({
+				attributes: ["serverId", [sequelize.fn("COUNT", "characterId"), "charCount"]],
+				group: ["serverId"],
+				where: { accountDBID: account.get("accountDBID") }
+			});
+
+			if (!/^true$/i.test(process.env.API_PORTAL_DISABLE_CLIENT_AUTO_ENTER)) {
+				lastLoginServer = account.get("lastLoginServer");
+			}
+
+			characterCount = helpers.getCharCountString(characters, lastLoginServer, "serverId", "charCount");
+
+			bannedByIp = await accountModel.bans.findOne({
+				where: {
+					active: 1,
+					ip: { [Op.like]: `%"${req.ip}"%` },
+					startTime: { [Op.lt]: sequelize.fn("NOW") },
+					endTime: { [Op.gt]: sequelize.fn("NOW") }
+				}
+			});
+		} catch (err) {
+			logger.error(err);
+		}
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			CharacterCount: characterCount,
+			Permission: account.get("permission"),
+			Privilege: account.get("privilege"),
+			Language: account.get("language"),
+			Region: helpers.languageToRegion(account.get("language") || process.env.API_PORTAL_LOCALE),
+			UserNo: account.get("accountDBID"),
+			UserName: account.get("userName"),
+			AuthKey: account.get("authKey"),
+			Banned: account.get("banned") !== null || bannedByIp !== null
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.SetAccountLanguageAction = ({ logger, accountModel }) => [
+	apiAuthSessionHandler(),
 	[
-		body("userNo").notEmpty(),
-		body("authKey").notEmpty()
+		body("language")
+			.isIn(["cn", "en", "en-US", "fr", "de", "jp", "kr", "ru", "se", "th", "tw"])
+			.custom(value => {
+				if (helpers.getClientRegions().every(region => region.locale !== value)) {
+					return Promise.reject("language code not allowed");
+				}
+				return Promise.resolve();
+			})
 	],
+	validationHandler(logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { language } = req.body;
+
+		const account = await accountModel.info.findOne({
+			where: { accountDBID: req.user.accountDBID }
+		});
+
+		if (account === null) {
+			throw new ApiError("account not exist", 50000);
+		}
+
+		await accountModel.info.update({
+			language: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR) ?
+				language :
+				helpers.regionToLanguage(process.env.API_PORTAL_CLIENT_DEFAULT_REGION),
+			...ipFromLauncher ? { lastLoginIP: req.ip } : {}
+		}, {
+			where: { accountDBID: account.get("accountDBID") }
+		});
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success"
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.ReportAction = ({ accountModel, reportModel }) => [
+	apiAuthSessionHandler(),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res) => {
 		const account = await accountModel.info.findOne({
-			where: {
-				accountDBID: req.body.userNo,
-				authKey: req.body.authKey
-			},
+			where: { accountDBID: req.user.accountDBID },
 			attributes: ["accountDBID"]
 		});
 
@@ -723,7 +947,7 @@ module.exports.ReportAction = ({ accountModel, reportModel }) => [
 		}
 
 		await reportModel.launcher.create({
-			accountDBID: req.body.userNo,
+			accountDBID: req.user.accountDBID,
 			ip: req.ip,
 			action,
 			label,
@@ -736,5 +960,43 @@ module.exports.ReportAction = ({ accountModel, reportModel }) => [
 			ReturnCode: 0,
 			Msg: "success"
 		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.CaptchaCreate = () => [
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res) => {
+		const generated = await captcha.generate(280, 124);
+
+		req.session.captchaVerified = false;
+		req.session.captchaQuestion = generated.question.x;
+
+		res.json({
+			image: generated.image,
+			block: generated.block
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.CaptchaVerify = () => [
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res) => {
+		const verified = captcha.verify(req.session.captchaQuestion, req.body.answer);
+
+		if (verified) {
+			req.session.captchaVerified = true;
+		}
+
+		res.json({ verified });
 	}
 ];

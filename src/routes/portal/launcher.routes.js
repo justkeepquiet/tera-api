@@ -8,8 +8,14 @@
 const path = require("path");
 const I18n = require("i18n").I18n;
 const express = require("express");
+const uuid = require("uuid").v4;
+const session = require("express-session");
+const FileStore = require("session-file-store")(session);
+const Passport = require("passport").Passport;
+const LocalStrategy = require("passport-local").Strategy;
 
 const ApiError = require("../../lib/apiError");
+const helpers = require("../../utils/helpers");
 const portalLauncherController = require("../../controllers/portalLauncher.controller");
 const portalAccountController = require("../../controllers/portalAccount.controller");
 
@@ -17,16 +23,75 @@ const portalAccountController = require("../../controllers/portalAccount.control
  * @param {modules} modules
  */
 module.exports = modules => {
+	const passport = new Passport();
 	const i18n = new I18n({
 		directory: path.resolve(__dirname, "../../locales/launcher"),
 		defaultLocale: process.env.API_PORTAL_LOCALE
 	});
 
+	passport.serializeUser((user, done) => {
+		done(null, user);
+	});
+
+	passport.deserializeUser((user, done) => {
+		modules.accountModel.info.findOne({
+			where: { accountDBID: user.accountDBID }
+		}).then(account => {
+			if (account === null) {
+				done("Invalid account ID.", null);
+			} else {
+				done(null, account);
+			}
+		}).catch(err => {
+			modules.logger.error(err);
+			done(err, null);
+		});
+	});
+
+	passport.use(new LocalStrategy({ usernameField: "login", passReqToCallback: true },
+		(req, userName, password, done) => {
+			modules.accountModel.info.findOne({
+				where: { userName }
+			}).then(account => {
+				if (account === null || account.get("passWord") !== helpers.getPasswordString(password)) {
+					done("Invalid login or password.", null);
+				} else {
+					done(null, account);
+				}
+			}).catch(err => {
+				modules.logger.error(err);
+				done(err, null);
+			});
+		})
+	);
+
+	modules.app.use("/launcher", session({
+		name: "launcher.sid",
+		genid: () => uuid(),
+		store: new FileStore({
+			logFn: () => {
+				//
+			}
+		}),
+		secret: process.env.API_PORTAL_SECRET,
+		resave: false,
+		saveUninitialized: false,
+		cookie: {
+			secure: false,
+			maxAge: 365 * 86400000 // 365 days
+		}
+	}));
+
+	modules.app.use("/launcher", passport.initialize());
+	modules.app.use("/launcher", passport.session());
+
 	modules.app.use((req, res, next) => {
-		const locale = (req.query.lang || process.env.API_PORTAL_LOCALE).split("-")[0];
+		const locale = (req?.user?.language || req.query.lang || process.env.API_PORTAL_LOCALE).split("-")[0];
 
 		if (i18n.getLocales().includes(locale)) {
 			i18n.setLocale(locale);
+		} else {
+			i18n.setLocale(process.env.API_PORTAL_LOCALE);
 		}
 
 		res.locals.__ = i18n.__;
@@ -35,30 +100,33 @@ module.exports = modules => {
 		return next();
 	});
 
-	const mod = { ...modules, i18n };
+	const mod = { ...modules, i18n, passport };
 
 	return express.Router()
-		.get("/LauncherMaintenanceStatus", portalLauncherController.MaintenanceStatus(mod))
-		.get("/LauncherMain", portalLauncherController.MainHtml(mod))
+		.get("/MaintenanceStatus", portalLauncherController.MaintenanceStatus(mod))
+		.get("/Main", portalLauncherController.MainHtml(mod))
 
-		.get("/LauncherLoginForm", portalLauncherController.LoginFormHtml(mod))
-		.post("/LauncherLoginAction", portalLauncherController.LoginAction(mod))
+		.get("/LoginForm", portalLauncherController.LoginFormHtml(mod))
+		.post("/LoginAction", portalLauncherController.LoginAction(mod))
 
-		.get("/LauncherSignupForm", portalLauncherController.SignupFormHtml(mod))
-		.post("/LauncherSignupAction", portalLauncherController.SignupAction(mod))
-		.get("/LauncherSignupVerifyForm", portalLauncherController.SignupVerifyFormHtml(mod))
-		.post("/LauncherSignupVerifyAction", portalLauncherController.SignupVerifyAction(mod))
+		.get("/LogoutAction", portalLauncherController.LogoutAction(mod))
 
-		.get("/LauncherResetPasswordForm", portalLauncherController.ResetPasswordFormHtml(mod))
-		.post("/LauncherResetPasswordAction", portalLauncherController.ResetPasswordAction(mod))
-		.get("/LauncherResetPasswordVerifyForm", portalLauncherController.ResetPasswordVerifyFormHtml(mod))
-		.post("/LauncherResetPasswordVerifyAction", portalLauncherController.ResetPasswordVerifyAction(mod))
+		.get("/SignupForm", portalLauncherController.SignupFormHtml(mod))
+		.post("/SignupAction", portalLauncherController.SignupAction(mod))
+		.get("/SignupVerifyForm", portalLauncherController.SignupVerifyFormHtml(mod))
+		.post("/SignupVerifyAction", portalLauncherController.SignupVerifyAction(mod))
 
-		.post("/LauncherReportAction", portalLauncherController.ReportAction(mod))
+		.get("/ResetPasswordForm", portalLauncherController.ResetPasswordFormHtml(mod))
+		.post("/ResetPasswordAction", portalLauncherController.ResetPasswordAction(mod))
+		.get("/ResetPasswordVerifyForm", portalLauncherController.ResetPasswordVerifyFormHtml(mod))
+		.post("/ResetPasswordVerifyAction", portalLauncherController.ResetPasswordVerifyAction(mod))
 
-		// TBD
-		.post("/GetAccountInfoByUserNo", portalAccountController.GetAccountInfoByUserNo(mod))
-		.post("/SetAccountInfoByUserNo", portalAccountController.SetAccountInfoByUserNo(mod))
+		.get("/GetAccountInfoAction", portalLauncherController.GetAccountInfoAction(mod))
+		.post("/SetAccountLanguageAction", portalLauncherController.SetAccountLanguageAction(mod))
+		.post("/ReportAction", portalLauncherController.ReportAction(mod))
+
+		.get("/GetCaptcha", portalLauncherController.CaptchaCreate(mod))
+		.post("/GetCaptcha", portalLauncherController.CaptchaVerify(mod))
 
 		.use(
 			/**

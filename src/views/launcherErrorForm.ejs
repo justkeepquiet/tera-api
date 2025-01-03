@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge;">
+<title>Login</title>
+<link rel="stylesheet" href="/public/launcher/css/login.css">
+<link rel="stylesheet" href="/public/launcher/css/buttons-<%= locale %>.css">
+<script type="text/javascript" src="/public/launcher/js/jquery-1.11.1.min.js"></script>
+<script>
+	var PATCH_URL = "<%= patchUrl %>";
+</script>
+<script type="text/javascript" src="/public/launcher/js/launcher-util.js"></script>
+<script type="text/javascript" src="/public/launcher/js/launcher-errors.js"></script>
+<script type="text/javascript" src="/public/launcher/js/launcher.js"></script>
+<script>
+	$(function() {
+		$(window).on("load", function() {
+			Launcher.loaded(320, 500);
+		});
+	});
+</script>
+</head>
+<body oncontextmenu="return false" ondragstart="return false" onselectstart="return false" style="overflow: hidden;">
+<div class="wrap">
+	<div class="form-error">
+		<h1><%= __("Error") %></h1>
+		<p>Code <%= error.code %>: <%= error.message %></p>
+	</div>
+	<button class="btn-close" onclick="Launcher.sendCommand('close');">Close</button>
+</div>
+<!--/wrap-->
+</body>
+</html>

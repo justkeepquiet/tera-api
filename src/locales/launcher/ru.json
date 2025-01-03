@@ -14,13 +14,17 @@
 	"Patch": "Применение",
 	"Check": "Проверка",
 	"Delete": "Удаление",
+	"Error": "Ошибка",
 	"The server is under maintenance. Please try again later.": "Проводятся технические работы. Попробуйте повторить попытку позже.",
 	"Making patch list...": "Создания списка обновлений...",
 	"Account blocked. Please contact support.": "Аккаунт заблокирован. Свяжитесь со службой поддержки.",
+	"Please enter your login.": "Пожалуйста, введите ваш логин.",
+	"Please enter your password.": "Пожалуйста, введите ваш пароль.",
 	"This login is already exists.": "Указанный логин уже существует.",
 	"This email address is already exists.": "Указанный Email адрес уже существует.",
 	"Please enter 4-13 alphanumeric characters for login.": "Введите логин, содержащий буквы и цифры длиной 4-13 символов.",
 	"Please enter valid email address.": "Введите правильный Email адрес.",
+	"This email is not exists.": "Указанный Email адрес не существует.",
 	"Please enter 8-128 characters password.": "Введите пароль длиной 8-128 символов.",
 	"Two password entries do not match.": "Введенные пароли не совпадают.",
 	"Captcha verification failed.": "Ошибка проверки Captcha.",
@@ -53,5 +57,8 @@
 	"We've received a request to reset the password for your account. Please use the following code to reset your password:": "Мы получили запрос на восстановление пароля для вашей учетной записи. Пожалуйста, используйте следующий код для сброса пароля:",
 	"If you did not request this verification, please disregard this message.": "Если вы не запрашивали данную проверку, проигнорируйте это сообщение.",
 	"Best regards,": "С уважением,",
-	"%s Team": "Команда %s"
+	"%s Team": "Команда %s",
+	"I am human": "Я не робот",
+	"Loading...": "Загрузка...",
+	"Slide To Verify": "Сдвиньте для проверки"
 }
