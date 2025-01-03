@@ -29,6 +29,14 @@ function regionToLanguage(region) {
  * Init
  */
 $(function() {
+	document.body.onselectstart = function(event) {
+		if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") {
+			return true;
+		}
+
+		return false;
+	};
+
 	initErrorMsgArray();
 	Launcher.startup();
 });
