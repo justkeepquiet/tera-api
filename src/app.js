@@ -61,7 +61,7 @@ const createLogger = require("./utils/logger").createLogger;
 const cliHelper = require("./utils/cliHelper");
 
 const moduleLoader = new CoreLoader();
-const logger = createLogger("CL");
+const logger = createLogger("Core");
 const cli = cliHelper(logger);
 
 cli.addOption("-c, --component <items...>", "List of components");
