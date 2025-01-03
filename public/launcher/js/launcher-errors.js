@@ -100,12 +100,14 @@ function displayPatchError(patch_error, file, reason, code) {
 function displayLauncherError(end_type1, end_type2) {
 	if (end_type1 == 0 || end_type1 == 7 || end_type1 == 16) return;
 
-	var errorMsg = "Error " + end_type1 + " (" + end_type2 + "): ";
+	var errorMsg = end_type1 + " (" + end_type2 + "): ";
 
-	errorMsg += LAUNCHER_ERROR["x" + end_type1] + ".\n\n";
-	errorMsg += "Do you want visit FAQ page?";
+	errorMsg += LAUNCHER_ERROR["x" + end_type1] + ".";
+	// errorMsg += "Do you want visit FAQ page?";
 
-	if (confirm(errorMsg)) {
-		window.open("../faq?searchText=" + end_type1);
-	}
+	// if (confirm("Error " + errorMsg)) {
+	// 	window.open("../faq?searchText=" + end_type1);
+	// }
+
+	Launcher.showError(errorMsg);
 }

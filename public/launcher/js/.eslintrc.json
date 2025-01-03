@@ -76,6 +76,7 @@
 	},
 	"globals": {
 		"$": true,
+		"Launcher": true,
 		"initErrorMsgArray": true,
 		"displayPatchError": true,
 		"displayLauncherError": true,

@@ -55,6 +55,47 @@ a {
 	padding-top: 1px;
 	position: relative;
 }
+.msg-modal {
+	display: none;
+	position: absolute;
+	right: 121px;
+	top: 110px;
+	padding: 12px;
+	width: 500px;
+	font-size: 14px;
+	line-height: 16px;
+	color: #fff;
+	border-radius: 3px;
+	z-index: 9999;
+	box-shadow: 0 1px 5px rgba(0,0,0,0.9);
+	text-shadow: 0 0 1px rgba(0,0,0,0.5);
+	cursor: default;
+	opacity: 0.95;
+}
+.msg-modal .close-btn {
+	position: absolute;
+	top: 2px;
+	right: 3px;
+	width: 18px;
+	height: 18px;
+	line-height: 17px;
+	text-align: center;
+	cursor: pointer;
+}
+.msg-modal h1 {
+	font-size: 16px;
+	font-weight: bold;
+	line-height: 16px;
+	margin-bottom: 5px;
+}
+.msg-modal.success {
+	background: #009900;
+	border: 1px solid #00BB00;
+}
+.msg-modal.error {
+	background: #CC3333;
+	border: 1px solid #CC6666;
+}
 .header {
 	margin-top: 70px;
 	margin-left: 35px;

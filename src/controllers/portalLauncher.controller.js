@@ -116,9 +116,12 @@ module.exports.LoginFormHtml = ({ logger }) => [
 	async (req, res, next) => {
 		res.render("launcherLoginForm", {
 			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
+			isPasswordChanged: req.session.passwordChanged,
 			isRegistrationDisabled,
 			isEmailVerifyEnabled
 		});
+
+		req.session.passwordChanged = false;
 	},
 	/**
 	 * @type {ErrorRequestHandler}
@@ -354,6 +357,8 @@ module.exports.ResetPasswordVerifyFormHtml = ({ logger, accountModel }) => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
+		req.session.passwordChanged = false;
+
 		if (!req.session.token || !isEmailVerifyEnabled) {
 			return res.redirect("LoginForm");
 		}
@@ -449,6 +454,8 @@ module.exports.ResetPasswordVerifyAction = ({ logger, sequelize, accountModel })
 			}, {
 				where: { email: accountResetPassword.get("email") }
 			});
+
+			req.session.passwordChanged = true;
 		});
 
 		res.json({

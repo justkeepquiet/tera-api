@@ -143,12 +143,12 @@ var Launcher = {
 		Launcher.sendCommand("client|0,80,1024,768");
 		Launcher.sendCommand("loaded");
 
-		$("#error-modal").click(function(e) {
+		$("#msg-modal").click(function(e) {
 			e.stopPropagation();
 		});
 
-		$(document).click(function() {
-			Launcher.hideError();
+		$("form, .sc-placeholder-container, .msg-modal .close-btn").click(function() {
+			Launcher.hideMessage();
 		});
 	},
 
@@ -176,15 +176,24 @@ var Launcher = {
 	},
 
 	/*
-	 * Error handling
+	 * Message modal events
 	 */
-	showError: function(strError) {
-		$("#error-modal").html(strError);
-		$("#error-modal").fadeIn(100);
+	showSuccess: function(msg) {
+		$("#msg-modal").removeClass("error");
+		$("#msg-modal").addClass("success");
+		$("#msg-modal span").html(msg);
+		$("#msg-modal").fadeIn(100);
 	},
 
-	hideError: function() {
-		$("#error-modal").fadeOut(100);
+	showError: function(msg) {
+		$("#msg-modal").removeClass("success");
+		$("#msg-modal").addClass("error");
+		$("#msg-modal span").html(msg);
+		$("#msg-modal").fadeIn(100);
+	},
+
+	hideMessage: function() {
+		$("#msg-modal").fadeOut(100);
 	},
 
 	/*
@@ -219,7 +228,7 @@ var Launcher = {
 				cb();
 			}
 		} else {
-			alert("Internal error");
+			Launcher.showError("Internal error");
 			Launcher.disableLaunchButton("Error", "btn-wrong");
 		}
 	},
@@ -271,6 +280,8 @@ var Launcher = {
 	 * Play button events
 	 */
 	onButtonClick: function() {
+		Launcher.hideMessage();
+
 		switch ($("#playButton").text()) {
 			case "Play":
 				Launcher.launchGame();
@@ -326,14 +337,14 @@ var Launcher = {
 				var maintenance = launcherMaintenanceStatus();
 
 				if (maintenance && maintenance.Return && maintenance.StartTime) {
-					alert(maintenance.Description || serverMaintenanceString);
+					Launcher.showError(maintenance.Description || serverMaintenanceString);
 					Launcher.enableLaunchButton("Play", "btn-gamestart");
 					return;
 				}
 			}
 
 			if (BANNED) {
-				alert(accountBlockedString);
+				Launcher.showError(accountBlockedString);
 				Launcher.disableLaunchButton("Error", "btn-wrong");
 				return;
 			}
@@ -573,11 +584,12 @@ function l2w_gameEvent(event) {
 function l2w_gameEnd(end_type1, end_type2) {
 	Launcher.gameEnd(end_type1, end_type2);
 
+	Launcher.status = 0;
+	// Launcher.sendCommand("close");
+	Launcher.enableLaunchButton("Play", "btn-gamestart");
+
 	debug(sprintf("Game end 0x%X, 0x%X", end_type1, end_type2));
 	displayLauncherError(end_type1, end_type2);
-
-	Launcher.status = 0;
-	Launcher.sendCommand("close");
 }
 
 function l2w_getExeInfo() {

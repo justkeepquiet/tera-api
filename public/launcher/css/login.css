@@ -177,7 +177,7 @@ button.btn-blue {
 	text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px 0px 0 #000,
 		0px 1px 0 #000, -1px 0px 0 #000, 0px -1px 0 #000, 1px 1px 0px rgba(0,0,0,0);
 }
-.error-modal {
+.msg-modal {
 	display: none;
 	position: absolute;
 	margin-left: 30px;
@@ -186,12 +186,22 @@ button.btn-blue {
 	width: 240px;
 	font-size: 14px;
 	line-height: 16px;
-	background: #ff4040;
-	border: 1px solid #5e0c0c;
+	color: #fff;
 	text-align: center;
 	border-radius: 5px;
 	z-index: 9999;
 	box-shadow: 0 1px 5px rgba(0,0,0,0.9);
-	text-shadow: 0 0 1px rgba(0,0,0,0.8);
+	text-shadow: 0 0 1px rgba(0,0,0,0.5);
 	cursor: default;
+	/* opacity: 0.97; */
+}
+.msg-modal.success {
+	background: #009900;
+	border: 1px solid #00BB00;
+}
+.msg-modal.error {
+	/* background: #ff4040;
+	border: 1px solid #5e0c0c; */
+	background: #CC3333;
+	border: 1px solid #CC6666;
 }

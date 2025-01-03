@@ -62,16 +62,18 @@
 			Launcher.goTo("ResetPasswordForm?lang=" + locale);
 		});
 
-
 		$(window).on("load", function() {
 			Launcher.loaded(320, 500);
+<%_ if (isPasswordChanged) { _%>
+			Launcher.showSuccess("<%= __('Your password has been successfully changed.') %>");
+<%_} _%>
 		});
 	});
 </script>
 </head>
 <body oncontextmenu="return false" ondragstart="return false" onselectstart="return false" style="overflow: hidden;">
 <div class="wrap">
-	<div class="error-modal" id="error-modal"></div>
+	<div class="msg-modal" id="msg-modal"><span></span></div>
 <%_ if (!isRegistrationDisabled) { _%>
 	<form class="form-horizontal" name="userLoginForm" method="post" action="" id="userLoginForm" style="padding-top: 15px; display: none;">
 <%_ } else { _%>
