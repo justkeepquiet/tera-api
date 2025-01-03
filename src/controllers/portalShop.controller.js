@@ -27,7 +27,7 @@ module.exports.Auth = ({ passport }) => [
 	 */
 	async (req, res, next) => {
 		if (req.isAuthenticated()) {
-			return res.redirect("ShopMain");
+			return res.redirect("Main");
 		}
 
 		passport.authenticate("custom", (error, user) => {
@@ -36,7 +36,7 @@ module.exports.Auth = ({ passport }) => [
 			}
 
 			req.login(user, () => {
-				res.redirect("ShopMain");
+				res.redirect("Main");
 			});
 		})(req, res, next);
 	}

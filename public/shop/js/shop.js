@@ -23,7 +23,7 @@ function loadAccountInfo() {
 }
 
 function catalogSearchAction(search) {
-	return apiRequest("ShopPartialCatalog", { search: search }, "html", function(result) {
+	return apiRequest("PartialCatalog", { search: search }, "html", function(result) {
 		$("#content_product").empty().hide();
 		$("#content").html(result).show().animate({ scrollTop: 0 }, 0);
 		loadMenu();
@@ -31,7 +31,7 @@ function catalogSearchAction(search) {
 }
 
 function shopGetAccountInfo(callback) {
-	return apiRequest("ShopGetAccountInfo", {}, "json", callback);
+	return apiRequest("GetAccountInfo", {}, "json", callback);
 }
 
 function loadMenu(active) {
@@ -39,7 +39,7 @@ function loadMenu(active) {
 		active = 0;
 	}
 
-	apiRequest("ShopPartialMenu?active=" + active, null, "html", function(result) {
+	apiRequest("PartialMenu?active=" + active, null, "html", function(result) {
 		$("#menu").html(result);
 	});
 }
@@ -49,7 +49,7 @@ function loadContent(page, params) {
 	$(".navbar-fixed-top .nav li").removeClass("active");
 	$(".navbar-fixed-top .nav li a[data-page='" + page.split("?")[0] + "']").parent().addClass("active");
 
-	apiRequest("ShopPartial" + page, params, "html", function(result) {
+	apiRequest("Partial" + page, params, "html", function(result) {
 		if (page === "Error") {
 			$("#menu").html("");
 		}
@@ -63,7 +63,7 @@ function loadContent(page, params) {
 }
 
 function loadContentProduct(params) {
-	apiRequest("ShopPartialProduct", params, "html", function(result) {
+	apiRequest("PartialProduct", params, "html", function(result) {
 		$("#content").hide();
 		$("#content_product").html(result).show().animate({ scrollTop: 0 }, 0);
 		$("#search_input").val("");
@@ -78,18 +78,18 @@ function backToCatalog() {
 function loadPromoCodes(callback) {
 	var tzOffset = new Date().getTimezoneOffset();
 
-	apiRequest("ShopPartialPromoCode?tzOffset=" + tzOffset, null, "html", function(result) {
+	apiRequest("PartialPromoCode?tzOffset=" + tzOffset, null, "html", function(result) {
 		$("#content").html(result);
 		callback();
 	});
 }
 
 function shopPurchaseAction(productId, quantity, callback) {
-	return apiRequest("ShopPurchaseAction", { productId: productId, quantity: quantity }, "json", callback);
+	return apiRequest("PurchaseAction", { productId: productId, quantity: quantity }, "json", callback);
 }
 
 function shopPromoCodeAction(promoCode, callback) {
-	return apiRequest("ShopPromoCodeAction", { promoCode: promoCode }, "json", callback);
+	return apiRequest("PromoCodeAction", { promoCode: promoCode }, "json", callback);
 }
 
 function apiRequest(event, params, dataType, callback) {

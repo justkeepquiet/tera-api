@@ -80,6 +80,8 @@ module.exports = modules => {
 
 		if (i18n.getLocales().includes(locale)) {
 			i18n.setLocale(locale);
+		} else {
+			i18n.setLocale(process.env.API_PORTAL_LOCALE);
 		}
 
 		res.locals.__ = i18n.__;
@@ -91,18 +93,18 @@ module.exports = modules => {
 	const mod = { ...modules, i18n, passport };
 
 	return express.Router()
-		.get("/ShopAuth", portalShopController.Auth(mod))
-		.get("/ShopDisabled", portalShopController.DisabledHtml(mod))
-		.get("/ShopMain", portalShopController.MainHtml(mod))
-		.get("/ShopPartialError", portalShopController.PartialErrorHtml(mod))
-		.get("/ShopPartialPromoCode", portalShopController.PartialPromoCodeHtml(mod))
-		.get("/ShopPartialMenu", portalShopController.PartialMenuHtml(mod))
-		.get("/ShopPartialWelcome", portalShopController.PartialWelcomeHtml(mod))
-		.post("/ShopPartialCatalog", portalShopController.PartialCatalogHtml(mod))
-		.post("/ShopPartialProduct", portalShopController.PartialProductHtml(mod))
-		.post("/ShopGetAccountInfo", portalShopController.GetAccountInfo(mod))
-		.post("/ShopPurchaseAction", portalShopController.PurchaseAction(mod))
-		.post("/ShopPromoCodeAction", portalShopController.PromoCodeAction(mod))
+		.get("/Auth", portalShopController.Auth(mod))
+		.get("/Disabled", portalShopController.DisabledHtml(mod))
+		.get("/Main", portalShopController.MainHtml(mod))
+		.get("/PartialError", portalShopController.PartialErrorHtml(mod))
+		.get("/PartialPromoCode", portalShopController.PartialPromoCodeHtml(mod))
+		.get("/PartialMenu", portalShopController.PartialMenuHtml(mod))
+		.get("/PartialWelcome", portalShopController.PartialWelcomeHtml(mod))
+		.post("/PartialCatalog", portalShopController.PartialCatalogHtml(mod))
+		.post("/PartialProduct", portalShopController.PartialProductHtml(mod))
+		.post("/GetAccountInfo", portalShopController.GetAccountInfo(mod))
+		.post("/PurchaseAction", portalShopController.PurchaseAction(mod))
+		.post("/PromoCodeAction", portalShopController.PromoCodeAction(mod))
 
 		.use(
 			/**
