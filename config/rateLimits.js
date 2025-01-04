@@ -62,6 +62,14 @@ module.exports.portalApi = {
 			points: 60,
 			duration: 180,
 			blockDuration: 3600
+		},
+
+		// endpoint: POST /launcher/CaptchaVerify
+		// 10 requests per 1 minute with block for 5 minutes
+		captchaVerify: {
+			points: 10,
+			duration: 60,
+			blockDuration: 300
 		}
 	},
 

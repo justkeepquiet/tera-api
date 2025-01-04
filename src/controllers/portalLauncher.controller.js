@@ -33,6 +33,7 @@ const resetPasswordVerifyActionRateLimitter = new RateLimiterMemory(rateLimitsCo
 const signupActionRateLimitter = new RateLimiterMemory(rateLimitsConfig.signupAction);
 const signupVerifyActionRateLimitter = new RateLimiterMemory(rateLimitsConfig.signupVerifyAction);
 const reportActionRateLimitter = new RateLimiterMemory(rateLimitsConfig.reportAction);
+const captchaVerifyRateLimitter = new RateLimiterMemory(rateLimitsConfig.captchaVerify);
 
 const isRegistrationDisabled = /^true$/i.test(process.env.API_PORTAL_LAUNCHER_DISABLE_REGISTRATION);
 const isEmailVerifyEnabled = /^true$/i.test(process.env.API_PORTAL_LAUNCHER_ENABLE_EMAIL_VERIFY);
@@ -1019,6 +1020,7 @@ module.exports.CaptchaVerify = ({ logger }) => [
 		body("answer").notEmpty()
 	],
 	validationHandler(logger),
+	rateLimitterHandler(captchaVerifyRateLimitter, logger),
 	/**
 	 * @type {RequestHandler}
 	 */
