@@ -26,6 +26,7 @@ const DB_VERSION = 3;
  * @property {import("./utils/logger").logger} logger
  * @property {import("./lib/expressServer").app} app
  * @property {import("./lib/scheduler").Scheduler} scheduler
+ * @property {import("./lib/rateLimitter")} rateLimitter
  * @property {import("./models/queue.model").queueModel} queueModel
  * @property {import("./models/account.model").accountModel} accountModel
  * @property {import("./models/server.model").serverModel} serverModel
@@ -46,6 +47,7 @@ const nodemailer = require("nodemailer");
 const geoip = require("@maxmind/geoip2-node");
 const CoreLoader = require("./lib/coreLoader");
 const { Scheduler, expr } = require("./lib/scheduler");
+const RateLimitter = require("./lib/rateLimitter");
 const HubFunctions = require("./lib/hubFunctions");
 const SteerFunctions = require("./lib/steerFunctions");
 const serverCategory = require("./lib/teraPlatformGuid").serverCategory;
@@ -74,6 +76,15 @@ moduleLoader.setPromise("logger", async () => logger);
 moduleLoader.setPromise("scheduler", async () => new Scheduler(
 	createLogger("Scheduler", { colors: { debug: "gray" } })
 ));
+
+moduleLoader.setPromise("rateLimitter", async () => {
+	const rateLimitsConfig = require("../config/rateLimits");
+
+	return new RateLimitter(
+		rateLimitsConfig,
+		createLogger("Rate Limitter", { colors: { debug: "gray" } })
+	);
+});
 
 moduleLoader.setPromise("queue", async () => new BackgroundQueue({
 	concurrent: 5,

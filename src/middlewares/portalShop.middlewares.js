@@ -1,6 +1,7 @@
 "use strict";
 
 /**
+ * @typedef {import("../lib/rateLimitter")} rateLimitter
  * @typedef {import("express").RequestHandler} RequestHandler
  */
 
@@ -44,21 +45,20 @@ module.exports.shopStatusHandler = (req, res, next) => {
 	next();
 };
 
-module.exports.rateLimitterHandler = (rateLimiter, logger, points = 1) =>
+/**
+ * @param {rateLimitter} rateLimitter
+ */
+module.exports.rateLimitterHandler = (rateLimitter, endpoint, points = 1) =>
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		try {
-			const rateLimiterRes = await rateLimiter.consume(req.ip, points);
+		const result = await rateLimitter.consume(endpoint, req.ip, points);
 
-			logger.debug(`Rate Limitter: ${rateLimiterRes}`);
-			next();
-		} catch (rateLimiterRes) {
-			logger.debug(`Rate Limitter: ${rateLimiterRes}`);
-			logger.warn("Rate Limitter: Too many requests");
-
+		if (!result) {
 			throw new ApiError("too many requests", 9);
 		}
+
+		next();
 	}
 ;

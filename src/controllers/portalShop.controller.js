@@ -9,14 +9,12 @@
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 const { query, body } = require("express-validator");
-const { RateLimiterMemory } = require("rate-limiter-flexible");
 
 const helpers = require("../utils/helpers");
 const PromoCodeActions = require("../actions/promoCode.actions");
 const ItemClaim = require("../actions/handlers/itemClaim");
 const ServiceItem = require("../utils/boxHelper").ServiceItem;
 const ApiError = require("../lib/apiError");
-const rateLimitsConfig = require("../../config/rateLimits").portalApi.shop;
 
 const {
 	validationHandler,
@@ -24,9 +22,6 @@ const {
 	shopStatusHandler,
 	rateLimitterHandler
 } = require("../middlewares/portalShop.middlewares");
-
-const purchaseActionRateLimitter = new RateLimiterMemory(rateLimitsConfig.purchaseAction);
-const promoCodeActionRateLimitter = new RateLimiterMemory(rateLimitsConfig.promoCodeAction);
 
 /**
  * @param {modules} modules
@@ -495,7 +490,7 @@ module.exports.PurchaseAction = modules => [
 	[body("productId").notEmpty().isNumeric()],
 	[body("quantity").notEmpty().isInt({ min: 1, max: 99 })],
 	validationHandler(modules.logger),
-	rateLimitterHandler(purchaseActionRateLimitter, modules.logger),
+	rateLimitterHandler(modules.rateLimitter, "portalApi.shop.purchaseAction"),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -661,7 +656,7 @@ module.exports.PromoCodeAction = modules => [
 	authSessionHandler(modules.logger, modules.accountModel),
 	[body("promoCode").trim().notEmpty()],
 	validationHandler(modules.logger),
-	rateLimitterHandler(promoCodeActionRateLimitter, modules.logger),
+	rateLimitterHandler(modules.rateLimitter, "portalApi.shop.promoCodeAction"),
 	/**
 	 * @type {RequestHandler}
 	 */
