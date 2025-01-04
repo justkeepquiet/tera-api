@@ -885,7 +885,7 @@ module.exports.SetAccountLanguageAction = ({ logger, accountModel }) => [
 		body("language")
 			.isIn(["cn", "en", "en-US", "fr", "de", "jp", "kr", "ru", "se", "th", "tw"])
 			.custom(value => {
-				if (helpers.getClientRegions().every(region => region.locale !== value)) {
+				if (helpers.getClientLocales().every(locale => locale !== value)) {
 					return Promise.reject("language code not allowed");
 				}
 				return Promise.resolve();
