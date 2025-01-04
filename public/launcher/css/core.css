@@ -299,41 +299,48 @@ a {
 .gamestart {
 	float: left;
 	margin-left: 10px;
-	margin-top: -15px;
+	margin-top: -16px;
 }
 .gamestart .btn {
 	cursor: pointer;
 	width: 240px;
 	height: 90px;
+	color: #fff;
+	font-size: 24px;
+	font-weight: bold;
 	border-width: 0;
+	line-height: 0;
 	display: block;
+	padding: 0;
 	text-decoration: -9999px;
 	background-image: url(../images/btn-game-start.png);
 	background-repeat: no-repeat;
-	text-indent: -9999px;
 	background-color: transparent;
-	background-position: 0px 0px;
+	background-position: 0px 1px;
+	text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px 0px 0 #000, 
+		0px 1px 0 #000, -1px 0px 0 #000, 0px -1px 0 #000, 1px 1px 0px rgba(0,0,0,0);
 }
 .gamestart .btn:hover {
-	background-position: 0px -100px;
+	background-position: 0px -99px;
 }
 .gamestart .btn-gamestart {
-	background-image: url(../images/btn-game-start.png);
+	text-transform: uppercase;
+	background-image: url(../images/btn-gs-orange.png);
 }
 .gamestart .btn-wrong {
-	background-image: url(../images/btn-wrong.png);
+	background-image: url(../images/btn-gs-red.png);
 }
 .gamestart .btn-wait {
-	background-image: url(../images/btn-wait.png);
+	background-image: url(../images/btn-gs-blue.png);
 }
 .gamestart .btn-update {
-	background-image: url(../images/btn-update.png);
+	background-image: url(../images/btn-gs-green.png);
 }
 .gamestart .btn-break {
-	background-image: url(../images/btn-break.png);
+	background-image: url(../images/btn-gs-blue.png);
 }
 .gamestart .btn-repair {
-	background-image: url(../images/btn-repair.png);
+	background-image: url(../images/btn-gs-blue.png);
 }
 .footer {
 	font-size: 11px;

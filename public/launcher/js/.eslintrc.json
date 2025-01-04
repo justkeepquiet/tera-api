@@ -101,6 +101,7 @@
 		"USER_LANG": true,
 		"REGION": true,
 		"REGIONS": true,
-		"PATCH_INFO_STRINGS": true
+		"PATCH_INFO_STRINGS": true,
+		"GAMESTART_BUTTON_STRINGS": true
 	}
 }

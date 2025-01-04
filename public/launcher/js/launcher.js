@@ -237,7 +237,7 @@ var Launcher = {
 			}
 		} else {
 			Launcher.showError("Internal error");
-			Launcher.disableLaunchButton("Error", "btn-wrong");
+			Launcher.disableLaunchButton("btn-wrong");
 		}
 	},
 
@@ -291,35 +291,38 @@ var Launcher = {
 		Launcher.hideMessage();
 
 		switch ($("#playButton").text()) {
-			case "Play":
+			case GAMESTART_BUTTON_STRINGS["btn-gamestart"]:
 				Launcher.launchGame();
 				break;
 
-			case "Update":
+			case GAMESTART_BUTTON_STRINGS["btn-update"]:
 				Launcher.patchGame();
 				break;
 
-			case "Repair":
+			case GAMESTART_BUTTON_STRINGS["btn-repair"]:
 				Launcher.repairGame();
 				break;
 
-			case "Abort":
+			case GAMESTART_BUTTON_STRINGS["btn-break"]:
 				Launcher.abortPatch();
 				break;
 		}
 	},
 
-	enableLaunchButton: function(text, cls) {
+	enableLaunchButton: function(cls) {
+		$("#playButton").empty();
 		$("#playButton").addClass("ready");
 		$("#playButton").attr("class", "btn " + cls);
-		$("#playButton").text(text);
+		$("#playButton").text(GAMESTART_BUTTON_STRINGS[cls]);
+		$("#playButton").text(GAMESTART_BUTTON_STRINGS[cls]);
 		$("#repair").show();
 	},
 
-	disableLaunchButton: function(text, cls) {
+	disableLaunchButton: function(cls) {
+		$("#playButton").empty();
 		$("#playButton").removeClass("ready");
 		$("#playButton").attr("class", "btn " + cls);
-		$("#playButton").text(text);
+		$("#playButton").text(GAMESTART_BUTTON_STRINGS[cls]);
 		$("#repair").show();
 	},
 
@@ -338,7 +341,7 @@ var Launcher = {
 	 * Launcher procedures
 	 */
 	launchGame: function() {
-		Launcher.disableLaunchButton("Wait", "btn-wait");
+		Launcher.disableLaunchButton("btn-wait");
 
 		Launcher.setAccountInfo(function() {
 			if (!QA_MODE && PERMISSION < 256) {
@@ -346,14 +349,14 @@ var Launcher = {
 
 				if (maintenance && maintenance.Return && maintenance.StartTime) {
 					Launcher.showError(maintenance.Description || serverMaintenanceString);
-					Launcher.enableLaunchButton("Play", "btn-gamestart");
+					Launcher.enableLaunchButton("btn-gamestart");
 					return;
 				}
 			}
 
 			if (BANNED) {
 				Launcher.showError(accountBlockedString);
-				Launcher.disableLaunchButton("Error", "btn-wrong");
+				Launcher.disableLaunchButton("btn-wrong");
 				return;
 			}
 
@@ -370,7 +373,7 @@ var Launcher = {
 	},
 
 	patchGame: function() {
-		Launcher.enableLaunchButton("Abort", "btn-break");
+		Launcher.enableLaunchButton("btn-break");
 		$("#repair").hide();
 
 		Launcher.status = 1;
@@ -378,7 +381,7 @@ var Launcher = {
 	},
 
 	repairGame: function() {
-		Launcher.enableLaunchButton("Abort", "btn-break");
+		Launcher.enableLaunchButton("btn-break");
 		$("#repair").hide();
 
 		Launcher.status = 2;
@@ -386,7 +389,7 @@ var Launcher = {
 	},
 
 	abortPatch: function() {
-		Launcher.disableLaunchButton("Wait", "btn-wait");
+		Launcher.disableLaunchButton("btn-wait");
 		Launcher.sendCommand("abort_p");
 	},
 
@@ -450,28 +453,28 @@ function l2w_checkPatchResult(patch_result, patch_error, file, reason, code) {
 	debug(sprintf("Check patch finished with %d %d [%s] %d, %d", patch_result, patch_error, file, reason, code));
 
 	if ((QA_MODE && QA_MODE_NOCHECK) || PATCH_NO_CHECK) { // no check files in QA mode
-		Launcher.enableLaunchButton("Play", "btn-gamestart");
+		Launcher.enableLaunchButton("btn-gamestart");
 		return;
 	}
 
 	switch (patch_result) {
 		case 2: // RESULT_LATEST_VERSION
-			Launcher.enableLaunchButton("Play", "btn-gamestart");
+			Launcher.enableLaunchButton("btn-gamestart");
 			break;
 
 		case 3: // RESULT_NEED_UPDATE
-			Launcher.enableLaunchButton("Update", "btn-update");
+			Launcher.enableLaunchButton("btn-update");
 			break;
 
 		case 4: // RESULT_NEED_FILE_CHECK
-			Launcher.enableLaunchButton("Repair", "btn-repair");
+			Launcher.enableLaunchButton("btn-repair");
 			break;
 
 		default:
 			if (patch_error == 3 || patch_error == 13 || patch_error == 14) {
-				Launcher.enableLaunchButton("Repair");
+				Launcher.enableLaunchButton("btn-repair");
 			} else {
-				Launcher.disableLaunchButton("Error", "btn-wrong");
+				Launcher.disableLaunchButton("btn-wrong");
 			}
 
 			displayPatchError(patch_error, file, reason, code);
@@ -490,13 +493,13 @@ function l2w_patchResult(patch_result, patch_error, file, reason, code) {
 			$("#fileName").text("");
 			$("#totalText").text("");
 			if (Launcher.status == 3) {
-				Launcher.disableLaunchButton("Wait", "btn-wait");
+				Launcher.disableLaunchButton("btn-wait");
 				Launcher.status = 4;
 				Launcher.sendCommand("execute|" + REGION);
 				Launcher.logAction("enter_game", "BHS");
 			} else {
 				Launcher.status = 0;
-				Launcher.enableLaunchButton("Play", "btn-gamestart");
+				Launcher.enableLaunchButton("btn-gamestart");
 			}
 			break;
 
@@ -507,22 +510,22 @@ function l2w_patchResult(patch_result, patch_error, file, reason, code) {
 
 		case 3:
 			Launcher.status = 0;
-			Launcher.enableLaunchButton("Update", "btn-update");
+			Launcher.enableLaunchButton("btn-update");
 			break;
 
 		case 4:
 			Launcher.status = 0;
-			Launcher.enableLaunchButton("Repair", "btn-repair");
+			Launcher.enableLaunchButton("btn-repair");
 			break;
 
 		default:
 			Launcher.status = 0;
 			if (patch_error == 3 || patch_error == 13 || patch_error == 14) {
-				Launcher.enableLaunchButton("Repair", "btn-repair");
+				Launcher.enableLaunchButton("btn-repair");
 			} else if (patch_error == 6) {
-				Launcher.enableLaunchButton("Update", "btn-update");
+				Launcher.enableLaunchButton("btn-update");
 			} else {
-				Launcher.disableLaunchButton("Error", "btn-wrong");
+				Launcher.disableLaunchButton("btn-wrong");
 			}
 
 			displayPatchError(patch_error, file, reason, code);
@@ -594,7 +597,7 @@ function l2w_gameEnd(end_type1, end_type2) {
 
 	Launcher.status = 0;
 	// Launcher.sendCommand("close");
-	Launcher.enableLaunchButton("Play", "btn-gamestart");
+	Launcher.enableLaunchButton("btn-gamestart");
 
 	debug(sprintf("Game end 0x%X, 0x%X", end_type1, end_type2));
 	displayLauncherError(end_type1, end_type2);

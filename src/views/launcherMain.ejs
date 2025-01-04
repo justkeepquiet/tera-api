@@ -5,7 +5,6 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge;">
 <title>Launcher</title>
 <link rel="stylesheet" href="/public/launcher/css/core.css">
-<link rel="stylesheet" href="/public/launcher/css/buttons-<%= locale %>.css">
 <script type="text/javascript" src="/public/launcher/js/jquery-1.11.1.min.js"></script>
 <script>
 	var startFileChekingString = "<%= __('Start files checking?') %>";
@@ -47,6 +46,15 @@
 		"6": "<%= __('Check') %>",
 		"11": "<%= __('Making patch list...') %>"
 	};
+
+	var GAMESTART_BUTTON_STRINGS = {
+		"btn-gamestart": "<%= __('Play') %>",
+		"btn-wrong": "<%= __('Error') %>",
+		"btn-wait": "<%= __('Wait') %>",
+		"btn-update": "<%= __('Update') %>",
+		"btn-break ": "<%= __('Abort') %>",
+		"btn-repair": "<%= __('Repair') %>"
+	}
 
 	document.onkeydown = function() {
 		if (event.keyCode == 116) {
@@ -159,12 +167,12 @@
 				<!--/progress--> 
 				<div class="check">
 					<%_ if (!/^true$/i.test(patchNoCheck)) { _%>
-					<button class="btn-check" onclick="if (confirm(startFileChekingString)) Launcher.filesCheck();">Repair</button>&nbsp;
+					<button class="btn-check" onclick="if (confirm(startFileChekingString)) Launcher.filesCheck();"><%= __('Repair') %></button>&nbsp;
 					<%_ } _%>
 				</div>
 				<!--/check-->
 				<div class="gamestart">
-					<button class="btn-gamestart btn" id="playButton" onclick="Launcher.onButtonClick();">Play</button>
+					<button class="btn-gamestart btn btn-wait" id="playButton" onclick="Launcher.onButtonClick();"><%= __('Wait') %></button>
 				</div>
 				<!--/gamestart-->
 			</div>
