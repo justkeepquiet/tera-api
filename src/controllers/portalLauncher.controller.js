@@ -33,40 +33,6 @@ if (/^true$/i.test(process.env.API_PORTAL_CAPTCHA_ENABLE)) {
 /**
  * @param {modules} modules
  */
-module.exports.MaintenanceStatus = ({ sequelize, serverModel }) => [
-	/**
-	 * @type {RequestHandler}
-	 */
-	async (req, res, next) => {
-		const maintenance = await serverModel.maintenance.findOne({
-			where: {
-				startTime: { [Op.lt]: sequelize.fn("NOW") },
-				endTime: { [Op.gt]: sequelize.fn("NOW") }
-			}
-		});
-
-		if (maintenance !== null) {
-			res.json({
-				Return: true,
-				ReturnCode: 0,
-				Msg: "success",
-				StartTime: moment(maintenance.get("startTime")).unix(),
-				EndTime: moment(maintenance.get("startTime")).unix(),
-				Description: maintenance.get("description")
-			});
-		} else {
-			res.json({
-				Return: true,
-				ReturnCode: 0,
-				Msg: "success"
-			});
-		}
-	}
-];
-
-/**
- * @param {modules} modules
- */
 module.exports.MainHtml = ({ logger }) => [
 	authSessionHandler(),
 	/**
@@ -920,6 +886,40 @@ module.exports.SetAccountLanguageAction = ({ logger, accountModel }) => [
 			ReturnCode: 0,
 			Msg: "success"
 		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.MaintenanceStatus = ({ sequelize, serverModel }) => [
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const maintenance = await serverModel.maintenance.findOne({
+			where: {
+				startTime: { [Op.lt]: sequelize.fn("NOW") },
+				endTime: { [Op.gt]: sequelize.fn("NOW") }
+			}
+		});
+
+		if (maintenance !== null) {
+			res.json({
+				Return: true,
+				ReturnCode: 0,
+				Msg: "success",
+				StartTime: moment(maintenance.get("startTime")).unix(),
+				EndTime: moment(maintenance.get("startTime")).unix(),
+				Description: maintenance.get("description")
+			});
+		} else {
+			res.json({
+				Return: true,
+				ReturnCode: 0,
+				Msg: "success"
+			});
+		}
 	}
 ];
 

@@ -105,7 +105,6 @@ module.exports = modules => {
 	const mod = { ...modules, i18n, passport };
 
 	return express.Router()
-		.get("/MaintenanceStatus", portalLauncherController.MaintenanceStatus(mod))
 		.get("/Main", portalLauncherController.MainHtml(mod))
 
 		.get("/LoginForm", portalLauncherController.LoginFormHtml(mod))
@@ -125,6 +124,7 @@ module.exports = modules => {
 
 		.get("/GetAccountInfoAction", portalLauncherController.GetAccountInfoAction(mod))
 		.post("/SetAccountLanguageAction", portalLauncherController.SetAccountLanguageAction(mod))
+		.get("/MaintenanceStatus", portalLauncherController.MaintenanceStatus(mod))
 		.post("/ReportAction", portalLauncherController.ReportAction(mod))
 
 		.get("/GetCaptcha", portalLauncherController.CaptchaCreate(mod))
