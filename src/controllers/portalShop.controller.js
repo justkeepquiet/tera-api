@@ -9,13 +9,24 @@
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 const { query, body } = require("express-validator");
+const { RateLimiterMemory } = require("rate-limiter-flexible");
 
 const helpers = require("../utils/helpers");
 const PromoCodeActions = require("../actions/promoCode.actions");
 const ItemClaim = require("../actions/handlers/itemClaim");
 const ServiceItem = require("../utils/boxHelper").ServiceItem;
 const ApiError = require("../lib/apiError");
-const { validationHandler, authSessionHandler, shopStatusHandler } = require("../middlewares/portalShop.middlewares");
+const rateLimitsConfig = require("../../config/rateLimits").portalApi.shop;
+
+const {
+	validationHandler,
+	authSessionHandler,
+	shopStatusHandler,
+	rateLimitterHandler
+} = require("../middlewares/portalShop.middlewares");
+
+const purchaseActionRateLimitter = new RateLimiterMemory(rateLimitsConfig.purchaseAction);
+const promoCodeActionRateLimitter = new RateLimiterMemory(rateLimitsConfig.promoCodeAction);
 
 /**
  * @param {modules} modules
@@ -484,26 +495,13 @@ module.exports.PurchaseAction = modules => [
 	[body("productId").notEmpty().isNumeric()],
 	[body("quantity").notEmpty().isInt({ min: 1, max: 99 })],
 	validationHandler(modules.logger),
+	rateLimitterHandler(purchaseActionRateLimitter, modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { productId, quantity } = req.body;
 		const serviceItem = new ServiceItem(modules);
-
-		/*
-		const payLog = await reportModel.shopPay.findOne({ // buying rate limits
-			where: {
-				accountDBID: req.user.accountDBID,
-				status: "completed",
-				updatedAt: { [Op.gt]: sequelize.literal("NOW() - INTERVAL 5 second") }
-			}
-		});
-
-		if (payLog !== null) {
-			throw new ApiError("denied", 1010);
-		}
-		*/
 
 		const shopProduct = await modules.shopModel.products.findOne({
 			where: {
@@ -663,6 +661,7 @@ module.exports.PromoCodeAction = modules => [
 	authSessionHandler(modules.logger, modules.accountModel),
 	[body("promoCode").trim().notEmpty()],
 	validationHandler(modules.logger),
+	rateLimitterHandler(promoCodeActionRateLimitter, modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */

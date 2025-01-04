@@ -53,6 +53,9 @@
 				} else {
 					$('#promocode_error').show();
 					switch(result.ReturnCode) {
+						case 9:
+							$('#promocode_error strong').html("<%= __('Too many requests.') %>");
+							break;
 						case 1000:
 							$('#promocode_error strong').html("<%= __('The specified promo code does not exist.') %>");
 							break;

@@ -29,6 +29,10 @@
 				Launcher.goTo("SignupVerifyForm?lang=<%= locale %>", true);
 			} else {
 				switch (result.ReturnCode) {
+					case 9:
+						Launcher.showError("<%= __('Too many requests.') %>");
+						break;
+
 					case 10:
 						Launcher.showError("<%= __('This login is already exists.') %>");
 						break;

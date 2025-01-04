@@ -32,6 +32,7 @@
 	"This email is not exists.": "Указанный Email адрес не существует.",
 	"Please enter 8-128 characters password.": "Введите пароль длиной 8-128 символов.",
 	"Two password entries do not match.": "Введенные пароли не совпадают.",
+	"Too many requests.": "Слишком много запросов.",
 	"Captcha verification failed.": "Ошибка проверки Captcha.",
 	"Enter login": "Логин",
 	"Enter email": "Email",

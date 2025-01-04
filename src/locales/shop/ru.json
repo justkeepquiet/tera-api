@@ -53,6 +53,7 @@
 	"The specified promo code has reached its activation limit.": "Указанный промокод достиг предел активаций.",
 	"The specified promo code has already been activated.": "Указанный промокод уже активирован.",
 	"Activation error": "Ошибка активации",
+	"Too many requests.": "Слишком много запросов.",
 	"warrior": "Воин",
 	"lancer": "Рыцарь",
 	"slayer": "Убийца",

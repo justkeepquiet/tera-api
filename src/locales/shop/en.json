@@ -53,6 +53,7 @@
 	"The specified promo code has reached its activation limit.": "The specified promo code has reached its activation limit.",
 	"The specified promo code has already been activated.": "The specified promo code has already been activated.",
 	"Activation error": "Activation error",
+	"Too many requests.": "Too many requests.",
 	"warrior": "Warrior",
 	"lancer": "Lancer",
 	"slayer": "Slayer",

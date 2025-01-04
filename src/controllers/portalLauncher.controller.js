@@ -11,13 +11,28 @@ const uuid = require("uuid").v4;
 const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
+const { RateLimiterMemory } = require("rate-limiter-flexible");
 
 const Benefit = require("../actions/handlers/benefit");
 const Shop = require("../actions/handlers/shop");
 const helpers = require("../utils/helpers");
 const SliderCaptcha = require("../utils/sliderCaptcha");
 const ApiError = require("../lib/apiError");
-const { validationHandler, apiAuthSessionHandler, authSessionHandler } = require("../middlewares/portalLauncher.middlewares");
+const rateLimitsConfig = require("../../config/rateLimits").portalApi.launcher;
+
+const {
+	validationHandler,
+	apiAuthSessionHandler,
+	authSessionHandler,
+	rateLimitterHandler
+} = require("../middlewares/portalLauncher.middlewares");
+
+const loginActionRateLimitter = new RateLimiterMemory(rateLimitsConfig.loginAction);
+const resetPasswordActionRateLimitter = new RateLimiterMemory(rateLimitsConfig.resetPasswordAction);
+const resetPasswordVerifyActionRateLimitter = new RateLimiterMemory(rateLimitsConfig.resetPasswordVerifyAction);
+const signupActionRateLimitter = new RateLimiterMemory(rateLimitsConfig.signupAction);
+const signupVerifyActionRateLimitter = new RateLimiterMemory(rateLimitsConfig.signupVerifyAction);
+const reportActionRateLimitter = new RateLimiterMemory(rateLimitsConfig.reportAction);
 
 const isRegistrationDisabled = /^true$/i.test(process.env.API_PORTAL_LAUNCHER_DISABLE_REGISTRATION);
 const isEmailVerifyEnabled = /^true$/i.test(process.env.API_PORTAL_LAUNCHER_ENABLE_EMAIL_VERIFY);
@@ -122,6 +137,7 @@ module.exports.LoginAction = ({ logger, passport, accountModel }) => [
 
 		next();
 	},
+	rateLimitterHandler(loginActionRateLimitter, logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -247,6 +263,7 @@ module.exports.ResetPasswordAction = ({ app, logger, mailer, i18n, accountModel 
 
 		next();
 	},
+	rateLimitterHandler(resetPasswordActionRateLimitter, logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -376,6 +393,7 @@ module.exports.ResetPasswordVerifyAction = ({ logger, sequelize, accountModel })
 
 		next();
 	},
+	rateLimitterHandler(resetPasswordVerifyActionRateLimitter, logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -517,6 +535,7 @@ module.exports.SignupAction = modules => [
 
 		next();
 	},
+	rateLimitterHandler(signupActionRateLimitter, modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -690,6 +709,7 @@ module.exports.SignupVerifyAction = modules => [
 
 		next();
 	},
+	rateLimitterHandler(signupVerifyActionRateLimitter, modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -926,8 +946,9 @@ module.exports.MaintenanceStatus = ({ sequelize, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.ReportAction = ({ accountModel, reportModel }) => [
+module.exports.ReportAction = ({ logger, accountModel, reportModel }) => [
 	apiAuthSessionHandler(),
+	rateLimitterHandler(reportActionRateLimitter, logger),
 	/**
 	 * @type {RequestHandler}
 	 */

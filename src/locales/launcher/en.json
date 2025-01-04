@@ -32,6 +32,7 @@
 	"This email is not exists.": "This email is not exists.",
 	"Please enter 8-128 characters password.": "Please enter 8-128 characters password.",
 	"Two password entries do not match.": "Two password entries do not match.",
+	"Too many requests.": "Too many requests.",
 	"Captcha verification failed.": "Captcha verification failed.",
 	"Enter login": "Enter login",
 	"Enter email": "Enter email",

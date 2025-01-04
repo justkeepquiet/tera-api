@@ -45,3 +45,22 @@ module.exports.apiAuthSessionHandler = () =>
 		next();
 	}
 ;
+
+module.exports.rateLimitterHandler = (rateLimiter, logger, points = 1) =>
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		try {
+			const rateLimiterRes = await rateLimiter.consume(req.ip, points);
+
+			logger.debug(`Rate Limitter: ${rateLimiterRes}`);
+			next();
+		} catch (rateLimiterRes) {
+			logger.debug(`Rate Limitter: ${rateLimiterRes}`);
+			logger.warn("Rate Limitter: Too many requests");
+
+			throw new ApiError("too many requests", 9);
+		}
+	}
+;
