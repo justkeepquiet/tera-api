@@ -162,7 +162,7 @@ module.exports.getPreferredLanguage = locale => {
 		}
 	});
 
-	if (found === null && process.env.API_PORTAL_CLIENT_DEFAULT_REGION) {
+	if (found === null) {
 		found = module.exports.regionToLanguage(process.env.API_PORTAL_CLIENT_DEFAULT_REGION);
 	}
 
