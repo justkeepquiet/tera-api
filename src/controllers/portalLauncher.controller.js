@@ -628,7 +628,7 @@ module.exports.SignupAction = modules => [
 					passWord: helpers.getPasswordString(password),
 					authKey: uuid(),
 					email,
-					language: helpers.regionToLanguage(process.env.API_PORTAL_CLIENT_DEFAULT_REGION)
+					language: helpers.getPreferredLanguage(modules.i18n.getLocale())
 				});
 
 				const benefit = new Benefit(modules, account.get("accountDBID"));
@@ -769,7 +769,7 @@ module.exports.SignupVerifyAction = modules => [
 				passWord: helpers.getPasswordString(accountVerify.get("passWord")),
 				authKey: uuid(),
 				email: accountVerify.get("email"),
-				language: helpers.regionToLanguage(process.env.API_PORTAL_CLIENT_DEFAULT_REGION)
+				language: helpers.getPreferredLanguage(modules.i18n.getLocale())
 			});
 
 			const benefit = new Benefit(modules, account.get("accountDBID"));

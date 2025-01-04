@@ -145,6 +145,31 @@ module.exports.getClientLocales = () =>
 ;
 
 /**
+* @return {string}
+*/
+module.exports.getPreferredLanguage = locale => {
+	let found = null;
+
+	const clientRegions = module.exports.getClientRegions();
+
+	clientRegions.sort((a, b) => a.locale.localeCompare(b.locale));
+	clientRegions.forEach(region => {
+		if (found === null && (
+			locale === region.locale ||
+			locale.split("-")[0] === region.locale.split("-")[0]
+		)) {
+			found = region.locale;
+		}
+	});
+
+	if (found === null && process.env.API_PORTAL_CLIENT_DEFAULT_REGION) {
+		found = module.exports.regionToLanguage(process.env.API_PORTAL_CLIENT_DEFAULT_REGION);
+	}
+
+	return found;
+};
+
+/**
 * @return {Map}
 */
 module.exports.getInitialBenefits = () => {
