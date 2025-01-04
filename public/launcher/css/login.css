@@ -160,6 +160,10 @@ button.btn-orange {
 	text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px 0px 0 #000, 
 		0px 1px 0 #000, -1px 0px 0 #000, 0px -1px 0 #000, 1px 1px 0px rgba(0,0,0,0);
 }
+button.btn-orange:hover {
+	background-position: 224px 0;
+
+}
 button.btn-blue {
 	background-image: url(../images/btn.png);
 	width: 224px;
@@ -176,6 +180,9 @@ button.btn-blue {
 	background-position: 0 -70px;
 	text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000, 1px 0px 0 #000,
 		0px 1px 0 #000, -1px 0px 0 #000, 0px -1px 0 #000, 1px 1px 0px rgba(0,0,0,0);
+}
+button.btn-blue:hover {
+	background-position: 224px -70px;
 }
 .msg-modal {
 	display: none;
@@ -200,8 +207,6 @@ button.btn-blue {
 	border: 1px solid #00BB00;
 }
 .msg-modal.error {
-	/* background: #ff4040;
-	border: 1px solid #5e0c0c; */
 	background: #CC3333;
 	border: 1px solid #CC6666;
 }
