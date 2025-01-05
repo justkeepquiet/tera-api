@@ -42,103 +42,105 @@ $(function() {
 });
 
 /**
- * API calls
+ * Launcher REST API
  */
-function launcherLoginAction(login, password) {
-	return apiRequest("LoginAction", {
-		login: login,
-		password: password
-	});
-}
+var LauncherAPI = {
+	loginAction: function(login, password) {
+		return LauncherAPI.request("LoginAction", {
+			login: login,
+			password: password
+		});
+	},
 
-function launcherLogoutAction(authKey) {
-	return apiRequest("LogoutAction", {
-		authKey: authKey
-	});
-}
+	logoutAction: function(authKey) {
+		return LauncherAPI.request("LogoutAction", {
+			authKey: authKey
+		});
+	},
 
-function launcherResetPasswordAction(email, captcha) {
-	return apiRequest("ResetPasswordAction", {
-		"g-recaptcha-response": captcha,
-		email: email
-	});
-}
+	resetPasswordAction: function(email, captcha) {
+		return LauncherAPI.request("ResetPasswordAction", {
+			"g-recaptcha-response": captcha,
+			email: email
+		});
+	},
 
-function launcherResetPasswordVerifyAction(code, password) {
-	return apiRequest("ResetPasswordVerifyAction", {
-		code: code,
-		password: password
-	});
-}
+	resetPasswordVerifyAction: function(code, password) {
+		return LauncherAPI.request("ResetPasswordVerifyAction", {
+			code: code,
+			password: password
+		});
+	},
 
-function launcherSignupAction(login, email, password, captcha) {
-	return apiRequest("SignupAction", {
-		"g-recaptcha-response": captcha,
-		login: login,
-		email: email,
-		password: password
-	});
-}
+	signupAction: function(login, email, password, captcha) {
+		return LauncherAPI.request("SignupAction", {
+			"g-recaptcha-response": captcha,
+			login: login,
+			email: email,
+			password: password
+		});
+	},
 
-function launcherSignupVerifyAction(code) {
-	return apiRequest("SignupVerifyAction", {
-		code: code
-	});
-}
+	signupVerifyAction: function(code) {
+		return LauncherAPI.request("SignupVerifyAction", {
+			code: code
+		});
+	},
 
-function getAccountInfoAction() {
-	return apiRequest("GetAccountInfoAction");
-}
+	getAccountInfoAction: function() {
+		return LauncherAPI.request("GetAccountInfoAction");
+	},
 
-function setAccountLanguageAction(language) {
-	return apiRequest("SetAccountLanguageAction", {
-		language: language
-	});
-}
+	setAccountLanguageAction: function(language) {
+		return LauncherAPI.request("SetAccountLanguageAction", {
+			language: language
+		});
+	},
 
-function launcherEndGameReport(code1, code2, version) {
-	return apiRequest("ReportAction", {
-		code1: code1,
-		code2: code2,
-		version: version
-	});
-}
+	endGameReport: function(code1, code2, version) {
+		return LauncherAPI.request("ReportAction", {
+			code1: code1,
+			code2: code2,
+			version: version
+		});
+	},
 
-function launcherActionReport(action, label, optLabel) {
-	var data = {
-		action: action
-	};
+	actionReport: function(action, label, optLabel) {
+		var data = {
+			action: action
+		};
 
-	if (label) {
-		data.label = label;
-	}
-
-	if (optLabel) {
-		data.optLabel = optLabel;
-	}
-
-	return apiRequest("ReportAction", data);
-}
-
-function launcherMaintenanceStatus() {
-	return apiRequest("MaintenanceStatus");
-}
-
-function apiRequest(action, params) {
-	var response = null;
-
-	$.ajax({
-		url: "/launcher/" + action + "?lang=" + urlParam("lang") + "&secure=" + (location.protocol == "https:") + "&ts=" + Date.now(),
-		method: params ? "post" : "get",
-		data: params,
-		async: false,
-		success: function(data) {
-			response = data;
+		if (label) {
+			data.label = label;
 		}
-	});
 
-	return response;
-}
+		if (optLabel) {
+			data.optLabel = optLabel;
+		}
+
+		return LauncherAPI.request("ReportAction", data);
+	},
+
+	maintenanceStatus: function() {
+		return LauncherAPI.request("MaintenanceStatus");
+	},
+
+	request: function(action, params) {
+		var response = null;
+
+		$.ajax({
+			url: "/launcher/" + action + "?lang=" + urlParam("lang") + "&secure=" + (location.protocol == "https:") + "&ts=" + Date.now(),
+			method: params ? "post" : "get",
+			data: params,
+			async: false,
+			success: function(data) {
+				response = data;
+			}
+		});
+
+		return response;
+	}
+};
 
 /**
  * Launcher UI
@@ -208,18 +210,18 @@ var Launcher = {
 	 * Reporting handlers
 	 */
 	gameEnd: function(code1, code2) {
-		launcherEndGameReport(code1, code2, null);
+		LauncherAPI.endGameReport(code1, code2, null);
 	},
 
 	logAction: function(action, label, optLabel) {
-		launcherActionReport(action, label, optLabel);
+		LauncherAPI.actionReport(action, label, optLabel);
 	},
 
 	/*
 	 * Main frame events
 	 */
 	setAccountInfo: function(cb) {
-		var result = getAccountInfoAction();
+		var result = LauncherAPI.getAccountInfoAction();
 
 		if (result && result.Return) {
 			ACCOUNT_ID = result.UserNo;
@@ -321,7 +323,7 @@ var Launcher = {
 
 		Launcher.setAccountInfo(function() {
 			if (!QA_MODE && PERMISSION < 256) {
-				var maintenance = launcherMaintenanceStatus();
+				var maintenance = LauncherAPI.maintenanceStatus();
 
 				if (maintenance && maintenance.Return && maintenance.StartTime) {
 					Launcher.showError(maintenance.Description || serverMaintenanceString);
@@ -373,7 +375,7 @@ var Launcher = {
 		var language = regionToLanguage(region);
 
 		if (language) {
-			setAccountLanguageAction(language);
+			LauncherAPI.setAccountLanguageAction(language);
 
 			if (reload) {
 				Launcher.goTo("Main" + "?lang=" + language);

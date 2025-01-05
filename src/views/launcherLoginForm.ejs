@@ -14,7 +14,7 @@
 <script type="text/javascript" src="/public/launcher/js/launcher.js"></script>
 <script>
 	function authByLoginAndPassword(login, password, remember) {
-		var result = launcherLoginAction(login, password);
+		var result = LauncherAPI.loginAction(login, password);
 
 		if (result) {
 			if (result.Return) {
@@ -24,19 +24,15 @@
 					case 9:
 						Launcher.showError("<%= __('Too many requests.') %>");
 						break;
-
 					case 10:
 						Launcher.showError("<%= __('Please enter your login.') %>");
 						break;
-
 					case 11:
 						Launcher.showError("<%= __('Please enter your password.') %>");
 						break;
-
 					case 12:
 						Launcher.showError("<%= __('Invalid login or password.') %>");
 						break;
-
 					default:
 						Launcher.showError(result.ReturnCode + ": " + result.Msg);
 						console.log(result);

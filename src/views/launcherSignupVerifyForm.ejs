@@ -14,7 +14,7 @@
 <script type="text/javascript" src="/public/launcher/js/launcher.js"></script>
 <script>
 	function signupVerifyAction(code) {
-		var result = launcherSignupVerifyAction(code);
+		var result = LauncherAPI.signupVerifyAction(code);
 
 		if (result) {
 			if (result.Return) {
@@ -24,12 +24,10 @@
 					case 10:
 						Launcher.showError("<%= __('Invalid verification code.') %>");
 						break;
-
 					case 11:
 						Launcher.showError("<%= __('The number of verification code entry attempts has been exceeded.') %>");
 						Launcher.goTo("LoginForm?lang=<%= locale %>");
 						break;
-
 					default:
 						Launcher.showError(result.ReturnCode + ": " + result.Msg);
 						console.log(result);

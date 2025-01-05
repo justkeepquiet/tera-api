@@ -21,7 +21,7 @@
 			return;
 		}
 
-		var result = launcherSignupAction(login, email, password, captcha);
+		var result = LauncherAPI.signupAction(login, email, password, captcha);
 
 		if (result) {
 			if (result.Return) {
@@ -31,31 +31,24 @@
 					case 9:
 						Launcher.showError("<%= __('Too many requests.') %>");
 						break;
-
 					case 10:
 						Launcher.showError("<%= __('This login is already exists.') %>");
 						break;
-
 					case 11:
 						Launcher.showError("<%= __('Please enter 4-13 alphanumeric characters for login.') %>");
 						break;
-
 					case 12:
 						Launcher.showError("<%= __('Please enter valid email address.') %>");
 						break;
-
 					case 13:
 						Launcher.showError("<%= __('Please enter 8-128 characters password.') %>");
 						break;
-
 					case 14:
 						Launcher.showError("<%= __('This email address is already exists.') %>");
 						break;
-
 					case 15:
 						Launcher.showError("<%= __('Captcha verification failed.') %>");
 						break;
-
 					default:
 						Launcher.showError(result.ReturnCode + ": " + result.Msg);
 						console.log(result);
@@ -65,7 +58,6 @@
 	}
 
 	$(function() {
-
 		$("#userSignupForm").submit(function() {
 			signupAction($('#login').val(), $('#email').val(), $('#password').val(), $('#password2').val());
 			return false;

@@ -40,6 +40,7 @@
 		"no-var": "off",
 		"no-cond-assign": "off",
 		"no-nested-ternary": "warn",
+		"no-prototype-builtins": "off",
 		"no-multiple-empty-lines": "warn",
 		"no-template-curly-in-string": "error",
 		"no-empty-function": "off",
