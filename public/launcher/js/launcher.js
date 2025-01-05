@@ -18,7 +18,7 @@ function regionToLanguage(region) {
 		TW: "tw", USA: "en-US"
 	};
 
-	if (typeof regions[region] !== "undefined") {
+	if (typeof regions[region] != "undefined") {
 		return regions[region];
 	} else {
 		return "en";
@@ -30,7 +30,7 @@ function regionToLanguage(region) {
  */
 $(function() {
 	document.body.onselectstart = function(event) {
-		if (event.target.tagName === "INPUT" || event.target.tagName === "TEXTAREA") {
+		if (event.target.tagName == "INPUT" || event.target.tagName == "TEXTAREA") {
 			return true;
 		}
 
@@ -258,30 +258,6 @@ var Launcher = {
 		Launcher.sendCommand("check_p");
 
 		Launcher.logAction("signin", "BHS");
-	},
-
-	/*
-	 * QA form events
-	 */
-	setQaBox: function() {
-		$("#qaRegion option[value=" + REGION + "]").attr("selected", "selected");
-		$("#qaBox").show();
-
-		$("#qaHide").click(function() {
-			$("#qaBox a, #qaBox fieldset").hide();
-			$("#qaBox").fadeOut("fast");
-		});
-
-		$("#qaRegion").on("change", function() {
-			Launcher.abortPatch();
-			Launcher.setRegion(this.value, true);
-		});
-
-		$("#qaModeCheck").click(function() {
-			QA_MODE_NOCHECK = $(this).is(":checked");
-		});
-
-		QA_MODE_NOCHECK = $("#qaModeCheck").is(":checked");
 	},
 
 	/*
@@ -616,28 +592,13 @@ function l2w_displayInfoResult(result) {
 }
 
 function l2w_openPopup(page_id) {
-	/*
-	if (page_id == 13) { // Homepage
-		setTimeout(function() {
-			window.open(URLS.homepage);
-		}, 0);
-		return;
-	}
+	debug("page_id: " + page_id);
 
-	if (page_id == 30) { // Facebook
+	if (PAGES_MAP.hasOwnProperty(page_id)) {
 		setTimeout(function() {
-			window.open(URLS.facebook);
+			window.open(PAGES_MAP[page_id]);
 		}, 0);
-		return;
 	}
-
-	if (page_id == 33) { // Youtube
-		setTimeout(function() {
-			window.open(URLS.youtube);
-		}, 0);
-		return;
-	}
-	*/
 }
 
 function l2w_getWebLinkUrl(act_id, param) {

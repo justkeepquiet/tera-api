@@ -36,6 +36,12 @@
 		<%_ }) _%>
 	};
 
+	var PAGES_MAP = {
+		<%_ Object.entries(pagesMap).forEach(([key, value]) => { _%>
+			<%= key %>: "<%= value %>",
+		<%_ }) _%>
+	};
+
 	var PATCH_INFO_STRINGS = {
 		"0": "<%= __('Preparing...') %>",
 		"1": "<%= __('Download') %>",
@@ -69,10 +75,31 @@
 <script type="text/javascript" src="/public/launcher/js/launcher-errors.js"></script>
 <script type="text/javascript" src="/public/launcher/js/launcher.js"></script>
 <script>
+	function setQaBox() {
+		$("#qaRegion option[value=" + REGION + "]").attr("selected", "selected");
+		$("#qaBox").show();
+
+		$("#qaHide").click(function() {
+			$("#qaBox a, #qaBox fieldset").hide();
+			$("#qaBox").fadeOut("fast");
+		});
+
+		$("#qaRegion").on("change", function() {
+			Launcher.abortPatch();
+			Launcher.setRegion(this.value, true);
+		});
+
+		$("#qaModeCheck").click(function() {
+			QA_MODE_NOCHECK = $(this).is(":checked");
+		});
+
+		QA_MODE_NOCHECK = $("#qaModeCheck").is(":checked");
+	};
+
 	$(function() {
 		Launcher.setAccountInfo(function() {
 			if (QA_MODE) {
-				Launcher.setQaBox();
+				setQaBox();
 			}
 
 			Launcher.login();

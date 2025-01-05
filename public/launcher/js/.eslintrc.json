@@ -38,10 +38,11 @@
 		"no-constant-condition": "error",
 		"arrow-body-style": ["warn", "as-needed"],
 		"no-var": "off",
+		"no-cond-assign": "off",
 		"no-nested-ternary": "warn",
 		"no-multiple-empty-lines": "warn",
 		"no-template-curly-in-string": "error",
-		"no-empty-function": "warn",
+		"no-empty-function": "off",
 		"no-empty": ["error", { "allowEmptyCatch": true }],
 		"no-floating-decimal": "error",
 		"no-multi-spaces": "warn",
@@ -101,6 +102,7 @@
 		"USER_LANG": true,
 		"REGION": true,
 		"REGIONS": true,
+		"PAGES_MAP": true,
 		"PATCH_INFO_STRINGS": true,
 		"GAMESTART_BUTTON_STRINGS": true
 	}
