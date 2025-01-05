@@ -540,5 +540,9 @@
 	"Panel big text": "Panel big text",
 	"Button text": "Button text",
 	"Button link": "Button link",
-	"Button": "Button"
+	"Button": "Button",
+	"Versions Information": "Versions Information",
+	"Node.js Version": "Node.js Version",
+	"TERA API Version": "TERA API Version",
+	"DB Version": "DB Version"
 }

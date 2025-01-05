@@ -9,6 +9,26 @@
 				<div class="card">
 					<div class="card-block">
 						<div class="card-title-block">
+							<h3 class="title"><%= __("Versions Information") %></h3>
+						</div>
+						<section class="mb-2">
+							<%= __("Node.js Version") %>: <strong><%= process.version %></strong>
+						</section>
+						<section class="mb-2">
+							<%= __("TERA API Version") %>: <strong><%= versions.app %></strong>
+						</section>
+						<section class="mb-2">
+							<%= __("DB Version") %>: <strong><%= versions.db %></strong>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col-md-6">
+				<div class="card">
+					<div class="card-block">
+						<div class="card-title-block">
 							<h3 class="title"><%= __("Configuration Variables") %></h3>
 						</div>
 						<section class="table-responsive">

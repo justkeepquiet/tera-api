@@ -3,7 +3,7 @@
 const moment = require("moment");
 const { program } = require("commander");
 
-module.exports = logger => ({
+module.exports = (logger, appVersion) => ({
 	printReady: () => {
 		logger.info("$ Server ready $");
 	},
@@ -13,6 +13,7 @@ module.exports = logger => ({
 	},
 
 	printInfo: () => {
+		logger.info(`TERA API Version: ${appVersion}`);
 		logger.info(`Node.js Version: ${process.version}`);
 		logger.info(`Server Timezone: ${moment().format("Z")} (${moment.tz.guess()})`);
 	},

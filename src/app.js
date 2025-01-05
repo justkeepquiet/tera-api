@@ -1,6 +1,7 @@
 "use strict";
 
 const DB_VERSION = 3;
+const APP_VERSION = process.env.npm_package_version || require("../package.json").version;
 
 /**
  * @typedef {import("sequelize").Sequelize} Sequelize
@@ -23,6 +24,7 @@ const DB_VERSION = 3;
  * @property {nodemailer.Transporter} mailer
  * @property {ReaderModel} geoip
  * @property {BackgroundQueue} queue
+ * @property {versions} versions
  * @property {import("./utils/logger").logger} logger
  * @property {import("./lib/expressServer").app} app
  * @property {import("./lib/scheduler").Scheduler} scheduler
@@ -62,15 +64,17 @@ const helpers = require("./utils/helpers");
 const createLogger = require("./utils/logger").createLogger;
 const cliHelper = require("./utils/cliHelper");
 
+const versions = { app: APP_VERSION, db: DB_VERSION };
 const moduleLoader = new CoreLoader();
 const logger = createLogger("Core");
-const cli = cliHelper(logger);
+const cli = cliHelper(logger, versions.app);
 
 cli.addOption("-c, --component <items...>", "List of components");
 
 const options = cli.getOptions();
 const checkComponent = name => !options.component || options.component.includes(name);
 
+moduleLoader.setPromise("versions", async () => versions);
 moduleLoader.setPromise("logger", async () => logger);
 
 moduleLoader.setPromise("scheduler", async () => new Scheduler(

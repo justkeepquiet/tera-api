@@ -65,7 +65,7 @@ module.exports.profile = () => [
 /**
  * @param {modules} modules
  */
-module.exports.settings = () => [
+module.exports.settings = ({ versions }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -80,7 +80,7 @@ module.exports.settings = () => [
 			}
 		});
 
-		res.render("adminSettings", { layout: "adminLayout", settings });
+		res.render("adminSettings", { layout: "adminLayout", settings, versions });
 	}
 ];
 

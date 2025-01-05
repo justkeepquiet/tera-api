@@ -540,5 +540,9 @@
 	"Panel big text": "Большой текст панели",
 	"Button text": "Текст кнопки",
 	"Button link": "Ссылка кнопки",
-	"Button": "Кнопка"
+	"Button": "Кнопка",
+	"Versions Information": "Информация о версиях",
+	"Node.js Version": "Версия Node.js",
+	"TERA API Version": "Версия TERA API",
+	"DB Version": "Версия БД"
 }
