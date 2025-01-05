@@ -1021,6 +1021,8 @@ module.exports.CaptchaVerify = ({ logger, rateLimitter }) => [
 
 		if (!verified) {
 			req.session.captchaQuestion = undefined;
+		} else {
+			rateLimitter.delete("portalApi.launcher.captchaVerify", req.ip);
 		}
 
 		req.session.captchaVerified = verified;
