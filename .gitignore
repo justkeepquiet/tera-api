@@ -6,6 +6,7 @@ data/*
 !data/tera-icons/*.txt
 logs/*
 sessions/*
+src/plugins/*
 public/updates/*
 share/dataitems/*
 config/slsOverride.js

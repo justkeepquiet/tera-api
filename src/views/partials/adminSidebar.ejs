@@ -72,6 +72,8 @@
 		{ icon: "fa-gear", name: __("API Settings"), page: "/settings" }
 	];
 
+	__modules.pluginsLoader.loadComponent("views.adminPanel.adminSidebar.menuContents", menuContents, __);
+
 	const menu = filterMenu(menuContents);
 	const page = `/${__endpoint.split("/")[1]}`;
 _%>

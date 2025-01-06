@@ -27,6 +27,7 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
  * @property {versions} versions
  * @property {import("./utils/logger").logger} logger
  * @property {import("./lib/expressServer").app} app
+ * @property {import("./lib/pluginsLoader")} pluginsLoader
  * @property {import("./lib/scheduler").Scheduler} scheduler
  * @property {import("./lib/rateLimitter")} rateLimitter
  * @property {import("./models/queue.model").queueModel} queueModel
@@ -47,6 +48,7 @@ const cls = require("cls-hooked");
 const nodemailer = require("nodemailer");
 const geoip = require("@maxmind/geoip2-node");
 const CoreLoader = require("./lib/coreLoader");
+const PluginsLoader = require("./lib/pluginsLoader");
 const { Scheduler, expr } = require("./lib/scheduler");
 const RateLimitter = require("./lib/rateLimitter");
 const HubFunctions = require("./lib/hubFunctions");
@@ -67,6 +69,9 @@ const versions = { app: APP_VERSION, db: DB_VERSION };
 const moduleLoader = new CoreLoader();
 const logger = createLogger("Core");
 const cli = cliHelper(logger, versions.app);
+const pl = new PluginsLoader(
+	createLogger("Plugins Loader", { colors: { debug: "gray" } })
+);
 
 cli.addOption("-c, --component <items...>", "List of components");
 
@@ -75,6 +80,11 @@ const checkComponent = name => !options.component || options.component.includes(
 
 moduleLoader.setPromise("versions", async () => versions);
 moduleLoader.setPromise("logger", async () => logger);
+moduleLoader.setPromise("pluginsLoader", async () => pl);
+
+pl.list().forEach(plugin =>
+	pl.register(plugin)
+);
 
 moduleLoader.setPromise("scheduler", async () => new Scheduler(
 	createLogger("Scheduler", { colors: { debug: "gray" } })
@@ -238,17 +248,21 @@ moduleLoader.setPromise("sequelize", async () => {
 		sequelizeLogger.info("Syncing tables.");
 	}
 
+	await pl.loadComponent("models.before", moduleLoader, sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("queueModel", require("./models/queue.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("serverModel", require("./models/server.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("accountModel", require("./models/account.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("reportModel", require("./models/report.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("shopModel", require("./models/shop.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("boxModel", require("./models/box.model"), sequelize, DataTypes, syncTables);
+	await pl.loadComponent("models.after", moduleLoader, sequelize, DataTypes, syncTables);
 
 	sequelizeLogger.info(`DB version: ${DB_VERSION}`);
 
 	return sequelize;
 });
+
+pl.loadComponent("app.moduleLoader", moduleLoader);
 
 /**
  * @param {modules} modules
@@ -411,10 +425,14 @@ const startServers = async modules => {
 		if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
 			es.setStatic("/public/shop/images/tera-icons", "data/tera-icons");
 			es.setStatic("/public", "public");
+			pl.loadComponent("static.portalApi", es);
 		}
 
 		es.setLogging();
+
+		pl.loadComponent("routers.portalApi.before", es);
 		es.setRouter("../routes/portal.index");
+		pl.loadComponent("routers.portalApi.after", es);
 
 		await es.bind(
 			process.env.API_PORTAL_LISTEN_HOST,
@@ -433,7 +451,10 @@ const startServers = async modules => {
 		});
 
 		es.setLogging();
+
+		pl.loadComponent("routers.gatewayApi.before", es);
 		es.setRouter("../routes/gateway.index");
+		pl.loadComponent("routers.gatewayApi.after", es);
 
 		await es.bind(
 			process.env.API_GATEWAY_LISTEN_HOST,
@@ -459,8 +480,13 @@ const startServers = async modules => {
 
 		es.setStatic("/static/images/tera-icons", "data/tera-icons");
 		es.setStatic("/static", "src/static/admin");
+		pl.loadComponent("static.adminPanel", es);
+
 		es.setLogging();
+
+		pl.loadComponent("routers.adminPanel.before", es);
 		es.setRouter("../routes/admin.index");
+		pl.loadComponent("routers.adminPanel.after", es);
 
 		await es.bind(
 			process.env.ADMIN_PANEL_LISTEN_HOST,

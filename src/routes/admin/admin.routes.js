@@ -132,7 +132,13 @@ module.exports = modules => {
 
 	const mod = { ...modules, i18n, passport };
 
-	return express.Router()
+	modules.app.use((req, res, next) => {
+		res.locals.__modules = mod;
+
+		next();
+	});
+
+	const router = express.Router()
 		// API
 		.get("/api/notifications", adminApiController.notifications(mod))
 		.get("/api/homeStats", adminApiController.homeStats(mod))
@@ -275,23 +281,27 @@ module.exports = modules => {
 		.get("/tasks/restart", adminTasksController.restartAction(mod))
 		.get("/tasks/cancel_failed", adminTasksController.cancelFailedAction(mod))
 		.get("/tasks/cancel_all", adminTasksController.cancelAllAction(mod))
-
-		.use(
-			/**
-			 * @type {ErrorRequestHandler}
-			 */
-			(err, req, res, next) => {
-				if (!(err instanceof ApiError)) {
-					modules.logger.error(err);
-				}
-
-				if (typeof res.render === "function") {
-					res.render("adminError", {
-						layout: "adminLayout",
-						err: err.message || err.toString()
-					});
-				}
-			}
-		)
 	;
+
+	modules.pluginsLoader.loadComponent("routes.adminPanel.admin", router, mod);
+
+	router.use(
+		/**
+		 * @type {ErrorRequestHandler}
+		 */
+		(err, req, res, next) => {
+			if (!(err instanceof ApiError)) {
+				modules.logger.error(err);
+			}
+
+			if (typeof res.render === "function") {
+				res.render("adminError", {
+					layout: "adminLayout",
+					err: err.message || err.toString()
+				});
+			}
+		}
+	);
+
+	return router;
 };
