@@ -54,6 +54,7 @@ a {
 	height: 610px;
 	padding-top: 1px;
 	position: relative;
+	cursor: default;
 }
 .msg-modal {
 	display: none;
