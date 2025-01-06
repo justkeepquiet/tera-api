@@ -16,6 +16,8 @@
 
 module.exports = [
 	{
+		// Enable this rules.
+		enabled: false,
 		// Specifies the ID of the server for which the rules apply.
 		serverId: 2800,
 		// List of rules for overriding the server IP address.

@@ -19,9 +19,9 @@ const {
 	writeOperationReport
 } = require("../middlewares/admin.middlewares");
 
-const isSlsOverridden = (serverId = null) => {
+const isSlsOverridden = (config, serverId = null) => {
 	try {
-		const slsOverride = helpers.requireReload("../../config/slsOverride");
+		const slsOverride = config.get("slsOverride");
 
 		if (serverId !== null) {
 			return slsOverride.filter(s => s.serverId == serverId).length !== 0;
@@ -36,18 +36,19 @@ const isSlsOverridden = (serverId = null) => {
 /**
  * @param {modules} modules
  */
-module.exports.index = modules => [
+module.exports.index = ({ config, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const servers = await modules.serverModel.info.findAll();
+		const servers = await serverModel.info.findAll();
 
 		res.render("adminServers", {
 			layout: "adminLayout",
 			servers,
+			config,
 			isSlsOverridden
 		});
 	}
@@ -56,7 +57,7 @@ module.exports.index = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ i18n }) => [
+module.exports.add = ({ config, i18n }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -67,7 +68,7 @@ module.exports.add = ({ i18n }) => [
 			layout: "adminLayout",
 			i18n,
 			language: i18n.getLocale(),
-			isSlsOverridden: isSlsOverridden()
+			isSlsOverridden: isSlsOverridden(config)
 		});
 	}
 ];
@@ -147,7 +148,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, serverModel }) => [
+module.exports.edit = ({ config, logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -183,7 +184,7 @@ module.exports.edit = ({ logger, serverModel }) => [
 			isCrowdness: data.get("isCrowdness"),
 			isAvailable: data.get("isAvailable"),
 			isEnabled: data.get("isEnabled"),
-			isSlsOverridden: isSlsOverridden(serverId)
+			isSlsOverridden: isSlsOverridden(config, serverId)
 		});
 	}
 ];

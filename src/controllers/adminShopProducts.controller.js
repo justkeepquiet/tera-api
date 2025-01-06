@@ -22,8 +22,6 @@ const {
 	writeOperationReport
 } = require("../middlewares/admin.middlewares");
 
-const shopLocales = require("../../config/admin").shopLocales;
-
 /**
  * @param {modules} modules
  */
@@ -136,7 +134,7 @@ module.exports.index = ({ i18n, shopModel, datasheetModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ i18n, shopModel }) => [
+module.exports.add = ({ config, i18n, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -163,7 +161,7 @@ module.exports.add = ({ i18n, shopModel }) => [
 			layout: "adminLayout",
 			errors: null,
 			moment,
-			shopLocales,
+			shopLocales: config.get("admin").shopLocales,
 			categories,
 			fromCategoryId,
 			categoryId
@@ -284,7 +282,7 @@ module.exports.addAction = modules => [
 			}
 
 			if (title || description) {
-				shopLocales.forEach(language =>
+				modules.config.get("admin").shopLocales.forEach(language =>
 					promises.push(modules.shopModel.productStrings.create({
 						productId: product.get("id"),
 						...title[language] ? { title: title[language] } : {},
@@ -312,7 +310,7 @@ module.exports.addAction = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, i18n, shopModel }) => [
+module.exports.edit = ({ config, logger, i18n, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -381,7 +379,7 @@ module.exports.edit = ({ logger, i18n, shopModel }) => [
 			layout: "adminLayout",
 			errors: null,
 			moment,
-			shopLocales,
+			shopLocales: config.get("admin").shopLocales,
 			categories,
 			id,
 			fromCategoryId,
@@ -619,7 +617,7 @@ module.exports.editAction = modules => [
 				}
 			});
 
-			shopLocales.forEach(language => {
+			modules.config.get("admin").shopLocales.forEach(language => {
 				if (title[language] || description[language]) {
 					promises.push(modules.shopModel.productStrings.create({
 						productId: product.get("id"),
@@ -735,7 +733,7 @@ module.exports.editAllAction = modules => [
 			layout: "adminLayout",
 			errors: errors.array(),
 			moment,
-			shopLocales,
+			shopLocales: modules.config.get("admin").shopLocales,
 			id,
 			categories,
 			categoryId: categoryIdEqual ? products[0].get("categoryId") : "",

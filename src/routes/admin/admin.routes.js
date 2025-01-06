@@ -106,7 +106,7 @@ module.exports = modules => {
 	));
 
 	modules.app.use((req, res, next) => {
-		res.locals.__quickMenu = require("../../../config/admin").quickMenu;
+		res.locals.__quickMenu = modules.config.get("admin").quickMenu;
 		next();
 	});
 

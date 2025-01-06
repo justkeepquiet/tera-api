@@ -5,7 +5,7 @@ const Benefit = require("../src/actions/handlers/benefit");
 const ItemClaim = require("../src/actions/handlers/itemClaim");
 
 // Default benefit id for Elite Status
-const benefitId = process.env.API_PORTAL_BENEFIT_ID_ELITE_STATUS || 533; // RU VIP
+const benefitId = process.env.API_PORTAL_BENEFIT_ID_ELITE_STATUS || 433; // TERA Club
 
 // Box Context base settings for sending items on Promo code activation
 const boxContext = {

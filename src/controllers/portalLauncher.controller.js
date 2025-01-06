@@ -17,7 +17,6 @@ const Shop = require("../actions/handlers/shop");
 const helpers = require("../utils/helpers");
 const SliderCaptcha = require("../utils/sliderCaptcha");
 const ApiError = require("../lib/apiError");
-const launcherConfig = require("../../config/launcher");
 
 const {
 	validationHandler,
@@ -40,7 +39,7 @@ if (/^true$/i.test(process.env.API_PORTAL_CAPTCHA_ENABLE)) {
 /**
  * @param {modules} modules
  */
-module.exports.MainHtml = ({ logger }) => [
+module.exports.MainHtml = ({ config, logger }) => [
 	authSessionHandler(),
 	/**
 	 * @type {RequestHandler}
@@ -61,7 +60,7 @@ module.exports.MainHtml = ({ logger }) => [
 			lang: req.query.lang,
 			localeSelector: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR),
 			qaPrivilege: process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE,
-			pagesMap: launcherConfig.pagesMap,
+			pagesMap: config.get("launcher").pagesMap,
 			host: req.headers.host || req.hostname,
 			user: req.user,
 			helpers

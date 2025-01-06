@@ -15,7 +15,7 @@ class ChronoScrollActions {
 		this.serverId = serverId;
 		this.userId = userId;
 
-		const config = requireReload("../../config/chronoScroll");
+		const config = modules.config.get("chronoScroll");
 		this.controller = {};
 
 		Object.keys(config).forEach(itemId => {

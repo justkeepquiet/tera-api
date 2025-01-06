@@ -3,9 +3,9 @@
 module.exports = {
 	// List of Admin Panel Quick Menu Links
 	quickMenu: [
-		{ name: "WebApp Panel", url: "http://10.64.16.109/" },
-		{ name: "Box System Panel", url: "http://10.64.16.109:8070/" },
-		{ name: "Steer Server Panel", url: "http://10.64.16.109:8060/" }
+		{ name: "WebApp Panel", url: "http://10.64.16.110:88/" },
+		{ name: "Box System Panel", url: "http://10.64.16.110:8070/" },
+		{ name: "Steer Server Panel", url: "http://10.64.16.110:8060/" }
 	],
 
 	// List of locales (languages) supported by the Shop.

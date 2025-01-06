@@ -26,6 +26,7 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
  * @property {BackgroundQueue} queue
  * @property {versions} versions
  * @property {import("./utils/logger").logger} logger
+ * @property {import("./lib/configManager")} config
  * @property {import("./lib/expressServer").app} app
  * @property {import("./lib/pluginsLoader")} pluginsLoader
  * @property {import("./lib/scheduler").Scheduler} scheduler
@@ -64,11 +65,17 @@ const CacheManager = require("./utils/cacheManager");
 const helpers = require("./utils/helpers");
 const createLogger = require("./utils/logger").createLogger;
 const cliHelper = require("./utils/cliHelper");
+const ConfigManager = require("./lib/configManager");
 
 const versions = { app: APP_VERSION, db: DB_VERSION };
 const moduleLoader = new CoreLoader();
 const logger = createLogger("Core");
 const cli = cliHelper(logger, versions.app);
+
+const config = new ConfigManager(
+	createLogger("Config Manager", { colors: { debug: "gray" } })
+);
+
 const pl = new PluginsLoader(
 	createLogger("Plugins Loader", { colors: { debug: "gray" } })
 );
@@ -80,6 +87,7 @@ const checkComponent = name => !options.component || options.component.includes(
 
 moduleLoader.setPromise("versions", async () => versions);
 moduleLoader.setPromise("logger", async () => logger);
+moduleLoader.setPromise("config", async () => config);
 moduleLoader.setPromise("pluginsLoader", async () => pl);
 
 pl.list().forEach(plugin =>
@@ -91,7 +99,7 @@ moduleLoader.setPromise("scheduler", async () => new Scheduler(
 ));
 
 moduleLoader.setPromise("rateLimitter", async () => {
-	const rateLimitsConfig = require("../config/rateLimits");
+	const rateLimitsConfig = config.get("rateLimits");
 
 	return new RateLimitter(
 		rateLimitsConfig,
@@ -381,7 +389,7 @@ const loadDatasheetModel = modules => {
  * @param {modules} modules
  */
 const startServers = async modules => {
-	const schedulerConfig = require("../config/scheduler");
+	const schedulerConfig = config.get("scheduler");
 
 	loadDatasheetModel(modules);
 

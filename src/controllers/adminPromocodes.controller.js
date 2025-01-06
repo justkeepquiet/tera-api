@@ -20,8 +20,6 @@ const {
 	writeOperationReport
 } = require("../middlewares/admin.middlewares");
 
-const shopLocales = require("../../config/admin").shopLocales;
-
 /**
  * @param {modules} modules
  */
@@ -67,7 +65,7 @@ module.exports.index = ({ i18n, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = () => [
+module.exports.add = ({ config }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -77,8 +75,8 @@ module.exports.add = () => [
 		res.render("adminPromocodesAdd", {
 			layout: "adminLayout",
 			moment,
-			promocodeFunctions: helpers.getPromocodeFunctionsNames(),
-			shopLocales
+			promocodeFunctions: helpers.getPromocodeFunctionsNames(config),
+			shopLocales: config.get("admin").shopLocales
 		});
 	}
 ];
@@ -86,7 +84,7 @@ module.exports.add = () => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel }) => [
+module.exports.addAction = ({ config, i18n, logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	[
 		body("promoCode")
@@ -99,7 +97,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 				}
 			})),
 		body("aFunction")
-			.custom(value => helpers.getPromocodeFunctionsNames().includes(value))
+			.custom(value => helpers.getPromocodeFunctionsNames(config).includes(value))
 			.withMessage(i18n.__("Assigned function field contains invalid function.")),
 		body("validAfter")
 			.isISO8601().withMessage(i18n.__("Valid from field must contain a valid date.")),
@@ -154,7 +152,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, shopModel }) => [
+module.exports.edit = ({ config, logger, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -188,8 +186,8 @@ module.exports.edit = ({ logger, shopModel }) => [
 		res.render("adminPromocodesEdit", {
 			layout: "adminLayout",
 			errors: null,
-			promocodeFunctions: helpers.getPromocodeFunctionsNames(),
-			shopLocales,
+			promocodeFunctions: helpers.getPromocodeFunctionsNames(config),
+			shopLocales: config.get("admin").shopLocales,
 			promoCodeId: promocode.get("promoCodeId"),
 			promoCode: promocode.get("promoCode"),
 			aFunction: promocode.get("function"),
@@ -205,12 +203,12 @@ module.exports.edit = ({ logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }) => [
+module.exports.editAction = ({ config, i18n, logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	[
 		query("promoCodeId").notEmpty(),
 		body("aFunction")
-			.custom(value => helpers.getPromocodeFunctionsNames().includes(value))
+			.custom(value => helpers.getPromocodeFunctionsNames(config).includes(value))
 			.withMessage(i18n.__("Assigned function field contains invalid function.")),
 		body("validAfter")
 			.isISO8601().withMessage(i18n.__("Valid from field must contain a valid date.")),
@@ -279,7 +277,7 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 					}
 				});
 
-				shopLocales.forEach(language => {
+				config.get("admin").shopLocales.forEach(language => {
 					if (description[language]) {
 						promises.push(shopModel.promoCodeStrings.create({
 							promoCodeId,

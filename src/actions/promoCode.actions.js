@@ -15,7 +15,7 @@ class PromoCodeActions {
 		this.serverId = serverId;
 		this.userId = userId;
 
-		const config = requireReload("../../config/promoCode");
+		const config = modules.config.get("promoCode");
 		this.controller = {};
 
 		Object.keys(config).forEach(itemId => {

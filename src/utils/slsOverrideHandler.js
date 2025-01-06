@@ -2,7 +2,7 @@
 
 /**
  * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
- * @typedef {import("../../config/slsOverride")} servers
+ * @typedef {import("../../config/slsOverride.default")} servers
  */
 
 const { Netmask } = require("netmask");
@@ -12,19 +12,19 @@ class SlsOverrideHandler {
 	/**
 	 * @param {servers} servers
 	 * @param {string} ip
-	 * @param {ReaderModel} reader
+	 * @param {ReaderModel} geoip
 	 * @param {console} logger
 	 */
-	constructor(servers, clientIp, reader, logger) {
+	constructor(servers, clientIp, geoip, logger) {
 		this.servers = servers;
 		this.clientIp = clientIp;
-		this.reader = reader;
+		this.geoip = geoip;
 		this.logger = logger;
 	}
 
 	async applyOverrides(server) {
 		for (const overrideServer of this.servers) {
-			if (overrideServer.serverId !== server.id) continue;
+			if (!overrideServer.enabled || overrideServer.serverId !== server.id) continue;
 
 			for (const rule of overrideServer.rules) {
 				try {
@@ -49,14 +49,14 @@ class SlsOverrideHandler {
 	}
 
 	applyGeoipRule(rule, server) {
-		if (!this.reader) {
+		if (!this.geoip) {
 			this.logger.error("SLS Override Handler: GeoIP reader not initialized. Method 'geoip' was skipped.");
 			return;
 		}
 
 		rule.params.forEach(param => {
 			if (typeof param === "function") {
-				const result = param.call(null, this.reader, this.clientIp);
+				const result = param.call(null, this.geoip, this.clientIp);
 
 				if (result) {
 					this.updateServerWithRule(server, rule);

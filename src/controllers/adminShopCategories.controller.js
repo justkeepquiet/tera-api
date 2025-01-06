@@ -17,8 +17,6 @@ const {
 	writeOperationReport
 } = require("../middlewares/admin.middlewares");
 
-const shopLocales = require("../../config/admin").shopLocales;
-
 /**
  * @param {modules} modules
  */
@@ -51,7 +49,7 @@ module.exports.index = ({ i18n, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = () => [
+module.exports.add = ({ config }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -60,7 +58,7 @@ module.exports.add = () => [
 	async (req, res, next) => {
 		res.render("adminShopCategoriesAdd", {
 			layout: "adminLayout",
-			shopLocales
+			shopLocales: config.get("admin").shopLocales
 		});
 	}
 ];
@@ -116,7 +114,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, shopModel }) => [
+module.exports.edit = ({ config, logger, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -149,7 +147,7 @@ module.exports.edit = ({ logger, shopModel }) => [
 
 		res.render("adminShopCategoriesEdit", {
 			layout: "adminLayout",
-			shopLocales,
+			shopLocales: config.get("admin").shopLocales,
 			id: category.get("id"),
 			sort: category.get("sort"),
 			active: category.get("active"),
@@ -161,7 +159,7 @@ module.exports.edit = ({ logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }) => [
+module.exports.editAction = ({ config, i18n, logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	[
 		query("id").notEmpty(),
@@ -225,7 +223,7 @@ module.exports.editAction = ({ i18n, logger, sequelize, reportModel, shopModel }
 					}
 				});
 
-				shopLocales.forEach(language => {
+				config.get("admin").shopLocales.forEach(language => {
 					if (title[language]) {
 						promises.push(shopModel.categoryStrings.create({
 							categoryId: id,

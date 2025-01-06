@@ -5,6 +5,7 @@
 * @typedef {import("express").Request} Request
 * @typedef {import("winston").Logger} Logger
 * @typedef {import("i18n").__} __
+* @typedef {import("../lib/configManager")} ConfigManager
 */
 
 const fs = require("fs");
@@ -13,6 +14,7 @@ const crypto = require("crypto");
 const CRC32 = require("crc-32");
 const validationResult = require("express-validator").validationResult;
 const logger = require("../utils/logger");
+
 
 /**
 * @param {string} filePath
@@ -243,10 +245,11 @@ module.exports.unserializeRange = string =>
 ;
 
 /**
+* @param {ConfigManager} config
 * @return {array[]}
 */
-module.exports.getPromocodeFunctionsNames = () =>
-	Object.keys(module.exports.requireReload("../../config/promoCode"))
+module.exports.getPromocodeFunctionsNames = config =>
+	Object.keys(config.get("promoCode"))
 ;
 
 /**

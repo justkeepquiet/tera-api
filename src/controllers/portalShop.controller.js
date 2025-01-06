@@ -370,7 +370,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 /**
  * @param {modules} modules
  */
-module.exports.PartialWelcomeHtml = ({ logger, accountModel, serverModel }) => [
+module.exports.PartialWelcomeHtml = ({ config, logger, accountModel, serverModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	/**
@@ -389,7 +389,7 @@ module.exports.PartialWelcomeHtml = ({ logger, accountModel, serverModel }) => [
 			moment,
 			server,
 			benefits,
-			shopConfig: helpers.requireReload("../../config/shop")
+			shopConfig: config.get("shop")
 		});
 	},
 	/**
