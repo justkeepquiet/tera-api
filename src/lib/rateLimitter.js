@@ -25,11 +25,16 @@ class RateLimitter {
 
 		try {
 			const res = await instance.consume(key, points, options);
-			this.logger.debug(`${endpoint}: Key: ${key}, Remaining: ${res.remainingPoints}, Consumed: ${res.consumedPoints}`);
+
+			if (this.logger) {
+				this.logger.debug(`${endpoint}: Key: ${key}, Remaining: ${res.remainingPoints}, Consumed: ${res.consumedPoints}`);
+			}
 
 			return true;
 		} catch (res) {
-			this.logger.warn(`${endpoint}: Too many requests! Key: ${key}, Consumed: ${res.consumedPoints}`);
+			if (this.logger) {
+				this.logger.warn(`${endpoint}: Too many requests! Key: ${key}, Consumed: ${res.consumedPoints}`);
+			}
 		}
 
 		return false;
