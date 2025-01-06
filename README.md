@@ -64,7 +64,7 @@ TERA Shop products are configured through the TERA API Admin Panel. The creation
 
 ### Additional Settings
 
-You can further setting of SLS override, Promo codes, Chronoscrolls (Premium Items), Admin Panel and Shop by editing the files in the **config** directory. To edit the configuration, copy the ***.default.js** file as ***.js**, for example **admin.default.js** as **admin.js**. Never edit ***.default.js** files.
+You can further setting of SLS override, Promo codes, Chronoscrolls (Premium Items), Admin Panel and Shop by editing the files in the **config** directory. To edit the configuration, copy the **\*.default.js** file as **\*.js**, for example **admin.default.js** as **admin.js**. Never edit **\*.default.js** files.
 
 ## Gateway API Server
 
