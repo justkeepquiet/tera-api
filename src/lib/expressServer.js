@@ -11,6 +11,8 @@ const morganBody = require("morgan-body");
 const cookieParser = require("cookie-parser");
 const compression = require("compression");
 
+const env = require("../utils/env");
+
 class ExpressServer {
 	constructor(modules, params) {
 		this.app = express();
@@ -23,7 +25,7 @@ class ExpressServer {
 		this.modules = { ...modules, app: this.app, logger: this.logger };
 		this.views = new Set();
 
-		if (/^true$/i.test(process.env.LOG_IP_ADDRESSES_FORWARDED_FOR)) {
+		if (env.bool("LOG_IP_ADDRESSES_FORWARDED_FOR")) {
 			this.app.enable("trust proxy");
 		}
 
@@ -53,7 +55,7 @@ class ExpressServer {
 		this.app.set("view engine", "ejs");
 		this.setViews(path.resolve(__dirname, "../views"));
 
-		if (/^debug$/i.test(process.env.LOG_LEVEL)) {
+		if (/^debug$/i.test(env.string("LOG_LEVEL"))) {
 			morganBody(this.app, {
 				noColors: true,
 				prettify: false,
@@ -67,10 +69,10 @@ class ExpressServer {
 	}
 
 	setLogging() {
-		if (/^true$/i.test(process.env.LOG_API_REQUESTS)) {
+		if (env.bool("LOG_API_REQUESTS")) {
 			let logFormat = ":method :url :status - :response-time ms";
 
-			if (/^true$/i.test(process.env.LOG_IP_ADDRESSES)) {
+			if (env.bool("LOG_IP_ADDRESSES")) {
 				logFormat = ":remote-addr :method :url :status - :response-time ms";
 			}
 

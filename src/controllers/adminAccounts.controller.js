@@ -10,6 +10,7 @@ const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
 const Op = require("sequelize").Op;
 
+const env = require("../utils/env");
 const helpers = require("../utils/helpers");
 
 const {
@@ -21,7 +22,7 @@ const {
 	writeOperationReport
 } = require("../middlewares/admin.middlewares");
 
-const encryptPasswords = /^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWORDS);
+const encryptPasswords = env.bool("API_PORTAL_USE_SHA512_PASSWORDS");
 
 /**
  * @param {modules} modules

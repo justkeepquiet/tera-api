@@ -6,6 +6,7 @@
  */
 
 const ApiError = require("../lib/apiError");
+const env = require("../utils/env");
 const helpers = require("../utils/helpers");
 
 module.exports.validationHandler = logger =>
@@ -38,7 +39,7 @@ module.exports.authSessionHandler = () =>
  * @type {RequestHandler}
  */
 module.exports.shopStatusHandler = (req, res, next) => {
-	if (!/^true$/i.test(process.env.API_PORTAL_SHOP_ENABLE)) {
+	if (!env.bool("API_PORTAL_SHOP_ENABLE")) {
 		return res.redirect("ShopDisabled");
 	}
 

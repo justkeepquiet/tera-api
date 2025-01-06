@@ -14,6 +14,7 @@ const body = require("express-validator").body;
 
 const Benefit = require("../actions/handlers/benefit");
 const Shop = require("../actions/handlers/shop");
+const env = require("../utils/env");
 const helpers = require("../utils/helpers");
 const SliderCaptcha = require("../utils/sliderCaptcha");
 const ApiError = require("../lib/apiError");
@@ -25,14 +26,14 @@ const {
 	rateLimitterHandler
 } = require("../middlewares/portalLauncher.middlewares");
 
-const isRegistrationDisabled = /^true$/i.test(process.env.API_PORTAL_LAUNCHER_DISABLE_REGISTRATION);
-const isEmailVerifyEnabled = /^true$/i.test(process.env.API_PORTAL_LAUNCHER_ENABLE_EMAIL_VERIFY);
-const ipFromLauncher = /^true$/i.test(process.env.API_ARBITER_USE_IP_FROM_LAUNCHER);
-const brandName = process.env.API_PORTAL_BRAND_NAME || "Tera Private Server";
+const isRegistrationDisabled = env.bool("API_PORTAL_LAUNCHER_DISABLE_REGISTRATION");
+const isEmailVerifyEnabled = env.bool("API_PORTAL_LAUNCHER_ENABLE_EMAIL_VERIFY");
+const ipFromLauncher = env.bool("API_ARBITER_USE_IP_FROM_LAUNCHER");
+const brandName = env.string("API_PORTAL_BRAND_NAME") || "Tera Private Server";
 
 let captcha = null;
 
-if (/^true$/i.test(process.env.API_PORTAL_CAPTCHA_ENABLE)) {
+if (env.bool("API_PORTAL_CAPTCHA_ENABLE")) {
 	captcha = new SliderCaptcha(path.join(__dirname, "../../data/captcha-images"), 5);
 }
 
@@ -46,20 +47,20 @@ module.exports.MainHtml = ({ config, logger }) => [
 	 */
 	async (req, res, next) => {
 		if (!req.query.lang) {
-			const lang = req?.user?.language || process.env.API_PORTAL_LOCALE;
+			const lang = req?.user?.language || env.string("API_PORTAL_LOCALE");
 			return res.redirect(`/launcher/Main?lang=${lang}`);
 		}
 
 		res.render("launcherMain", {
 			brandName,
-			patchNoCheck: /^true$/i.test(process.env.API_PORTAL_CLIENT_PATCH_NO_CHECK),
-			startNoCheck: /^true$/i.test(process.env.API_PORTAL_LAUNCHER_DISABLE_CONSISTENCY_CHECK),
-			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
-			region: helpers.languageToRegion(req.user.language || process.env.API_PORTAL_LOCALE),
+			patchNoCheck: env.bool("API_PORTAL_CLIENT_PATCH_NO_CHECK"),
+			startNoCheck: env.bool("API_PORTAL_LAUNCHER_DISABLE_CONSISTENCY_CHECK"),
+			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL"),
+			region: helpers.languageToRegion(req.user.language || env.string("API_PORTAL_LOCALE")),
 			regions: helpers.getClientRegions(),
 			lang: req.query.lang,
-			localeSelector: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR),
-			qaPrivilege: process.env.API_PORTAL_LAUNCHER_QA_PRIVILEGE,
+			localeSelector: env.bool("API_PORTAL_LOCALE_SELECTOR"),
+			qaPrivilege: env.string("API_PORTAL_LAUNCHER_QA_PRIVILEGE"),
 			pagesMap: config.get("launcher").pagesMap,
 			host: req.headers.host || req.hostname,
 			user: req.user,
@@ -74,7 +75,7 @@ module.exports.MainHtml = ({ config, logger }) => [
 
 		res.render("launcherErrorForm", {
 			error: err,
-			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL
+			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL")
 		});
 	}
 ];
@@ -88,7 +89,7 @@ module.exports.LoginFormHtml = ({ logger }) => [
 	 */
 	async (req, res, next) => {
 		res.render("launcherLoginForm", {
-			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
+			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL"),
 			isPasswordChanged: req.session.passwordChanged,
 			isRegistrationDisabled,
 			isEmailVerifyEnabled
@@ -104,7 +105,7 @@ module.exports.LoginFormHtml = ({ logger }) => [
 
 		res.render("launcherErrorForm", {
 			error: err,
-			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL
+			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL")
 		});
 	}
 ];
@@ -165,7 +166,7 @@ module.exports.LoginAction = ({ logger, rateLimitter, passport, accountModel }) 
 			Return: true,
 			ReturnCode: 0,
 			Msg: "success",
-			Language: req?.user?.language || process.env.API_PORTAL_LOCALE
+			Language: req?.user?.language || env.string("API_PORTAL_LOCALE")
 		});
 	}
 ];
@@ -209,7 +210,7 @@ module.exports.ResetPasswordFormHtml = ({ i18n, logger }) => [
 		}) : "";
 
 		res.render("launcherResetPasswordForm", {
-			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
+			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL"),
 			captcha: captchaHtml
 		});
 	},
@@ -221,7 +222,7 @@ module.exports.ResetPasswordFormHtml = ({ i18n, logger }) => [
 
 		res.render("launcherErrorForm", {
 			error: err,
-			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL
+			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL")
 		});
 	}
 ];
@@ -303,7 +304,7 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 
 			try {
 				await mailer.sendMail({
-					from: `"${process.env.API_PORTAL_EMAIL_FROM_NAME}" <${process.env.API_PORTAL_EMAIL_FROM_ADDRESS}>`,
+					from: `"${env.string("API_PORTAL_EMAIL_FROM_NAME")}" <${env.string("API_PORTAL_EMAIL_FROM_ADDRESS")}>`,
 					to: email,
 					subject: i18n.__("Instructions to reset your password"),
 					html
@@ -347,7 +348,7 @@ module.exports.ResetPasswordVerifyFormHtml = ({ logger, accountModel }) => [
 		}
 
 		res.render("launcherResetPasswordVerifyForm", {
-			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
+			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL"),
 			email: helpers.maskEmail(accountResetPassword.get("email"))
 		});
 	},
@@ -359,7 +360,7 @@ module.exports.ResetPasswordVerifyFormHtml = ({ logger, accountModel }) => [
 
 		res.render("launcherErrorForm", {
 			error: err,
-			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL
+			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL")
 		});
 	}
 ];
@@ -467,7 +468,7 @@ module.exports.SignupFormHtml = ({ i18n, logger }) => [
 		}) : "";
 
 		res.render("launcherSignupForm", {
-			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
+			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL"),
 			captcha: captchaHtml
 		});
 	},
@@ -479,7 +480,7 @@ module.exports.SignupFormHtml = ({ i18n, logger }) => [
 
 		res.render("launcherErrorForm", {
 			error: err,
-			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL
+			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL")
 		});
 	}
 ];
@@ -579,7 +580,7 @@ module.exports.SignupAction = modules => [
 
 				try {
 					await modules.mailer.sendMail({
-						from: `"${process.env.API_PORTAL_EMAIL_FROM_NAME}" <${process.env.API_PORTAL_EMAIL_FROM_ADDRESS}>`,
+						from: `"${env.string("API_PORTAL_EMAIL_FROM_NAME")}" <${env.string("API_PORTAL_EMAIL_FROM_ADDRESS")}>`,
 						to: email,
 						subject: `${modules.i18n.__("Confirm your registration in")} ${brandName}`,
 						html
@@ -617,7 +618,7 @@ module.exports.SignupAction = modules => [
 
 				await Promise.all(promises);
 
-				const initialShopBalance = parseInt(process.env.API_PORTAL_SHOP_INITIAL_BALANCE || 0);
+				const initialShopBalance = env.number("API_PORTAL_SHOP_INITIAL_BALANCE") || 0;
 
 				if (initialShopBalance > 0) {
 					const shop = new Shop(modules, account.get("accountDBID"), null, {
@@ -665,7 +666,7 @@ module.exports.SignupVerifyFormHtml = ({ logger, accountModel }) => [
 		}
 
 		res.render("launcherSignupVerifyForm", {
-			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL,
+			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL"),
 			email: helpers.maskEmail(accountVerify.get("email"))
 		});
 	},
@@ -677,7 +678,7 @@ module.exports.SignupVerifyFormHtml = ({ logger, accountModel }) => [
 
 		res.render("launcherErrorForm", {
 			error: err,
-			patchUrl: process.env.API_PORTAL_CLIENT_PATCH_URL
+			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL")
 		});
 	}
 ];
@@ -759,7 +760,7 @@ module.exports.SignupVerifyAction = modules => [
 
 			await Promise.all(promises);
 
-			const initialShopBalance = parseInt(process.env.API_PORTAL_SHOP_INITIAL_BALANCE || 0);
+			const initialShopBalance = env.number("API_PORTAL_SHOP_INITIAL_BALANCE") || 0;
 
 			if (initialShopBalance > 0) {
 				const shop = new Shop(modules, account.get("accountDBID"), null, {
@@ -819,7 +820,7 @@ module.exports.GetAccountInfoAction = ({ logger, sequelize, accountModel }) => [
 				where: { accountDBID: account.get("accountDBID") }
 			});
 
-			if (!/^true$/i.test(process.env.API_PORTAL_DISABLE_CLIENT_AUTO_ENTER)) {
+			if (!env.bool("API_PORTAL_DISABLE_CLIENT_AUTO_ENTER")) {
 				lastLoginServer = account.get("lastLoginServer");
 			}
 
@@ -845,7 +846,7 @@ module.exports.GetAccountInfoAction = ({ logger, sequelize, accountModel }) => [
 			Permission: account.get("permission"),
 			Privilege: account.get("privilege"),
 			Language: account.get("language"),
-			Region: helpers.languageToRegion(account.get("language") || process.env.API_PORTAL_LOCALE),
+			Region: helpers.languageToRegion(account.get("language") || env.string("API_PORTAL_LOCALE")),
 			UserNo: account.get("accountDBID"),
 			UserName: account.get("userName"),
 			AuthKey: account.get("authKey"),
@@ -885,9 +886,9 @@ module.exports.SetAccountLanguageAction = ({ logger, accountModel }) => [
 		}
 
 		await accountModel.info.update({
-			language: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR) ?
+			language: env.bool("API_PORTAL_LOCALE_SELECTOR") ?
 				language :
-				helpers.regionToLanguage(process.env.API_PORTAL_CLIENT_DEFAULT_REGION),
+				helpers.regionToLanguage(env.string("API_PORTAL_CLIENT_DEFAULT_REGION")),
 			...ipFromLauncher ? { lastLoginIP: req.ip } : {}
 		}, {
 			where: { accountDBID: account.get("accountDBID") }

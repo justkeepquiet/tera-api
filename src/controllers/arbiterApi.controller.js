@@ -9,16 +9,17 @@ const body = require("express-validator").body;
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 
+const env = require("../utils/env");
 const helpers = require("../utils/helpers");
 const ApiError = require("../lib/apiError");
 const ChronoScrollActions = require("../actions/chronoScroll.actions");
 const { validationHandler } = require("../middlewares/arbiterApi.middlewares");
 
-const reportActivity = /^true$/i.test(process.env.API_ARBITER_REPORT_ACTIVITY);
-const reportCharacters = /^true$/i.test(process.env.API_ARBITER_REPORT_CHARACTERS);
-const reportChronoScrolls = /^true$/i.test(process.env.API_ARBITER_REPORT_CHRONOSCROLLS);
-const reportCheats = /^true$/i.test(process.env.API_ARBITER_REPORT_CHEATS);
-const ipFromLauncher = /^true$/i.test(process.env.API_ARBITER_USE_IP_FROM_LAUNCHER);
+const reportActivity = env.bool("API_ARBITER_REPORT_ACTIVITY");
+const reportCharacters = env.bool("API_ARBITER_REPORT_CHARACTERS");
+const reportChronoScrolls = env.bool("API_ARBITER_REPORT_CHRONOSCROLLS");
+const reportCheats = env.bool("API_ARBITER_REPORT_CHEATS");
+const ipFromLauncher = env.bool("API_ARBITER_USE_IP_FROM_LAUNCHER");
 
 /**
  * @param {modules} modules

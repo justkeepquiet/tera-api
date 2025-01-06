@@ -11,6 +11,7 @@ const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const Op = require("sequelize").Op;
 
+const env = require("../utils/env");
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
 /**
@@ -99,7 +100,7 @@ module.exports.login = () => [
 		let payload = null;
 
 		try {
-			payload = jwt.verify(req.cookies["connect.rid"], process.env.API_PORTAL_SECRET);
+			payload = jwt.verify(req.cookies["connect.rid"], env.string("API_PORTAL_SECRET"));
 		} catch (_) {}
 
 		res.render("adminLogin", {
@@ -138,7 +139,7 @@ module.exports.loginAction = ({ passport }) => [
 					const token = jwt.sign({
 						login: req.body.login,
 						password: req.body.password
-					}, process.env.ADMIN_PANEL_SECRET, {
+					}, env.string("ADMIN_PANEL_SECRET"), {
 						algorithm: "HS256",
 						expiresIn: maxAge
 					});

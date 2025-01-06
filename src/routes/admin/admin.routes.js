@@ -15,6 +15,7 @@ const FileStore = require("session-file-store")(session);
 const Passport = require("passport").Passport;
 const LocalStrategy = require("passport-local").Strategy;
 
+const env = require("../../utils/env");
 const ApiError = require("../../lib/apiError");
 const adminController = require("../../controllers/admin.controller");
 const adminApiController = require("../../controllers/adminApi.controller");
@@ -44,7 +45,7 @@ module.exports = modules => {
 	const passport = new Passport();
 	const i18n = new I18n({
 		directory: path.resolve(__dirname, "../../locales/admin"),
-		defaultLocale: process.env.ADMIN_PANEL_LOCALE
+		defaultLocale: env.string("ADMIN_PANEL_LOCALE")
 	});
 
 	passport.serializeUser((user, done) => {
@@ -60,7 +61,7 @@ module.exports = modules => {
 			const remember = !!req.body.remember;
 			const tz = moment.tz.zone(req.body.tz)?.name || moment.tz.guess();
 
-			if (/^true$/i.test(process.env.STEER_ENABLE)) {
+			if (env.bool("STEER_ENABLE")) {
 				return modules.steer.openSession(login, password, req.ip).then(({ sessionKey, userSn }) =>
 					modules.steer.getFunctionList(sessionKey).then(functions =>
 						done(null, {
@@ -89,8 +90,8 @@ module.exports = modules => {
 				});
 			}
 
-			if (login === process.env.ADMIN_PANEL_QA_USER &&
-				password === process.env.ADMIN_PANEL_QA_PASSWORD
+			if (login === env.string("ADMIN_PANEL_QA_USER") &&
+				password === env.string("ADMIN_PANEL_QA_PASSWORD")
 			) {
 				done(null, {
 					type: "qa",
@@ -115,7 +116,7 @@ module.exports = modules => {
 		store: new FileStore({
 			logFn: modules.logger.debug
 		}),
-		secret: process.env.ADMIN_PANEL_SECRET,
+		secret: env.string("ADMIN_PANEL_SECRET"),
 		resave: false,
 		saveUninitialized: true
 	}));

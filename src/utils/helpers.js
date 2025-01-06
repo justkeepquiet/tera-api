@@ -13,6 +13,7 @@ const path = require("path");
 const crypto = require("crypto");
 const CRC32 = require("crc-32");
 const validationResult = require("express-validator").validationResult;
+const env = require("../utils/env");
 const logger = require("../utils/logger");
 
 
@@ -164,7 +165,7 @@ module.exports.getPreferredLanguage = locale => {
 	});
 
 	if (found === null) {
-		found = module.exports.regionToLanguage(process.env.API_PORTAL_CLIENT_DEFAULT_REGION);
+		found = module.exports.regionToLanguage(env.string("API_PORTAL_CLIENT_DEFAULT_REGION"));
 	}
 
 	return found;
@@ -275,8 +276,8 @@ module.exports.stringToPermission = string =>
 module.exports.getPasswordString = password => {
 	let passwordString = password;
 
-	if (/^true$/i.test(process.env.API_PORTAL_USE_SHA512_PASSWORDS)) {
-		passwordString = crypto.createHash("sha512").update(process.env.API_PORTAL_USE_SHA512_PASSWORDS_SALT + password).digest("hex");
+	if (env.bool("API_PORTAL_USE_SHA512_PASSWORDS")) {
+		passwordString = crypto.createHash("sha512").update(env.string("API_PORTAL_USE_SHA512_PASSWORDS_SALT") + password).digest("hex");
 	}
 
 	return passwordString;

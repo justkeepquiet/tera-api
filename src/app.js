@@ -63,6 +63,7 @@ const ServerCheckActions = require("./actions/serverCheck.actions");
 const MigrationManager = require("./utils/migrationManager");
 const CacheManager = require("./utils/cacheManager");
 const helpers = require("./utils/helpers");
+const env = require("./utils/env");
 const createLogger = require("./utils/logger").createLogger;
 const cliHelper = require("./utils/cliHelper");
 const ConfigManager = require("./lib/configManager");
@@ -114,8 +115,8 @@ moduleLoader.setPromise("queue", async () => new BackgroundQueue({
 
 moduleLoader.setPromise("hub", async () => {
 	const hub = new HubFunctions(
-		process.env.HUB_HOST,
-		process.env.HUB_PORT,
+		env.string("HUB_HOST"),
+		env.int("HUB_PORT"),
 		serverCategory.webcstool, {
 			logger: createLogger("Hub", { colors: { debug: "magenta" } })
 		}
@@ -128,15 +129,15 @@ moduleLoader.setPromise("hub", async () => {
 
 moduleLoader.setPromise("steer", async () => {
 	const steer = new SteerFunctions(
-		process.env.STEER_HOST,
-		process.env.STEER_PORT,
+		env.string("STEER_HOST"),
+		env.int("STEER_PORT"),
 		serverCategory.webcstool, "WebIMSTool", {
 			logger: createLogger("Steer", { colors: { debug: "bold magenta" } })
 		}
 	);
 
 	if (checkComponent("admin_panel")) {
-		if (/^true$/i.test(process.env.STEER_ENABLE)) {
+		if (env.bool("STEER_ENABLE")) {
 			await steer.connect();
 		} else {
 			steer.params.logger.warn("Not configured or disabled. QA authorization for Admin Panel is used.");
@@ -148,15 +149,15 @@ moduleLoader.setPromise("steer", async () => {
 
 moduleLoader.setPromise("mailer", async () => {
 	const settings = {
-		host: process.env.MAILER_SMTP_HOST,
-		port: process.env.MAILER_SMTP_PORT,
-		secure: /^true$/i.test(process.env.MAILER_SMTP_SECURE)
+		host: env.string("MAILER_SMTP_HOST"),
+		port: env.int("MAILER_SMTP_PORT"),
+		secure: env.bool("MAILER_SMTP_SECURE")
 	};
 
-	if (process.env.MAILER_SMTP_AUTH_USER && process.env.MAILER_SMTP_AUTH_PASSWORD) {
+	if (env.string("MAILER_SMTP_AUTH_USER") && env.string("MAILER_SMTP_AUTH_PASSWORD")) {
 		settings.auth = {
-			user: process.env.MAILER_SMTP_AUTH_USER,
-			pass: process.env.MAILER_SMTP_AUTH_PASSWORD
+			user: env.string("MAILER_SMTP_AUTH_USER"),
+			pass: env.string("MAILER_SMTP_AUTH_PASSWORD")
 		};
 	}
 
@@ -179,15 +180,15 @@ moduleLoader.setPromise("geoip", async () => {
 });
 
 moduleLoader.setPromise("sequelize", async () => {
-	if (!process.env.DB_HOST) {
+	if (!env.string("DB_HOST")) {
 		throw "Invalid configuration parameter: DB_HOST";
 	}
 
-	if (!process.env.DB_DATABASE) {
+	if (!env.string("DB_DATABASE")) {
 		throw "Invalid configuration parameter: DB_DATABASE";
 	}
 
-	if (!process.env.DB_USERNAME) {
+	if (!env.string("DB_USERNAME")) {
 		throw "Invalid configuration parameter: DB_USERNAME";
 	}
 
@@ -197,14 +198,14 @@ moduleLoader.setPromise("sequelize", async () => {
 	Sequelize.useCLS(namespace);
 
 	const sequelize = new Sequelize(
-		process.env.DB_DATABASE,
-		process.env.DB_USERNAME,
-		process.env.DB_PASSWORD,
+		env.string("DB_DATABASE"),
+		env.string("DB_USERNAME"),
+		env.string("DB_PASSWORD"),
 		{
 			logging: msg => sequelizeLogger.debug(msg),
 			dialect: "mysql",
-			host: process.env.DB_HOST,
-			port: process.env.DB_PORT || 3306,
+			host: env.string("DB_HOST"),
+			port: env.int("DB_PORT") || 3306,
 			define: {
 				timestamps: false,
 				freezeTableName: true
@@ -282,7 +283,7 @@ const loadDatasheetModel = modules => {
 	);
 
 	const datasheetLogger = createLogger("Datasheet", { colors: { debug: "gray" } });
-	const useBinary = /^true$/i.test(process.env.DATASHEET_USE_BINARY);
+	const useBinary = env.bool("DATASHEET_USE_BINARY");
 	const directory = path.join(__dirname, "..", "data", "datasheets");
 	const datasheetModel = [];
 	const variants = [];
@@ -315,11 +316,11 @@ const loadDatasheetModel = modules => {
 
 				cacheRevision = helpers.getRevision(filePath);
 				datasheetLoader.fromBinary(filePath,
-					process.env.DATASHEET_DATACENTER_KEY,
-					process.env.DATASHEET_DATACENTER_IV,
+					env.string("DATASHEET_DATACENTER_KEY"),
+					env.string("DATASHEET_DATACENTER_IV"),
 					{
-						isCompressed: /^true$/i.test(process.env.DATASHEET_DATACENTER_IS_COMPRESSED),
-						hasPadding: /^true$/i.test(process.env.DATASHEET_DATACENTER_HAS_PADDING)
+						isCompressed: env.bool("DATASHEET_DATACENTER_IS_COMPRESSED"),
+						hasPadding: env.bool("DATASHEET_DATACENTER_HAS_PADDING")
 					}
 				);
 			} else {
@@ -394,7 +395,7 @@ const startServers = async modules => {
 	loadDatasheetModel(modules);
 
 	if (checkComponent("arbiter_api")) {
-		if (!process.env.API_ARBITER_LISTEN_PORT) {
+		if (!env.int("API_ARBITER_LISTEN_PORT")) {
 			throw "Invalid configuration parameter: API_ARBITER_LISTEN_PORT";
 		}
 
@@ -407,30 +408,30 @@ const startServers = async modules => {
 		es.setRouter("../routes/arbiter.index");
 
 		await es.bind(
-			process.env.API_ARBITER_LISTEN_HOST,
-			process.env.API_ARBITER_LISTEN_PORT
+			env.string("API_ARBITER_LISTEN_HOST"),
+			env.int("API_ARBITER_LISTEN_PORT")
 		);
 	}
 
 	if (checkComponent("portal_api")) {
-		if (!process.env.API_PORTAL_LISTEN_PORT) {
+		if (!env.int("API_PORTAL_LISTEN_PORT")) {
 			throw "Invalid configuration parameter: API_PORTAL_LISTEN_PORT";
 		}
 
-		if (!process.env.API_PORTAL_LOCALE) {
+		if (!env.string("API_PORTAL_LOCALE")) {
 			throw "Invalid configuration parameter: API_PORTAL_LOCALE";
 		}
 
-		if (!process.env.API_PORTAL_CLIENT_DEFAULT_REGION) {
+		if (!env.string("API_PORTAL_CLIENT_DEFAULT_REGION")) {
 			throw "Invalid configuration parameter: API_PORTAL_CLIENT_DEFAULT_REGION";
 		}
 
 		const es = new ExpressServer(modules, {
 			logger: createLogger("Portal API", { colors: { debug: "blue" } }),
-			disableCache: !/^true$/i.test(process.env.API_PORTAL_ENABLE_CACHE)
+			disableCache: env.bool("API_PORTAL_ENABLE_CACHE")
 		});
 
-		if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
+		if (env.bool("API_PORTAL_PUBLIC_FOLDER_ENABLE")) {
 			es.setStatic("/public/shop/images/tera-icons", "data/tera-icons");
 			es.setStatic("/public", "public");
 			pl.loadComponent("static.portalApi", es);
@@ -443,13 +444,13 @@ const startServers = async modules => {
 		pl.loadComponent("routers.portalApi.after", es);
 
 		await es.bind(
-			process.env.API_PORTAL_LISTEN_HOST,
-			process.env.API_PORTAL_LISTEN_PORT
+			env.string("API_PORTAL_LISTEN_HOST"),
+			env.int("API_PORTAL_LISTEN_PORT")
 		);
 	}
 
 	if (checkComponent("gateway_api")) {
-		if (!process.env.API_GATEWAY_LISTEN_PORT) {
+		if (!env.int("API_GATEWAY_LISTEN_PORT")) {
 			throw "Invalid configuration parameter: API_GATEWAY_LISTEN_PORT";
 		}
 
@@ -465,19 +466,19 @@ const startServers = async modules => {
 		pl.loadComponent("routers.gatewayApi.after", es);
 
 		await es.bind(
-			process.env.API_GATEWAY_LISTEN_HOST,
-			process.env.API_GATEWAY_LISTEN_PORT
+			env.string("API_GATEWAY_LISTEN_HOST"),
+			env.int("API_GATEWAY_LISTEN_PORT")
 		);
 	}
 
 	if (checkComponent("admin_panel")) {
 		const tasksActions = new TasksActions(modules);
 
-		if (!process.env.ADMIN_PANEL_LISTEN_PORT) {
+		if (!env.int("ADMIN_PANEL_LISTEN_PORT")) {
 			throw "Invalid configuration parameter: ADMIN_PANEL_LISTEN_PORT";
 		}
 
-		if (!process.env.ADMIN_PANEL_LOCALE) {
+		if (!env.string("ADMIN_PANEL_LOCALE")) {
 			throw "Invalid configuration parameter: ADMIN_PANEL_LOCALE";
 		}
 
@@ -497,8 +498,8 @@ const startServers = async modules => {
 		pl.loadComponent("routers.adminPanel.after", es);
 
 		await es.bind(
-			process.env.ADMIN_PANEL_LISTEN_HOST,
-			process.env.ADMIN_PANEL_LISTEN_PORT
+			env.string("ADMIN_PANEL_LISTEN_HOST"),
+			env.int("ADMIN_PANEL_LISTEN_PORT")
 		);
 
 		modules.queue.setModel(modules.queueModel.tasks);
@@ -513,7 +514,7 @@ const startServers = async modules => {
 	modules.scheduler.start({ name: "printMemoryUsage", schedule: expr.EVERY_THIRTY_MINUTES }, () => cli.printMemoryUsage());
 
 	if (checkComponent("arbiter_api")) {
-		const allowPortCheck = /^true$/i.test(process.env.API_ARBITER_SERVER_PORT_CHECK);
+		const allowPortCheck = env.bool("API_ARBITER_SERVER_PORT_CHECK");
 		const serverCheckActions = new ServerCheckActions(modules);
 
 		modules.scheduler.start({ name: "serverCheckActions", schedule: expr.EVERY_TEN_SECONDS }, () => serverCheckActions.all(allowPortCheck));

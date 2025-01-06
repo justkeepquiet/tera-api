@@ -9,10 +9,11 @@
 const body = require("express-validator").body;
 const Op = require("sequelize").Op;
 
+const env = require("../utils/env");
 const ApiError = require("../lib/apiError");
 const { validationHandler } = require("../middlewares/arbiterAuth.middlewares");
 
-const ipFromLauncher = /^true$/i.test(process.env.API_ARBITER_USE_IP_FROM_LAUNCHER);
+const ipFromLauncher = env.bool("API_ARBITER_USE_IP_FROM_LAUNCHER");
 
 /**
  * endpoint: /systemApi/RequestAPIServerStatusAvailable

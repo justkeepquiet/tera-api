@@ -15,8 +15,9 @@ const FileStore = require("session-file-store")(session);
 const Passport = require("passport").Passport;
 const LocalStrategy = require("passport-local").Strategy;
 
-const ApiError = require("../../lib/apiError");
+const env = require("../../utils/env");
 const helpers = require("../../utils/helpers");
+const ApiError = require("../../lib/apiError");
 const portalLauncherController = require("../../controllers/portalLauncher.controller");
 
 /**
@@ -26,7 +27,7 @@ module.exports = modules => {
 	const passport = new Passport();
 	const i18n = new I18n({
 		directory: path.resolve(__dirname, "../../locales/launcher"),
-		defaultLocale: process.env.API_PORTAL_LOCALE
+		defaultLocale: env.string("API_PORTAL_LOCALE")
 	});
 
 	passport.serializeUser((user, done) => {
@@ -75,7 +76,7 @@ module.exports = modules => {
 				//
 			}
 		}),
-		secret: process.env.API_PORTAL_SECRET,
+		secret: env.string("API_PORTAL_SECRET"),
 		resave: false,
 		saveUninitialized: false,
 		cookie: {
@@ -88,12 +89,12 @@ module.exports = modules => {
 	modules.app.use("/launcher", passport.session());
 
 	modules.app.use((req, res, next) => {
-		const locale = (req?.user?.language || req.query.lang || process.env.API_PORTAL_LOCALE).split("-")[0];
+		const locale = (req?.user?.language || req.query.lang || env.string("API_PORTAL_LOCALE")).split("-")[0];
 
 		if (i18n.getLocales().includes(locale)) {
 			i18n.setLocale(locale);
 		} else {
-			i18n.setLocale(process.env.API_PORTAL_LOCALE);
+			i18n.setLocale(env.string("API_PORTAL_LOCALE"));
 		}
 
 		res.locals.__ = i18n.__;

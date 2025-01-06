@@ -8,11 +8,12 @@
 const body = require("express-validator").body;
 const Op = require("sequelize").Op;
 
+const env = require("../utils/env");
 const helpers = require("../utils/helpers");
 const ApiError = require("../lib/apiError");
 const { validationHandler } = require("../middlewares/portalLauncher.middlewares");
 
-const ipFromLauncher = /^true$/i.test(process.env.API_ARBITER_USE_IP_FROM_LAUNCHER);
+const ipFromLauncher = env.bool("API_ARBITER_USE_IP_FROM_LAUNCHER");
 
 /**
  * @param {modules} modules
@@ -58,7 +59,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, sequelize, accountModel }) =>
 				where: { accountDBID: account.get("accountDBID") }
 			});
 
-			if (!/^true$/i.test(process.env.API_PORTAL_DISABLE_CLIENT_AUTO_ENTER)) {
+			if (!env.bool("API_PORTAL_DISABLE_CLIENT_AUTO_ENTER")) {
 				lastLoginServer = account.get("lastLoginServer");
 			}
 
@@ -123,9 +124,9 @@ module.exports.SetAccountInfoByUserNo = ({ logger, accountModel }) => [
 		}
 
 		await accountModel.info.update({
-			language: /^true$/i.test(process.env.API_PORTAL_LOCALE_SELECTOR) ?
+			language: env.bool("API_PORTAL_LOCALE_SELECTOR") ?
 				language :
-				helpers.regionToLanguage(process.env.API_PORTAL_CLIENT_DEFAULT_REGION),
+				helpers.regionToLanguage(env.string("API_PORTAL_CLIENT_DEFAULT_REGION")),
 			...ipFromLauncher ? { lastLoginIP: req.ip } : {}
 		}, {
 			where: { accountDBID: account.get("accountDBID") }
