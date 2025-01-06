@@ -618,7 +618,7 @@ module.exports.SignupAction = modules => [
 
 				await Promise.all(promises);
 
-				const initialShopBalance = env.number("API_PORTAL_SHOP_INITIAL_BALANCE") || 0;
+				const initialShopBalance = env.number("API_PORTAL_SHOP_INITIAL_BALANCE", 0);
 
 				if (initialShopBalance > 0) {
 					const shop = new Shop(modules, account.get("accountDBID"), null, {
@@ -760,7 +760,7 @@ module.exports.SignupVerifyAction = modules => [
 
 			await Promise.all(promises);
 
-			const initialShopBalance = env.number("API_PORTAL_SHOP_INITIAL_BALANCE") || 0;
+			const initialShopBalance = env.number("API_PORTAL_SHOP_INITIAL_BALANCE", 0);
 
 			if (initialShopBalance > 0) {
 				const shop = new Shop(modules, account.get("accountDBID"), null, {

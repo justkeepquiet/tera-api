@@ -116,7 +116,7 @@ moduleLoader.setPromise("queue", async () => new BackgroundQueue({
 moduleLoader.setPromise("hub", async () => {
 	const hub = new HubFunctions(
 		env.string("HUB_HOST"),
-		env.int("HUB_PORT"),
+		env.number("HUB_PORT"),
 		serverCategory.webcstool, {
 			logger: createLogger("Hub", { colors: { debug: "magenta" } })
 		}
@@ -130,7 +130,7 @@ moduleLoader.setPromise("hub", async () => {
 moduleLoader.setPromise("steer", async () => {
 	const steer = new SteerFunctions(
 		env.string("STEER_HOST"),
-		env.int("STEER_PORT"),
+		env.number("STEER_PORT"),
 		serverCategory.webcstool, "WebIMSTool", {
 			logger: createLogger("Steer", { colors: { debug: "bold magenta" } })
 		}
@@ -150,7 +150,7 @@ moduleLoader.setPromise("steer", async () => {
 moduleLoader.setPromise("mailer", async () => {
 	const settings = {
 		host: env.string("MAILER_SMTP_HOST"),
-		port: env.int("MAILER_SMTP_PORT"),
+		port: env.number("MAILER_SMTP_PORT"),
 		secure: env.bool("MAILER_SMTP_SECURE")
 	};
 
@@ -205,7 +205,7 @@ moduleLoader.setPromise("sequelize", async () => {
 			logging: msg => sequelizeLogger.debug(msg),
 			dialect: "mysql",
 			host: env.string("DB_HOST"),
-			port: env.int("DB_PORT") || 3306,
+			port: env.number("DB_PORT") || 3306,
 			define: {
 				timestamps: false,
 				freezeTableName: true
@@ -395,7 +395,7 @@ const startServers = async modules => {
 	loadDatasheetModel(modules);
 
 	if (checkComponent("arbiter_api")) {
-		if (!env.int("API_ARBITER_LISTEN_PORT")) {
+		if (!env.number("API_ARBITER_LISTEN_PORT")) {
 			throw "Invalid configuration parameter: API_ARBITER_LISTEN_PORT";
 		}
 
@@ -409,12 +409,12 @@ const startServers = async modules => {
 
 		await es.bind(
 			env.string("API_ARBITER_LISTEN_HOST"),
-			env.int("API_ARBITER_LISTEN_PORT")
+			env.number("API_ARBITER_LISTEN_PORT")
 		);
 	}
 
 	if (checkComponent("portal_api")) {
-		if (!env.int("API_PORTAL_LISTEN_PORT")) {
+		if (!env.number("API_PORTAL_LISTEN_PORT")) {
 			throw "Invalid configuration parameter: API_PORTAL_LISTEN_PORT";
 		}
 
@@ -445,12 +445,12 @@ const startServers = async modules => {
 
 		await es.bind(
 			env.string("API_PORTAL_LISTEN_HOST"),
-			env.int("API_PORTAL_LISTEN_PORT")
+			env.number("API_PORTAL_LISTEN_PORT")
 		);
 	}
 
 	if (checkComponent("gateway_api")) {
-		if (!env.int("API_GATEWAY_LISTEN_PORT")) {
+		if (!env.number("API_GATEWAY_LISTEN_PORT")) {
 			throw "Invalid configuration parameter: API_GATEWAY_LISTEN_PORT";
 		}
 
@@ -467,14 +467,14 @@ const startServers = async modules => {
 
 		await es.bind(
 			env.string("API_GATEWAY_LISTEN_HOST"),
-			env.int("API_GATEWAY_LISTEN_PORT")
+			env.number("API_GATEWAY_LISTEN_PORT")
 		);
 	}
 
 	if (checkComponent("admin_panel")) {
 		const tasksActions = new TasksActions(modules);
 
-		if (!env.int("ADMIN_PANEL_LISTEN_PORT")) {
+		if (!env.number("ADMIN_PANEL_LISTEN_PORT")) {
 			throw "Invalid configuration parameter: ADMIN_PANEL_LISTEN_PORT";
 		}
 
@@ -499,7 +499,7 @@ const startServers = async modules => {
 
 		await es.bind(
 			env.string("ADMIN_PANEL_LISTEN_HOST"),
-			env.int("ADMIN_PANEL_LISTEN_PORT")
+			env.number("ADMIN_PANEL_LISTEN_PORT")
 		);
 
 		modules.queue.setModel(modules.queueModel.tasks);
