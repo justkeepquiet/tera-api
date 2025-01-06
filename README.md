@@ -1,20 +1,20 @@
 # tera-api
 
-API and In-game Shop implementation for the TERA Online retail server (patch 92/100) on Node.js. The API consists of four independent servers (Arbiter API, Portal API, Shop API and Admin Panel) running on different ports.
+API and In-game Shop implementation for the TERA Online retail server on Node.js. The API consists of four independent servers (Arbiter API, Portal API, Shop API and Admin Panel) running on different ports. The API requires the retail server to be running using the **arb_gw** (ArbiterServer Gateway) process supplied with the TW localization patches.
 
 The Arbiter API intended for processing internal requests from the Arbiter Server, such as checking a token, receiving events about the character's behavior, etc. This API must be binded only on a local IP address and must not be accessed by external users!
 
-The Portal API is a web server intended for the [Launcher](https://github.com/justkeepquiet/tera-launcher)/Shop. This API must be available from the outside (proxied by Nginx or binded on external IP) for use by server users: registration, authorization, login, update routines etc. Also, this API allows to process static elements (directory **public**).
+The Portal API is a web server intended for the [Launcher](https://github.com/justkeepquiet/tera-launcher)/TERA Shop. This API must be available from the outside (proxied by Nginx or binded on external IP) for use by server users: registration, authorization, login, update routines etc. Also, this API allows to process static elements (directory **public**).
 
 Built-in admin panel for full control of all functionality and viewing API logs. There is also full integration with the Box Server and Steer Server (for setting permissions).
 
 ## Requirements
 
-* [Node.js](https://nodejs.org/en/) v18.1.0
+* [Node.js](https://nodejs.org/en/) >= v18.0.0
 * [MySQL Server](https://dev.mysql.com/downloads/mysql/5.7.html) v5.7.38
-* [TERA Retail Server](https://forum.ragezone.com/f797/)
-* [Steer Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
-* [Box Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/)
+* [TERA Retail Server](https://forum.ragezone.com/f797/) (any patch)
+* [Steer Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) v3.3.1
+* [Box Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) v2.16.1 (14738)
 
 ## Deployment
 
@@ -49,7 +49,7 @@ By default, the admin panel is available on all IP addresses on port 8050, like 
 9. In new window select group **API_AdminPanel_Admin** and click add.
 10. Open your **.env** file and set `STEER_ENABLE` parameter to `true`.
 
-The Steer Server allows you to flexibly manage permissions to certain sections of the TERA API Admin Panel. For example, you can create a new user and connect it to user group **API_AdminPanel_Shop**. Users in this group will only have access to Shop management functions. You can also create your own function group.
+The Steer Server allows you to flexibly manage permissions to certain sections of the TERA API Admin Panel. For example, you can create a new user and connect it to user group **API_AdminPanel_Shop**. Users in this group will only have access to TERA Shop management functions. You can also create your own function group.
 
 ### TERA Shop Integration
 
@@ -64,25 +64,9 @@ TERA Shop products are configured through the TERA API Admin Panel. The creation
 
 ### Additional Settings
 
-You can further setting of SLS override, Promo codes, Chronoscrolls (Premium Items), Admin Panel and Shop by editing the files in the **config** directory. To edit the configuration, copy the **\*.default.js** file as **\*.js**, for example **admin.default.js** as **admin.js**. Never edit **\*.default.js** files.
+You can further setting of SLS override, Promo codes, Chronoscrolls (Premium Items), Admin Panel and TERA Shop by editing the files in the **config** directory. To edit the configuration, copy the **\*.default.js** file as **\*.js**, for example **admin.default.js** as **admin.js**. Never edit **\*.default.js** files.
 
-## Gateway API Server
-
-The API includes one more server (Gateway API Server) designed for remote access to data managed by the API and performing certain actions, such as requesting the server online monitoring, Shop balance, funding the Shop balance, etc.
-
-If you need to implement a Shop balance change using your external billing site, please use this API instead of directly changing the database.
-
-### Available endpoints
-
-Endpoint | Method | Arguments | Description
---- | --- | --- | ---
-/serverApi/GetServerInfoByServerId | GET | serverId | Request the server information of specified server ID.
-/accountApi/GetAccountInfoByUserNo | GET | userNo | Request the account information of specified account ID.
-/accountApi/GetAccountBanByUserNo | GET | userNo, clientIP | Request the account banned status of specified account ID and client IP.
-/shopApi/GetAccountInfoByUserNo | GET | userNo | Request the Shop balance of the specified account ID.
-/shopApi/FundByUserNo | POST | userNo, transactionId, amount | Fund the Shop balance of the specified account ID.
-
-## Separate Launch
+### Separate Launch
 
 It is possible to separately launch components used by TERA API. To do this, use the `--component` parameter, in which you specify the name of the component (the parameter can be repeated multiple times to launch multiple components).
 
@@ -102,8 +86,24 @@ In addition, components can be launched using pre-created bat files: **start_adm
 
 ## TERA Client Data (Datasheets)
 
-The API and the Shop require data of item templates, item conversions, item strings etc. The API also requires of some client datasheets placed into directory **data\datasheets**.
+The API and the TERA Shop require data of item templates, item conversions, item strings etc. The API also requires of some client datasheets placed into directory **data\datasheets**.
 
 TERA API supports direct data loading from TERA DataCenter **.dat** files, which can be placed in the **data\datasheets** directory, for example: **data\datasheets\DataCenter_Final_EUR.dat** and **data\datasheets\DataCenter_Final_RUS.dat**. After that, configure KEY, IV, padding and compression parameters in the **.env** file.
 
 If you don't know what KEY and IV your game client's DataCenter uses, use [TeraDataTools](https://github.com/Gl0/TeraDataTools) utility ([download](https://drive.google.com/file/d/1cBvP6OCcUbHO8dgtXOnuHOhZNJ9UJ67j/view?usp=sharing)).
+
+## Gateway API Server
+
+The API includes one more server (Gateway API Server) designed for remote access to data managed by the API and performing certain actions, such as requesting the server online monitoring, TERA Shop balance, funding the TERA Shop balance, etc.
+
+If you need to implement a TERA Shop balance change using your external billing site, please use this API instead of directly changing the database.
+
+### Available endpoints
+
+Endpoint | Method | Arguments | Description
+--- | --- | --- | ---
+/serverApi/GetServerInfoByServerId | GET | serverId | Request the server information of specified server ID.
+/accountApi/GetAccountInfoByUserNo | GET | userNo | Request the account information of specified account ID.
+/accountApi/GetAccountBanByUserNo | GET | userNo, clientIP | Request the account banned status of specified account ID and client IP.
+/shopApi/GetAccountInfoByUserNo | GET | userNo | Request the TERA Shop balance of the specified account ID.
+/shopApi/FundByUserNo | POST | userNo, transactionId, amount | Fund the TERA Shop balance of the specified account ID.
