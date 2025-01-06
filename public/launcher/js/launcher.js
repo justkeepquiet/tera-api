@@ -58,9 +58,8 @@ var LauncherAPI = {
 		});
 	},
 
-	resetPasswordAction: function(email, captcha) {
+	resetPasswordAction: function(email) {
 		return LauncherAPI.request("ResetPasswordAction", {
-			"g-recaptcha-response": captcha,
 			email: email
 		});
 	},
@@ -72,9 +71,8 @@ var LauncherAPI = {
 		});
 	},
 
-	signupAction: function(login, email, password, captcha) {
+	signupAction: function(login, email, password) {
 		return LauncherAPI.request("SignupAction", {
-			"g-recaptcha-response": captcha,
 			login: login,
 			email: email,
 			password: password

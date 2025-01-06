@@ -15,13 +15,13 @@
 <script type="text/javascript" src="/public/launcher/js/launcher-errors.js"></script>
 <script type="text/javascript" src="/public/launcher/js/launcher.js"></script>
 <script>
-	function signupAction(login, email, password, password2, captcha) {
+	function signupAction(login, email, password, password2) {
 		if (password != password2) {
 			Launcher.showError("<%= __('Two password entries do not match.') %>");
 			return;
 		}
 
-		var result = LauncherAPI.signupAction(login, email, password, captcha);
+		var result = LauncherAPI.signupAction(login, email, password);
 
 		if (result) {
 			if (result.Return) {
