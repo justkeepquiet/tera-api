@@ -11,7 +11,7 @@ Built-in admin panel for full control of all functionality and viewing API logs.
 ## Requirements
 
 * [Node.js](https://nodejs.org/en/) >= v18.0.0
-* [MySQL Server](https://dev.mysql.com/downloads/mysql/5.7.html) v5.7.38
+* [MySQL Server](https://dev.mysql.com/downloads/windows/installer/5.7.html) v5.7
 * [TERA Retail Server](https://forum.ragezone.com/f797/) (any patch)
 * [Steer Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) v3.3.1
 * [Box Server](https://forum.ragezone.com/f797/tera-92-100-steer-server-1206086/) v2.16.1 (14738)
