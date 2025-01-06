@@ -21,6 +21,7 @@ class ExpressServer {
 			!!params.enableCompression : false;
 
 		this.modules = { ...modules, app: this.app, logger: this.logger };
+		this.views = new Set();
 
 		if (/^true$/i.test(process.env.LOG_IP_ADDRESSES_FORWARDED_FOR)) {
 			this.app.enable("trust proxy");
@@ -50,7 +51,7 @@ class ExpressServer {
 		}
 
 		this.app.set("view engine", "ejs");
-		this.app.set("views", path.resolve(__dirname, "../views"));
+		this.setViews(path.resolve(__dirname, "../views"));
 
 		if (/^debug$/i.test(process.env.LOG_LEVEL)) {
 			morganBody(this.app, {
@@ -98,6 +99,11 @@ class ExpressServer {
 
 	setRouter(router) {
 		require(router)(this.modules);
+	}
+
+	setViews(views) {
+		this.views.add(views);
+		this.app.set("views", Array.from(this.views));
 	}
 
 	bind(host, port) {
