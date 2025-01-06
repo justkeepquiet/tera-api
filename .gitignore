@@ -10,6 +10,8 @@ logs/*
 sessions/*
 src/plugins/*
 public/updates/*
+public/patch/*
+!public/patch/.gitkeep
 share/dataitems/*
 config/slsOverride.js
 package-lock.json
