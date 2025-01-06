@@ -76,11 +76,11 @@ There are also npm scripts to run the necessary components:
 
 Command | Comment
 --- | ---
-`npm run start_admin_panel` | Starts Admin Panel component
-`npm run start_arbiter_api` | Starts Arbiter API component
-`npm run start_gateway_api` | Starts Gateway API component
-`npm run start_portal_api` | Starts Portal API component
-`npm run start_all` | Starts all components
+`npm run start_admin_panel` | Starts Admin Panel component.
+`npm run start_arbiter_api` | Starts Arbiter API component.
+`npm run start_gateway_api` | Starts Gateway API component.
+`npm run start_portal_api` | Starts Portal API component.
+`npm run start_all` | Starts all components.
 
 In addition, components can be launched using pre-created bat files: **start_admin_panel.bat**, **start_arbiter_api.bat**, **start_gateway_api.bat** and **start_portal_api.bat**. To run all components use the **start__all.bat**.
 
@@ -88,7 +88,7 @@ In addition, components can be launched using pre-created bat files: **start_adm
 
 The API and the TERA Shop require data of item templates, item conversions, item strings etc. The API also requires of some client datasheets placed into directory **data\datasheets**.
 
-TERA API supports direct data loading from TERA DataCenter **.dat** files, which can be placed in the **data\datasheets** directory, for example: **data\datasheets\DataCenter_Final_EUR.dat** and **data\datasheets\DataCenter_Final_RUS.dat**. After that, configure KEY, IV, padding and compression parameters in the **.env** file.
+The loader supports direct data loading from TERA DataCenter **.dat** files, which can be placed in the **data\datasheets** directory, for example: **data\datasheets\DataCenter_Final_EUR.dat** and **data\datasheets\DataCenter_Final_RUS.dat**. After that, configure KEY, IV, padding and compression parameters in the **.env** file.
 
 If you don't know what KEY and IV your game client's DataCenter uses, use [TeraDataTools](https://github.com/Gl0/TeraDataTools) utility ([download](https://drive.google.com/file/d/1cBvP6OCcUbHO8dgtXOnuHOhZNJ9UJ67j/view?usp=sharing)).
 
