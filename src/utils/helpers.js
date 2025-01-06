@@ -11,7 +11,6 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const CRC32 = require("crc-32");
-const bencode = require("bencode");
 const validationResult = require("express-validator").validationResult;
 const logger = require("../utils/logger");
 
@@ -298,14 +297,6 @@ module.exports.maskEmail = email => {
 	const hiddenDomain = `${domainName[0] + "*".repeat(domainName.length - 1)}.${domainSuffix}`;
 	return `${hiddenLocal}@${hiddenDomain}`;
 };
-
-/**
-* @param {string} filePath
-* @return {any[]}
-*/
-module.exports.readTorrent = filePath =>
-	bencode.decode(fs.readFileSync(filePath))
-;
 
 /**
 * @param {directory} directory

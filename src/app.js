@@ -35,7 +35,6 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
  * @property {import("./models/report.model").reportModel} reportModel
  * @property {import("./models/shop.model").shopModel} shopModel
  * @property {import("./models/box.model").boxModel} boxModel
- * @property {import("./models/launcher.model").launcherModel} launcherModel
  * @property {datasheetModel} datasheetModel
  */
 
@@ -245,7 +244,6 @@ moduleLoader.setPromise("sequelize", async () => {
 	await moduleLoader.setAsync("reportModel", require("./models/report.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("shopModel", require("./models/shop.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("boxModel", require("./models/box.model"), sequelize, DataTypes, syncTables);
-	await moduleLoader.setAsync("launcherModel", require("./models/launcher.model"), sequelize, DataTypes, syncTables);
 
 	sequelizeLogger.info(`DB version: ${DB_VERSION}`);
 
@@ -412,7 +410,6 @@ const startServers = async modules => {
 
 		if (/^true$/i.test(process.env.API_PORTAL_PUBLIC_FOLDER_ENABLE)) {
 			es.setStatic("/public/shop/images/tera-icons", "data/tera-icons");
-			es.setStatic("/public/launcher/images/launcher-slides-bg", "data/launcher-slides-bg"); // launcher v2
 			es.setStatic("/public", "public");
 		}
 
@@ -461,7 +458,6 @@ const startServers = async modules => {
 		});
 
 		es.setStatic("/static/images/tera-icons", "data/tera-icons");
-		es.setStatic("/static/images/launcher-slides-bg", "data/launcher-slides-bg"); // launcher v2
 		es.setStatic("/static", "src/static/admin");
 		es.setLogging();
 		es.setRouter("../routes/admin.index");

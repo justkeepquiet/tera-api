@@ -16,7 +16,4 @@ module.exports = modules => {
 
 	// Launcher
 	modules.app.use("/launcher", require("./portal/launcher.routes")(modules));
-
-	// Launcher V2
-	modules.app.use("/v2/launcher", require("./portal/v2/launcher.routes")(modules));
 };
