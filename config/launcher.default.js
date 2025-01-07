@@ -1,5 +1,7 @@
 "use strict";
 
+// THE CHANGES MADE ARE APPLIED WITHOUT RESTARTING THE PROCESS.
+
 module.exports = {
 	// Pages URLs used to open pop-up windows from the game interface.
 	pagesMap: {

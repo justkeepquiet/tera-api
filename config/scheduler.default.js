@@ -1,5 +1,7 @@
 "use strict";
 
+// CHANGES MADE ARE APPLIED ONLY AFTER THE PROCESS IS RESTARTED.
+
 const expr = require("../src/lib/scheduler").expr;
 
 module.exports.portalApi = [

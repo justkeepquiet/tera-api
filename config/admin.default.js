@@ -1,5 +1,7 @@
 "use strict";
 
+// THE CHANGES MADE ARE APPLIED WITHOUT RESTARTING THE PROCESS.
+
 module.exports = {
 	// List of Admin Panel Quick Menu Links
 	quickMenu: [

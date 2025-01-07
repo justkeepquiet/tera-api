@@ -1,5 +1,7 @@
 "use strict";
 
+// THE CHANGES MADE ARE APPLIED WITHOUT RESTARTING THE PROCESS.
+
 module.exports = {
 	// Customizing the slides carousel on the shop welcome page
 	// Slides can be uploaded to "public\shop\images" directory and must be resolution 740x300 px.
