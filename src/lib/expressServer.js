@@ -13,6 +13,8 @@ const compression = require("compression");
 
 const env = require("../utils/env");
 
+const VIEWS_PATH = "../views";
+
 class ExpressServer {
 	constructor(modules, params) {
 		this.app = express();
@@ -53,7 +55,7 @@ class ExpressServer {
 		}
 
 		this.app.set("view engine", "ejs");
-		this.setViews(path.resolve(__dirname, "../views"));
+		this.setViews(path.resolve(__dirname, VIEWS_PATH));
 
 		if (/^debug$/i.test(env.string("LOG_LEVEL"))) {
 			morganBody(this.app, {
