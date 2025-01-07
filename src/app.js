@@ -7,6 +7,7 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
  * @typedef {import("sequelize").Sequelize} Sequelize
  * @typedef {import("sequelize").DataTypes} DataTypes
  * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
+ * @typedef {import("./lib/ipApiClient")} IpApiClient
  *
  * @typedef {object} datasheetModel
  * @property {import("./models/datasheet/strSheetAccountBenefit.model")[]} strSheetAccountBenefit
@@ -18,11 +19,12 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
  * @property {import("./models/datasheet/strSheetItem.model")[]} strSheetItem
  *
  * @typedef {object} modules
- * @property {Sequelize} sequelize
  * @property {HubFunctions} hub
  * @property {SteerFunctions} steer
  * @property {nodemailer.Transporter} mailer
  * @property {ReaderModel} geoip
+ * @property {IpApiClient} ipapi
+ * @property {Sequelize} sequelize
  * @property {BackgroundQueue} queue
  * @property {versions} versions
  * @property {import("./utils/logger").logger} logger
@@ -48,6 +50,7 @@ const { Sequelize, DataTypes } = require("sequelize");
 const cls = require("cls-hooked");
 const nodemailer = require("nodemailer");
 const geoip = require("@maxmind/geoip2-node");
+
 const CoreLoader = require("./lib/coreLoader");
 const PluginsLoader = require("./lib/pluginsLoader");
 const { Scheduler, expr } = require("./lib/scheduler");
@@ -58,6 +61,7 @@ const serverCategory = require("./lib/teraPlatformGuid").serverCategory;
 const BackgroundQueue = require("./lib/backgroundQueue");
 const DatasheetLoader = require("./lib/datasheetLoader");
 const ExpressServer = require("./lib/expressServer");
+const IpApiClient = require("./lib/ipApiClient");
 const TasksActions = require("./actions/tasks.actions");
 const ServerCheckActions = require("./actions/serverCheck.actions");
 const MigrationManager = require("./utils/migrationManager");
@@ -178,6 +182,13 @@ moduleLoader.setPromise("geoip", async () => {
 		geoipLogger.debug(`File ${filePath} is not found. Skip loading.`);
 	}
 });
+
+moduleLoader.setPromise("ipapi", async () => new IpApiClient(
+	env.array("IPAPI_API_KEYS", []),
+	env.number("IPAPI_CACHE_TTL", 86400), // 24 hours
+	env.number("IPAPI_REQUEST_TIMEOUT", 3),
+	env.number("IPAPI_REQUEST_MAX_RETRIES", 3)
+));
 
 moduleLoader.setPromise("sequelize", async () => {
 	if (!env.string("DB_HOST")) {

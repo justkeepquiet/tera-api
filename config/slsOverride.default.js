@@ -1,8 +1,6 @@
 "use strict";
 
-/**
- * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
- */
+// THE CHANGES MADE ARE APPLIED WITHOUT RESTARTING THE PROCESS.
 
 // This file allows you to configure the overriding of the IP address of
 // the game server depending on the IP address (or range of IP addresses) of
@@ -14,9 +12,13 @@
 // For the "geoip" method to work, you need to download file "GeoLite2-City.mmdb" from
 // the https://git.io/GeoLite2-City.mmdb and place it in directory "data\geoip".
 
+/**
+ * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
+ */
+
 module.exports = [
 	{
-		// Enable this rules.
+		// Enable this rule set.
 		enabled: false,
 		// Specifies the ID of the server for which the rules apply.
 		serverId: 2800,
@@ -40,7 +42,7 @@ module.exports = [
 				// Set suffix to server name (use "null" to disable).
 				nameSuffix: null
 			},
-			// Reassignment using client IP address ranges from geography (geoip).
+			// Reassignment using client IP address ranges from geography (Maxmind Geoip).
 			{
 				method: "geoip",
 				// Use callback function as first param.
@@ -54,6 +56,20 @@ module.exports = [
 					 * @param {string} ip
 					 */
 					(reader, ip) => reader.city(ip)?.country?.isoCode === "UA"
+				],
+				// Setting a new IP address for the server (use "null" to disable).
+				serverIp: "10.10.10.11",
+				// Setting a new port for the server (use "null" to disable).
+				serverPort: null,
+				// Set suffix to server name (use "null" to disable).
+				nameSuffix: "UA"
+			},
+			// Reassignment using client IP address ranges from geography (ipapi.is).
+			{
+				method: "ipapi",
+				params: [
+					// See: https://ipapi.is/developers.html#api-response-format
+					response => response?.location?.country_code === "UA"
 				],
 				// Setting a new IP address for the server (use "null" to disable).
 				serverIp: "10.10.10.11",

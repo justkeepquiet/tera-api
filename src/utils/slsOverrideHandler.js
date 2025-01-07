@@ -2,6 +2,7 @@
 
 /**
  * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
+ * @typedef {import("../lib/ipApiClient")} IpApiClient
  * @typedef {import("../../config/slsOverride.default")} servers
  */
 
@@ -13,12 +14,14 @@ class SlsOverrideHandler {
 	 * @param {servers} servers
 	 * @param {string} ip
 	 * @param {ReaderModel} geoip
+	 * @param {IpApiClient} ipapi
 	 * @param {console} logger
 	 */
-	constructor(servers, clientIp, geoip, logger) {
+	constructor(servers, clientIp, geoip, ipapi, logger) {
 		this.servers = servers;
 		this.clientIp = clientIp;
 		this.geoip = geoip;
+		this.ipapi = ipapi;
 		this.logger = logger;
 	}
 
@@ -31,6 +34,10 @@ class SlsOverrideHandler {
 					switch (rule.method) {
 						case "geoip":
 							this.applyGeoipRule(rule, server);
+							break;
+
+						case "ipapi":
+							await this.applyIpapiRule(rule, server);
 							break;
 
 						case "cidr":
@@ -54,7 +61,7 @@ class SlsOverrideHandler {
 			return;
 		}
 
-		rule.params.forEach(param => {
+		for (const param of rule.params) {
 			if (typeof param === "function") {
 				const result = param.call(null, this.geoip, this.clientIp);
 
@@ -62,7 +69,29 @@ class SlsOverrideHandler {
 					this.updateServerWithRule(server, rule);
 				}
 			}
-		});
+		}
+	}
+
+	async applyIpapiRule(rule, server) {
+		if (!this.ipapi) {
+			this.logger.error("SLS Override Handler: IpApi client not initialized. Method 'ipapi' was skipped.");
+			return;
+		}
+
+		for (const param of rule.params) {
+			if (typeof param === "function") {
+				try {
+					const response = await this.ipapi.request(this.clientIp);
+					const result = param.call(null, response);
+
+					if (result) {
+						this.updateServerWithRule(server, rule);
+					}
+				} catch (err) {
+					this.logger.error(err.toString());
+				}
+			}
+		}
 	}
 
 	applyCidrRule(rule, server) {

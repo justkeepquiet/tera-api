@@ -11,10 +11,10 @@ const Op = require("sequelize").Op;
 const SlsBuilder = require("../utils/slsBuilder");
 const SlsOverrideHandler = require("../utils/slsOverrideHandler");
 
-const applyServerOverride = async (config, servers, clientIp, geoip, logger) => {
+const applyServerOverride = async (config, servers, clientIp, geoip, ipapi, logger) => {
 	try {
 		const slsOverride = config.get("slsOverride");
-		const serverOverrideHandler = new SlsOverrideHandler(slsOverride, clientIp, geoip, logger);
+		const serverOverrideHandler = new SlsOverrideHandler(slsOverride, clientIp, geoip, ipapi, logger);
 
 		for (const server of servers) {
 			await serverOverrideHandler.applyOverrides(server);
@@ -27,7 +27,7 @@ const applyServerOverride = async (config, servers, clientIp, geoip, logger) => 
 /**
  * @param {modules} modules
  */
-module.exports.GetServerList = ({ config, logger, sequelize, geoip, serverModel }, format) => [
+module.exports.GetServerList = ({ config, logger, sequelize, geoip, ipapi, serverModel }, format) => [
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -55,7 +55,7 @@ module.exports.GetServerList = ({ config, logger, sequelize, geoip, serverModel 
 			sls.addServer(server, strings, maintenance !== null)
 		);
 
-		await applyServerOverride(config, sls.servers, req.ip, geoip, logger);
+		await applyServerOverride(config, sls.servers, req.ip, geoip, ipapi, logger);
 
 		switch (format) {
 			case "xml":
