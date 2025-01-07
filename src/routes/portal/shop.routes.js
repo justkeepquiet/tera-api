@@ -15,6 +15,7 @@ const Passport = require("passport").Passport;
 const CustomStrategy = require("passport-custom").Strategy;
 
 const env = require("../../utils/env");
+const IpBlockHandler = require("../../utils/ipBlockHandler");
 const ApiError = require("../../lib/apiError");
 const portalShopController = require("../../controllers/portalShop.controller");
 
@@ -22,6 +23,7 @@ const portalShopController = require("../../controllers/portalShop.controller");
  * @param {modules} modules
  */
 module.exports = modules => {
+	const ipBlock = new IpBlockHandler(modules.geoip, modules.ipapi, modules.logger);
 	const passport = new Passport();
 	const i18n = new I18n({
 		directory: path.resolve(__dirname, "../../locales/shop"),
@@ -64,6 +66,17 @@ module.exports = modules => {
 		})
 	);
 
+	modules.app.use("/shop", async (req, res, next) => {
+		const config = modules.config.get("ipBlock");
+		const blocked = await ipBlock.applyBlock(req.ip, res.locals.__endpoint, config);
+
+		if (blocked) {
+			res.json({ Return: false, ReturnCode: 403, Msg: "Access denied" });
+		} else {
+			next();
+		}
+	});
+
 	modules.app.use("/shop", session({
 		name: "shop.sid",
 		genid: () => uuid(),
@@ -76,7 +89,7 @@ module.exports = modules => {
 	modules.app.use("/shop", passport.initialize());
 	modules.app.use("/shop", passport.session());
 
-	modules.app.use((req, res, next) => {
+	modules.app.use("/shop", (req, res, next) => {
 		const locale = (req?.user?.language || env.string("API_PORTAL_LOCALE")).split("-")[0];
 
 		if (i18n.getLocales().includes(locale)) {

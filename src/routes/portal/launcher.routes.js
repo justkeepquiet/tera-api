@@ -17,6 +17,7 @@ const LocalStrategy = require("passport-local").Strategy;
 
 const env = require("../../utils/env");
 const helpers = require("../../utils/helpers");
+const IpBlockHandler = require("../../utils/ipBlockHandler");
 const ApiError = require("../../lib/apiError");
 const portalLauncherController = require("../../controllers/portalLauncher.controller");
 
@@ -24,6 +25,7 @@ const portalLauncherController = require("../../controllers/portalLauncher.contr
  * @param {modules} modules
  */
 module.exports = modules => {
+	const ipBlock = new IpBlockHandler(modules.geoip, modules.ipapi, modules.logger);
 	const passport = new Passport();
 	const i18n = new I18n({
 		directory: path.resolve(__dirname, "../../locales/launcher"),
@@ -68,6 +70,17 @@ module.exports = modules => {
 		})
 	);
 
+	modules.app.use("/launcher", async (req, res, next) => {
+		const config = modules.config.get("ipBlock");
+		const blocked = await ipBlock.applyBlock(req.ip, res.locals.__endpoint, config);
+
+		if (blocked) {
+			res.json({ Return: false, ReturnCode: 403, Msg: "Access denied" });
+		} else {
+			next();
+		}
+	});
+
 	modules.app.use("/launcher", session({
 		name: "launcher.sid",
 		genid: () => uuid(),
@@ -88,7 +101,7 @@ module.exports = modules => {
 	modules.app.use("/launcher", passport.initialize());
 	modules.app.use("/launcher", passport.session());
 
-	modules.app.use((req, res, next) => {
+	modules.app.use("/launcher", (req, res, next) => {
 		const locale = (req?.user?.language || req.query.lang || env.string("API_PORTAL_LOCALE")).split("-")[0];
 
 		if (i18n.getLocales().includes(locale)) {

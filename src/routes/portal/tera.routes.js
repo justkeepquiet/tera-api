@@ -9,43 +9,59 @@
 const express = require("express");
 
 const ApiError = require("../../lib/apiError");
+const IpBlockHandler = require("../../utils/ipBlockHandler");
 const portalSlsController = require("../../controllers/portalSls.controller");
 const portalAccountController = require("../../controllers/portalAccount.controller");
 
 /**
  * @param {modules} modules
  */
-module.exports = modules => express.Router()
-	// SLS
-	.get("/ServerList", portalSlsController.GetServerList(modules, "xml"))
-	.get("/ServerList.xml", portalSlsController.GetServerList(modules, "xml"))
-	.get("/ServerList.json", portalSlsController.GetServerList(modules, "json"))
+module.exports = modules => {
+	const ipBlock = new IpBlockHandler(modules.geoip, modules.ipapi, modules.logger);
 
-	// Account API (deprecated)
-	.post("/GetAccountInfoByUserNo", portalAccountController.GetAccountInfoByUserNo(modules))
-	.post("/SetAccountInfoByUserNo", portalAccountController.SetAccountInfoByUserNo(modules))
+	modules.app.use("/tera", async (req, res, next) => {
+		const config = modules.config.get("ipBlock");
+		const blocked = await ipBlock.applyBlock(req.ip, res.locals.__endpoint, config);
 
-	// Launcher
-	.get("/LauncherMain", (req, res) => {
-		res.redirect(301, `/launcher/Main?${new URLSearchParams(req.query).toString()}`);
-	})
-
-	// Shop
-	.get("/ShopAuth", (req, res) => {
-		res.redirect(301, `/shop/Auth?${new URLSearchParams(req.query).toString()}`);
-	})
-
-	.use(
-		/**
-		 * @type {ErrorRequestHandler}
-		 */
-		(err, req, res, next) => {
-			if (err instanceof ApiError) {
-				res.json({ Return: false, ReturnCode: err.code, Msg: err.message });
-			} else {
-				modules.logger.error(err);
-				res.json({ Return: false, ReturnCode: 1, Msg: "internal error" });
-			}
+		if (blocked) {
+			res.json({ Return: false, ReturnCode: 403, Msg: "Access denied" });
+		} else {
+			next();
 		}
-	)
-;
+	});
+
+	return express.Router()
+		// SLS
+		.get("/ServerList", portalSlsController.GetServerList(modules, "xml"))
+		.get("/ServerList.xml", portalSlsController.GetServerList(modules, "xml"))
+		.get("/ServerList.json", portalSlsController.GetServerList(modules, "json"))
+
+		// Account API (deprecated)
+		.post("/GetAccountInfoByUserNo", portalAccountController.GetAccountInfoByUserNo(modules))
+		.post("/SetAccountInfoByUserNo", portalAccountController.SetAccountInfoByUserNo(modules))
+
+		// Launcher
+		.get("/LauncherMain", (req, res) => {
+			res.redirect(301, `/launcher/Main?${new URLSearchParams(req.query).toString()}`);
+		})
+
+		// Shop
+		.get("/ShopAuth", (req, res) => {
+			res.redirect(301, `/shop/Auth?${new URLSearchParams(req.query).toString()}`);
+		})
+
+		.use(
+			/**
+			 * @type {ErrorRequestHandler}
+			 */
+			(err, req, res, next) => {
+				if (err instanceof ApiError) {
+					res.json({ Return: false, ReturnCode: err.code, Msg: err.message });
+				} else {
+					modules.logger.error(err);
+					res.json({ Return: false, ReturnCode: 1, Msg: "internal error" });
+				}
+			}
+		)
+	;
+};
