@@ -4,6 +4,7 @@
  * @typedef {import("../app").modules} modules
  */
 
+const Op = require("sequelize").Op;
 const Box = require("../utils/boxHelper").Box;
 
 class TasksActions {
@@ -44,7 +45,10 @@ class TasksActions {
 		}
 
 		const users = await planetDb.model.users.findAll({
-			where: { deletionStatus: 0 }
+			where: {
+				deletionStatus: 0,
+				class: { [Op.lte]: 12 } // server can set class 13, ignore it
+			}
 		});
 
 		await this.modules.sequelize.transaction(async () => {
