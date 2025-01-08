@@ -148,7 +148,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ config, logger, serverModel }) => [
+module.exports.edit = ({ config, planetDbs, logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -184,7 +184,9 @@ module.exports.edit = ({ config, logger, serverModel }) => [
 			isCrowdness: data.get("isCrowdness"),
 			isAvailable: data.get("isAvailable"),
 			isEnabled: data.get("isEnabled"),
-			isSlsOverridden: isSlsOverridden(config, serverId)
+			isSlsOverridden: isSlsOverridden(config, serverId),
+			isSyncCharactersAvailable: planetDbs?.has(Number(serverId)),
+			syncCharacters: false
 		});
 	}
 ];
@@ -192,7 +194,7 @@ module.exports.edit = ({ config, logger, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
+module.exports.editAction = ({ i18n, logger, queue, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
 		query("serverId").notEmpty(),
@@ -220,7 +222,9 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 		body("isAvailable").optional()
 			.isIn(["on"]).withMessage(i18n.__("Is available field has invalid value.")),
 		body("isEnabled").optional()
-			.isIn(["on"]).withMessage(i18n.__("Is enabled field has invalid value."))
+			.isIn(["on"]).withMessage(i18n.__("Is enabled field has invalid value.")),
+		body("syncCharacters").optional()
+			.isIn(["on"]).withMessage(i18n.__("Sync characters field has invalid value."))
 	],
 	formValidationHandler(logger),
 	/**
@@ -229,7 +233,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	async (req, res, next) => {
 		const { serverId } = req.query;
 		const { loginIp, loginPort, language, nameString, descrString, permission,
-			thresholdLow, thresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled } = req.body;
+			thresholdLow, thresholdMedium, isPvE, isCrowdness, isAvailable, isEnabled, syncCharacters } = req.body;
 
 		await serverModel.info.update({
 			loginIp,
@@ -247,6 +251,14 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 		}, {
 			where: { serverId }
 		});
+
+		if (syncCharacters == "on") {
+			const found = await queue.findByTag("charactersMigrate", serverId, 1);
+
+			if (found.length === 0) {
+				await queue.insert("charactersMigrate", [serverId], serverId);
+			}
+		}
 
 		next();
 	},
