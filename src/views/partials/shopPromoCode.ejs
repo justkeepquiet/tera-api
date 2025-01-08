@@ -1,9 +1,8 @@
 <div class="main hero-unit white-text">
 	<form id="promoForm">
 		<fieldset>
-			<legend class="white-text"><%= __("Redeem promo code") %></legend>
-			<label><%= __("Enter promo code") %>:</label>
-			<input type="text" placeholder="<%= __("promocode") %>" name="promocode" id="promocode">
+			<legend class="white-text"><%= __("Redeem Promo Code") %></legend>
+			<input type="text" placeholder="<%= __("Enter promo code") %>" name="promocode" id="promocode" style="margin-top: 20px;">
 			<div id="alert">
 				<div class="alert alert-succes fade in" style="display: none;" id="promocode_success">
 					<strong><%= __("Promo code activated successfully!") %></strong>
@@ -19,7 +18,7 @@
 </div>
 <%_ if (promoCodesAcrivated.length > 0) { _%>
 <div class="main hero-unit white-text">
-	<h2><%= __("Activated promo codes") %></h2>
+	<h2><%= __("Activated Promo Codes") %></h2>
 	<table class="table promocode-list" style="margin-bottom: 0;">
 		<%_ promoCodesAcrivated.forEach(promoCodeAcrivated => { _%>
 		<tr>

@@ -81,12 +81,11 @@
 		<div class="row buy-info white-text">
 			<div class="span9 buy-block-left">
 				<small>
-					<%- __("Click the &laquo;Buy&raquo; button to get the item") %>:<br>
-					<b><%- product.title %></b>
-					<br>
-					<%- __("Your account will be debited") %> <b class="price-value"><%= product.price %></b> <%- __("coins") %>.<br>
-					<%- __("The item will appear in the &laquo;Item Claim&raquo; window.") %><br>
-					<%- __("You can open it from the main menu in the &laquo;Shop&raquo; section the &laquo;Item Claim&raquo; option.") %>
+					<p><%- __("Click the &quot;Buy&quot; button to get the item") %>:<br>
+					&ndash; <b class="item_grade_<%= product.rareGrade %>"><%- product.title %></b> <small>&#10005;</small> <b class="quantity-value">1</b></p>
+					<p><%- __("Your account will be debited") %>: <b class="price-value gold2"><%= product.price %></b> <i class="fas fa-coins gold2"></i><br>
+					<%- __("The item will appear in the &quot;Item Claim&quot; window.") %><br>
+					<%- __("You can open it from the main menu in the &quot;Shop&quot; section the &quot;Item Claim&quot; option.") %></p>
 				</small>
 			</div>
 			<div class="span3 text-center buy-block-right" style="padding-top: 20px;" id="buy_block">
@@ -136,6 +135,7 @@
 			if (quantity < 1) quantity = 1;
 			if (quantity > 99) quantity = 99;
 			$(this).val(quantity);
+			$(".quantity-value").html(quantity);
 			$(".price-value").html(<%= product.price %> * quantity);
 			if (parseInt($('#shop_balance').html()) < parseInt('<%= product.price %>') * quantity) {
 				$('#buy').prop("disabled", true);
