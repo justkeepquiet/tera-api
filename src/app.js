@@ -8,6 +8,11 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
  * @typedef {import("sequelize").DataTypes} DataTypes
  * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
  * @typedef {import("./lib/ipApiClient")} IpApiClient
+ * @typedef {import("./models/planetDb.model").planetDbModel} planetDbModel
+ *
+ * @typedef {object} planetDbInstance
+ * @property {Sequelize} sequelize
+ * @property {planetDbModel} model
  *
  * @typedef {object} datasheetModel
  * @property {import("./models/datasheet/strSheetAccountBenefit.model")[]} strSheetAccountBenefit
@@ -40,6 +45,7 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
  * @property {import("./models/shop.model").shopModel} shopModel
  * @property {import("./models/box.model").boxModel} boxModel
  * @property {datasheetModel} datasheetModel
+ * @property {Map<Number, planetDbInstance>} planetDbs
  */
 
 require("dotenv").config();
@@ -280,6 +286,66 @@ moduleLoader.setPromise("sequelize", async () => {
 	sequelizeLogger.info(`DB version: ${DB_VERSION}`);
 
 	return sequelize;
+});
+
+moduleLoader.setPromise("planetDbs", async () => {
+	if (!checkComponent("admin_panel")) {
+		return null;
+	}
+
+	const planetDbs = new Map();
+	const planetDbIds = [];
+
+	Object.keys(process.env).forEach(key => {
+		const found = key.match(/DB_PLANETDB_(\d+)_DATABASE/);
+
+		if (found) {
+			planetDbIds.push(found[1]);
+		}
+	});
+
+	for (const id of planetDbIds) {
+		if (!env.bool(`DB_PLANETDB_${id}_ENABLED`)) {
+			continue;
+		}
+
+		const database = env.string(`DB_PLANETDB_${id}_DATABASE`);
+		const planetDbLogger = createLogger(`Database ${database}`, { colors: { debug: "cyan" } });
+
+		const sequelize = new Sequelize(
+			database,
+			env.string(`DB_PLANETDB_${id}_USERNAME`),
+			env.string(`DB_PLANETDB_${id}_PASSWORD`),
+			{
+				logging: msg => planetDbLogger.debug(msg),
+				dialect: "mssql",
+				dialectOptions: {
+					options: {
+						encrypt: false
+					}
+				},
+				host: env.string(`DB_PLANETDB_${id}_HOST`),
+				port: env.number(`DB_PLANETDB_${id}_PORT`) || 1433,
+				define: {
+					timestamps: false,
+					freezeTableName: true
+				}
+			}
+		);
+
+		try {
+			await sequelize.authenticate();
+		} catch (err) {
+			planetDbLogger.error(`Connection error: ${err}`);
+		}
+
+		planetDbLogger.info("Connected.");
+
+		const model = await require("./models/planetDb.model")(sequelize, DataTypes);
+		planetDbs.set(Number(id), { model, sequelize });
+	}
+
+	return planetDbs;
 });
 
 pl.loadComponent("app.moduleLoader", moduleLoader);
