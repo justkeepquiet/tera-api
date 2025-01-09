@@ -45,6 +45,10 @@ _%>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
+								<label class="control-label" for="sort"><%= __("Sort") %></label>
+								<input type="number" class="form-control boxed" name="sort" value="<%= sort %>">
+							</div>
+							<div class="col-sm-6">
 								<label class="control-label" for="tag"><%= __("Tag") %></label>
 								<select class="form-control boxed" name="tag">
 									<option value="">- <%= __("None") %> -</option>
@@ -53,10 +57,6 @@ _%>
 									<option value="2" <%= tag === 2 ? "selected" : "" %>>(2) New</option>
 									<option value="3" <%= tag === 3 ? "selected" : "" %>>(3) Sale</option>
 								</select>
-							</div>
-							<div class="col-sm-6">
-								<label class="control-label" for="sort"><%= __("Sort") %></label>
-								<input type="number" class="form-control boxed" name="sort" value="<%= sort %>">
 							</div>
 						</div>
 						<div class="form-group row">
