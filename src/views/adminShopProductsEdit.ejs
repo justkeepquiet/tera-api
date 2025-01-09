@@ -1,6 +1,6 @@
 <%_
-const discountInfoShow = discount > 0;
 const addInfoShow = icon || rareGrade !== null || Object.values(title).join("") || Object.values(description).join("");
+const discountInfoShow = discount > 0;
 _%>
 <%- contentFor("content") %>
 <article class="content">
@@ -96,34 +96,6 @@ _%>
 						</div>
 						<div class="title-block">
 							<h3 class="title">
-								<%= __("Discount Information") %>
-								<a class="btn btn-secondary btn-sm" id="discount-info-off" title="" href="#" <%- discountInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-up"></i></a>
-								<a class="btn btn-secondary btn-sm" id="discount-info-on" title="" href="#" <%- !discountInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-down"></i></a>
-							</h3>
-						</div>
-						<div id="discount-info" <%- discountInfoShow ? "" : 'style="display: none;"' %>>
-							<div class="form-group row">
-								<div class="col-sm-6">
-									<label class="control-label" for="price"><%= __("Discount") %> (%)</label>
-									<input type="number" class="form-control boxed" name="discount" value="<%= discount %>">
-								</div>
-							</div>
-							<div class="form-group row">
-								<div class="col-sm-6">
-									<label class="control-label" for="validAfter"><%= __("Discount valid from") %></label>
-									<input type="datetime-local" class="form-control boxed" name="discountValidAfter" value="<%= discountValidAfter ? discountValidAfter.tz(user.tz).format("YYYY-MM-DDTHH:mm") : "" %>">
-									<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
-								</div>
-								<div class="col-sm-6">
-									<label class="control-label" for="validBefore"><%= __("Discount valid to") %></label>
-									<input type="datetime-local" class="form-control boxed" name="discountValidBefore" value="<%= discountValidBefore ? discountValidBefore.tz(user.tz).format("YYYY-MM-DDTHH:mm") : "" %>">
-									<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
-								</div>
-							</div>
-							<div class="form-group row"></div>
-						</div>
-						<div class="title-block">
-							<h3 class="title">
 								<%= __("Additional Information") %>
 								<a class="btn btn-secondary btn-sm" id="add-info-off" title="" href="#" <%- addInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-up"></i></a>
 								<a class="btn btn-secondary btn-sm" id="add-info-on" title="" href="#" <%- !addInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-down"></i></a>
@@ -184,6 +156,34 @@ _%>
 							</div>
 							<div class="form-group row"></div>
 						</div>
+						<div class="title-block">
+							<h3 class="title">
+								<%= __("Discount Information") %>
+								<a class="btn btn-secondary btn-sm" id="discount-info-off" title="" href="#" <%- discountInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-up"></i></a>
+								<a class="btn btn-secondary btn-sm" id="discount-info-on" title="" href="#" <%- !discountInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-down"></i></a>
+							</h3>
+						</div>
+						<div id="discount-info" <%- discountInfoShow ? "" : 'style="display: none;"' %>>
+							<div class="form-group row">
+								<div class="col-sm-6">
+									<label class="control-label" for="price"><%= __("Discount") %> (%)</label>
+									<input type="number" class="form-control boxed" name="discount" value="<%= discount %>">
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-sm-6">
+									<label class="control-label" for="validAfter"><%= __("Discount valid from") %></label>
+									<input type="datetime-local" class="form-control boxed" name="discountValidAfter" value="<%= discountValidAfter ? discountValidAfter.tz(user.tz).format("YYYY-MM-DDTHH:mm") : "" %>">
+									<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+								</div>
+								<div class="col-sm-6">
+									<label class="control-label" for="validBefore"><%= __("Discount valid to") %></label>
+									<input type="datetime-local" class="form-control boxed" name="discountValidBefore" value="<%= discountValidBefore ? discountValidBefore.tz(user.tz).format("YYYY-MM-DDTHH:mm") : "" %>">
+									<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+								</div>
+							</div>
+							<div class="form-group row"></div>
+						</div>
 						<div class="form-group">
 							<button type="button" class="btn btn-primary" id="submit"><%= __("Save") %></button>
 						</div>
@@ -196,16 +196,6 @@ _%>
 <%- contentFor("scripts") %>
 <script>
 	$(function() {
-		$("#discount-info-on").click(function() {
-			$("#discount-info").slideDown("fast");
-			$("#discount-info-off").show();
-			$(this).hide();
-		});
-		$("#discount-info-off").click(function() {
-			$("#discount-info").slideUp("fast");
-			$("#discount-info-on").show();
-			$(this).hide();
-		});
 		$("#add-info-on").click(function() {
 			$("#add-info").slideDown("fast");
 			$("#add-info-off").show();
@@ -214,6 +204,16 @@ _%>
 		$("#add-info-off").click(function() {
 			$("#add-info").slideUp("fast");
 			$("#add-info-on").show();
+			$(this).hide();
+		});
+		$("#discount-info-on").click(function() {
+			$("#discount-info").slideDown("fast");
+			$("#discount-info-off").show();
+			$(this).hide();
+		});
+		$("#discount-info-off").click(function() {
+			$("#discount-info").slideUp("fast");
+			$("#discount-info-on").show();
 			$(this).hide();
 		});
 		function onItemAdded() {
