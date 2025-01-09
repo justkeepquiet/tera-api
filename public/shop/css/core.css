@@ -445,6 +445,11 @@ a, a:focus {
 	background-color: #4d1e1e;
 }
 
+.buy-description {
+	font-size: 14px;
+	margin-bottom: 10px;
+}
+
 .quantity {
 	width: 37px!important;
 	height: 32px!important;
