@@ -1,5 +1,9 @@
 "use strict";
 
+/**
+ * @typedef {import("./IpApiClientResponse").IpApiClientResponse} IpApiClientResponse
+ */
+
 const https = require("https");
 
 class IpApiClient {
@@ -11,6 +15,10 @@ class IpApiClient {
 		this.cache = new Map();
 	}
 
+	/**
+	 * @param {string} ip
+	 * @return {Promise<IpApiClientResponse>}
+	 */
 	async request(ip) {
 		if (this.cache.has(ip)) {
 			const cachedData = this.cache.get(ip);
@@ -36,6 +44,9 @@ class IpApiClient {
 		}
 	}
 
+	/**
+	 * @return {string}
+	 */
 	getRandomApiKey() {
 		if (this.apiKeys.length === 0) {
 			return null;
@@ -44,6 +55,10 @@ class IpApiClient {
 		return this.apiKeys[randomIndex];
 	}
 
+	/**
+	 * @param {string} ip
+	 * @return {Promise<IpApiClientResponse>}
+	 */
 	makeRequest(ip) {
 		return new Promise((resolve, reject) => {
 			const apiKey = this.getRandomApiKey();

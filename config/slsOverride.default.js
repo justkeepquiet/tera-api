@@ -14,6 +14,7 @@
 
 /**
  * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
+ * @typedef {import("../src/lib/IpApiClientResponse").IpApiClientResponse} IpApiClientResponse
  */
 
 module.exports = [
@@ -45,7 +46,7 @@ module.exports = [
 			// Reassignment using client IP address ranges from geography (Maxmind Geoip).
 			{
 				method: "geoip",
-				// Use callback function as first param.
+				// Use callback function as param.
 				// This callback takes a ReaderModel as the first argument and
 				// a client IP address string as the second argument.
 				// The callback must return a boolean value.
@@ -67,8 +68,14 @@ module.exports = [
 			// Reassignment using client IP address ranges from geography (ipapi.is).
 			{
 				method: "ipapi",
+				// Use callback function as param.
+				// This callback takes an API response object as the first argument.
+				// The callback must return a boolean value.
+				// See: https://ipapi.is/developers.html#api-response-format
 				params: [
-					// See: https://ipapi.is/developers.html#api-response-format
+					/**
+					 * @param {IpApiClientResponse} response
+					 */
 					response => response?.location?.country_code === "UA"
 				],
 				// Setting a new IP address for the server (use "null" to disable).
