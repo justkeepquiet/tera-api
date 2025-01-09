@@ -596,7 +596,7 @@ function l2w_openPopup(page_id) {
 
 	if (PAGES_MAP.hasOwnProperty(page_id)) {
 		setTimeout(function() {
-			window.open(PAGES_MAP[page_id].replace("%s", l2w_getOTP()));
+			window.open(PAGES_MAP[page_id].replace("%s", AUTH_KEY));
 		}, 0);
 	}
 }
@@ -605,6 +605,6 @@ function l2w_getWebLinkUrl(act_id, param) {
 	debug(act_id, param);
 
 	if (ACTS_MAP.hasOwnProperty(act_id)) {
-		return ACTS_MAP[act_id].replace("%s", l2w_getOTP());
+		return ACTS_MAP[act_id].replace("%s", AUTH_KEY);
 	}
 }
