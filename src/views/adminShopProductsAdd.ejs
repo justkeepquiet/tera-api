@@ -41,14 +41,30 @@
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
-								<label>
-									<input type="checkbox" class="checkbox" name="active" checked="checked">
-									<span><%= __("Active") %></span>
-								</label>
+								<label class="control-label" for="price"><%= __("Discount") %> (%)</label>
+								<input type="number" class="form-control boxed" name="discount" value="0">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="sort"><%= __("Sort") %></label>
 								<input type="number" class="form-control boxed" name="sort" value="0">
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="validAfter"><%= __("Discount valid from") %></label>
+								<input type="datetime-local" class="form-control boxed" name="discountValidAfter" value="<%= moment().tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="validBefore"><%= __("Discount valid to") %></label>
+								<input type="datetime-local" class="form-control boxed" name="discountValidBefore" value="<%= moment().add(3600, "days").tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label>
+									<input type="checkbox" class="checkbox" name="active" checked="checked">
+									<span><%= __("Active") %></span>
+								</label>
 							</div>
 						</div>
 						<div class="title-block">

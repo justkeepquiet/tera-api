@@ -48,6 +48,19 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.BOOLEAN,
 			allowNull: false,
 			defaultValue: true
+		},
+		discount: {
+			type: DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0
+		},
+		discountValidAfter: {
+			type: DataTypes.DATE,
+			allowNull: false
+		},
+		discountValidBefore: {
+			type: DataTypes.DATE,
+			allowNull: false
 		}
 	}, {
 		indexes: [

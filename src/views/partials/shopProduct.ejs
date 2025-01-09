@@ -6,7 +6,12 @@
 				<img src="/public/shop/images/icons/icon_grade_<%= product.rareGrade %>.png" class="item-icon-grade" alt="">
 			</div>
 			<div class="text-block text-light" style="width: 520px;">
-				<h5 class="item_grade_<%= product.rareGrade %>"><%- product.title || __("[unknown]") %></h5>
+				<h5 class="item_grade_<%= product.rareGrade %>">
+					<%- product.title || __("[unknown]") %>
+					<%_ if (product.discount > 0) { _%>
+					<span class="badge discount-badge"><%= __("%s% off", product.discount) %></span>
+					<%_ } _%>
+				</h5>
 				<small><%- helpers.formatStrsheet(product.description) %></small>
 			</div>
 			<div class="text-right text-light">

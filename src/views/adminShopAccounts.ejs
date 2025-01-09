@@ -32,6 +32,7 @@
 										<tr>
 											<th><%= __("Account ID") %></th>
 											<th><%= __("Balance") %></th>
+											<th><%= __("Discount") %></th>
 											<th><%= __("Active") %></th>
 											<th><%= __("Created") %></th>
 											<th></th>
@@ -54,6 +55,7 @@ accounts.forEach(account => {
 	tableData.push([
 		account.get("accountDBID"),
 		account.get("balance"),
+		`${account.get("discount")}%`,
 		account.get("active") ? __("Yes") : __("No"),
 		moment(account.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		`<a class="btn btn-secondary btn-sm" href="/shop_accounts/edit?accountDBID=${account.get("accountDBID")}"><i class="fa fa-pencil"></i></a> ` +
@@ -67,7 +69,7 @@ _%>
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
 			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, null, null, null, { className: "text-right text-nowrap" }]
+			columns: [null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});

@@ -44,6 +44,24 @@
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
+								<label class="control-label" for="sort"><%= __("Discount") %> (%)</label>
+								<input type="number" class="form-control boxed" name="discount" value="<%= discount %>">
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="discountValidAfter"><%= __("Discount valid from") %></label>
+								<input type="datetime-local" class="form-control boxed" name="discountValidAfter" value="<%= discountValidAfter ? discountValidAfter.tz(user.tz).format("YYYY-MM-DDTHH:mm") : "" %>">
+								<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="discountValidBefore"><%= __("Discount valid to") %></label>
+								<input type="datetime-local" class="form-control boxed" name="discountValidBefore" value="<%= discountValidBefore ? discountValidBefore.tz(user.tz).format("YYYY-MM-DDTHH:mm") : "" %>">
+								<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
 								<label class="control-label" for="sort"><%= __("Sort") %></label>
 								<input type="number" class="form-control boxed" name="sort" value="<%= sort %>">
 							</div>

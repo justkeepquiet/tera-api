@@ -316,6 +316,15 @@ module.exports.getFilenamesFromDirectory = (directory, exts = [".png", ".jpg"]) 
 };
 
 /**
+* @param {number} number
+* @param {number} percentage
+* @return {number}
+*/
+module.exports.subtractPercentage = (number, percentage) =>
+	number - (number * (percentage / 100))
+;
+
+/**
 * @param {import("fs").PathLike} filePath
 * @return {number}
 */

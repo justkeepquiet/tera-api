@@ -17,6 +17,9 @@
 			<h5>
 				<a class="item_grade_<%= product.rareGrade %> buy" href="#" data-id="<%= id %>" title=""><%- product.title || __("[unknown]") %></a>
 				<%= product.itemCount > 1 && product.itemsCount === 1 ? product.itemCount + " " + __("pc.") : "" %>
+				<%_ if (product.discount > 0) { _%>
+				<span class="badge discount-badge"><%= __("%s% off", product.discount) %></span>
+				<%_ } _%>
 			</h5>
 			<small><%- helpers.formatStrsheet(product.description) %></small>
 		</div>

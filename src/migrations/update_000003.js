@@ -46,6 +46,34 @@ module.exports = {
 			name: "authKey"
 		});
 
+		// `shop_accounts`
+		await queryInterface.addColumn("shop_accounts", "balance", {
+			type: Sequelize.DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0,
+			after: "active"
+		});
+
+		// `shop_products`
+		await queryInterface.addColumn("shop_products", "discount", {
+			type: Sequelize.DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0,
+			after: "active"
+		});
+
+		await queryInterface.addColumn("shop_products", "discountValidAfter", {
+			type: Sequelize.DataTypes.DATE,
+			allowNull: false,
+			after: "discount"
+		});
+
+		await queryInterface.addColumn("shop_products", "discountValidBefore", {
+			type: Sequelize.DataTypes.DATE,
+			allowNull: false,
+			after: "discountValidAfter"
+		});
+
 		// `shop_promocode_strings`
 		await queryInterface.sequelize.query("ALTER TABLE `shop_promocode_strings` DROP PRIMARY KEY, DROP INDEX `id`, ADD PRIMARY KEY (`id`)");
 		await queryInterface.addIndex("shop_promocode_strings", ["language", "promoCodeId"], {
@@ -113,6 +141,14 @@ module.exports = {
 			allowNull: false,
 			defaultValue: 1
 		});
+
+		// `shop_accounts`
+		await queryInterface.removeColumn("shop_accounts", "discount");
+
+		// `shop_products`
+		await queryInterface.removeColumn("shop_products", "discountValidBefore");
+		await queryInterface.removeColumn("shop_products", "discountValidAfter");
+		await queryInterface.removeColumn("shop_products", "discount");
 
 		// `shop_promocodes`
 		await queryInterface.addColumn("shop_promocodes", "currentActivations", {

@@ -91,6 +91,8 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 			})),
 		body("balance")
 			.isInt({ min: 0 }).withMessage(i18n.__("Balance field must contain a valid number.")),
+		body("discount")
+			.isInt({ min: 0, max: 100 }).withMessage(i18n.__("Discount field must contain a valid number.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value."))
 	],
@@ -99,11 +101,12 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { accountDBID, balance, active } = req.body;
+		const { accountDBID, balance, discount, active } = req.body;
 
 		await shopModel.accounts.create({
 			accountDBID,
 			balance,
+			discount,
 			active: active == "on"
 		});
 
@@ -149,6 +152,7 @@ module.exports.edit = ({ logger, shopModel }) => [
 			layout: "adminLayout",
 			accountDBID: account.get("accountDBID"),
 			balance: account.get("balance"),
+			discount: account.get("discount"),
 			active: account.get("active")
 		});
 	}
@@ -163,6 +167,8 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 		query("accountDBID").notEmpty(),
 		body("balance")
 			.isInt({ min: 0 }).withMessage(i18n.__("Balance field must contain a valid number.")),
+		body("discount")
+			.isInt({ min: 0, max: 100 }).withMessage(i18n.__("Discount field must contain a valid number.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value."))
 	],
@@ -172,7 +178,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	 */
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
-		const { balance, active } = req.body;
+		const { balance, discount, active } = req.body;
 
 		const account = await shopModel.accounts.findOne({
 			where: { accountDBID }
@@ -182,16 +188,17 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 			throw Error("Object not found");
 		}
 
+		await shopModel.accounts.update({
+			balance,
+			discount,
+			active: active == "on"
+		}, {
+			where: { accountDBID }
+		});
+
 		const amount = balance - account.get("balance");
 
 		if (amount !== 0) {
-			await shopModel.accounts.update({
-				balance,
-				active: active == "on"
-			}, {
-				where: { accountDBID }
-			});
-
 			await reportModel.shopFund.create({
 				accountDBID,
 				amount,

@@ -482,6 +482,11 @@ a, a:focus {
 	font-size: 14px;
 }
 
+.discount-badge {
+	margin-left: 3px;
+	background: #cc3333;
+}
+
 .icon_grade_0 {
 	background: #020024;
 	background: linear-gradient(135deg,#020024 0,#283040 0,#0b1420 100%);
