@@ -4,6 +4,11 @@
 
 // This file allows you to configure blocking of a client (user) based on his IP address.
 
+// ATTENTION!
+// If the API is behind a reverse proxy (nginx, CloudFlare), make sure that parameter
+// "LOG_IP_ADDRESSES_FORWARDED_FOR" is set to "TRUE" so that the client's IP address is
+// determined correctly.
+
 // NOTE:
 // For the "geoip" method to work, you need to download file "GeoLite2-City.mmdb" from
 // the https://git.io/GeoLite2-City.mmdb and place it in directory "data\geoip".
