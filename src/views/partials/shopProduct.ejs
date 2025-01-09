@@ -89,23 +89,23 @@
 				</div>
 			</div>
 			<div class="span3 buy-block-right" id="buy_block">
-				<div id="buy_available">
+				<div id="buy_available" style="margin-top: 10px;">
 					<%= __("Your price") %>: <span class="gold"><strong class="price-value"><%= product.price %></strong> <i class="fas fa-coins"></i></span><br>
 					<input id="quantity" type="number" value="1" min="1" max="99" step="1" class="quantity"> <button class="btn btn-large btn-danger" href="#" id="buy"><%= __("Buy") %></a>
 				</div>
-				<div id="buy_inprogress" style="display: none;">
+				<div id="buy_inprogress" style="display: none; margin-top: 45px;">
 					<%= __("Purchase in progress") %>...
 				</div>
-				<div id="buy_nocoins" style="display: none">
+				<div id="buy_nocoins" style="display: none; margin-top: 12px;">
 					<%= __("You don't have enough funds to buy.") %><br><br>
 					<span class="gold"><strong class="price-value"><%= product.price %></strong> <i class="fas fa-coins"></i></span>
 				</div>
-				<div id="buy_success" style="display: none">
+				<div id="buy_success" style="display: none; margin-top: 12px;">
 					<%= __("You have success purchased an item.") %><br><br>
 					<%= __("Spent") %>: <span class="gold"><strong class="price-value"><%= product.price %></strong> <i class="fas fa-coins"></i></span>
 				</div>
-				<div id="buy_error" style="display: none">
-					<%= __("An error occurred while purchasing the product") %>:
+				<div id="buy_error" style="display: none; margin-top: 20px;">
+					<%= __("An error occurred while purchasing the product") %>: 
 				</div>
 			</div>
 		</div>

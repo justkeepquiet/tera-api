@@ -424,9 +424,6 @@ a, a:focus {
 }
 
 .buy-block-left, .buy-block-right {
-	display: flex!important;
-	justify-content: center!important;
-	align-items: center!important;
 	margin: 0!important;
 	height: 124px;
 	width: 70%!important;
@@ -434,16 +431,15 @@ a, a:focus {
 	background-color: #0E3756;
 }
 
-.buy-block-left .buy-description {
-	width: 100%;
+.buy-block-left {
+	padding: 7px 5px 5px 12px;
 	font-size: 12px;
-	margin: 10px 0 0 10px!important;
 }
 
 .buy-block-right {
 	width: 30%!important;
 	text-align: center;
-	padding: 5px;
+	padding: 7px;
 	border-radius: 0 6px 6px 0;
 	background-color: #4d1e1e;
 }
