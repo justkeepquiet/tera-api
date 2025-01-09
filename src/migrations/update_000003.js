@@ -69,13 +69,11 @@ module.exports = {
 
 		await queryInterface.addColumn("shop_products", "discountValidAfter", {
 			type: Sequelize.DataTypes.DATE,
-			allowNull: false,
 			after: "discount"
 		});
 
 		await queryInterface.addColumn("shop_products", "discountValidBefore", {
 			type: Sequelize.DataTypes.DATE,
-			allowNull: false,
 			after: "discountValidAfter"
 		});
 

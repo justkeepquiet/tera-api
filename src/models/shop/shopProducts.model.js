@@ -58,12 +58,10 @@ module.exports = (sequelize, DataTypes) =>
 			defaultValue: 0
 		},
 		discountValidAfter: {
-			type: DataTypes.DATE,
-			allowNull: false
+			type: DataTypes.DATE
 		},
 		discountValidBefore: {
-			type: DataTypes.DATE,
-			allowNull: false
+			type: DataTypes.DATE
 		}
 	}, {
 		indexes: [
