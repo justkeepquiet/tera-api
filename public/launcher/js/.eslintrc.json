@@ -103,6 +103,7 @@
 		"USER_LANG": true,
 		"REGION": true,
 		"REGIONS": true,
+		"ACTS_MAP": true,
 		"PAGES_MAP": true,
 		"PATCH_INFO_STRINGS": true,
 		"GAMESTART_BUTTON_STRINGS": true

@@ -51,6 +51,8 @@ module.exports.MainHtml = ({ config, logger }) => [
 			return res.redirect(`/launcher/Main?lang=${lang}`);
 		}
 
+		const launcherConfig = config.get("launcher");
+
 		res.render("launcherMain", {
 			brandName,
 			patchNoCheck: env.bool("API_PORTAL_CLIENT_PATCH_NO_CHECK"),
@@ -61,7 +63,8 @@ module.exports.MainHtml = ({ config, logger }) => [
 			lang: req.query.lang,
 			localeSelector: env.bool("API_PORTAL_LOCALE_SELECTOR"),
 			qaPrivilege: env.string("API_PORTAL_LAUNCHER_QA_PRIVILEGE"),
-			pagesMap: config.get("launcher").pagesMap,
+			actsMap: launcherConfig.actsMap,
+			pagesMap: launcherConfig.pagesMap,
 			host: req.headers.host || req.hostname,
 			user: req.user,
 			helpers

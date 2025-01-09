@@ -36,9 +36,15 @@
 		<%_ }) _%>
 	};
 
+	var ACTS_MAP = {
+		<%_ Object.entries(actsMap).forEach(([key, value]) => { _%>
+		<%= key %>: <%- value.startsWith('/') ? `location.protocol + "//${host + value}"` : `"${value}"` %>,
+		<%_ }) _%>
+	};
+
 	var PAGES_MAP = {
 		<%_ Object.entries(pagesMap).forEach(([key, value]) => { _%>
-		<%= key %>: "<%= value %>",
+		<%= key %>: <%- value.startsWith('/') ? `location.protocol + "//${host + value}"` : `"${value}"` %>,
 		<%_ }) _%>
 	};
 

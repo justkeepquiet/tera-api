@@ -3,7 +3,15 @@
 // THE CHANGES MADE ARE APPLIED WITHOUT RESTARTING THE PROCESS.
 
 module.exports = {
+	// Pages URLs for in-game actions (e.g. opening a page when entering the game).
+	// You can specify the "%s" tag, which will include the user's current AuthKey.
+	actsMap: {
+		// On entering the game
+		230: "/tera/ShopAuth?authKey=%s" // opens TERA Shop
+	},
+
 	// Pages URLs used to open pop-up windows from the game interface.
+	// You can specify the "%s" tag, which will include the user's current AuthKey.
 	pagesMap: {
 		// Homepage
 		// 0: "http://example.com",

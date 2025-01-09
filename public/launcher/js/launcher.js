@@ -592,15 +592,19 @@ function l2w_displayInfoResult(result) {
 }
 
 function l2w_openPopup(page_id) {
-	debug("page_id: " + page_id);
+	debug(page_id);
 
 	if (PAGES_MAP.hasOwnProperty(page_id)) {
 		setTimeout(function() {
-			window.open(PAGES_MAP[page_id]);
+			window.open(PAGES_MAP[page_id].replace("%s", l2w_getOTP()));
 		}, 0);
 	}
 }
 
 function l2w_getWebLinkUrl(act_id, param) {
 	debug(act_id, param);
+
+	if (ACTS_MAP.hasOwnProperty(act_id)) {
+		return ACTS_MAP[act_id].replace("%s", l2w_getOTP());
+	}
 }
