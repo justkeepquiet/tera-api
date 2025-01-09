@@ -432,8 +432,9 @@ a, a:focus {
 }
 
 .buy-block-left {
-	padding: 7px 5px 5px 12px;
+	padding: 12px 5px 5px 14px;
 	font-size: 12px;
+	line-height: 18px;
 }
 
 .buy-block-right {
