@@ -85,6 +85,18 @@ var LauncherAPI = {
 		});
 	},
 
+	getMaintenanceStatusAction: function() {
+		return LauncherAPI.request("GetMaintenanceStatusAction");
+	},
+
+	getCharacterCountAction: function() {
+		return LauncherAPI.request("GetCharacterCountAction");
+	},
+
+	getAuthKeyAction: function() {
+		return LauncherAPI.request("GetAuthKeyAction");
+	},
+
 	getAccountInfoAction: function() {
 		return LauncherAPI.request("GetAccountInfoAction");
 	},
@@ -117,10 +129,6 @@ var LauncherAPI = {
 		}
 
 		return LauncherAPI.request("ReportAction", data);
-	},
-
-	maintenanceStatus: function() {
-		return LauncherAPI.request("MaintenanceStatus");
 	},
 
 	request: function(action, params) {
@@ -216,32 +224,6 @@ var Launcher = {
 	},
 
 	/*
-	 * Main frame events
-	 */
-	setAccountInfo: function(cb) {
-		var result = LauncherAPI.getAccountInfoAction();
-
-		if (result && result.Return) {
-			ACCOUNT_ID = result.UserNo;
-			ACCOUNT_NAME = result.UserName;
-			AUTH_KEY = result.AuthKey;
-			PERMISSION = result.Permission.toString();
-			PRIVILEGE = result.Privilege.toString();
-			BANNED = result.Banned;
-			CHAR_COUNT = result.CharacterCount;
-			REGION = result.Region;
-			QA_MODE = PRIVILEGE == QA_PRIVILEGE;
-
-			if (typeof cb == "function") {
-				cb();
-			}
-		} else {
-			Launcher.showError("Internal error");
-			Launcher.disableLaunchButton("btn-wrong");
-		}
-	},
-
-	/*
 	 * Login action events
 	 */
 	login: function() {
@@ -251,6 +233,21 @@ var Launcher = {
 		$("#totalText").text("");
 
 		$("#launcherMain").show().focus();
+
+		var result = LauncherAPI.getAccountInfoAction();
+
+		if (result && result.Return) {
+			ACCOUNT_ID = result.UserNo;
+			PERMISSION = result.Permission.toString();
+			PRIVILEGE = result.Privilege.toString();
+			BANNED = result.Banned;
+			REGION = result.Region;
+			QA_MODE = PRIVILEGE == QA_PRIVILEGE;
+		} else {
+			Launcher.showError("Internal error: Cannot get account info");
+			Launcher.disableLaunchButton("btn-wrong");
+			return;
+		}
 
 		Launcher.isLoginSuccess = true;
 
@@ -319,33 +316,31 @@ var Launcher = {
 	launchGame: function() {
 		Launcher.disableLaunchButton("btn-wait");
 
-		Launcher.setAccountInfo(function() {
-			if (!QA_MODE && PERMISSION < 256) {
-				var maintenance = LauncherAPI.maintenanceStatus();
+		if (!QA_MODE && PERMISSION < 256) {
+			var maintenance = LauncherAPI.getMaintenanceStatusAction();
 
-				if (maintenance && maintenance.Return && maintenance.StartTime) {
-					Launcher.showError(maintenance.Description || serverMaintenanceString);
-					Launcher.enableLaunchButton("btn-gamestart");
-					return;
-				}
-			}
-
-			if (BANNED) {
-				Launcher.showError(accountBlockedString);
-				Launcher.disableLaunchButton("btn-wrong");
+			if (maintenance && maintenance.Return && maintenance.StartTime) {
+				Launcher.showError(maintenance.Description || serverMaintenanceString);
+				Launcher.enableLaunchButton("btn-gamestart");
 				return;
 			}
+		}
 
-			Launcher.status = 3;
+		if (BANNED) {
+			Launcher.showError(accountBlockedString);
+			Launcher.disableLaunchButton("btn-wrong");
+			return;
+		}
 
-			if ((QA_MODE && QA_MODE_NOCHECK) || START_NO_CHECK || PATCH_NO_CHECK) { // no check files in QA mode
-				Launcher.status = 0;
-				Launcher.sendCommand("execute|" + REGION);
-				Launcher.logAction("enter_game", "BHS");
-			} else {
-				Launcher.sendCommand("start_p|0");
-			}
-		});
+		Launcher.status = 3;
+
+		if ((QA_MODE && QA_MODE_NOCHECK) || START_NO_CHECK || PATCH_NO_CHECK) { // no check files in QA mode
+			Launcher.status = 0;
+			Launcher.sendCommand("execute|" + REGION);
+			Launcher.logAction("enter_game", "BHS");
+		} else {
+			Launcher.sendCommand("start_p|0");
+		}
 	},
 
 	patchGame: function() {
@@ -409,7 +404,11 @@ function l2w_getServerList() {
 }
 
 function l2w_getOTP() {
-	return AUTH_KEY;
+	var result = LauncherAPI.getAuthKeyAction();
+
+	if (result && result.Return) {
+		return result.AuthKey;
+	}
 }
 
 function l2w_getUserPermission() {
@@ -417,7 +416,11 @@ function l2w_getUserPermission() {
 }
 
 function l2w_getUserCharCnt() {
-	return CHAR_COUNT;
+	var result = LauncherAPI.getCharacterCountAction();
+
+	if (result && result.Return) {
+		return result.CharacterCount;
+	}
 }
 
 function l2w_tooManyRetry() {
@@ -595,8 +598,10 @@ function l2w_openPopup(page_id) {
 	debug(page_id);
 
 	if (PAGES_MAP.hasOwnProperty(page_id)) {
+		var authKey = l2w_getOTP();
+
 		setTimeout(function() {
-			window.open(PAGES_MAP[page_id].replace("%s", AUTH_KEY));
+			window.open(PAGES_MAP[page_id].replace("%s", authKey));
 		}, 0);
 	}
 }
@@ -605,6 +610,8 @@ function l2w_getWebLinkUrl(act_id, param) {
 	debug(act_id, param);
 
 	if (ACTS_MAP.hasOwnProperty(act_id)) {
-		return ACTS_MAP[act_id].replace("%s", AUTH_KEY);
+		var authKey = l2w_getOTP();
+
+		return ACTS_MAP[act_id].replace("%s", authKey);
 	}
 }

@@ -12,12 +12,9 @@
 	var serverMaintenanceString = "<%= __('The server is under maintenance. Please try again later.') %>";
 
 	var ACCOUNT_ID = null;
-	var ACCOUNT_NAME = null;
-	var AUTH_KEY = null;
 	var PERMISSION = null;
 	var PRIVILEGE = null;
 	var BANNED = false;
-	var CHAR_COUNT = null;
 	var REGION = null;
 
 	var QA_MODE = false;
@@ -103,13 +100,11 @@
 	};
 
 	$(function() {
-		Launcher.setAccountInfo(function() {
-			if (QA_MODE) {
-				setQaBox();
-			}
+		Launcher.login();
 
-			Launcher.login();
-		});
+		if (QA_MODE) {
+			setQaBox();
+		}
 
 		$(".region").click(function() {
 			Launcher.abortPatch();

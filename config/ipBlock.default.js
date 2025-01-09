@@ -23,9 +23,11 @@ module.exports = [
 			"/launcher/SignupVerifyAction",
 			"/launcher/ResetPasswordAction",
 			"/launcher/ResetPasswordVerifyAction",
+			"/launcher/GetAccountInfoAction",
+			"/launcher/GetCharacterCountAction",
+			"/launcher/GetAuthKeyAction",
 			"/launcher/SetAccountLanguageAction",
-			"/launcher/ReportAction",
-			"/launcher/GetAccountInfoAction"
+			"/launcher/ReportAction"
 		],
 		// List of rules for checking IP for blocking.
 		rules: [

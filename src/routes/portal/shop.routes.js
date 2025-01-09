@@ -71,7 +71,7 @@ module.exports = modules => {
 		const blocked = await ipBlock.applyBlock(req.ip, res.locals.__endpoint, config);
 
 		if (blocked) {
-			res.json({ Return: false, ReturnCode: 403, Msg: "Access denied" });
+			res.status(403).json({ Return: false, ReturnCode: 403, Msg: "Access denied" });
 		} else {
 			next();
 		}

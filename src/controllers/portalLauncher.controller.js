@@ -150,21 +150,6 @@ module.exports.LoginAction = ({ logger, rateLimitter, passport, accountModel }) 
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const authKey = uuid();
-
-		await accountModel.info.update({
-			authKey: authKey,
-			...ipFromLauncher ? { lastLoginIP: req.ip } : {}
-		}, {
-			where: { accountDBID: req.user.accountDBID }
-		});
-
-		next();
-	},
-	/**
-	 * @type {RequestHandler}
-	 */
-	async (req, res, next) => {
 		res.json({
 			Return: true,
 			ReturnCode: 0,
@@ -852,7 +837,6 @@ module.exports.GetAccountInfoAction = ({ logger, sequelize, accountModel }) => [
 			Region: helpers.languageToRegion(account.get("language") || env.string("API_PORTAL_LOCALE")),
 			UserNo: account.get("accountDBID"),
 			UserName: account.get("userName"),
-			AuthKey: account.get("authKey"),
 			Banned: account.get("banned") !== null || bannedByIp !== null
 		});
 	}
@@ -908,7 +892,80 @@ module.exports.SetAccountLanguageAction = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.MaintenanceStatus = ({ sequelize, serverModel }) => [
+module.exports.GetCharacterCountAction = ({ logger, sequelize, accountModel }) => [
+	apiAuthSessionHandler(),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const account = await accountModel.info.findOne({
+			where: { accountDBID: req.user.accountDBID }
+		});
+
+		if (account === null) {
+			throw new ApiError("account not exist", 50000);
+		}
+
+		let characters = [];
+
+		try {
+			characters = await accountModel.characters.findAll({
+				attributes: ["serverId", [sequelize.fn("COUNT", "characterId"), "charCount"]],
+				group: ["serverId"],
+				where: { accountDBID: account.get("accountDBID") }
+			});
+		} catch (err) {
+			logger.error(err);
+		}
+
+		let lastLoginServer = 0;
+
+		if (!env.bool("API_PORTAL_DISABLE_CLIENT_AUTO_ENTER")) {
+			lastLoginServer = account.get("lastLoginServer");
+		}
+
+		const characterCount = helpers.getCharCountString(characters, lastLoginServer, "serverId", "charCount");
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			CharacterCount: characterCount
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.GetAuthKeyAction = ({ accountModel }) => [
+	apiAuthSessionHandler(),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res) => {
+		const authKey = uuid();
+
+		await accountModel.info.update({
+			authKey,
+			...ipFromLauncher ? { lastLoginIP: req.ip } : {}
+		}, {
+			where: { accountDBID: req.user.accountDBID }
+		});
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			AuthKey: authKey
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.GetMaintenanceStatusAction = ({ sequelize, serverModel }) => [
 	/**
 	 * @type {RequestHandler}
 	 */

@@ -75,7 +75,7 @@ module.exports = modules => {
 		const blocked = await ipBlock.applyBlock(req.ip, res.locals.__endpoint, config);
 
 		if (blocked) {
-			res.json({ Return: false, ReturnCode: 403, Msg: "Access denied" });
+			res.status(403).json({ Return: false, ReturnCode: 403, Msg: "Access denied" });
 		} else {
 			next();
 		}
@@ -136,9 +136,11 @@ module.exports = modules => {
 		.get("/ResetPasswordVerifyForm", portalLauncherController.ResetPasswordVerifyFormHtml(mod))
 		.post("/ResetPasswordVerifyAction", portalLauncherController.ResetPasswordVerifyAction(mod))
 
+		.get("/GetMaintenanceStatusAction", portalLauncherController.GetMaintenanceStatusAction(mod))
 		.get("/GetAccountInfoAction", portalLauncherController.GetAccountInfoAction(mod))
+		.get("/GetCharacterCountAction", portalLauncherController.GetCharacterCountAction(mod))
+		.get("/GetAuthKeyAction", portalLauncherController.GetAuthKeyAction(mod))
 		.post("/SetAccountLanguageAction", portalLauncherController.SetAccountLanguageAction(mod))
-		.get("/MaintenanceStatus", portalLauncherController.MaintenanceStatus(mod))
 		.post("/ReportAction", portalLauncherController.ReportAction(mod))
 
 		.get("/GetCaptcha", portalLauncherController.CaptchaCreate(mod))
