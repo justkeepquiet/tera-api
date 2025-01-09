@@ -36,10 +36,6 @@ module.exports = modules => {
 		.get("/ServerList.xml", portalSlsController.GetServerList(modules, "xml"))
 		.get("/ServerList.json", portalSlsController.GetServerList(modules, "json"))
 
-		// Account API (deprecated)
-		.post("/GetAccountInfoByUserNo", portalAccountController.GetAccountInfoByUserNo(modules))
-		.post("/SetAccountInfoByUserNo", portalAccountController.SetAccountInfoByUserNo(modules))
-
 		// Launcher
 		.get("/LauncherMain", (req, res) => {
 			res.redirect(301, `/launcher/Main?${new URLSearchParams(req.query).toString()}`);
@@ -49,6 +45,9 @@ module.exports = modules => {
 		.get("/ShopAuth", (req, res) => {
 			res.redirect(301, `/shop/Auth?${new URLSearchParams(req.query).toString()}`);
 		})
+
+		// Account API (deprecated)
+		.get("/GetAccountInfoByUserNo", portalAccountController.GetAccountInfoByUserNo(modules))
 
 		.use(
 			/**
