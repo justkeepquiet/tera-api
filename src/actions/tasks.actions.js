@@ -44,7 +44,7 @@ class TasksActions {
 			throw Error(`Cannot find PlanetDB instance for server ID: ${serverId}`);
 		}
 
-		const users = await planetDb.model.users.findAll({
+		const characters = await planetDb.model.users.findAll({
 			where: {
 				deletionStatus: 0,
 				class: { [Op.lte]: 12 } // server can set class 13, ignore it
@@ -56,23 +56,39 @@ class TasksActions {
 				where: { serverId }
 			});
 
-			for (const user of users) {
+			for (const character of characters) {
 				await this.modules.accountModel.characters.create({
-					characterId: user.get("userDBID"),
+					characterId: character.get("userDBID"),
 					serverId,
-					accountDBID: user.get("accountDBID"),
-					name: user.get("userName"),
-					classId: user.get("class"),
-					genderId: user.get("gender"),
-					raceId: user.get("race"),
-					level: user.get("userLevel")
+					accountDBID: character.get("accountDBID"),
+					name: character.get("userName"),
+					classId: character.get("class"),
+					genderId: character.get("gender"),
+					raceId: character.get("race"),
+					level: character.get("userLevel")
 				});
 			}
+		});
 
-			await this.modules.serverModel.info.update({ usersTotal: users.length }, {
+		const usersOnline = await planetDb.model.users.findAll({
+			where: {
+				loginStatus: 1
+			}
+		});
+
+		const usersTotal = await planetDb.model.users.count({
+			distinct: true,
+			col: "accountDBID"
+		});
+
+		if (usersOnline !== null && usersTotal !== null) {
+			await this.modules.serverModel.info.update({
+				usersOnline: usersOnline.length,
+				usersTotal
+			}, {
 				where: { serverId }
 			});
-		});
+		}
 	}
 }
 
