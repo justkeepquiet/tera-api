@@ -2922,6 +2922,15 @@ table.dataTable {
   max-height: 10px!important;
   max-width: 10px!important; }
 
+.item-icon-tag {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 32px!important;
+    height: 32px!important;
+    max-height: 32px!important;
+    max-width: 32px!important; }
+
 .item-icon-grade-0 {
   background: #020024;
   background: linear-gradient(135deg,#020024 0,#283040 0,#0b1420 100%); }

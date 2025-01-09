@@ -31,6 +31,9 @@ module.exports = (sequelize, DataTypes) =>
 		rareGrade: {
 			type: DataTypes.INTEGER(11)
 		},
+		tag: {
+			type: DataTypes.INTEGER(11)
+		},
 		validAfter: {
 			type: DataTypes.DATE,
 			allowNull: false

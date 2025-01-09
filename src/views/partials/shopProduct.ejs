@@ -4,6 +4,9 @@
 			<div class="item-icon-block">
 				<img src="/public/shop/images/tera-icons/<%= product.icon %>.png" class="icon_grade_<%= product.rareGrade %> item-icon" alt=""">
 				<img src="/public/shop/images/icons/icon_grade_<%= product.rareGrade %>.png" class="item-icon-grade" alt="">
+				<%_ if (product.tag !== null) { _%>
+				<img src="/public/shop/images/icons/icon_tag_<%= product.tag %>.png" class="item-icon-tag" alt="">
+				<%_ } _%>
 			</div>
 			<div class="text-block text-light" style="width: 520px;">
 				<h5 class="item_grade_<%= product.rareGrade %>">

@@ -55,6 +55,11 @@ module.exports = {
 		});
 
 		// `shop_products`
+		await queryInterface.addColumn("shop_products", "tag", {
+			type: Sequelize.DataTypes.INTEGER(11),
+			after: "rareGrade"
+		});
+
 		await queryInterface.addColumn("shop_products", "discount", {
 			type: Sequelize.DataTypes.INTEGER(11),
 			allowNull: false,
@@ -149,6 +154,7 @@ module.exports = {
 		await queryInterface.removeColumn("shop_products", "discountValidBefore");
 		await queryInterface.removeColumn("shop_products", "discountValidAfter");
 		await queryInterface.removeColumn("shop_products", "discount");
+		await queryInterface.removeColumn("shop_products", "tag");
 
 		// `shop_promocodes`
 		await queryInterface.addColumn("shop_promocodes", "currentActivations", {

@@ -213,6 +213,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 				description: product.get("strings")[0]?.get("description"),
 				icon: product.get("icon"),
 				rareGrade: product.get("rareGrade"),
+				tag: product.get("tag"),
 				itemsCount: product.get("itemsCount"), // TODO
 				itemCount: product.get("item").length
 			};
@@ -334,7 +335,8 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 			title: product.get("strings")[0]?.get("title"),
 			description: product.get("strings")[0]?.get("description"),
 			icon: product.get("icon"),
-			rareGrade: product.get("rareGrade")
+			rareGrade: product.get("rareGrade"),
+			tag: product.get("tag")
 		};
 
 		const productItems = await shopModel.productItems.findAll({

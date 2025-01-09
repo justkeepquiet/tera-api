@@ -60,6 +60,7 @@ products.forEach((product, id) => {
 		'<div class="item-icon-block">' +
 			`<img data-src="/static/images/tera-icons/${product.icon}.png" class="item-icon-grade-${product.rareGrade} item-icon">` +
 			`<img data-src="/static/images/icons/icon_grade_${product.rareGrade}.png" class="item-icon-grade" alt="">` +
+			(product.tag !== null ? `<img data-src="/static/images/icons/icon_tag_${product.tag}.png" class="item-icon-tag" alt="">` : "") +
 			'</div>',
 		`<a class="item-grade-${product.rareGrade}" href="/shop_products/edit?id=${id}&amp;fromCategoryId=${categoryId || ""}">${product.title || __("[unknown]")}</a>`,
 		`(${product.categoryId}) <a href="/shop_products?categoryId=${product.categoryId}">${product.categoryTitle}</a>`,

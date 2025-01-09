@@ -8,6 +8,9 @@
 			<a class="buy" data-id="<%= id %>" href="#">
 				<img data-src="/public/shop/images/tera-icons/<%= product.icon %>.png" class="icon_grade_<%= product.rareGrade %> item-icon" alt="">
 				<img data-src="/public/shop/images/icons/icon_grade_<%= product.rareGrade %>.png" class="item-icon-grade" alt="">
+				<%_ if (product.tag !== null) { _%>
+				<img data-src="/public/shop/images/icons/icon_tag_<%= product.tag %>.png" class="item-icon-tag" alt="">
+				<%_ } _%>
 			</a>
 			<div class="text-center">
 				<span class="gold"><strong><%= product.price %></strong> <i class="fas fa-coins"></i></span>
@@ -32,7 +35,7 @@
 </div>
 <script type="text/javascript">
 	$(function() {
-		$("#content .item-icon, #content .item-icon-grade").lazy({
+		$("#content .item-icon, #content .item-icon-grade, #content .item-icon-tag").lazy({
 			appendScroll: $("#content"),
 			visibleOnly: true
 		});
