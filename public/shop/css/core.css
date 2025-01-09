@@ -423,18 +423,27 @@ a, a:focus {
 	top: 45%;
 }
 
-.buy-block-left,.buy-block-right {
+.buy-block-left, .buy-block-right {
+	display: flex!important;
+	justify-content: center!important;
+	align-items: center!important;
 	margin: 0!important;
 	height: 124px;
 	width: 70%!important;
-	padding: 7px 5px 5px 15px;
 	border-radius: 6px 0 0 6px;
 	background-color: #0E3756;
 }
 
+.buy-block-left .buy-description {
+	width: 100%;
+	font-size: 12px;
+	margin: 10px 0 0 10px!important;
+}
+
 .buy-block-right {
 	width: 30%!important;
-	padding: 0 5px 5px;
+	text-align: center;
+	padding: 5px;
 	border-radius: 0 6px 6px 0;
 	background-color: #4d1e1e;
 }
