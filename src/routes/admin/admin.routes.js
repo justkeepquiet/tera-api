@@ -124,6 +124,18 @@ module.exports = modules => {
 	modules.app.use(passport.initialize());
 	modules.app.use(passport.session());
 
+	modules.app.use((err, req, res, next) => {
+		if (err) {
+			modules.logger.warn(err);
+
+			req.logout(() =>
+				res.redirect("/login")
+			);
+		} else {
+			next();
+		}
+	});
+
 	modules.app.use((req, res, next) => {
 		res.locals.__ = i18n.__;
 		res.locals.locale = i18n.getLocale();

@@ -101,6 +101,18 @@ module.exports = modules => {
 	modules.app.use("/launcher", passport.initialize());
 	modules.app.use("/launcher", passport.session());
 
+	modules.app.use("/launcher", (err, req, res, next) => {
+		if (err) {
+			modules.logger.warn(err);
+
+			req.logout(() =>
+				res.redirect("/launcher/LoginForm")
+			);
+		} else {
+			next();
+		}
+	});
+
 	modules.app.use("/launcher", (req, res, next) => {
 		const locale = (req?.user?.language || req.query.lang || env.string("API_PORTAL_LOCALE")).split("-")[0];
 

@@ -89,6 +89,16 @@ module.exports = modules => {
 	modules.app.use("/shop", passport.initialize());
 	modules.app.use("/shop", passport.session());
 
+	modules.app.use("/shop", (err, req, res, next) => {
+		if (err) {
+			modules.logger.warn(err);
+
+			req.logout(() => next());
+		} else {
+			next();
+		}
+	});
+
 	modules.app.use("/shop", (req, res, next) => {
 		const locale = (req?.user?.language || env.string("API_PORTAL_LOCALE")).split("-")[0];
 
