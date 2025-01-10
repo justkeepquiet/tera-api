@@ -24,11 +24,11 @@
 							<textarea type="text" class="form-control boxed" name="content"><%= content %></textarea>
 						</div>
 						<div class="form-group row">
-							<div class="col-sm-6">
+							<div class="col-sm-4">
 								<label class="control-label" for="days"><%= __("Days") %></label>
 								<input type="number" class="form-control boxed" name="days" value="<%= days %>">
 							</div>
-							<div class="col-sm-6">
+							<div class="col-sm-8">
 								<label class="control-label" for="icon"><%= __("Icon") %></label>
 								<div>
 									<label>
@@ -49,7 +49,7 @@
 						<div id="items">
 							<%_ itemTemplateIds.forEach((itemTemplateId, i) => { _%>
 							<div class="form-group row">
-								<div class="col-sm-6">
+								<div class="col-sm-7">
 									<label class="control-label" for="itemTemplateIds[]">
 										<%= __("Item template ID") %>
 										<a class="btn btn-secondary btn-sm remove-item" title="" href="#"><i class="fa fa-minus"></i></a>
@@ -60,7 +60,7 @@
 									<label class="control-label" for="boxItemCounts[]"><%= __("Count") %></label>
 									<input type="number" class="form-control boxed mt-2" name="boxItemCounts[]" value="<%= boxItemCounts[i] %>">
 								</div>
-								<div class="col-sm-4">
+								<div class="col-sm-3">
 									<label class="control-label" for="boxItemIds[]"><%= __("Service item ID") %></label>
 									<input type="number" class="form-control boxed mt-2" name="boxItemIds[]" value="<%= boxItemIds[i] %>" placeholder="<%= __("optional") %>">
 								</div>
@@ -98,7 +98,7 @@
 		$("#add-item").click(function() {
 			$("#items").append(
 				"<div class='form-group row'>" +
-				"	<div class='col-sm-6'>" +
+				"	<div class='col-sm-7'>" +
 				"		<label class='control-label' for='itemTemplateIds[]'>" +
 				"			<%= __('Item template ID') %>" +
 				"			<a class='btn btn-secondary btn-sm remove-item' title='' href='#'><i class='fa fa-minus'></i></a>" +
@@ -109,7 +109,7 @@
 				"		<label class='control-label' for='boxItemCounts[]'><%= __('Count') %></label>" +
 				"		<input type='number' class='form-control boxed mt-2' name='boxItemCounts[]' value='1'>" +
 				"	</div>" +
-				"	<div class='col-sm-4'>" +
+				"	<div class='col-sm-3'>" +
 				"		<label class='control-label' for='boxItemIds[]'><%= __('Service item ID') %></label>" +
 				"		<input type='number' class='form-control boxed mt-2' name='boxItemIds[]' value='' placeholder='<%= __('optional') %>'>" +
 				"	</div>" +

@@ -574,6 +574,14 @@ function onFormSubmit(postUrl) {
 }
 
 $(function() {
+	$(".form-panel-collapse").on("show.bs.collapse", function() {
+		$(this).siblings(".form-panel-heading").addClass("active");
+	});
+
+	$(".form-panel-collapse").on("hide.bs.collapse", function() {
+		$(this).siblings(".form-panel-heading").removeClass("active");
+	});
+
 	if (sessionStorage.getItem("changeScroll")) {
 		if ($(".history-back").length == 0) {
 			$(".main-wrapper").animate({ scrollTop: sessionStorage.getItem("scrollTop") }, 10);

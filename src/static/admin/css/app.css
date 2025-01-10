@@ -880,6 +880,38 @@ label,
   height: 38px;
 }
 
+.form-panel {
+  position: relative;
+  padding: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+  border-radius: 0.25rem;
+  -webkit-box-shadow: 1px 1px 5px rgba(126, 142, 159, 0.1);
+  box-shadow: 1px 1px 5px rgba(126, 142, 159, 0.1);
+  border: 1px solid #E2E3E5; }
+
+.form-panel .title-block {
+  padding-top: 5px;
+  margin-bottom: 5px; }
+.form-panel .subtitle-block {
+    padding-bottom: 0;
+    margin-bottom: 0;
+    border-bottom: 0; }
+  .form-panel-heading h3 {
+    cursor: pointer; }
+  .form-panel-heading  h3:before {
+      font-family: FontAwesome;
+      content: "\f078";
+      float: right;
+      transition: all 0.5s; }
+  .form-panel-heading.active h3:before {
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    transform: rotate(180deg); }
+    /* .form-panel .form-panel-collapse {
+      border-top: 1px dashed #e0e5ea; } */
+      .form-panel-collapse .row:first-child {
+          padding-top: 15px; }
+
 .radio,
 .checkbox {
   display: none; }
@@ -3021,7 +3053,8 @@ table.dataTable {
   .autocomplete-result .item-icon-input {
     margin: 2px 10px 0 2px; }
   .autocomplete-result small {
-    margin-top: 9px;
+    margin-top: 3px;
+    line-height: 30px;
     display: block; }
   .autocomplete-result span {
     margin: 6px 0 0 12px;
