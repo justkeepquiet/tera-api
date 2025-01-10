@@ -14,11 +14,12 @@ class MigrationManager {
 	 * @param {sequelize} sequelize
 	 * @param {logger} logger
 	 */
-	constructor(sequelize, logger, migrationsDir) {
+	constructor(sequelize, logger, migrationsDir, fieldName = "dbVersion") {
 		this.sequelize = sequelize;
 		this.logger = logger;
 		this.queryInterface = sequelize.getQueryInterface();
 		this.migrationsDir = migrationsDir;
+		this.fieldName = fieldName;
 		this.tableName = "global_property";
 	}
 
@@ -43,7 +44,7 @@ class MigrationManager {
 
 	async getCurrentVersion() {
 		const result = await this.queryInterface.rawSelect(this.tableName, {
-			where: { name: "dbVersion" }
+			where: { name: this.fieldName }
 		}, ["value"]);
 
 		return result ? parseInt(result[0], 10) : 0;
@@ -54,14 +55,14 @@ class MigrationManager {
 
 		if (currentVersion === 0) {
 			await this.queryInterface.bulkInsert(this.tableName, [{
-				name: "dbVersion",
+				name: this.fieldName,
 				value: version
 			}]);
 		} else {
 			await this.queryInterface.bulkUpdate(this.tableName, {
 				value: version
 			}, {
-				name: "dbVersion"
+				name: this.fieldName
 			});
 		}
 	}

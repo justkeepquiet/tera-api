@@ -60,6 +60,7 @@ const geoip = require("@maxmind/geoip2-node");
 const CoreLoader = require("./lib/coreLoader");
 const PluginsLoader = require("./lib/pluginsLoader");
 const { Scheduler, expr } = require("./lib/scheduler");
+const { databaseMigrationProcedure } = require("./lib/databaseMigration");
 const RateLimitter = require("./lib/rateLimitter");
 const HubFunctions = require("./lib/hubFunctions");
 const SteerFunctions = require("./lib/steerFunctions");
@@ -70,7 +71,6 @@ const ExpressServer = require("./lib/expressServer");
 const IpApiClient = require("./lib/ipApiClient");
 const TasksActions = require("./actions/tasks.actions");
 const ServerCheckActions = require("./actions/serverCheck.actions");
-const MigrationManager = require("./utils/migrationManager");
 const CacheManager = require("./utils/cacheManager");
 const helpers = require("./utils/helpers");
 const env = require("./utils/env");
@@ -246,32 +246,12 @@ moduleLoader.setPromise("sequelize", async () => {
 	sequelizeLogger.info("Connected.");
 
 	const migrationsDir = path.join(__dirname, "migrations");
-	const migrationManager = new MigrationManager(sequelize, sequelizeLogger, migrationsDir);
-	await migrationManager.init();
-
-	const currentDbVersion = await migrationManager.getCurrentVersion();
-	let syncTables = false;
-
-	if (currentDbVersion === 0) {
-		sequelizeLogger.info("DB version is not found.");
-
-		syncTables = true;
-		const isDbNotClean = await migrationManager.queryInterface.showAllTables()
-			.then(tables => tables.includes("server_info"));
-
-		if (!isDbNotClean) {
-			sequelizeLogger.debug(`Database is clean, set DB version: ${DB_VERSION}`);
-			await migrationManager.setVersion(DB_VERSION);
-		} else {
-			await migrationManager.runMigrations();
-		}
-	} else if (currentDbVersion !== DB_VERSION) {
-		syncTables = true;
-		await migrationManager.runMigrations();
-	}
+	const syncTables = await databaseMigrationProcedure(sequelize, sequelizeLogger, migrationsDir, "dbVersion", DB_VERSION);
 
 	if (syncTables) {
 		sequelizeLogger.info("Syncing tables.");
+	} else {
+		sequelizeLogger.info("Skipping tables sync.");
 	}
 
 	await pl.loadComponent("models.before", moduleLoader, sequelize, DataTypes, syncTables);
