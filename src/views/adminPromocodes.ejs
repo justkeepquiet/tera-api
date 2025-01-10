@@ -49,7 +49,7 @@ promocodes.forEach(promocode => {
 
 	tableData.push([
 		promocode.get("promoCodeId"),
-		promocode.get("promoCode"),
+		`<a href="/promocodes/edit?promoCodeId=${promocode.get("promoCodeId")}">${promocode.get("promoCode")}</a>`,
 		promocode.get("strings")[0]?.get("description") || "-",
 		promocode.get("function"),
 		promocode.get("maxActivations") > 0 ? `${promocode.get("currentActivations")}/${promocode.get("maxActivations")}` : promocode.get("currentActivations"),
