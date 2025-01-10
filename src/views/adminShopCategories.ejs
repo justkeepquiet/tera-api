@@ -16,11 +16,11 @@
 								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
-											<th><%= __("Sort.") %></th>
 											<th><%= __("ID") %></th>
 											<th><%= __("Title") %> (<%= locale %>)</th>
 											<th><%= __("Active") %></th>
 											<th><%= __("Published") %></th>
+											<th><%= __("Sort.") %></th>
 											<th></th>
 										</tr>
 									</thead>
@@ -39,11 +39,11 @@ const tableData = [];
 
 categories.forEach(category => {
 	tableData.push([
-		category.get("sort"),
 		category.get("id"),
 		category.get("strings")[0]?.get("title") || "-",
 		category.get("active") ? __("Yes") : __("No"),
 		`<span class="text-${category.get("active") ? "success" : "danger"}">${category.get("active") ? __("Yes") : __("No")}</span>`,
+		category.get("sort"),
 		`<a class="btn btn-secondary btn-sm" href="/shop_categories/edit?id=${category.get("id")}"><i class="fa fa-pencil"></i></a> ` +
 			`<a class="btn btn-secondary btn-sm" href="/shop_categories/delete?id=${category.get("id")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
 	]);
@@ -54,7 +54,7 @@ _%>
 	$(function() {
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
-			order: [[0, "desc"]],
+			order: [[4, "desc"]],
 			columnDefs: [{ orderable: false, targets: -1 }],
 			columns: [null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
