@@ -44,19 +44,7 @@
 								<label class="control-label" for="sort"><%= __("Sort") %></label>
 								<input type="number" class="form-control boxed" name="sort" value="0">
 							</div>
-							<div class="col-sm-6">
-								<label class="control-label" for="tag"><%= __("Tag") %></label>
-								<select class="form-control boxed" name="tag">
-									<option value="">- <%= __("None") %> -</option>
-									<option value="0">(0) Event</option>
-									<option value="1">(1) Hot</option>
-									<option value="2">(2) New</option>
-									<option value="3">(3) Sale</option>
-								</select>
-							</div>
-						</div>
-						<div class="form-group row">
-							<div class="col-sm-6">
+							<div class="col-sm-6 mt-4">
 								<label>
 									<input type="checkbox" class="checkbox" name="active" checked="checked">
 									<span><%= __("Active") %></span>
@@ -152,6 +140,40 @@
 						</div>
 						<div class="title-block">
 							<h3 class="title">
+								<%= __("Tag Information") %>
+								<a class="btn btn-secondary btn-sm" id="tag-info-off" title="" href="#" style="display: none;"><i class="fa fa-chevron-up"></i></a>
+								<a class="btn btn-secondary btn-sm" id="tag-info-on" title="" href="#"><i class="fa fa-chevron-down"></i></a>
+							</h3>
+						</div>
+						<div id="tag-info" style="display: none;">
+							<div class="form-group row">
+								<div class="col-sm-6">
+									<label class="control-label" for="tag"><%= __("Tag") %></label>
+									<select class="form-control boxed" name="tag">
+										<option value="">- <%= __("None") %> -</option>
+										<option value="0" style="color: #7B34F7;">(0) Event</option>
+										<option value="1" style="color: #C60400;">(1) Hot</option>
+										<option value="2" style="color: #D68600;">(2) New</option>
+										<option value="3" style="color: #5ACB29;">(3) Sale</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-sm-6">
+									<label class="control-label" for="tagValidAfter"><%= __("Tag valid from") %></label>
+									<input type="datetime-local" class="form-control boxed" name="tagValidAfter" value="">
+									<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+								</div>
+								<div class="col-sm-6">
+									<label class="control-label" for="tagValidBefore"><%= __("Tag valid to") %></label>
+									<input type="datetime-local" class="form-control boxed" name="tagValidBefore" value="">
+									<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+								</div>
+							</div>
+							<div class="form-group row"></div>
+						</div>
+						<div class="title-block">
+							<h3 class="title">
 								<%= __("Discount Information") %>
 								<a class="btn btn-secondary btn-sm" id="discount-info-off" title="" href="#" style="display: none;"><i class="fa fa-chevron-up"></i></a>
 								<a class="btn btn-secondary btn-sm" id="discount-info-on" title="" href="#"><i class="fa fa-chevron-down"></i></a>
@@ -160,18 +182,18 @@
 						<div id="discount-info" style="display: none;">
 							<div class="form-group row">
 								<div class="col-sm-6">
-									<label class="control-label" for="price"><%= __("Discount") %> (%)</label>
+									<label class="control-label" for="discount"><%= __("Discount") %> (%)</label>
 									<input type="number" class="form-control boxed" name="discount" value="0">
 								</div>
 							</div>
 							<div class="form-group row">
 								<div class="col-sm-6">
-									<label class="control-label" for="validAfter"><%= __("Discount valid from") %></label>
+									<label class="control-label" for="discountValidAfter"><%= __("Discount valid from") %></label>
 									<input type="datetime-local" class="form-control boxed" name="discountValidAfter" value="">
 									<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
 								</div>
 								<div class="col-sm-6">
-									<label class="control-label" for="validBefore"><%= __("Discount valid to") %></label>
+									<label class="control-label" for="discountValidBefore"><%= __("Discount valid to") %></label>
 									<input type="datetime-local" class="form-control boxed" name="discountValidBefore" value="">
 									<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
 								</div>
@@ -198,6 +220,16 @@
 		$("#add-info-off").click(function() {
 			$("#add-info").slideUp("fast");
 			$("#add-info-on").show();
+			$(this).hide();
+		});
+		$("#tag-info-on").click(function() {
+			$("#tag-info").slideDown("fast");
+			$("#tag-info-off").show();
+			$(this).hide();
+		});
+		$("#tag-info-off").click(function() {
+			$("#tag-info").slideUp("fast");
+			$("#tag-info-on").show();
 			$(this).hide();
 		});
 		$("#discount-info-on").click(function() {

@@ -59,19 +59,24 @@ module.exports = {
 			type: Sequelize.DataTypes.INTEGER(11),
 			after: "rareGrade"
 		});
-
+		await queryInterface.addColumn("shop_products", "tagValidAfter", {
+			type: Sequelize.DataTypes.DATE,
+			after: "tag"
+		});
+		await queryInterface.addColumn("shop_products", "tagValidBefore", {
+			type: Sequelize.DataTypes.DATE,
+			after: "tagValidAfter"
+		});
 		await queryInterface.addColumn("shop_products", "discount", {
 			type: Sequelize.DataTypes.INTEGER(11),
 			allowNull: false,
 			defaultValue: 0,
 			after: "active"
 		});
-
 		await queryInterface.addColumn("shop_products", "discountValidAfter", {
 			type: Sequelize.DataTypes.DATE,
 			after: "discount"
 		});
-
 		await queryInterface.addColumn("shop_products", "discountValidBefore", {
 			type: Sequelize.DataTypes.DATE,
 			after: "discountValidAfter"
@@ -152,6 +157,8 @@ module.exports = {
 		await queryInterface.removeColumn("shop_products", "discountValidBefore");
 		await queryInterface.removeColumn("shop_products", "discountValidAfter");
 		await queryInterface.removeColumn("shop_products", "discount");
+		await queryInterface.removeColumn("shop_products", "tagValidBefore");
+		await queryInterface.removeColumn("shop_products", "tagValidAfter");
 		await queryInterface.removeColumn("shop_products", "tag");
 
 		// `shop_promocodes`

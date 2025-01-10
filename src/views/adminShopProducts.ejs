@@ -29,6 +29,7 @@
 								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
+											<th></th>
 											<th><%= __("ID") %></th>
 											<th></th>
 											<th><%= __("Title") %></th>
@@ -56,6 +57,7 @@ const tableData = [];
 
 products.forEach((product, id) => {
 	tableData.push([
+		"",
 		id,
 		'<div class="item-icon-block">' +
 			`<img data-src="/static/images/tera-icons/${product.icon}.png" class="item-icon-grade-${product.rareGrade} item-icon">` +
@@ -83,7 +85,7 @@ _%>
 				"<'row'<'col-sm-12'tr>>" +
 				"<'row'<'col-sm-2 dt-action'><'col-sm-5'i><'col-sm-5'p>>",
 			data: serializedTable,
-			order: [[7, "desc"]],
+			order: [[9, "desc"]],
 			columnDefs: [
 				{
 					targets: 0,
@@ -104,9 +106,9 @@ _%>
 						}
 					}
 				},
-				{ orderable: false, targets: [1, -1] },
+				{ orderable: false, targets: [2, -1] },
 			],
-			columns: [null, { width: "1%" }, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
+			columns: [null, null, { width: "1%" }, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".dt-action").html(
 			'<form id="action-form" method="POST">' +

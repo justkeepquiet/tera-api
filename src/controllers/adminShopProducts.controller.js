@@ -78,12 +78,24 @@ module.exports.index = ({ i18n, sequelize, shopModel, datasheetModel }) => [
 		})).forEach(product => {
 			let productDiscount = 0;
 
-			if (product.get("discountValidAfter") &&
+			if (product.get("discount") > 0 &&
+				product.get("discountValidAfter") &&
 				product.get("discountValidBefore") &&
-				moment(product.get("dateNow")).isAfter(product.get("discountValidAfter")) &&
-				moment(product.get("dateNow")).isBefore(product.get("discountValidBefore"))
+				moment(product.get("dateNow")).isSameOrAfter(product.get("discountValidAfter")) &&
+				moment(product.get("dateNow")).isSameOrBefore(product.get("discountValidBefore"))
 			) {
 				productDiscount = product.get("discount");
+			}
+
+			let tag = null;
+
+			if (product.get("tag") !== null &&
+				product.get("tagValidAfter") &&
+				product.get("tagValidBefore") &&
+				moment(product.get("dateNow")).isSameOrAfter(product.get("tagValidAfter")) &&
+				moment(product.get("dateNow")).isSameOrBefore(product.get("tagValidBefore"))
+			) {
+				tag = product.get("tag");
 			}
 
 			const productInfo = {
@@ -96,7 +108,7 @@ module.exports.index = ({ i18n, sequelize, shopModel, datasheetModel }) => [
 				description: product.get("strings")[0]?.get("description"),
 				icon: product.get("icon"),
 				rareGrade: product.get("rareGrade"),
-				tag: product.get("tag"),
+				tag,
 				active: product.get("active"),
 				published:
 					product.get("active") &&
@@ -208,12 +220,6 @@ module.exports.addAction = modules => [
 			.isISO8601().withMessage(modules.i18n.__("Valid from field must contain a valid date.")),
 		body("validBefore")
 			.isISO8601().withMessage(modules.i18n.__("Valid to field must contain a valid date.")),
-		body("discount")
-			.isInt({ min: 0, max: 100 }).withMessage(modules.i18n.__("Discount field must contain a valid number.")),
-		body("discountValidAfter").optional({ checkFalsy: true })
-			.isISO8601().withMessage(modules.i18n.__("Discount valid from field must contain a valid date.")),
-		body("discountValidBefore").optional({ checkFalsy: true })
-			.isISO8601().withMessage(modules.i18n.__("Discount valid to field must contain a valid date.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(modules.i18n.__("Active field has invalid value.")),
 		// Items
@@ -244,12 +250,23 @@ module.exports.addAction = modules => [
 			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Icon must be between 1 and 255 characters.")),
 		body("rareGrade").optional()
 			.isIn(["", "0", "1", "2", "3", "4", "5"]).withMessage(modules.i18n.__("Rare grade field has invalid value.")),
-		body("tag").optional()
-			.isIn(["", "0", "1", "2", "3"]).withMessage(modules.i18n.__("Tag field has invalid value.")),
 		body("title.*").optional().trim()
 			.isLength({ max: 1024 }).withMessage(modules.i18n.__("Title must be between 1 and 1024 characters.")),
 		body("description.*").optional().trim()
-			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters."))
+			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters.")),
+		body("tag").optional()
+			.isIn(["", "0", "1", "2", "3"]).withMessage(modules.i18n.__("Tag field has invalid value.")),
+		body("tagValidAfter").optional({ checkFalsy: true })
+			.isISO8601().withMessage(modules.i18n.__("Tag valid from field must contain a valid date.")),
+		body("tagValidBefore").optional({ checkFalsy: true })
+			.isISO8601().withMessage(modules.i18n.__("Tag valid to field must contain a valid date.")),
+		body("discount")
+			.isInt({ min: 0, max: 100 }).withMessage(modules.i18n.__("Discount field must contain a valid number.")),
+		body("discountValidAfter").optional({ checkFalsy: true })
+			.isISO8601().withMessage(modules.i18n.__("Discount valid from field must contain a valid date.")),
+		body("discountValidBefore").optional({ checkFalsy: true })
+			.isISO8601().withMessage(modules.i18n.__("Discount valid to field must contain a valid date."))
+
 	],
 	formValidationHandler(modules.logger),
 	/**
@@ -257,8 +274,9 @@ module.exports.addAction = modules => [
 	 */
 	async (req, res, next) => {
 		const { categoryId, validAfter, validBefore, active, price, sort,
+			title, description, icon, rareGrade,
+			tag, tagValidAfter, tagValidBefore,
 			discount, discountValidAfter, discountValidBefore,
-			title, description, icon, rareGrade, tag,
 			itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
 
 		const serviceItem = new ServiceItem(modules);
@@ -277,13 +295,15 @@ module.exports.addAction = modules => [
 				price,
 				validAfter: moment.tz(validAfter, req.user.tz).toDate(),
 				validBefore: moment.tz(validBefore, req.user.tz).toDate(),
-				discount,
-				discountValidAfter: discountValidAfter ? moment.tz(discountValidAfter, req.user.tz).toDate() : null,
-				discountValidBefore: discountValidBefore ? moment.tz(discountValidBefore, req.user.tz).toDate() : null,
 				sort,
 				icon: icon || null,
 				rareGrade: rareGrade === "" ? null : rareGrade,
-				tag: tag === "" ? null : tag
+				tag: tag === "" ? null : tag,
+				tagValidAfter: tagValidAfter ? moment.tz(tagValidAfter, req.user.tz).toDate() : null,
+				tagValidBefore: tagValidBefore ? moment.tz(tagValidBefore, req.user.tz).toDate() : null,
+				discount,
+				discountValidAfter: discountValidAfter ? moment.tz(discountValidAfter, req.user.tz).toDate() : null,
+				discountValidBefore: discountValidBefore ? moment.tz(discountValidBefore, req.user.tz).toDate() : null
 			});
 
 			const promises = [];
@@ -415,9 +435,6 @@ module.exports.edit = ({ config, logger, i18n, shopModel }) => [
 			price: product.get("price"),
 			validAfter: moment(product.get("validAfter")),
 			validBefore: moment(product.get("validBefore")),
-			discount: product.get("discount"),
-			discountValidAfter: product.get("discountValidAfter") ? moment(product.get("discountValidAfter")) : "",
-			discountValidBefore: product.get("discountValidBefore") ? moment(product.get("discountValidBefore")) : "",
 			active: product.get("active"),
 			sort: product.get("sort"),
 			title,
@@ -425,6 +442,11 @@ module.exports.edit = ({ config, logger, i18n, shopModel }) => [
 			icon: product.get("icon"),
 			rareGrade: product.get("rareGrade"),
 			tag: product.get("tag"),
+			tagValidAfter: product.get("tagValidAfter") ? moment(product.get("tagValidAfter")) : "",
+			tagValidBefore: product.get("tagValidBefore") ? moment(product.get("tagValidBefore")) : "",
+			discount: product.get("discount"),
+			discountValidAfter: product.get("discountValidAfter") ? moment(product.get("discountValidAfter")) : "",
+			discountValidBefore: product.get("discountValidBefore") ? moment(product.get("discountValidBefore")) : "",
 			itemTemplateIds,
 			boxItemIds,
 			boxItemCounts,
@@ -458,12 +480,6 @@ module.exports.editAction = modules => [
 			.isISO8601().withMessage(modules.i18n.__("Valid from field must contain a valid date.")),
 		body("validBefore")
 			.isISO8601().withMessage(modules.i18n.__("Valid to field must contain a valid date.")),
-		body("discount")
-			.isInt({ min: 0, max: 100 }).withMessage(modules.i18n.__("Discount field must contain a valid number.")),
-		body("discountValidAfter").optional({ checkFalsy: true })
-			.isISO8601().withMessage(modules.i18n.__("Discount valid from field must contain a valid date.")),
-		body("discountValidBefore").optional({ checkFalsy: true })
-			.isISO8601().withMessage(modules.i18n.__("Discount valid to field must contain a valid date.")),
 		body("active").optional()
 			.isIn(["on"]).withMessage(modules.i18n.__("Active field has invalid value.")),
 		// Items
@@ -494,12 +510,22 @@ module.exports.editAction = modules => [
 			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Icon must be between 1 and 255 characters.")),
 		body("rareGrade").optional()
 			.isIn(["", "0", "1", "2", "3", "4", "5"]).withMessage(modules.i18n.__("Rare grade field has invalid value.")),
-		body("tag").optional()
-			.isIn(["", "0", "1", "2", "3"]).withMessage(modules.i18n.__("Tag field has invalid value.")),
 		body("title.*").optional().trim()
 			.isLength({ max: 1024 }).withMessage(modules.i18n.__("Title must be between 1 and 1024 characters.")),
 		body("description.*").optional().trim()
-			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters."))
+			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters.")),
+		body("tag").optional()
+			.isIn(["", "0", "1", "2", "3"]).withMessage(modules.i18n.__("Tag field has invalid value.")),
+		body("tagValidAfter").optional({ checkFalsy: true })
+			.isISO8601().withMessage(modules.i18n.__("Tag valid from field must contain a valid date.")),
+		body("tagValidBefore").optional({ checkFalsy: true })
+			.isISO8601().withMessage(modules.i18n.__("Tag valid to field must contain a valid date.")),
+		body("discount")
+			.isInt({ min: 0, max: 100 }).withMessage(modules.i18n.__("Discount field must contain a valid number.")),
+		body("discountValidAfter").optional({ checkFalsy: true })
+			.isISO8601().withMessage(modules.i18n.__("Discount valid from field must contain a valid date.")),
+		body("discountValidBefore").optional({ checkFalsy: true })
+			.isISO8601().withMessage(modules.i18n.__("Discount valid to field must contain a valid date."))
 	],
 	formValidationHandler(modules.logger),
 	/**
@@ -508,8 +534,9 @@ module.exports.editAction = modules => [
 	async (req, res, next) => {
 		const { id } = req.query;
 		const { categoryId, validAfter, validBefore, active, price, sort,
+			title, description, icon, rareGrade,
+			tag, tagValidAfter, tagValidBefore,
 			discount, discountValidAfter, discountValidBefore,
-			title, description, icon, rareGrade, tag,
 			itemTemplateIds, boxItemIds, boxItemCounts } = req.body;
 
 		const serviceItem = new ServiceItem(modules);
@@ -552,13 +579,15 @@ module.exports.editAction = modules => [
 					price,
 					validAfter: moment.tz(validAfter, req.user.tz).toDate(),
 					validBefore: moment.tz(validBefore, req.user.tz).toDate(),
-					discount,
-					discountValidAfter: discountValidAfter ? moment.tz(discountValidAfter).toDate() : null,
-					discountValidBefore: discountValidBefore ? moment.tz(discountValidBefore).toDate() : null,
 					sort,
 					icon: icon || null,
 					rareGrade: rareGrade === "" ? null : rareGrade,
-					tag: tag === "" ? null : tag
+					tag: tag === "" ? null : tag,
+					tagValidAfter: tagValidAfter ? moment.tz(tagValidAfter, req.user.tz).toDate() : null,
+					tagValidBefore: tagValidBefore ? moment.tz(tagValidBefore, req.user.tz).toDate() : null,
+					discount,
+					discountValidAfter: discountValidAfter ? moment.tz(discountValidAfter, req.user.tz).toDate() : null,
+					discountValidBefore: discountValidBefore ? moment.tz(discountValidBefore, req.user.tz).toDate() : null
 				}, {
 					where: { id: product.get("id") }
 				})

@@ -34,6 +34,12 @@ module.exports = (sequelize, DataTypes) =>
 		tag: {
 			type: DataTypes.INTEGER(11)
 		},
+		tagValidAfter: {
+			type: DataTypes.DATE
+		},
+		tagValidBefore: {
+			type: DataTypes.DATE
+		},
 		validAfter: {
 			type: DataTypes.DATE,
 			allowNull: false

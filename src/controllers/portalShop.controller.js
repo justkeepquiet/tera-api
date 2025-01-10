@@ -196,12 +196,24 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 		})).forEach(product => {
 			let productDiscount = 0;
 
-			if (product.get("discountValidAfter") &&
+			if (product.get("discount") > 0 &&
+				product.get("discountValidAfter") &&
 				product.get("discountValidBefore") &&
-				moment(product.get("dateNow")).isAfter(product.get("discountValidAfter")) &&
-				moment(product.get("dateNow")).isBefore(product.get("discountValidBefore"))
+				moment(product.get("dateNow")).isSameOrAfter(product.get("discountValidAfter")) &&
+				moment(product.get("dateNow")).isSameOrBefore(product.get("discountValidBefore"))
 			) {
 				productDiscount = product.get("discount");
+			}
+
+			let tag = null;
+
+			if (product.get("tag") !== null &&
+				product.get("tagValidAfter") &&
+				product.get("tagValidBefore") &&
+				moment(product.get("dateNow")).isSameOrAfter(product.get("tagValidAfter")) &&
+				moment(product.get("dateNow")).isSameOrBefore(product.get("tagValidBefore"))
+			) {
+				tag = product.get("tag");
 			}
 
 			const priceWithDiscount = helpers.subtractPercentage(product.get("price"), productDiscount);
@@ -213,7 +225,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 				description: product.get("strings")[0]?.get("description"),
 				icon: product.get("icon"),
 				rareGrade: product.get("rareGrade"),
-				tag: product.get("tag"),
+				tag,
 				itemsCount: product.get("itemsCount"), // TODO
 				itemCount: product.get("item").length
 			};
@@ -314,12 +326,24 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 
 		let productDiscount = 0;
 
-		if (product.get("discountValidAfter") &&
+		if (product.get("discount") > 0 &&
+			product.get("discountValidAfter") &&
 			product.get("discountValidBefore") &&
-			moment(product.get("dateNow")).isAfter(product.get("discountValidAfter")) &&
-			moment(product.get("dateNow")).isBefore(product.get("discountValidBefore"))
+			moment(product.get("dateNow")).isSameOrAfter(product.get("discountValidAfter")) &&
+			moment(product.get("dateNow")).isSameOrBefore(product.get("discountValidBefore"))
 		) {
 			productDiscount = product.get("discount");
+		}
+
+		let tag = null;
+
+		if (product.get("tag") !== null &&
+			product.get("tagValidAfter") &&
+			product.get("tagValidBefore") &&
+			moment(product.get("dateNow")).isSameOrAfter(product.get("tagValidAfter")) &&
+			moment(product.get("dateNow")).isSameOrBefore(product.get("tagValidBefore"))
+		) {
+			tag = product.get("tag");
 		}
 
 		const priceWithDiscount = helpers.subtractPercentage(
@@ -336,7 +360,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 			description: product.get("strings")[0]?.get("description"),
 			icon: product.get("icon"),
 			rareGrade: product.get("rareGrade"),
-			tag: product.get("tag")
+			tag
 		};
 
 		const productItems = await shopModel.productItems.findAll({
@@ -579,10 +603,11 @@ module.exports.PurchaseAction = modules => [
 
 		let productDiscount = 0;
 
-		if (shopProduct.get("discountValidAfter") &&
+		if (shopProduct.get("discount") > 0 &&
+			shopProduct.get("discountValidAfter") &&
 			shopProduct.get("discountValidBefore") &&
-			moment(shopProduct.get("dateNow")).isAfter(shopProduct.get("discountValidAfter")) &&
-			moment(shopProduct.get("dateNow")).isBefore(shopProduct.get("discountValidBefore"))
+			moment(shopProduct.get("dateNow")).isSameOrAfter(shopProduct.get("discountValidAfter")) &&
+			moment(shopProduct.get("dateNow")).isSameOrBefore(shopProduct.get("discountValidBefore"))
 		) {
 			productDiscount = shopProduct.get("discount");
 		}

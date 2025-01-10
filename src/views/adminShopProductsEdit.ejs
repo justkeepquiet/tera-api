@@ -1,6 +1,7 @@
 <%_
 const addInfoShow = icon || rareGrade !== null || Object.values(title).join("") || Object.values(description).join("");
 const discountInfoShow = discount > 0;
+const tagInfoShow = tag !== null;
 _%>
 <%- contentFor("content") %>
 <article class="content">
@@ -48,19 +49,7 @@ _%>
 								<label class="control-label" for="sort"><%= __("Sort") %></label>
 								<input type="number" class="form-control boxed" name="sort" value="<%= sort %>">
 							</div>
-							<div class="col-sm-6">
-								<label class="control-label" for="tag"><%= __("Tag") %></label>
-								<select class="form-control boxed" name="tag">
-									<option value="">- <%= __("None") %> -</option>
-									<option value="0" <%= tag === 0 ? "selected" : "" %>>(0) Event</option>
-									<option value="1" <%= tag === 1 ? "selected" : "" %>>(1) Hot</option>
-									<option value="2" <%= tag === 2 ? "selected" : "" %>>(2) New</option>
-									<option value="3" <%= tag === 3 ? "selected" : "" %>>(3) Sale</option>
-								</select>
-							</div>
-						</div>
-						<div class="form-group row">
-							<div class="col-sm-6">
+							<div class="col-sm-6 mt-4">
 								<label>
 									<input type="checkbox" class="checkbox" name="active" <%- active ? "checked=\"checked\"" : "" %>>
 									<span><%= __("Active") %></span>
@@ -158,6 +147,40 @@ _%>
 						</div>
 						<div class="title-block">
 							<h3 class="title">
+								<%= __("Tag Information") %>
+								<a class="btn btn-secondary btn-sm" id="tag-info-off" title="" href="#" <%- tagInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-up"></i></a>
+								<a class="btn btn-secondary btn-sm" id="tag-info-on" title="" href="#" <%- !tagInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-down"></i></a>
+							</h3>
+						</div>
+						<div id="tag-info" <%- tagInfoShow ? "" : 'style="display: none;"' %>>
+							<div class="form-group row">
+								<div class="col-sm-6">
+									<label class="control-label" for="tag"><%= __("Tag Information") %></label>
+									<select class="form-control boxed" name="tag">
+										<option value="">- <%= __("None") %> -</option>
+										<option value="0" <%= tag === 0 ? "selected" : "" %> style="color: #7B34F7;">(0) Event</option>
+										<option value="1" <%= tag === 1 ? "selected" : "" %> style="color: #C60400;">(1) Hot</option>
+										<option value="2" <%= tag === 2 ? "selected" : "" %> style="color: #D68600;">(2) New</option>
+										<option value="3" <%= tag === 3 ? "selected" : "" %> style="color: #5ACB29;">(3) Sale</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="col-sm-6">
+									<label class="control-label" for="tagValidAfter"><%= __("Tag valid from") %></label>
+									<input type="datetime-local" class="form-control boxed" name="tagValidAfter" value="<%= tagValidAfter ? tagValidAfter.tz(user.tz).format("YYYY-MM-DDTHH:mm") : "" %>">
+									<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+								</div>
+								<div class="col-sm-6">
+									<label class="control-label" for="tagValidBefore"><%= __("Tag valid to") %></label>
+									<input type="datetime-local" class="form-control boxed" name="tagValidBefore" value="<%= tagValidBefore ? tagValidBefore.tz(user.tz).format("YYYY-MM-DDTHH:mm") : "" %>">
+									<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+								</div>
+							</div>
+							<div class="form-group row"></div>
+						</div>
+						<div class="title-block">
+							<h3 class="title">
 								<%= __("Discount Information") %>
 								<a class="btn btn-secondary btn-sm" id="discount-info-off" title="" href="#" <%- discountInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-up"></i></a>
 								<a class="btn btn-secondary btn-sm" id="discount-info-on" title="" href="#" <%- !discountInfoShow ? "" : 'style="display: none;"' %>><i class="fa fa-chevron-down"></i></a>
@@ -166,18 +189,18 @@ _%>
 						<div id="discount-info" <%- discountInfoShow ? "" : 'style="display: none;"' %>>
 							<div class="form-group row">
 								<div class="col-sm-6">
-									<label class="control-label" for="price"><%= __("Discount") %> (%)</label>
+									<label class="control-label" for="discount"><%= __("Discount Information") %> (%)</label>
 									<input type="number" class="form-control boxed" name="discount" value="<%= discount %>">
 								</div>
 							</div>
 							<div class="form-group row">
 								<div class="col-sm-6">
-									<label class="control-label" for="validAfter"><%= __("Discount valid from") %></label>
+									<label class="control-label" for="discountValidAfter"><%= __("Discount valid from") %></label>
 									<input type="datetime-local" class="form-control boxed" name="discountValidAfter" value="<%= discountValidAfter ? discountValidAfter.tz(user.tz).format("YYYY-MM-DDTHH:mm") : "" %>">
 									<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
 								</div>
 								<div class="col-sm-6">
-									<label class="control-label" for="validBefore"><%= __("Discount valid to") %></label>
+									<label class="control-label" for="discountValidBefore"><%= __("Discount valid to") %></label>
 									<input type="datetime-local" class="form-control boxed" name="discountValidBefore" value="<%= discountValidBefore ? discountValidBefore.tz(user.tz).format("YYYY-MM-DDTHH:mm") : "" %>">
 									<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
 								</div>
@@ -204,6 +227,16 @@ _%>
 		$("#add-info-off").click(function() {
 			$("#add-info").slideUp("fast");
 			$("#add-info-on").show();
+			$(this).hide();
+		});
+		$("#tag-info-on").click(function() {
+			$("#tag-info").slideDown("fast");
+			$("#tag-info-off").show();
+			$(this).hide();
+		});
+		$("#tag-info-off").click(function() {
+			$("#tag-info").slideUp("fast");
+			$("#tag-info-on").show();
 			$(this).hide();
 		});
 		$("#discount-info-on").click(function() {
