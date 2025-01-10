@@ -773,8 +773,9 @@ module.exports.SignupVerifyAction = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.GetAccountInfoAction = ({ logger, sequelize, accountModel }) => [
+module.exports.GetAccountInfoAction = ({ logger, rateLimitter, sequelize, accountModel }) => [
 	apiAuthSessionHandler(),
+	rateLimitterHandler(rateLimitter, "portalApi.launcher.getAccountInfoAction"),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -797,23 +798,9 @@ module.exports.GetAccountInfoAction = ({ logger, sequelize, accountModel }) => [
 			throw new ApiError("account not exist", 50000);
 		}
 
-		let lastLoginServer = 0;
-		let characterCount = "0";
 		let bannedByIp = null;
 
 		try {
-			const characters = await accountModel.characters.findAll({
-				attributes: ["serverId", [sequelize.fn("COUNT", "characterId"), "charCount"]],
-				group: ["serverId"],
-				where: { accountDBID: account.get("accountDBID") }
-			});
-
-			if (!env.bool("API_PORTAL_DISABLE_CLIENT_AUTO_ENTER")) {
-				lastLoginServer = account.get("lastLoginServer");
-			}
-
-			characterCount = helpers.getCharCountString(characters, lastLoginServer, "serverId", "charCount");
-
 			bannedByIp = await accountModel.bans.findOne({
 				where: {
 					active: 1,
@@ -830,7 +817,6 @@ module.exports.GetAccountInfoAction = ({ logger, sequelize, accountModel }) => [
 			Return: true,
 			ReturnCode: 0,
 			Msg: "success",
-			CharacterCount: characterCount,
 			Permission: account.get("permission"),
 			Privilege: account.get("privilege"),
 			Language: account.get("language"),
@@ -845,7 +831,7 @@ module.exports.GetAccountInfoAction = ({ logger, sequelize, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.SetAccountLanguageAction = ({ logger, accountModel }) => [
+module.exports.SetAccountLanguageAction = ({ logger, rateLimitter, accountModel }) => [
 	apiAuthSessionHandler(),
 	[
 		body("language")
@@ -858,6 +844,7 @@ module.exports.SetAccountLanguageAction = ({ logger, accountModel }) => [
 			})
 	],
 	validationHandler(logger),
+	rateLimitterHandler(rateLimitter, "portalApi.launcher.setAccountLanguageAction"),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -892,8 +879,9 @@ module.exports.SetAccountLanguageAction = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.GetCharacterCountAction = ({ logger, sequelize, accountModel }) => [
+module.exports.GetCharacterCountAction = ({ logger, rateLimitter, sequelize, accountModel }) => [
 	apiAuthSessionHandler(),
+	rateLimitterHandler(rateLimitter, "portalApi.launcher.getCharacterCountAction"),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -938,8 +926,9 @@ module.exports.GetCharacterCountAction = ({ logger, sequelize, accountModel }) =
 /**
  * @param {modules} modules
  */
-module.exports.GetAuthKeyAction = ({ accountModel }) => [
+module.exports.GetAuthKeyAction = ({ rateLimitter, accountModel }) => [
 	apiAuthSessionHandler(),
+	rateLimitterHandler(rateLimitter, "portalApi.launcher.getAuthKeyAction"),
 	/**
 	 * @type {RequestHandler}
 	 */

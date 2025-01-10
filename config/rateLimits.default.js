@@ -64,6 +64,38 @@ module.exports.portalApi = {
 			blockDuration: 3600
 		},
 
+		// endpoint: POST /launcher/GetAccountInfoAction
+		// 180 requests per 3 minutes with block for 5 minutes
+		getAccountInfoAction: {
+			points: 180,
+			duration: 180,
+			blockDuration: 300
+		},
+
+		// endpoint: POST /launcher/GetCharacterCountAction
+		// 180 requests per 3 minutes with block for 5 minutes
+		getCharacterCountAction: {
+			points: 180,
+			duration: 180,
+			blockDuration: 300
+		},
+
+		// endpoint: POST /launcher/GetAuthKeyAction
+		// 60 requests per 3 minutes with block for 5 minutes
+		getAuthKeyAction: {
+			points: 60,
+			duration: 180,
+			blockDuration: 300
+		},
+
+		// endpoint: POST /launcher/SetAccountLanguageAction
+		// 60 requests per 3 minutes with block for 5 minutes
+		setAccountLanguageAction: {
+			points: 60,
+			duration: 180,
+			blockDuration: 300
+		},
+
 		// endpoint: POST /launcher/CaptchaVerify
 		// 10 requests per 1 minute with block for 5 minutes
 		captchaVerify: {
