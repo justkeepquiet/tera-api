@@ -1,7 +1,19 @@
 "use strict";
 
+/**
+ * @typedef {import("sequelize").Sequelize} sequelize
+ * @typedef {import("../utils/logger")} logger
+ */
+
 const MigrationManager = require("../utils/migrationManager");
 
+/**
+ * @param {sequelize} sequelize
+ * @param {logger} migrationLogger
+ * @param {string} migrationsDir
+ * @param {string} fieldName
+ * @param {number} dbVersion
+ */
 async function databaseMigrationProcedure(sequelize, migrationLogger, migrationsDir, fieldName, dbVersion) {
 	const migrationManager = new MigrationManager(sequelize, migrationLogger, migrationsDir, fieldName);
 	await migrationManager.init();
