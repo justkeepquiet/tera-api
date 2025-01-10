@@ -155,7 +155,7 @@ _%>
 						<div id="tag-info" <%- tagInfoShow ? "" : 'style="display: none;"' %>>
 							<div class="form-group row">
 								<div class="col-sm-6">
-									<label class="control-label" for="tag"><%= __("Tag Information") %></label>
+									<label class="control-label" for="tag"><%= __("Tag") %></label>
 									<select class="form-control boxed" name="tag">
 										<option value="">- <%= __("None") %> -</option>
 										<option value="0" <%= tag === 0 ? "selected" : "" %> style="color: #7B34F7;">(0) Event</option>
@@ -189,7 +189,7 @@ _%>
 						<div id="discount-info" <%- discountInfoShow ? "" : 'style="display: none;"' %>>
 							<div class="form-group row">
 								<div class="col-sm-6">
-									<label class="control-label" for="discount"><%= __("Discount Information") %> (%)</label>
+									<label class="control-label" for="discount"><%= __("Discount") %> (%)</label>
 									<input type="number" class="form-control boxed" name="discount" value="<%= discount %>">
 								</div>
 							</div>
