@@ -321,7 +321,7 @@ module.exports.getFilenamesFromDirectory = (directory, exts = [".png", ".jpg"]) 
 * @return {number}
 */
 module.exports.subtractPercentage = (number, percentage) =>
-	number - (number * (percentage / 100))
+	Math.round(number - (number * (percentage / 100)))
 ;
 
 /**
