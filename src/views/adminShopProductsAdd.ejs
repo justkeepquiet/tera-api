@@ -83,57 +83,59 @@
 								</h3>
 							</div>
 							<div id="additional-info-content" class="form-panel-collapse collapse" role="tabpanel">
-								<div class="form-group row">
-									<div class="col-sm-6">
-										<label class="control-label" for="icon"><%= __("Icon") %> <span class="text-secondary">(<%= __("example") %>: gift_box01_tex)</span></label>
-										<input type="text" class="form-control boxed" name="icon" value="" placeholder="<%= __("optional") %>">
-									</div>
-									<div class="col-sm-6">
-										<label class="control-label" for="rareGrade"><%= __("Rare grade") %></label>
-										<select class="form-control boxed" name="rareGrade">
-											<option value="">- <%= __("None") %> -</option>
-											<option value="0" class="item-grade-0">(0) <%= __("Common") %></option>
-											<option value="1" class="item-grade-1">(1) <%= __("Uncommon") %></option>
-											<option value="2" class="item-grade-2">(2) <%= __("Rare") %></option>
-											<option value="3" class="item-grade-3">(3) <%= __("Superior") %></option>
-											<option value="4" class="item-grade-4">(4) <%= __("Mythic") %></option>
-										</select>
-									</div>
-								</div>
-								<div class="form-group row">
-									<div class="col-sm-6">
-										<div id="itemIcons"></div>
-									</div>
-								</div>
-								<div class="form-group">
-									<label class="control-label"><%= __("Title") %></label>
-									<%_ shopLocales.forEach(shopLocale => { _%>
+								<div class="form-panel-body">
 									<div class="form-group row">
-										<div class="col-sm-2 mt-2">
-											<label for="title[<%= shopLocale %>]" class="control-label"><small><%= __(shopLocale) %></small></label>
+										<div class="col-sm-6">
+											<label class="control-label" for="icon"><%= __("Icon") %> <span class="text-secondary">(<%= __("example") %>: gift_box01_tex)</span></label>
+											<input type="text" class="form-control boxed" name="icon" value="" placeholder="<%= __("optional") %>">
 										</div>
-										<div class="col-sm-10">
-											<input type="text" class="form-control boxed" name="title[<%= shopLocale %>]" value="" placeholder="<%= __("optional") %>">
+										<div class="col-sm-6">
+											<label class="control-label" for="rareGrade"><%= __("Rare grade") %></label>
+											<select class="form-control boxed" name="rareGrade">
+												<option value="">- <%= __("None") %> -</option>
+												<option value="0" class="item-grade-0">(0) <%= __("Common") %></option>
+												<option value="1" class="item-grade-1">(1) <%= __("Uncommon") %></option>
+												<option value="2" class="item-grade-2">(2) <%= __("Rare") %></option>
+												<option value="3" class="item-grade-3">(3) <%= __("Superior") %></option>
+												<option value="4" class="item-grade-4">(4) <%= __("Mythic") %></option>
+											</select>
 										</div>
 									</div>
-									<%_ }) _%>
-								</div>
-								<div class="form-group">
-									<label class="control-label"><%= __("Description") %></label>
-									<%_ shopLocales.forEach(shopLocale => { _%>
 									<div class="form-group row">
-										<div class="col-sm-2 mt-2">
-											<label for="description[<%= shopLocale %>]" class="control-label"><small><%= __(shopLocale) %></small></label>
-										</div>
-										<div class="col-sm-10">
-											<input type="text" class="form-control boxed" name="description[<%= shopLocale %>]" value="" placeholder="<%= __("optional") %>">
+										<div class="col-sm-6">
+											<div id="itemIcons"></div>
 										</div>
 									</div>
-									<%_ }) _%>
-								</div>
-								<div class="form-group row"></div>
-								<div class="form-group alert alert-secondary">
-									<%= __("If additional information is not set, the information for the product will be taken from the first item added.") %>
+									<div class="form-group">
+										<label class="control-label"><%= __("Title") %></label>
+										<%_ shopLocales.forEach(shopLocale => { _%>
+										<div class="form-group row">
+											<div class="col-sm-2 mt-2">
+												<label for="title[<%= shopLocale %>]" class="control-label"><small><%= __(shopLocale) %></small></label>
+											</div>
+											<div class="col-sm-10">
+												<input type="text" class="form-control boxed" name="title[<%= shopLocale %>]" value="" placeholder="<%= __("optional") %>">
+											</div>
+										</div>
+										<%_ }) _%>
+									</div>
+									<div class="form-group">
+										<label class="control-label"><%= __("Description") %></label>
+										<%_ shopLocales.forEach(shopLocale => { _%>
+										<div class="form-group row">
+											<div class="col-sm-2 mt-2">
+												<label for="description[<%= shopLocale %>]" class="control-label"><small><%= __(shopLocale) %></small></label>
+											</div>
+											<div class="col-sm-10">
+												<input type="text" class="form-control boxed" name="description[<%= shopLocale %>]" value="" placeholder="<%= __("optional") %>">
+											</div>
+										</div>
+										<%_ }) _%>
+									</div>
+									<div class="form-group row"></div>
+									<div class="form-group alert alert-secondary">
+										<%= __("If additional information is not set, the information for the product will be taken from the first item added.") %>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -144,28 +146,30 @@
 								</h3>
 							</div>
 							<div id="tag-info-content" class="form-panel-collapse collapse" role="tabpanel">
-								<div class="form-group row">
-									<div class="col-sm-6">
-										<label class="control-label" for="tag"><%= __("Tag") %></label>
-										<select class="form-control boxed" name="tag">
-											<option value="">- <%= __("None") %> -</option>
-											<option value="0" style="color: #7B34F7;">(0) Event</option>
-											<option value="1" style="color: #C60400;">(1) Hot</option>
-											<option value="2" style="color: #D68600;">(2) New</option>
-											<option value="3" style="color: #5ACB29;">(3) Sale</option>
-										</select>
+								<div class="form-panel-body">
+									<div class="form-group row">
+										<div class="col-sm-6">
+											<label class="control-label" for="tag"><%= __("Tag") %></label>
+											<select class="form-control boxed" name="tag">
+												<option value="">- <%= __("None") %> -</option>
+												<option value="0" style="color: #7B34F7;">(0) Event</option>
+												<option value="1" style="color: #C60400;">(1) Hot</option>
+												<option value="2" style="color: #D68600;">(2) New</option>
+												<option value="3" style="color: #5ACB29;">(3) Sale</option>
+											</select>
+										</div>
 									</div>
-								</div>
-								<div class="form-group row">
-									<div class="col-sm-6">
-										<label class="control-label" for="tagValidAfter"><%= __("Tag valid from") %></label>
-										<input type="datetime-local" class="form-control boxed" name="tagValidAfter" value="">
-										<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
-									</div>
-									<div class="col-sm-6">
-										<label class="control-label" for="tagValidBefore"><%= __("Tag valid to") %></label>
-										<input type="datetime-local" class="form-control boxed" name="tagValidBefore" value="">
-										<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+									<div class="form-group row">
+										<div class="col-sm-6">
+											<label class="control-label" for="tagValidAfter"><%= __("Tag valid from") %></label>
+											<input type="datetime-local" class="form-control boxed" name="tagValidAfter" value="">
+											<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+										</div>
+										<div class="col-sm-6">
+											<label class="control-label" for="tagValidBefore"><%= __("Tag valid to") %></label>
+											<input type="datetime-local" class="form-control boxed" name="tagValidBefore" value="">
+											<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+										</div>
 									</div>
 								</div>
 							</div>
@@ -177,22 +181,24 @@
 								</h3>
 							</div>
 							<div id="discount-info-content" class="form-panel-collapse collapse" role="tabpanel">
-								<div class="form-group row">
-									<div class="col-sm-6">
-										<label class="control-label" for="discount"><%= __("Discount") %> (%)</label>
-										<input type="number" class="form-control boxed" name="discount" value="0">
+								<div class="form-panel-body">
+									<div class="form-group row">
+										<div class="col-sm-6">
+											<label class="control-label" for="discount"><%= __("Discount") %> (%)</label>
+											<input type="number" class="form-control boxed" name="discount" value="0">
+										</div>
 									</div>
-								</div>
-								<div class="form-group row">
-									<div class="col-sm-6">
-										<label class="control-label" for="discountValidAfter"><%= __("Discount valid from") %></label>
-										<input type="datetime-local" class="form-control boxed" name="discountValidAfter" value="">
-										<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
-									</div>
-									<div class="col-sm-6">
-										<label class="control-label" for="discountValidBefore"><%= __("Discount valid to") %></label>
-										<input type="datetime-local" class="form-control boxed" name="discountValidBefore" value="">
-										<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+									<div class="form-group row">
+										<div class="col-sm-6">
+											<label class="control-label" for="discountValidAfter"><%= __("Discount valid from") %></label>
+											<input type="datetime-local" class="form-control boxed" name="discountValidAfter" value="">
+											<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+										</div>
+										<div class="col-sm-6">
+											<label class="control-label" for="discountValidBefore"><%= __("Discount valid to") %></label>
+											<input type="datetime-local" class="form-control boxed" name="discountValidBefore" value="">
+											<span class="datetime-local-reset"><i class="fa fa-times"></i></span>
+										</div>
 									</div>
 								</div>
 							</div>
