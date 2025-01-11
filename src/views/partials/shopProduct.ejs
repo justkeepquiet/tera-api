@@ -14,6 +14,7 @@
 					<%_ if (product.discount > 0) { _%>
 					<span class="badge discount-badge"><%= __("%s% off", product.discount) %></span>
 					<%_ } _%>
+					<span id="shop_discount" class="badge user-discount-badge"></span>
 				</h5>
 				<small><%- helpers.formatStrsheet(product.description) %></small>
 			</div>
@@ -93,7 +94,7 @@
 					&ndash; <b class="item_grade_<%= product.rareGrade %>"><%- product.title %></b> <small>&#10005;</small> <b class="quantity-value">1</b>
 				</div>
 				<div>
-					<%- __("Your account will be debited") %>: <b class="price-value gold2"><%= product.price %></b> <i class="fas fa-coins gold2"></i><br>
+					<%- __("Your account will be debited") %>: <b class="price-value gold2"><%= product.price %></b> <s><b class="price-value2 gold2"></b></s> <i class="fas fa-coins gold2"></i><br>
 					<%- __("The item will appear in the &quot;Item Claim&quot; window.") %><br>
 					<%- __("You can open it from the main menu in the &quot;Shop&quot; section the &quot;Item Claim&quot; option.") %>
 				</div>
@@ -148,9 +149,18 @@
 				}
 			});
 		}
+		shopGetAccountInfo(function(result) {
+			if (result.ReturnCode == 0 && result.shopDiscount > 0) {
+				var shopDiscount = '<%= __("%s% off") %>'.replace('%s', result.shopDiscount);
+				$('#shop_discount').html(shopDiscount);
+			}
+		});
 		var quantity = 1;
 		$(".quantity-value").html(quantity);
 		$(".price-value").html(<%= product.price %> * quantity);
+		<%_ if (product.price !== product.originalPrice) { _%>
+		$(".price-value2").html(<%= product.originalPrice %> * quantity);
+		<% } %>
 		$("#quantity").change(function() {
 			quantity = $(this).val();
 			if (quantity < 1) quantity = 1;
@@ -158,6 +168,9 @@
 			$(this).val(quantity);
 			$(".quantity-value").html(quantity);
 			$(".price-value").html(<%= product.price %> * quantity);
+			<%_ if (product.price !== product.originalPrice) { _%>
+			$(".price-value2").html(<%= product.originalPrice %> * quantity);
+			<% } %>
 			if (parseInt($('#shop_balance').html()) < parseInt('<%= product.price %>') * quantity) {
 				$('#buy').prop("disabled", true);
 			} else {

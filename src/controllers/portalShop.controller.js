@@ -355,6 +355,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 			id: product.get("id"),
 			categoryId: product.get("categoryId"),
 			price: priceWithDiscount,
+			originalPrice: product.get("price"),
 			discount: productDiscount,
 			title: product.get("strings")[0]?.get("title"),
 			description: product.get("strings")[0]?.get("description"),
@@ -546,8 +547,8 @@ module.exports.GetAccountInfo = ({ logger, shopModel }) => [
 			Msg: "success",
 			userNo: req.user.accountDBID,
 			userName: req.user.userName,
-			shopBalance: shopAccount !== null ?
-				shopAccount.get("balance") : 0
+			shopBalance: shopAccount !== null ? shopAccount.get("balance") : 0,
+			shopDiscount: shopAccount !== null ? shopAccount.get("discount") : 0
 		});
 	}
 ];

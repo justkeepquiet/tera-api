@@ -493,8 +493,18 @@ a, a:focus {
 }
 
 .discount-badge {
+	position: relative;
+	top: -1px;
 	margin-left: 3px;
 	background: #cc3333;
+}
+
+.user-discount-badge {
+	position: relative;
+	top: -1px;
+	margin-left: 3px;
+	background: #e08a00;
+	/* ffa414 */
 }
 
 .icon_grade_0 {
