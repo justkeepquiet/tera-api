@@ -6,6 +6,7 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
 /**
  * @typedef {import("sequelize").Sequelize} Sequelize
  * @typedef {import("sequelize").DataTypes} DataTypes
+ * @typedef {import("i18n")} i18n
  * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
  * @typedef {import("./lib/ipApiClient")} IpApiClient
  * @typedef {import("./utils/logger").logger} logger
@@ -16,19 +17,21 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
  * @property {planetDbModel} model
  *
  * @typedef {object} datasheetModel
- * @property {import("./models/datasheet/strSheetAccountBenefit.model")[]} strSheetAccountBenefit
- * @property {import("./models/datasheet/strSheetDungeon.model")[]} strSheetDungeon
- * @property {import("./models/datasheet/strSheetCreature.model")[]} strSheetCreature
- * @property {import("./models/datasheet/itemConversion.model")[]} itemConversion
- * @property {import("./models/datasheet/itemData.model")[]} itemData
- * @property {import("./models/datasheet/skillIconData.model")[]} skillIconData
- * @property {import("./models/datasheet/strSheetItem.model")[]} strSheetItem
+ * @property {import("./models/datasheet/strSheetAccountBenefit.model")[]?} strSheetAccountBenefit
+ * @property {import("./models/datasheet/strSheetDungeon.model")[]?} strSheetDungeon
+ * @property {import("./models/datasheet/strSheetCreature.model")[]?} strSheetCreature
+ * @property {import("./models/datasheet/itemConversion.model")[]?} itemConversion
+ * @property {import("./models/datasheet/itemData.model")[]?} itemData
+ * @property {import("./models/datasheet/skillIconData.model")[]?} skillIconData
+ * @property {import("./models/datasheet/strSheetItem.model")[]?} strSheetItem
  *
  * @typedef {object} modules
  * @property {versions} versions
  * @property {logger} logger
  * @property {ConfigManager} config
+ * @property {cli} cli
  * @property {ExpressServer.app} app
+ * @property {i18n?} i18n
  * @property {PluginsLoader} pluginsLoader
  * @property {Scheduler} scheduler
  * @property {RateLimitter} rateLimitter
@@ -36,11 +39,11 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
  * @property {SteerFunctions} steer
  * @property {BackgroundQueue} queue
  * @property {nodemailer.Transporter} mailer
- * @property {ReaderModel} geoip
+ * @property {ReaderModel?} geoip
  * @property {IpApiClient} ipapi
  * @property {Sequelize} sequelize
  * @property {datasheetModel} datasheetModel
- * @property {Map<Number, planetDbInstance>} planetDbs
+ * @property {Map<Number, planetDbInstance>?} planetDbs
  * @property {import("./models/queue.model").queueModel} queueModel
  * @property {import("./models/account.model").accountModel} accountModel
  * @property {import("./models/server.model").serverModel} serverModel
@@ -85,7 +88,7 @@ const defaultLoggerParams = { colors: { debug: "gray" } };
 const coreLogger = createLogger("Core", defaultLoggerParams);
 const moduleLoader = new CoreLoader(coreLogger);
 const config = new ConfigManager(createLogger("Config Manager", defaultLoggerParams));
-const pl = new PluginsLoader(createLogger("Plugins Loader", defaultLoggerParams));
+const pl = new PluginsLoader(moduleLoader, createLogger("Plugins Loader", defaultLoggerParams));
 const cli = cliHelper(coreLogger, versions.app);
 
 pl.loadAll();
@@ -153,6 +156,8 @@ const loadDatasheetModelSync = (logger, datasheetModel, directory, region, local
 		}
 	};
 
+	pl.loadComponent("datasheetModels.before", addModel);
+
 	if (checkComponent("admin_panel")) {
 		addModel("strSheetAccountBenefit", require("./models/datasheet/strSheetAccountBenefit.model"));
 		addModel("strSheetDungeon", require("./models/datasheet/strSheetDungeon.model"));
@@ -168,6 +173,8 @@ const loadDatasheetModelSync = (logger, datasheetModel, directory, region, local
 		addModel("itemData", require("./models/datasheet/itemData.model"));
 		addModel("strSheetItem", require("./models/datasheet/strSheetItem.model"));
 	}
+
+	pl.loadComponent("datasheetModels.after", addModel);
 
 	let dirty = false;
 
@@ -189,11 +196,12 @@ const loadDatasheetModelSync = (logger, datasheetModel, directory, region, local
 	return dirty;
 };
 
-pl.loadComponent("app.moduleLoader.before", moduleLoader);
+pl.loadComponent("app.moduleLoader.before");
 
 moduleLoader.setPromise("versions", async () => versions);
 moduleLoader.setPromise("logger", async () => coreLogger);
 moduleLoader.setPromise("config", async () => config);
+moduleLoader.setPromise("cli", async () => cli);
 moduleLoader.setPromise("pluginsLoader", async () => pl);
 
 moduleLoader.setAsync("datasheetModel", async () => {
@@ -293,14 +301,16 @@ moduleLoader.setPromise("sequelize", async () => {
 		sequelizeLogger.info("Skipping tables sync.");
 	}
 
-	await pl.loadComponent("models.before", moduleLoader, sequelize, DataTypes, syncTables);
+	await pl.loadComponent("models.before", sequelize, DataTypes);
+
 	await moduleLoader.setAsync("queueModel", require("./models/queue.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("serverModel", require("./models/server.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("accountModel", require("./models/account.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("reportModel", require("./models/report.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("shopModel", require("./models/shop.model"), sequelize, DataTypes, syncTables);
 	await moduleLoader.setAsync("boxModel", require("./models/box.model"), sequelize, DataTypes, syncTables);
-	await pl.loadComponent("models.after", moduleLoader, sequelize, DataTypes, syncTables);
+
+	await pl.loadComponent("models.after", sequelize, DataTypes);
 
 	sequelizeLogger.info(`DB version: ${DB_VERSION}`);
 
@@ -454,7 +464,7 @@ moduleLoader.setPromise("ipapi", async () => new IpApiClient(
 	env.number("IPAPI_REQUEST_MAX_RETRIES", 3)
 ));
 
-pl.loadComponent("app.moduleLoader.after", moduleLoader);
+pl.loadComponent("app.moduleLoader.after");
 
 /**
  * @param {modules} modules
