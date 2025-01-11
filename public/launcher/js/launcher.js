@@ -179,7 +179,12 @@ var Launcher = {
 		}
 
 		$(".form-horizontal").hide();
-		location.replace(page);
+
+		if (page.indexOf("?") != -1) {
+			location.replace(page + "&ts=" + Date.now());
+		} else {
+			location.replace(page + "?ts=" + Date.now());
+		}
 	},
 
 	/*
