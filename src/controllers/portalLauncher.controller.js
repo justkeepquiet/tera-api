@@ -220,17 +220,7 @@ module.exports.ResetPasswordFormHtml = ({ i18n, logger }) => [
  */
 module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n, accountModel }) => [
 	[
-		body("email").trim()
-			.isEmail().withMessage(10)
-			.custom(value => accountModel.info.findOne({
-				where: {
-					email: value
-				}
-			}).then(user => {
-				if (user === null) {
-					return Promise.reject(11);
-				}
-			}))
+		body("email").trim().notEmpty().withMessage(10)
 	],
 	/**
 	 * @type {RequestHandler}
@@ -259,6 +249,30 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 			next(new ApiError("captcha error", 12));
 		}
 	},
+	[
+		body("email")
+			.custom(value => accountModel.info.findOne({
+				where: {
+					[Op.or]: [{ email: value }, { userName: value }]
+				}
+			}).then(account => {
+				if (account === null || !account.get("email")) {
+					return Promise.reject(11);
+				}
+			}))
+	],
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
+		const errors = helpers.validationResultLog(req, logger);
+
+		if (!errors.isEmpty()) {
+			throw new ApiError("invalid parameter", errors.array()[0].msg);
+		}
+
+		next();
+	},
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -266,12 +280,22 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 		const { secure } = req.query;
 		const { email } = req.body;
 
+		const account = await accountModel.info.findOne({
+			where: {
+				[Op.or]: [{ email }, { userName: email }]
+			}
+		});
+
+		if (account === null) {
+			throw new ApiError("account not exist", 50000);
+		}
+
 		const code = helpers.generateVerificationCode();
 		const ttl = moment().add(1, "hour"); // 1 hour
 
-		logger.debug(`ResetPasswordAction: Generated verification code: ${code}, email: ${email}`);
+		logger.debug(`ResetPasswordAction: Generated verification code: ${code}, email: ${account.get("email")}`);
 
-		req.session.resetPasswordVerify = { email, code, ttl, failsCount: 0 };
+		req.session.resetPasswordVerify = { email: account.get("email"), code, ttl, failsCount: 0 };
 
 		app.render("email/resetPasswordVerify", { ...res.locals,
 			host: req.headers.host || req.hostname,
@@ -287,7 +311,7 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 			try {
 				await mailer.sendMail({
 					from: `"${env.string("API_PORTAL_EMAIL_FROM_NAME")}" <${env.string("API_PORTAL_EMAIL_FROM_ADDRESS")}>`,
-					to: email,
+					to: account.get("email"),
 					subject: i18n.__("Instructions to reset your password"),
 					html
 				});
@@ -456,27 +480,9 @@ module.exports.SignupAction = modules => [
 	[
 		body("login").trim()
 			.isLength({ min: 3, max: 13 }).withMessage(11)
-			.isAlphanumeric().withMessage(11)
-			.custom(value => modules.accountModel.info.findOne({
-				where: {
-					userName: value
-				}
-			}).then(user => {
-				if (user) {
-					return Promise.reject(10);
-				}
-			})),
+			.isAlphanumeric().withMessage(11),
 		body("email").trim()
-			.isEmail().withMessage(12)
-			.custom(value => modules.accountModel.info.findOne({
-				where: {
-					email: value
-				}
-			}).then(user => {
-				if (user) {
-					return Promise.reject(14);
-				}
-			})),
+			.isEmail().withMessage(12),
 		body("password").trim()
 			.isLength({ min: 8, max: 128 }).withMessage(13)
 	],
@@ -506,6 +512,40 @@ module.exports.SignupAction = modules => [
 		} else {
 			next(new ApiError("captcha error", 15));
 		}
+	},
+	[
+		body("login")
+			.custom(value => modules.accountModel.info.findOne({
+				where: {
+					userName: value
+				}
+			}).then(user => {
+				if (user) {
+					return Promise.reject(10);
+				}
+			})),
+		body("email")
+			.custom(value => modules.accountModel.info.findOne({
+				where: {
+					email: value
+				}
+			}).then(user => {
+				if (user) {
+					return Promise.reject(14);
+				}
+			}))
+	],
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
+		const errors = helpers.validationResultLog(req, modules.logger);
+
+		if (!errors.isEmpty()) {
+			throw new ApiError("invalid parameter", errors.array()[0].msg);
+		}
+
+		next();
 	},
 	/**
 	 * @type {RequestHandler}
