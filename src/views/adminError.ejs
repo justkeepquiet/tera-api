@@ -1,6 +1,11 @@
 <%- contentFor("content") %>
 <article class="content">
 	<div class="alert alert-danger">
+		<%_ if (err.includes("\n")) { _%>
+		<i class="fa fa-warning"></i> <%= __("Operation failed") %>:
+		<div style="white-space: pre-wrap; font-family: monospace; padding: 10px"><%= err %></div>
+		<%_ } else { _%>
 		<i class="fa fa-warning"></i> <%= __("Operation failed") %>: <%= err %>
+		<%_ } _%>
 	</div>
 </article>
