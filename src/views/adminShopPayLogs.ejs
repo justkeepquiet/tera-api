@@ -17,6 +17,7 @@
 											<th><%= __("ID") %></th>
 											<th><%= __("Log time") %></th>
 											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
 											<th><%= __("Server ID") %></th>
 											<th><%= __("Product ID") %></th>
 											<th><%= __("Box ID") %></th>
@@ -45,6 +46,7 @@ logs.forEach(log => {
 		log.get("id"),
 		moment(log.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
 		log.get("accountDBID"),
+		log.get("account")?.get("userName") || "-",
 		`(${log.get("serverId")}) ${log.get("server")?.get("nameString") || ""}`,
 		`<a href="/shop_products/edit?id=${log.get("productId")}">${log.get("productId")}</a>`,
 		log.get("boxId") || "-",

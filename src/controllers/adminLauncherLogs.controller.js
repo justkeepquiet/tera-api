@@ -15,7 +15,7 @@ const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ reportModel }) => [
+module.exports.index = ({ accountModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	async (req, res, next) => {
@@ -43,6 +43,12 @@ module.exports.index = ({ reportModel }) => [
 					[Op.lt]: to.toDate()
 				}
 			},
+			include: [{
+				as: "account",
+				model: accountModel.info,
+				required: false,
+				attributes: ["userName"]
+			}],
 			order: [
 				["reportTime", "DESC"]
 			]

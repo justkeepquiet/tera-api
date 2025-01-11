@@ -14,7 +14,7 @@ const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 /**
  * @param {modules} modules
  */
-module.exports.fund = ({ reportModel }) => [
+module.exports.fund = ({ accountModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -33,6 +33,12 @@ module.exports.fund = ({ reportModel }) => [
 					[Op.lt]: to.toDate()
 				}
 			},
+			include: [{
+				as: "account",
+				model: accountModel.info,
+				required: false,
+				attributes: ["userName"]
+			}],
 			order: [
 				["createdAt", "DESC"]
 			]
@@ -52,7 +58,7 @@ module.exports.fund = ({ reportModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.pay = ({ serverModel, reportModel }) => [
+module.exports.pay = ({ serverModel, accountModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -72,12 +78,20 @@ module.exports.pay = ({ serverModel, reportModel }) => [
 					[Op.lt]: to.toDate()
 				}
 			},
-			include: [{
-				as: "server",
-				model: serverModel.info,
-				required: false,
-				attributes: ["nameString"]
-			}],
+			include: [
+				{
+					as: "account",
+					model: accountModel.info,
+					required: false,
+					attributes: ["userName"]
+				},
+				{
+					as: "server",
+					model: serverModel.info,
+					required: false,
+					attributes: ["nameString"]
+				}
+			],
 			order: [
 				["createdAt", "DESC"]
 			]

@@ -47,40 +47,96 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		await model.boxes.sync();
 	}
 
+	// activity
 	model.activity.hasOne(modules.serverModel.info, {
 		foreignKey: "serverId",
 		sourceKey: "serverId",
 		as: "server"
 	});
 
+	model.activity.hasOne(modules.accountModel.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "account"
+	});
+
+	// characters
 	model.characters.hasOne(modules.serverModel.info, {
 		foreignKey: "serverId",
 		sourceKey: "serverId",
 		as: "server"
 	});
 
+	model.characters.hasOne(modules.accountModel.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "account"
+	});
+
+	// cheats
 	model.cheats.hasOne(modules.serverModel.info, {
 		foreignKey: "serverId",
 		sourceKey: "serverId",
 		as: "server"
 	});
 
+	model.cheats.hasOne(modules.accountModel.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "account"
+	});
+
+	// chronoScrolls
 	model.chronoScrolls.hasOne(modules.serverModel.info, {
 		foreignKey: "serverId",
 		sourceKey: "serverId",
 		as: "server"
 	});
 
+	model.chronoScrolls.hasOne(modules.accountModel.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "account"
+	});
+
+	// boxes
+	model.boxes.hasOne(modules.serverModel.info, {
+		foreignKey: "serverId",
+		sourceKey: "serverId",
+		as: "server"
+	});
+
+	model.boxes.hasOne(modules.accountModel.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "account"
+	});
+
+	// shopFund
+	model.shopFund.hasOne(modules.accountModel.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "account"
+	});
+
+	// shopPay
 	model.shopPay.hasOne(modules.serverModel.info, {
 		foreignKey: "serverId",
 		sourceKey: "serverId",
 		as: "server"
 	});
 
-	model.boxes.hasOne(modules.serverModel.info, {
-		foreignKey: "serverId",
-		sourceKey: "serverId",
-		as: "server"
+	model.shopPay.hasOne(modules.accountModel.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "account"
+	});
+
+	// launcher
+	model.launcher.hasOne(modules.accountModel.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "account"
 	});
 
 	return model;

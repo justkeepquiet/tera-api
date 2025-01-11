@@ -74,6 +74,7 @@ _%>
 											<th><%= __("Gender") %></th>
 											<th><%= __("Class") %></th>
 											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
 											<th><%= __("Server ID") %></th>
 										</tr>
 									</thead>
@@ -100,6 +101,7 @@ const tableData = [];
 		genderId[character.get("genderId")] || "-",
 		classId[character.get("classId")] || "-",
 		character.get("accountDBID"),
+		character.get("info")?.get("userName") || "-",
 		`(${character.get("serverId")}) ${character.get("server")?.get("nameString") || ""}`
 	]);
 });

@@ -31,7 +31,14 @@ module.exports.index = ({ accountModel }) => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const bans = await accountModel.bans.findAll();
+		const bans = await accountModel.bans.findAll({
+			include: [{
+				as: "info",
+				model: accountModel.info,
+				required: false,
+				attributes: ["userName"]
+			}]
+		});
 
 		res.render("adminBans", {
 			layout: "adminLayout",

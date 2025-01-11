@@ -928,7 +928,7 @@ module.exports.sendResult = ({ logger, queue }) => [
 /**
  * @param {modules} modules
  */
-module.exports.logs = ({ serverModel, reportModel }) => [
+module.exports.logs = ({ serverModel, accountModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -948,12 +948,20 @@ module.exports.logs = ({ serverModel, reportModel }) => [
 					[Op.lt]: to.toDate()
 				}
 			},
-			include: [{
-				as: "server",
-				model: serverModel.info,
-				required: false,
-				attributes: ["nameString"]
-			}],
+			include: [
+				{
+					as: "account",
+					model: accountModel.info,
+					required: false,
+					attributes: ["userName"]
+				},
+				{
+					as: "server",
+					model: serverModel.info,
+					required: false,
+					attributes: ["nameString"]
+				}
+			],
 			order: [
 				["createdAt", "DESC"]
 			]

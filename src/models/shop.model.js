@@ -49,6 +49,12 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		await model.promoCodeActivated.sync();
 	}
 
+	// accounts
+	model.accounts.hasOne(modules.accountModel.info, {
+		foreignKey: "accountDBID",
+		as: "info"
+	});
+
 	// products
 	model.products.hasMany(model.productStrings, {
 		foreignKey: "productId",
@@ -87,6 +93,12 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		foreignKey: "promoCodeId",
 		sourceKey: "promoCodeId",
 		as: "strings"
+	});
+
+	model.promoCodeActivated.hasOne(modules.accountModel.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "account"
 	});
 
 	return model;

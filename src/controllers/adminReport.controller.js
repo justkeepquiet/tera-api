@@ -12,7 +12,7 @@ const Op = require("sequelize").Op;
 const helpers = require("../utils/helpers");
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
-const reportHandler = (serverModel, model, view, viewData = {}) =>
+const reportHandler = (serverModel, accountModel, model, view, viewData = {}) =>
 	/**
 	 * @type {RequestHandler}
 	*/
@@ -30,12 +30,20 @@ const reportHandler = (serverModel, model, view, viewData = {}) =>
 					[Op.lt]: to.toDate()
 				}
 			},
-			include: [{
-				as: "server",
-				model: serverModel.info,
-				required: false,
-				attributes: ["nameString"]
-			}],
+			include: [
+				{
+					as: "account",
+					model: accountModel.info,
+					required: false,
+					attributes: ["userName"]
+				},
+				{
+					as: "server",
+					model: serverModel.info,
+					required: false,
+					attributes: ["nameString"]
+				}
+			],
 			order: [
 				["reportTime", "DESC"]
 			]
@@ -61,35 +69,35 @@ const reportHandler = (serverModel, model, view, viewData = {}) =>
 /**
  * @param {modules} modules
  */
-module.exports.activity = ({ serverModel, reportModel }) => [
+module.exports.activity = ({ serverModel, accountModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(serverModel, reportModel.activity, "adminReportActivity")
+	reportHandler(serverModel, accountModel, reportModel.activity, "adminReportActivity")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.characters = ({ serverModel, reportModel }) => [
+module.exports.characters = ({ serverModel, accountModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(serverModel, reportModel.characters, "adminReportCharacters")
+	reportHandler(serverModel, accountModel, reportModel.characters, "adminReportCharacters")
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.cheats = ({ datasheetModel, serverModel, reportModel }) => [
+module.exports.cheats = ({ datasheetModel, serverModel, accountModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(serverModel, reportModel.cheats, "adminReportCheats", { datasheetModel })
+	reportHandler(serverModel, accountModel, reportModel.cheats, "adminReportCheats", { datasheetModel })
 ];
 
 /**
  * @param {modules} modules
  */
-module.exports.chronoscrolls = ({ serverModel, reportModel }) => [
+module.exports.chronoscrolls = ({ serverModel, accountModel, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
-	reportHandler(serverModel, reportModel.chronoScrolls, "adminReportChronoScrolls")
+	reportHandler(serverModel, accountModel, reportModel.chronoScrolls, "adminReportChronoScrolls")
 ];

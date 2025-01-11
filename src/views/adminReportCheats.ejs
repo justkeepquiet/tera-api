@@ -16,6 +16,7 @@
 										<tr>
 											<th><%= __("Report time") %></th>
 											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
 											<th><%= __("Name") %></th>
 											<th><%= __("Skill") %></th>
 											<th><%= __("Location") %></th>
@@ -45,6 +46,7 @@ reports.forEach(report => {
 	tableData.push([
 		moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		report.get("accountDBID"),
+		report.get("account")?.get("userName") || "-",
 		name,
 		`${skillId} ${a}/${b}`,
 		`(${huntingZoneId}) ${dungeon?.string || huntingZoneId}<br>(${templateId}) ${creature?.name || templateId}<br>${x}, ${y}, ${z}`,

@@ -58,6 +58,7 @@ _%>
 											<th><%= __("Gender") %></th>
 											<th><%= __("Class") %></th>
 											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
 											<th><%= __("Server ID") %></th>
 										</tr>
 									</thead>
@@ -85,6 +86,7 @@ reports.forEach(report => {
 			genderId[report.get("genderId")] || "-",
 			classId[report.get("classId")] || "-",
 			report.get("accountDBID"),
+			report.get("account")?.get("userName") || "-",
 			`(${report.get("serverId")}) ${report.get("server")?.get("nameString") || ""}`
 	]);
 });

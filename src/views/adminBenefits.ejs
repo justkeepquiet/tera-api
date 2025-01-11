@@ -33,6 +33,7 @@
 									<thead>
 										<tr>
 											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
 											<th><%= __("Benefit ID") %></th>
 											<th><%= __("Benefit description") %></th>
 											<th><%= __("Available until") %></th>
@@ -59,6 +60,7 @@ const tableData = [];
 
 	tableData.push([
 		benefit.get("accountDBID"),
+		benefit.get("info")?.get("userName") || "-",
 		benefit.get("benefitId"),
 		accountBenefits?.getOne(benefit.get("benefitId"))?.string || "-",
 		moment(benefit.get("availableUntil")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
@@ -74,7 +76,7 @@ _%>
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
 			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, null, null, null, null, { className: "text-right text-nowrap" }]
+			columns: [null, null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});

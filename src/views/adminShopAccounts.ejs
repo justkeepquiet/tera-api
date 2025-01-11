@@ -31,6 +31,7 @@
 									<thead>
 										<tr>
 											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
 											<th><%= __("Balance") %></th>
 											<th><%= __("Discount") %></th>
 											<th><%= __("Active") %></th>
@@ -54,6 +55,7 @@ const tableData = [];
 accounts.forEach(account => {
 	tableData.push([
 		account.get("accountDBID"),
+		account.get("info")?.get("userName") || "-",
 		account.get("balance"),
 		`${account.get("discount")}%`,
 		account.get("active") ? __("Yes") : __("No"),
@@ -69,7 +71,7 @@ _%>
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
 			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, null, null, null, null, { className: "text-right text-nowrap" }]
+			columns: [null, null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});

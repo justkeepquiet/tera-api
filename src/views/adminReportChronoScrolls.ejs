@@ -17,6 +17,7 @@
 											<th><%= __("Report time") %></th>
 											<th><%= __("Chrono ID") %></th>
 											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
 											<th><%= __("Server ID") %></th>
 										</tr>
 									</thead>
@@ -38,6 +39,7 @@ reports.forEach(report => {
 		moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
 		report.get("chronoId"),
 		report.get("accountDBID"),
+		report.get("account")?.get("userName") || "-",
 		`(${report.get("serverId")}) ${report.get("server")?.get("nameString") || ""}`
 	]);
 });

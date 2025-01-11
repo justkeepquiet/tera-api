@@ -41,7 +41,13 @@ module.exports.index = ({ i18n, accountModel, datasheetModel }) => [
 		}
 
 		const benefits = await accountModel.benefits.findAll({
-			where: { accountDBID }
+			where: { accountDBID },
+			include: [{
+				as: "info",
+				model: accountModel.info,
+				required: false,
+				attributes: ["userName"]
+			}]
 		});
 
 		res.render("adminBenefits", {

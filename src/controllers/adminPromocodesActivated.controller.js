@@ -23,7 +23,7 @@ const {
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ i18n, shopModel }) => [
+module.exports.index = ({ i18n, accountModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -50,10 +50,18 @@ module.exports.index = ({ i18n, shopModel }) => [
 				...promoCodeId ? { promoCodeId } : {},
 				...accountDBID ? { accountDBID } : {}
 			},
-			include: [{
-				as: "info",
-				model: shopModel.promoCodes
-			}]
+			include: [
+				{
+					as: "info",
+					model: shopModel.promoCodes
+				},
+				{
+					as: "account",
+					model: accountModel.info,
+					required: false,
+					attributes: ["userName"]
+				}
+			]
 		});
 
 		res.render("adminPromocodesActivated", {

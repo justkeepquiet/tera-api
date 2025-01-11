@@ -158,6 +158,7 @@ _%>
 											<th><%= __("Version") %></th>
 											<th><%= __("Client IP") %></th>
 											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
 										</tr>
 									</thead>
 								</table>
@@ -227,7 +228,8 @@ reports.forEach(report => {
 		description,
 		version,
 		report.get("ip"),
-		report.get("accountDBID")
+		report.get("accountDBID"),
+		report.get("account")?.get("userName") || "-"
 	]);
 });
 _%>

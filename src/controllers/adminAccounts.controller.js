@@ -389,12 +389,20 @@ module.exports.characters = ({ accountModel, serverModel }) => [
 				serverId,
 				accountDBID
 			},
-			include: [{
-				as: "server",
-				model: serverModel.info,
-				required: false,
-				attributes: ["nameString"]
-			}]
+			include: [
+				{
+					as: "info",
+					model: accountModel.info,
+					required: false,
+					attributes: ["userName"]
+				},
+				{
+					as: "server",
+					model: serverModel.info,
+					required: false,
+					attributes: ["nameString"]
+				}
+			]
 		});
 
 		res.render("adminAccountsCharacters", {

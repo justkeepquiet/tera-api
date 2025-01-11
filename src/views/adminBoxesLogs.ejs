@@ -19,6 +19,7 @@
 											<th><%= __("Type") %></th>
 											<th><%= __("Log ID") %></th>
 											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
 											<th><%= __("Server ID") %></th>
 											<th><%= __("Character ID") %></th>
 											<th><%= __("Title") %></th>
@@ -48,6 +49,7 @@ logs.forEach(log => {
 		log.get("logType") ? __({ 1: "Chronoscroll", 2: "Promo code", 3: "Shop", 4: "Box" }[log.get("logType")]) : "-",
 		log.get("logId") || "-",
 		log.get("accountDBID"),
+		log.get("account")?.get("userName") || "-",
 		log.get("serverId") ? `(${log.get("serverId")}) ${log.get("server")?.get("nameString") || ""}` : __("All"),
 		log.get("characterId") || __("All"),
 		context.title,
@@ -62,7 +64,7 @@ _%>
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
 			order: [[0, "desc"]],
-			columns: [{ className: "text-nowrap" }, null, { className: "text-nowrap" }, null, null, { className: "text-nowrap" }, null, { className: "text-nowrap" }, null, null]
+			columns: [{ className: "text-nowrap" }, null, { className: "text-nowrap" }, null, null, null, { className: "text-nowrap" }, null, { className: "text-nowrap" }, null, null]
 		}));
 		$(".section").show();
 	});

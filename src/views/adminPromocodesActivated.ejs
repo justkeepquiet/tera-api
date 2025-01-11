@@ -45,6 +45,7 @@
 											<th><%= __("Promo code ID") %></th>
 											<th><%= __("Promo code") %></th>
 											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
 											<th></th>
 										</tr>
 									</thead>
@@ -68,6 +69,7 @@ const tableData = [];
 		activated.get("promoCodeId"),
 		activated.get("info").get("promoCode"),
 		activated.get("accountDBID"),
+		activated.get("account")?.get("userName") || "-",
 		`<a class="btn btn-secondary btn-sm" href="/promocodes_activated/delete?id=${activated.get("id")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
 	]);
 });
@@ -78,7 +80,7 @@ _%>
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
 			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, null, null, null, { className: "text-right text-nowrap" }]
+			columns: [null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});

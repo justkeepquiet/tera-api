@@ -38,11 +38,13 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 	// info
 	model.info.hasOne(model.bans, {
 		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
 		as: "banned"
 	});
 
 	model.info.hasMany(model.characters, {
 		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
 		as: "character"
 	});
 
@@ -55,6 +57,7 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 	// online
 	model.online.hasOne(model.info, {
 		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
 		as: "info"
 	});
 
@@ -65,10 +68,30 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 	});
 
 	// characters
+	model.characters.hasOne(model.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "info"
+	});
+
 	model.characters.hasOne(modules.serverModel.info, {
 		foreignKey: "serverId",
 		sourceKey: "serverId",
 		as: "server"
+	});
+
+	// benefits
+	model.benefits.hasOne(model.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "info"
+	});
+
+	// bans
+	model.bans.hasOne(model.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "info"
 	});
 
 	return model;

@@ -21,7 +21,7 @@ const {
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ shopModel }) => [
+module.exports.index = ({ accountModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -31,7 +31,15 @@ module.exports.index = ({ shopModel }) => [
 		const { accountDBID } = req.query;
 
 		const accounts = await shopModel.accounts.findAll({
-			where: { ...accountDBID ? { accountDBID } : {} }
+			where: {
+				...accountDBID ? { accountDBID } : {}
+			},
+			include: [{
+				as: "info",
+				model: accountModel.info,
+				required: false,
+				attributes: ["userName"]
+			}]
 		});
 
 		res.render("adminShopAccounts", {
