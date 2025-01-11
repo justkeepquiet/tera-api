@@ -11,8 +11,6 @@
  * @property {import("sequelize").ModelCtor<Model<any, any>>} characters
  * @property {import("sequelize").ModelCtor<Model<any, any>>} benefits
  * @property {import("sequelize").ModelCtor<Model<any, any>>} online
- * @property {import("sequelize").ModelCtor<Model<any, any>>} verify
- * @property {import("sequelize").ModelCtor<Model<any, any>>} resetPassword
  */
 
 /**
@@ -26,9 +24,7 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		bans: require("./account/accountBans.model")(sequelize, DataTypes),
 		characters: require("./account/accountCharacters.model")(sequelize, DataTypes),
 		benefits: require("./account/accountBenefits.model")(sequelize, DataTypes),
-		online: require("./account/accountOnline.model")(sequelize, DataTypes),
-		verify: require("./account/accountVerify.model")(sequelize, DataTypes),
-		resetPassword: require("./account/accountResetPassword.model")(sequelize, DataTypes)
+		online: require("./account/accountOnline.model")(sequelize, DataTypes)
 	};
 
 	if (syncTables) {
@@ -37,8 +33,6 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		await model.characters.sync();
 		await model.benefits.sync();
 		await model.online.sync();
-		await model.verify.sync();
-		await model.resetPassword.sync();
 	}
 
 	// info

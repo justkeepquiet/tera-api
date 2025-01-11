@@ -447,8 +447,6 @@ const loadDatasheetModel = modules => {
  * @param {modules} modules
  */
 const startServers = async modules => {
-	const schedulerConfig = config.get("scheduler");
-
 	loadDatasheetModel(modules);
 
 	if (checkComponent("arbiter_api")) {
@@ -576,10 +574,6 @@ const startServers = async modules => {
 
 		modules.scheduler.start({ name: "serverCheckActions", schedule: expr.EVERY_TEN_SECONDS }, () => serverCheckActions.all(allowPortCheck));
 		serverCheckActions.all(allowPortCheck);
-	}
-
-	if (checkComponent("portal_api")) {
-		modules.scheduler.startTasks(schedulerConfig.portalApi, require("./schedules/portalApi.schedule"), modules);
 	}
 
 	if (checkComponent("admin_panel")) {

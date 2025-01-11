@@ -266,18 +266,12 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 		const { secure } = req.query;
 		const { email } = req.body;
 
-		const token = uuid();
 		const code = helpers.generateVerificationCode();
+		const ttl = moment().add(1, "hour"); // 1 hour
 
-		await accountModel.resetPassword.destroy({
-			where: { email }
-		});
+		logger.debug(`ResetPasswordAction: Generated verification code: ${code}, email: ${email}`);
 
-		await accountModel.resetPassword.create({
-			token,
-			code,
-			email
-		});
+		req.session.resetPasswordVerify = { email, code, ttl, failsCount: 0 };
 
 		app.render("email/resetPasswordVerify", { ...res.locals,
 			host: req.headers.host || req.hostname,
@@ -301,7 +295,6 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 				logger.error(error);
 			}
 
-			req.session.token = token;
 			req.session.captchaVerified = false;
 
 			res.json({
@@ -316,28 +309,20 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 /**
  * @param {modules} modules
  */
-module.exports.ResetPasswordVerifyFormHtml = ({ logger, accountModel }) => [
+module.exports.ResetPasswordVerifyFormHtml = ({ logger }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		req.session.passwordChanged = false;
 
-		if (!req.session.token || !isEmailVerifyEnabled) {
-			return res.redirect("LoginForm");
-		}
-
-		const accountResetPassword = await accountModel.resetPassword.findOne({
-			where: { token: req.session.token }
-		});
-
-		if (accountResetPassword === null) {
+		if (!req.session.resetPasswordVerify || !isEmailVerifyEnabled) {
 			return res.redirect("LoginForm");
 		}
 
 		res.render("launcherResetPasswordVerifyForm", {
 			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL"),
-			email: helpers.maskEmail(accountResetPassword.get("email"))
+			email: helpers.maskEmail(req.session.resetPasswordVerify.email)
 		});
 	},
 	/**
@@ -356,7 +341,7 @@ module.exports.ResetPasswordVerifyFormHtml = ({ logger, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.ResetPasswordVerifyAction = ({ logger, rateLimitter, sequelize, accountModel }) => [
+module.exports.ResetPasswordVerifyAction = ({ logger, rateLimitter, accountModel }) => [
 	[
 		body("password").trim()
 			.isLength({ min: 8, max: 128 }).withMessage(10),
@@ -385,43 +370,34 @@ module.exports.ResetPasswordVerifyAction = ({ logger, rateLimitter, sequelize, a
 
 		const { code, password } = req.body;
 
-		const accountResetPassword = await accountModel.resetPassword.findOne({
-			where: { token: req.session.token }
-		});
-
-		if (accountResetPassword === null) {
+		if (!req.session.resetPasswordVerify) {
 			throw new ApiError("invalid verification code", 11);
 		}
 
-		if (accountResetPassword.get("failsCount") >= 10) {
-			await accountModel.resetPassword.destroy({
-				where: { token: req.session.token }
-			});
+		if (moment().isAfter(req.session.resetPasswordVerify.ttl)) {
+			throw new ApiError("invalid verification code", 11);
+		}
+
+		if (req.session.resetPasswordVerify.failsCount >= 10) {
+			req.session.resetPasswordVerify = null;
 
 			throw new ApiError("attempts has been exceeded", 12);
 		}
 
-		if (accountResetPassword.get("code") !== code.toString().replaceAll(",", "").toUpperCase()) {
-			await accountModel.resetPassword.increment({ failsCount: 1 }, {
-				where: { token: req.session.token }
-			});
+		if (req.session.resetPasswordVerify.code !== code.toString().replaceAll(",", "").toUpperCase()) {
+			req.session.resetPasswordVerify.failsCount++;
 
 			throw new ApiError("invalid verification code", 11);
 		}
 
-		await sequelize.transaction(async () => {
-			await accountModel.resetPassword.destroy({
-				where: { token: req.session.token }
-			});
-
-			await accountModel.info.update({
-				passWord: helpers.getPasswordString(password)
-			}, {
-				where: { email: accountResetPassword.get("email") }
-			});
-
-			req.session.passwordChanged = true;
+		await accountModel.info.update({
+			passWord: helpers.getPasswordString(password)
+		}, {
+			where: { email: req.session.resetPasswordVerify.email }
 		});
+
+		req.session.resetPasswordVerify = null;
+		req.session.passwordChanged = true;
 
 		res.json({
 			Return: true,
@@ -538,22 +514,20 @@ module.exports.SignupAction = modules => [
 		const { secure } = req.query;
 		const { login, password, email } = req.body;
 
-		const token = uuid();
-
 		if (isEmailVerifyEnabled) {
 			const code = helpers.generateVerificationCode();
+			const ttl = moment().add(1, "hour"); // 1 hour
 
-			await modules.accountModel.verify.destroy({
-				where: { email }
-			});
+			modules.logger.debug(`SignupAction: Generated verification code: ${code}, login: ${login}, email: ${email}`);
 
-			await modules.accountModel.verify.create({
-				token,
-				userName: login,
+			req.session.signupVerify = {
+				login,
+				password: helpers.getPasswordString(password),
+				email,
 				code,
-				passWord: helpers.getPasswordString(password),
-				email
-			});
+				ttl,
+				failsCount: 0
+			};
 
 			modules.app.render("email/emailVerify", { ...res.locals,
 				host: req.headers.host || req.hostname,
@@ -577,7 +551,6 @@ module.exports.SignupAction = modules => [
 					modules.logger.error(error);
 				}
 
-				req.session.token = token;
 				req.session.captchaVerified = false;
 
 				res.json({
@@ -592,7 +565,6 @@ module.exports.SignupAction = modules => [
 				const account = await modules.accountModel.info.create({
 					userName: login,
 					passWord: helpers.getPasswordString(password),
-					authKey: uuid(),
 					email,
 					language: helpers.getPreferredLanguage(modules.i18n.getLocale())
 				});
@@ -634,28 +606,18 @@ module.exports.SignupAction = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.SignupVerifyFormHtml = ({ logger, accountModel }) => [
+module.exports.SignupVerifyFormHtml = ({ logger }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		if (!req.session.token || !isEmailVerifyEnabled || isRegistrationDisabled) {
+		if (!req.session.signupVerify || !isEmailVerifyEnabled || isRegistrationDisabled) {
 			return res.redirect("Main");
-		}
-
-		const accountVerify = await accountModel.verify.findOne({
-			where: {
-				token: req.session.token
-			}
-		});
-
-		if (accountVerify === null) {
-			return res.redirect("LoginForm");
 		}
 
 		res.render("launcherSignupVerifyForm", {
 			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL"),
-			email: helpers.maskEmail(accountVerify.get("email"))
+			email: helpers.maskEmail(req.session.signupVerify.email)
 		});
 	},
 	/**
@@ -701,43 +663,36 @@ module.exports.SignupVerifyAction = modules => [
 
 		const { code } = req.body;
 
-		const accountVerify = await modules.accountModel.verify.findOne({
-			where: { token: req.session.token }
-		});
-
-		if (accountVerify === null) {
+		if (!req.session.signupVerify) {
 			throw new ApiError("invalid verification code", 10);
 		}
 
-		if (accountVerify.get("failsCount") >= 10) {
-			await modules.accountModel.verify.destroy({
-				where: { token: req.session.token }
-			});
+		if (moment().isAfter(req.session.signupVerify.ttl)) {
+			throw new ApiError("invalid verification code", 10);
+		}
+
+		if (req.session.signupVerify.failsCount >= 10) {
+			req.session.signupVerify = null;
 
 			throw new ApiError("attempts has been exceeded", 11);
 		}
 
-		if (accountVerify.get("code") !== code.toString().replaceAll(",", "").toUpperCase()) {
-			await modules.accountModel.verify.increment({ failsCount: 1 }, {
-				where: { token: req.session.token }
-			});
+		if (req.session.signupVerify.code !== code.toString().replaceAll(",", "").toUpperCase()) {
+			req.session.signupVerify.failsCount++;
 
 			throw new ApiError("invalid verification code", 10);
 		}
 
 		await modules.sequelize.transaction(async () => {
-			await modules.accountModel.verify.destroy({
-				where: { token: req.session.token }
-			});
-
 			// Create user account
 			const account = await modules.accountModel.info.create({
-				userName: accountVerify.get("userName"),
-				passWord: helpers.getPasswordString(accountVerify.get("passWord")),
-				authKey: uuid(),
-				email: accountVerify.get("email"),
+				userName: req.session.signupVerify.login,
+				passWord: helpers.getPasswordString(req.session.signupVerify.password),
+				email: req.session.signupVerify.email,
 				language: helpers.getPreferredLanguage(modules.i18n.getLocale())
 			});
+
+			req.session.signupVerify = null;
 
 			const benefit = new Benefit(modules, account.get("accountDBID"));
 			const promises = [];
