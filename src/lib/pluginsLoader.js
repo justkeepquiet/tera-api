@@ -38,6 +38,10 @@ class PluginsLoader {
 		return [];
 	}
 
+	loadAll() {
+		this.list().forEach(plugin => this.register(plugin));
+	}
+
 	register(plugin) {
 		const pluginPath = path.join(__dirname, PLUGINS_PATH, plugin, "plugin.js");
 		const envPath = path.join(__dirname, PLUGINS_PATH, plugin, ".env");

@@ -1,7 +1,15 @@
 "use strict";
 
+/**
+ * @typedef {import("../utils/logger")} logger
+ */
+
 class CoreLoader {
-	constructor(modules = {}) {
+	/**
+	 * @param {logger} logger
+	 */
+	constructor(logger = null, modules = {}) {
+		this.logger = logger;
 		this.modules = modules;
 		this.promises = [];
 	}
@@ -18,6 +26,11 @@ class CoreLoader {
 
 	async final() {
 		await Promise.all(this.promises);
+
+		if (this.logger) {
+			this.logger.debug(`Registered modules: ${Object.keys(this.modules).join(", ")}`);
+		}
+
 		return this.modules;
 	}
 }

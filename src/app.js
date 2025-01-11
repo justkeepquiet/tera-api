@@ -8,6 +8,7 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
  * @typedef {import("sequelize").DataTypes} DataTypes
  * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
  * @typedef {import("./lib/ipApiClient")} IpApiClient
+ * @typedef {import("./utils/logger").logger} logger
  * @typedef {import("./models/planetDb.model").planetDbModel} planetDbModel
  *
  * @typedef {object} planetDbInstance
@@ -24,28 +25,28 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
  * @property {import("./models/datasheet/strSheetItem.model")[]} strSheetItem
  *
  * @typedef {object} modules
+ * @property {versions} versions
+ * @property {logger} logger
+ * @property {ConfigManager} config
+ * @property {ExpressServer.app} app
+ * @property {PluginsLoader} pluginsLoader
+ * @property {Scheduler} scheduler
+ * @property {RateLimitter} rateLimitter
  * @property {HubFunctions} hub
  * @property {SteerFunctions} steer
+ * @property {BackgroundQueue} queue
  * @property {nodemailer.Transporter} mailer
  * @property {ReaderModel} geoip
  * @property {IpApiClient} ipapi
  * @property {Sequelize} sequelize
- * @property {BackgroundQueue} queue
- * @property {versions} versions
- * @property {import("./utils/logger").logger} logger
- * @property {import("./lib/configManager")} config
- * @property {import("./lib/expressServer").app} app
- * @property {import("./lib/pluginsLoader")} pluginsLoader
- * @property {import("./lib/scheduler").Scheduler} scheduler
- * @property {import("./lib/rateLimitter")} rateLimitter
+ * @property {datasheetModel} datasheetModel
+ * @property {Map<Number, planetDbInstance>} planetDbs
  * @property {import("./models/queue.model").queueModel} queueModel
  * @property {import("./models/account.model").accountModel} accountModel
  * @property {import("./models/server.model").serverModel} serverModel
  * @property {import("./models/report.model").reportModel} reportModel
  * @property {import("./models/shop.model").shopModel} shopModel
  * @property {import("./models/box.model").boxModel} boxModel
- * @property {datasheetModel} datasheetModel
- * @property {Map<Number, planetDbInstance>} planetDbs
  */
 
 require("dotenv").config();
@@ -72,129 +73,167 @@ const IpApiClient = require("./lib/ipApiClient");
 const TasksActions = require("./actions/tasks.actions");
 const ServerCheckActions = require("./actions/serverCheck.actions");
 const CacheManager = require("./utils/cacheManager");
+const ConfigManager = require("./lib/configManager");
 const helpers = require("./utils/helpers");
 const env = require("./utils/env");
 const createLogger = require("./utils/logger").createLogger;
 const cliHelper = require("./utils/cliHelper");
-const ConfigManager = require("./lib/configManager");
 
 const versions = { app: APP_VERSION, db: DB_VERSION };
-const moduleLoader = new CoreLoader();
-const logger = createLogger("Core");
-const cli = cliHelper(logger, versions.app);
+const defaultLoggerParams = { colors: { debug: "gray" } };
 
-const config = new ConfigManager(
-	createLogger("Config Manager", { colors: { debug: "gray" } })
-);
+const coreLogger = createLogger("Core", defaultLoggerParams);
+const moduleLoader = new CoreLoader(coreLogger);
+const config = new ConfigManager(createLogger("Config Manager", defaultLoggerParams));
+const pl = new PluginsLoader(createLogger("Plugins Loader", defaultLoggerParams));
+const cli = cliHelper(coreLogger, versions.app);
 
-const pl = new PluginsLoader(
-	createLogger("Plugins Loader", { colors: { debug: "gray" } })
-);
-
+pl.loadAll();
 cli.addOption("-c, --component <items...>", "List of components");
 
 const options = cli.getOptions();
 const checkComponent = name => !options.component || options.component.includes(name);
 
+const gcCollect = () => {
+	if (!global.gc) return;
+
+	const getRss = () => `${Math.round(process.memoryUsage().rss / 1024 / 1024 * 100) / 100} MB`;
+	const oldRss = getRss();
+
+	global.gc();
+	coreLogger.debug(`GC collected: rss old: ${oldRss}, rss new: ${getRss()}`);
+};
+
+/**
+ * @param {logger} logger
+ */
+const loadDatasheetModelSync = (logger, datasheetModel, directory, region, locale, useBinary) => {
+	const cacheManager = new CacheManager(
+		path.join(__dirname, "..", "data", "cache"), "dc",
+		createLogger("CacheManager", defaultLoggerParams)
+	);
+
+	const datasheetLoader = new DatasheetLoader(logger);
+	let cacheRevision = null;
+
+	if (useBinary) {
+		const filePath = path.join(directory, `DataCenter_Final_${region}.dat`);
+
+		cacheRevision = helpers.getRevision(filePath);
+		datasheetLoader.fromBinary(filePath,
+			env.string("DATASHEET_DATACENTER_KEY"),
+			env.string("DATASHEET_DATACENTER_IV"),
+			{
+				isCompressed: env.bool("DATASHEET_DATACENTER_IS_COMPRESSED"),
+				hasPadding: env.bool("DATASHEET_DATACENTER_HAS_PADDING")
+			}
+		);
+	} else {
+		const directoryPath = path.join(directory, locale);
+
+		cacheRevision = helpers.getRevision(directoryPath);
+		datasheetLoader.fromXml(directoryPath);
+	}
+
+	const addModel = (section, model) => {
+		if (datasheetModel[section] === undefined) {
+			datasheetModel[section] = {};
+		}
+
+		const instance = new model();
+		const cache = cacheManager.read(`${locale}-${section}`, cacheRevision); // read cache
+
+		if (cache !== null && typeof instance.import === "function") {
+			instance.import(cache);
+			datasheetModel[section][locale] = instance;
+
+			datasheetLoader.logger.info(`Model loaded from cache: ${section} (${locale})`);
+		} else {
+			datasheetModel[section][locale] = datasheetLoader.addModel(instance);
+		}
+	};
+
+	if (checkComponent("admin_panel")) {
+		addModel("strSheetAccountBenefit", require("./models/datasheet/strSheetAccountBenefit.model"));
+		addModel("strSheetDungeon", require("./models/datasheet/strSheetDungeon.model"));
+		addModel("strSheetCreature", require("./models/datasheet/strSheetCreature.model"));
+	}
+
+	if (checkComponent("admin_panel") || checkComponent("portal_api")) {
+		addModel("itemConversion", require("./models/datasheet/itemConversion.model"));
+		addModel("skillIconData", require("./models/datasheet/skillIconData.model"));
+	}
+
+	if (checkComponent("admin_panel") || checkComponent("portal_api") || checkComponent("arbiter_api")) {
+		addModel("itemData", require("./models/datasheet/itemData.model"));
+		addModel("strSheetItem", require("./models/datasheet/strSheetItem.model"));
+	}
+
+	let dirty = false;
+
+	if (datasheetLoader.loader.sections.length !== 0) {
+		datasheetLoader.load();
+		dirty = true;
+
+		for (const [section, locales] of Object.entries(datasheetModel)) {
+			const instance = locales[locale];
+
+			if (typeof instance.export === "function") {
+				cacheManager.save(`${locale}-${section}`, instance.export(), cacheRevision); // save cache
+
+				datasheetLoader.logger.info(`Model saved to cache: ${section} (${locale})`);
+			}
+		}
+	}
+
+	return dirty;
+};
+
+pl.loadComponent("app.moduleLoader.before", moduleLoader);
+
 moduleLoader.setPromise("versions", async () => versions);
-moduleLoader.setPromise("logger", async () => logger);
+moduleLoader.setPromise("logger", async () => coreLogger);
 moduleLoader.setPromise("config", async () => config);
 moduleLoader.setPromise("pluginsLoader", async () => pl);
 
-pl.list().forEach(plugin =>
-	pl.register(plugin)
-);
+moduleLoader.setAsync("datasheetModel", async () => {
+	const datasheetLogger = createLogger("Datasheet", defaultLoggerParams);
+	const useBinary = env.bool("DATASHEET_USE_BINARY");
+	const directory = path.join(__dirname, "..", "data", "datasheets");
+	const datasheetModel = [];
+	const variants = [];
 
-moduleLoader.setPromise("scheduler", async () => new Scheduler(
-	createLogger("Scheduler", { colors: { debug: "gray" } })
-));
+	try {
+		if (useBinary) {
+			fs.readdirSync(directory).forEach(file => {
+				const match = file.match(/_(\w{3})\.dat$/);
 
-moduleLoader.setPromise("rateLimitter", async () => {
-	const rateLimitsConfig = config.get("rateLimits");
-
-	return new RateLimitter(
-		rateLimitsConfig,
-		createLogger("Rate Limitter", { colors: { debug: "gray" } })
-	);
-});
-
-moduleLoader.setPromise("queue", async () => new BackgroundQueue({
-	concurrent: 5,
-	logger: createLogger("Background Queue")
-}));
-
-moduleLoader.setPromise("hub", async () => {
-	const hub = new HubFunctions(
-		env.string("HUB_HOST"),
-		env.number("HUB_PORT"),
-		serverCategory.webcstool, {
-			logger: createLogger("Hub", { colors: { debug: "magenta" } })
-		}
-	);
-
-	await hub.connect();
-
-	return hub;
-});
-
-moduleLoader.setPromise("steer", async () => {
-	const steer = new SteerFunctions(
-		env.string("STEER_HOST"),
-		env.number("STEER_PORT"),
-		serverCategory.webcstool, "WebIMSTool", {
-			logger: createLogger("Steer", { colors: { debug: "bold magenta" } })
-		}
-	);
-
-	if (checkComponent("admin_panel")) {
-		if (env.bool("STEER_ENABLE")) {
-			await steer.connect();
+				if (match) {
+					variants.push({ region: match[1], locale: helpers.regionToLanguage(match[1]) });
+				}
+			});
 		} else {
-			steer.params.logger.warn("Not configured or disabled. QA authorization for Admin Panel is used.");
+			fs.readdirSync(directory).forEach(file => {
+				const stats = fs.statSync(path.join(directory, file));
+
+				if (stats.isDirectory()) {
+					variants.push({ region: helpers.languageToRegion(file), locale: file });
+				}
+			});
 		}
+
+		for (const { region, locale } of variants) {
+			if (loadDatasheetModelSync(datasheetLogger, datasheetModel, directory, region, locale, useBinary)) {
+				gcCollect();
+			}
+		}
+	} catch (err) {
+		datasheetLogger.error(err);
+		throw "";
 	}
 
-	return steer;
+	return datasheetModel;
 });
-
-moduleLoader.setPromise("mailer", async () => {
-	const settings = {
-		host: env.string("MAILER_SMTP_HOST"),
-		port: env.number("MAILER_SMTP_PORT"),
-		secure: env.bool("MAILER_SMTP_SECURE")
-	};
-
-	if (env.string("MAILER_SMTP_AUTH_USER") && env.string("MAILER_SMTP_AUTH_PASSWORD")) {
-		settings.auth = {
-			user: env.string("MAILER_SMTP_AUTH_USER"),
-			pass: env.string("MAILER_SMTP_AUTH_PASSWORD")
-		};
-	}
-
-	return nodemailer.createTransport(settings);
-});
-
-moduleLoader.setPromise("geoip", async () => {
-	const geoipLogger = createLogger("GeoIP", { colors: { debug: "gray" } });
-	const filePath = path.join(__dirname, "..", "data", "geoip", "GeoLite2-City.mmdb");
-
-	if (fs.existsSync(filePath)) {
-		const geoIpData = fs.readFileSync(filePath);
-		const reader = geoip.Reader.openBuffer(geoIpData);
-
-		geoipLogger.info(`Loaded: ${filePath}`);
-		return reader;
-	} else {
-		geoipLogger.debug(`File ${filePath} is not found. Skip loading.`);
-	}
-});
-
-moduleLoader.setPromise("ipapi", async () => new IpApiClient(
-	env.array("IPAPI_API_KEYS", []),
-	env.number("IPAPI_CACHE_TTL", 86400), // 24 hours
-	env.number("IPAPI_REQUEST_TIMEOUT", 3),
-	env.number("IPAPI_REQUEST_MAX_RETRIES", 3)
-));
 
 moduleLoader.setPromise("sequelize", async () => {
 	if (!env.string("DB_HOST")) {
@@ -328,126 +367,100 @@ moduleLoader.setPromise("planetDbs", async () => {
 	return planetDbs;
 });
 
-pl.loadComponent("app.moduleLoader", moduleLoader);
+moduleLoader.setPromise("scheduler", async () => new Scheduler(
+	createLogger("Scheduler", defaultLoggerParams)
+));
 
-/**
- * @param {modules} modules
- */
-const loadDatasheetModel = modules => {
-	const cacheManager = new CacheManager(
-		path.join(__dirname, "..", "data", "cache"), "dc",
-		createLogger("CacheManager", { colors: { debug: "gray" } })
+moduleLoader.setPromise("rateLimitter", async () => new RateLimitter(
+	config.get("rateLimits"),
+	createLogger("Rate Limitter", defaultLoggerParams)
+));
+
+moduleLoader.setPromise("queue", async () => new BackgroundQueue({
+	concurrent: 5,
+	logger: createLogger("Background Queue")
+}));
+
+moduleLoader.setPromise("hub", async () => {
+	const hub = new HubFunctions(
+		env.string("HUB_HOST"),
+		env.number("HUB_PORT"),
+		serverCategory.webcstool, {
+			logger: createLogger("Hub", { colors: { debug: "magenta" } })
+		}
 	);
 
-	const datasheetLogger = createLogger("Datasheet", { colors: { debug: "gray" } });
-	const useBinary = env.bool("DATASHEET_USE_BINARY");
-	const directory = path.join(__dirname, "..", "data", "datasheets");
-	const datasheetModel = [];
-	const variants = [];
-	let cacheRevision = null;
+	await hub.connect();
 
-	try {
-		if (useBinary) {
-			fs.readdirSync(directory).forEach(file => {
-				const match = file.match(/_(\w{3})\.dat$/);
+	return hub;
+});
 
-				if (match) {
-					variants.push({ region: match[1], locale: helpers.regionToLanguage(match[1]) });
-				}
-			});
+moduleLoader.setPromise("steer", async () => {
+	const steer = new SteerFunctions(
+		env.string("STEER_HOST"),
+		env.number("STEER_PORT"),
+		serverCategory.webcstool, "WebIMSTool", {
+			logger: createLogger("Steer", { colors: { debug: "bold magenta" } })
+		}
+	);
+
+	if (checkComponent("admin_panel")) {
+		if (env.bool("STEER_ENABLE")) {
+			await steer.connect();
 		} else {
-			fs.readdirSync(directory).forEach(file => {
-				const stats = fs.statSync(path.join(directory, file));
-
-				if (stats.isDirectory()) {
-					variants.push({ region: helpers.languageToRegion(file), locale: file });
-				}
-			});
+			steer.params.logger.warn("Not configured or disabled. QA authorization for Admin Panel is used.");
 		}
-
-		for (const { region, locale } of variants) {
-			const datasheetLoader = new DatasheetLoader(datasheetLogger);
-
-			if (useBinary) {
-				const filePath = path.join(directory, `DataCenter_Final_${region}.dat`);
-
-				cacheRevision = helpers.getRevision(filePath);
-				datasheetLoader.fromBinary(filePath,
-					env.string("DATASHEET_DATACENTER_KEY"),
-					env.string("DATASHEET_DATACENTER_IV"),
-					{
-						isCompressed: env.bool("DATASHEET_DATACENTER_IS_COMPRESSED"),
-						hasPadding: env.bool("DATASHEET_DATACENTER_HAS_PADDING")
-					}
-				);
-			} else {
-				const directoryPath = path.join(directory, locale);
-
-				cacheRevision = helpers.getRevision(directoryPath);
-				datasheetLoader.fromXml(directoryPath);
-			}
-
-			const addModel = (section, model) => {
-				if (datasheetModel[section] === undefined) {
-					datasheetModel[section] = {};
-				}
-
-				const instance = new model();
-				const cache = cacheManager.read(`${locale}-${section}`, cacheRevision); // read cache
-
-				if (cache !== null && typeof instance.import === "function") {
-					instance.import(cache);
-					datasheetModel[section][locale] = instance;
-
-					datasheetLoader.logger.info(`Model loaded from cache: ${section} (${locale})`);
-				} else {
-					datasheetModel[section][locale] = datasheetLoader.addModel(instance);
-				}
-			};
-
-			if (checkComponent("admin_panel")) {
-				addModel("strSheetAccountBenefit", require("./models/datasheet/strSheetAccountBenefit.model"));
-				addModel("strSheetDungeon", require("./models/datasheet/strSheetDungeon.model"));
-				addModel("strSheetCreature", require("./models/datasheet/strSheetCreature.model"));
-			}
-
-			if (checkComponent("admin_panel") || checkComponent("portal_api")) {
-				addModel("itemConversion", require("./models/datasheet/itemConversion.model"));
-				addModel("skillIconData", require("./models/datasheet/skillIconData.model"));
-			}
-
-			if (checkComponent("admin_panel") || checkComponent("portal_api") || checkComponent("arbiter_api")) {
-				addModel("itemData", require("./models/datasheet/itemData.model"));
-				addModel("strSheetItem", require("./models/datasheet/strSheetItem.model"));
-			}
-
-			if (datasheetLoader.loader.sections.length !== 0) {
-				datasheetLoader.load();
-
-				for (const [section, locales] of Object.entries(datasheetModel)) {
-					const instance = locales[locale];
-
-					if (typeof instance.export === "function") {
-						cacheManager.save(`${locale}-${section}`, instance.export(), cacheRevision); // save cache
-
-						datasheetLoader.logger.info(`Model saved to cache: ${section} (${locale})`);
-					}
-				}
-			}
-		}
-	} catch (err) {
-		datasheetLogger.error(err);
-		throw "";
 	}
 
-	modules.datasheetModel = datasheetModel;
-};
+	return steer;
+});
+
+moduleLoader.setPromise("mailer", async () => {
+	const settings = {
+		host: env.string("MAILER_SMTP_HOST"),
+		port: env.number("MAILER_SMTP_PORT"),
+		secure: env.bool("MAILER_SMTP_SECURE")
+	};
+
+	if (env.string("MAILER_SMTP_AUTH_USER") && env.string("MAILER_SMTP_AUTH_PASSWORD")) {
+		settings.auth = {
+			user: env.string("MAILER_SMTP_AUTH_USER"),
+			pass: env.string("MAILER_SMTP_AUTH_PASSWORD")
+		};
+	}
+
+	return nodemailer.createTransport(settings);
+});
+
+moduleLoader.setPromise("geoip", async () => {
+	const geoipLogger = createLogger("GeoIP", defaultLoggerParams);
+	const filePath = path.join(__dirname, "..", "data", "geoip", "GeoLite2-City.mmdb");
+
+	if (fs.existsSync(filePath)) {
+		const geoIpData = fs.readFileSync(filePath);
+		const reader = geoip.Reader.openBuffer(geoIpData);
+
+		geoipLogger.info(`Loaded: ${filePath}`);
+		return reader;
+	} else {
+		geoipLogger.debug(`File ${filePath} is not found. Skip loading.`);
+	}
+});
+
+moduleLoader.setPromise("ipapi", async () => new IpApiClient(
+	env.array("IPAPI_API_KEYS", []),
+	env.number("IPAPI_CACHE_TTL", 86400), // 24 hours
+	env.number("IPAPI_REQUEST_TIMEOUT", 3),
+	env.number("IPAPI_REQUEST_MAX_RETRIES", 3)
+));
+
+pl.loadComponent("app.moduleLoader.after", moduleLoader);
 
 /**
  * @param {modules} modules
  */
 const startServers = async modules => {
-	loadDatasheetModel(modules);
+	pl.loadComponent("app.startServers.before", modules);
 
 	if (checkComponent("arbiter_api")) {
 		if (!env.number("API_ARBITER_LISTEN_PORT")) {
@@ -562,8 +575,8 @@ const startServers = async modules => {
 	}
 
 	if (global.gc) {
-		modules.scheduler.start({ name: "gcWorks", schedule: expr.EVERY_FIVE_MINUTES }, () => global.gc());
-		global.gc();
+		modules.scheduler.start({ name: "gcWorks", schedule: expr.EVERY_FIVE_MINUTES }, gcCollect);
+		gcCollect();
 	}
 
 	modules.scheduler.start({ name: "printMemoryUsage", schedule: expr.EVERY_THIRTY_MINUTES }, () => cli.printMemoryUsage());
@@ -582,7 +595,9 @@ const startServers = async modules => {
 		);
 	}
 
-	logger.info(`Served components: ${options.component || "all"}`);
+	pl.loadComponent("app.startServers.after", modules);
+
+	coreLogger.info(`Served components: ${options.component || "all"}`);
 
 	cli.printInfo();
 	cli.printMemoryUsage();
@@ -591,7 +606,7 @@ const startServers = async modules => {
 
 moduleLoader.final().then(startServers).catch(err => {
 	if (err) {
-		logger.error(err);
+		coreLogger.error(err);
 	}
 
 	cli.printEnded();
