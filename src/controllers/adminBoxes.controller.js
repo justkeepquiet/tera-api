@@ -22,6 +22,8 @@ const {
 	writeOperationReport
 } = require("../middlewares/admin.middlewares");
 
+const ApiError = require("../lib/apiError");
+
 /**
  * @param {modules} modules
  */
@@ -33,7 +35,6 @@ module.exports.index = ({ i18n, queue, boxModel, datasheetModel }) => [
 	 */
 	async (req, res, next) => {
 		const boxes = new Map();
-		const boxItems = [];
 		const tasks = [];
 
 		(await boxModel.info.findAll({
@@ -71,28 +72,18 @@ module.exports.index = ({ i18n, queue, boxModel, datasheetModel }) => [
 				processing: false
 			});
 
-			boxItems.push(queue.findByTag("createBox", box.get("id"), 1));
+			tasks.push(queue.findByTag("createBox", box.get("id"), 1));
 		});
 
-		(await Promise.all(boxItems)).forEach(boxItem => {
-			if (boxItem !== null && boxItem[0] !== undefined) {
-				const boxId = boxItem[0].get("boxId");
+		(await Promise.all(tasks)).forEach(task => {
+			if (task !== null && task[0] !== undefined) {
+				const boxId = Number(task[0].get("tag"));
 
 				if (boxes.has(boxId)) {
-					boxes.get(boxItem[0].get("boxId")).items = boxItem;
+					boxes.get(boxId).processing = true;
 				}
 			}
 		});
-
-		// (await Promise.all(tasks)).forEach(task => {
-		// 	if (task !== null && task[0] !== undefined) {
-		// 		const boxId = Number(task[0].get("tag"));
-
-		// 		if (boxes.has(boxId)) {
-		// 			boxes.get(boxId).processing = true;
-		// 		}
-		// 	}
-		// });
 
 		res.render("adminBoxes", {
 			layout: "adminLayout",
@@ -613,8 +604,21 @@ module.exports.sendAction = modules => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
+		const task = await modules.queue.findByTag("createBox", req.query.id, 1);
+
+		if (task.length > 0) {
+			throw new ApiError("This box is being processed", 100);
+		}
+
+		next();
+	},
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
 		const { id } = req.query;
 		const { serverId, accountDBID, characterId } = req.body;
+
 
 		const serviceItem = new ServiceItem(modules);
 
@@ -717,6 +721,18 @@ module.exports.sendAll = modules => [
 		query("id").notEmpty()
 	],
 	validationHandler(modules.logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const task = await modules.queue.findByTag("createBox", req.query.id, 1);
+
+		if (task.length > 0) {
+			throw new ApiError("This box is being processed", 100);
+		}
+
+		next();
+	},
 	/**
 	 * @type {RequestHandler}
 	 */
