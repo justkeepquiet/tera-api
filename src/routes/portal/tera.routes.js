@@ -19,8 +19,8 @@ const portalAccountController = require("../../controllers/portalAccount.control
 module.exports = modules => {
 	const ipBlock = new IpBlockHandler(modules.geoip, modules.ipapi, modules.logger);
 
-	modules.serverModel.info.findAll({ where: { isEnabled: 1 } }).then(servers => {
-		if (servers === null || servers.length === 0) {
+	modules.serverModel.info.count().then(servers => {
+		if (servers === null || servers === 0) {
 			modules.logger.warn("ServerList: No TERA servers have been added. Go to Admin Panel and add at least one server.");
 		}
 	}).catch(err =>
