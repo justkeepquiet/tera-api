@@ -18,7 +18,7 @@
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="price"><%= __("Price") %></label>
-								<input type="number" class="form-control boxed" name="price" value="0">
+								<input type="number" class="form-control boxed" name="price" value="0" min="0" max="100000000">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="userName"><%= __("Category ID") %></label>
@@ -42,7 +42,7 @@
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="sort"><%= __("Sort") %></label>
-								<input type="number" class="form-control boxed" name="sort" value="0">
+								<input type="number" class="form-control boxed" name="sort" value="0" min="-100000000" max="100000000">
 							</div>
 							<div class="col-sm-6 mt-4">
 								<label>
@@ -61,15 +61,15 @@
 										<%= __("Item template ID") %>
 										<a class="btn btn-secondary btn-sm remove-item" title="" href="#"><i class="fa fa-minus"></i></a>
 									</label>
-									<input type="text" class="form-control boxed" name="itemTemplateIds[]" value="">
+									<input type="text" class="form-control boxed" name="itemTemplateIds[]" value="" min="1" max="100000000">
 								</div>
 								<div class="col-sm-2">
 									<label class="control-label" for="boxItemCounts[]"><%= __("Count") %></label>
-									<input type="number" class="form-control boxed mt-2" name="boxItemCounts[]" value="1">
+									<input type="number" class="form-control boxed mt-2" name="boxItemCounts[]" value="1" min="1" max="1000000">
 								</div>
 								<div class="col-sm-3">
 									<label class="control-label" for="boxItemIds[]"><%= __("Service item ID") %></label>
-									<input type="number" class="form-control boxed mt-2" name="boxItemIds[]" value="" placeholder="<%= __("optional") %>">
+									<input type="number" class="form-control boxed mt-2" name="boxItemIds[]" value="" placeholder="<%= __("optional") %>" min="1" max="100000000">
 								</div>
 							</div>
 						</div>
@@ -185,7 +185,7 @@
 									<div class="form-group row">
 										<div class="col-sm-6">
 											<label class="control-label" for="discount"><%= __("Discount") %> (%)</label>
-											<input type="number" class="form-control boxed" name="discount" value="0">
+											<input type="number" class="form-control boxed" name="discount" value="0" min="0" max="100">
 										</div>
 									</div>
 									<div class="form-group row">
@@ -236,15 +236,15 @@
 				"			<%= __('Item template ID') %>" +
 				"			<a class='btn btn-secondary btn-sm remove-item' title='' href='#'><i class='fa fa-minus'></i></a>" +
 				"		</label>" +
-				"		<input type='text' class='form-control boxed' name='itemTemplateIds[]' value=''>" +
+				"		<input type='text' class='form-control boxed' name='itemTemplateIds[]' value='' min='1' max='100000000'>" +
 				"	</div>" +
 				"	<div class='col-sm-2'>" +
 				"		<label class='control-label' for='boxItemCounts[]'><%= __('Count') %></label>" +
-				"		<input type='number' class='form-control boxed mt-2' name='boxItemCounts[]' value='1'>" +
+				"		<input type='number' class='form-control boxed mt-2' name='boxItemCounts[]' value='1' min='1' max='1000000'>" +
 				"	</div>" +
 				"	<div class='col-sm-3'>" +
 				"		<label class='control-label' for='boxItemIds[]'><%= __('Service item ID') %></label>" +
-				"		<input type='number' class='form-control boxed mt-2' name='boxItemIds[]' value='' placeholder='<%= __('optional') %>'>" +
+				"		<input type='number' class='form-control boxed mt-2' name='boxItemIds[]' value='' placeholder='<%= __('optional') %>' min='1' max='100000000'>" +
 				"	</div>" +
 				"</div>"
 			);

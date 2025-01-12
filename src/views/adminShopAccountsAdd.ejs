@@ -18,11 +18,11 @@
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="balance"><%= __("Balance") %></label>
-							<input type="number" class="form-control boxed" name="balance" value="0">
+							<input type="number" class="form-control boxed" name="balance" value="0" min="0" max="10000000000">
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="discount"><%= __("Discount") %> (%)</label>
-							<input type="number" class="form-control boxed" name="discount" value="0">
+							<input type="number" class="form-control boxed" name="discount" value="0" min="0" max="100">
 						</div>
 						<div class="form-group">
 							<label>

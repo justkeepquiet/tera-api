@@ -220,7 +220,9 @@ module.exports.ResetPasswordFormHtml = ({ i18n, logger }) => [
  */
 module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n, accountModel }) => [
 	[
-		body("email").trim().notEmpty().withMessage(10)
+		body("email").trim()
+			.isLength({ max: 128 }).withMessage(10)
+			.notEmpty().withMessage(10)
 	],
 	/**
 	 * @type {RequestHandler}
@@ -482,6 +484,7 @@ module.exports.SignupAction = modules => [
 			.isLength({ min: 3, max: 13 }).withMessage(11)
 			.isAlphanumeric().withMessage(11),
 		body("email").trim()
+			.isLength({ max: 128 }).withMessage(12)
 			.isEmail().withMessage(12),
 		body("password").trim()
 			.isLength({ min: 8, max: 128 }).withMessage(13)

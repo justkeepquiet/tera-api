@@ -14,15 +14,15 @@
 						<div class="alert alert-danger" id="errors" style="display: none;"></div>
 						<div class="form-group">
 							<label class="control-label" for="userName"><%= __("Name") %></label>
-							<input type="text" class="form-control boxed" name="userName" value="<%= userName %>">
+							<input type="text" class="form-control boxed" name="userName" value="<%= userName %>" minlength="1" maxlength="64">
 						</div>
 						<div class="form-group">
 						<% if (encryptPasswords) { %>
 							<label class="control-label" for="passWord"><%= __("Change password") %></label>
-							<input type="text" class="form-control boxed" name="passWord" value="" placeholder="enter a new password to change">
+							<input type="text" class="form-control boxed" name="passWord" value="" placeholder="enter a new password to change" minlength="8" maxlength="128">
 						<% } else { %>
 							<label class="control-label" for="passWord"><%= __("Password") %></label>
-							<input type="text" class="form-control boxed" name="passWord" value="<%= passWord %>">
+							<input type="text" class="form-control boxed" name="passWord" value="<%= passWord %>" minlength="8" maxlength="128">
 						<% } %>
 						</div>
 						<div class="form-group">
@@ -32,11 +32,11 @@
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="permission"><%= __("Permission") %></label>
-								<input type="number" class="form-control boxed" name="permission" value="<%= permission %>">
+								<input type="number" class="form-control boxed" name="permission" value="<%= permission %>" min="0" max="10000000000">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="privilege"><%= __("Privilege") %></label>
-								<input type="number" class="form-control boxed" name="privilege" value="<%= privilege %>">
+								<input type="number" class="form-control boxed" name="privilege" value="<%= privilege %>" min="0" max="10000000000">
 							</div>
 						</div>
 						<div class="form-group row">

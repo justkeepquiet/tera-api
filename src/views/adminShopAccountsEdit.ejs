@@ -14,11 +14,11 @@
 						<div class="alert alert-danger" id="errors" style="display: none;"></div>
 						<div class="form-group">
 							<label class="control-label" for="balance"><%= __("Balance") %></label>
-							<input type="number" class="form-control boxed" name="balance" value="<%= balance %>">
+							<input type="number" class="form-control boxed" name="balance" value="<%= balance %>" min="0" max="10000000000">
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="discount"><%= __("Discount") %> (%)</label>
-							<input type="number" class="form-control boxed" name="discount" value="<%= discount %>">
+							<input type="number" class="form-control boxed" name="discount" value="<%= discount %>" min="0" max="100">
 						</div>
 						<div class="form-group">
 							<label>

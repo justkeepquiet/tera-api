@@ -98,7 +98,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 				}
 			})),
 		body("balance")
-			.isInt({ min: 0 }).withMessage(i18n.__("Balance field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Balance field must contain a valid number.")),
 		body("discount")
 			.isInt({ min: 0, max: 100 }).withMessage(i18n.__("Discount field must contain a valid number.")),
 		body("active").optional()
@@ -174,7 +174,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	[
 		query("accountDBID").notEmpty(),
 		body("balance")
-			.isInt({ min: 0 }).withMessage(i18n.__("Balance field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Balance field must contain a valid number.")),
 		body("discount")
 			.isInt({ min: 0, max: 100 }).withMessage(i18n.__("Discount field must contain a valid number.")),
 		body("active").optional()

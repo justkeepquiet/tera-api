@@ -15,52 +15,52 @@
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="language"><%= __("Language") %></label>
-								<input type="text" class="form-control boxed" name="language" value="">
+								<input type="text" class="form-control boxed" name="language" value="" minlength="2" maxlength="3">
 							</div>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="categoryPvE"><%= __("Category PvE") %></label>
-								<input type="text" class="form-control boxed" name="categoryPvE" value="">
+								<input type="text" class="form-control boxed" name="categoryPvE" value="" minlength="1" maxlength="50">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="categoryPvP"><%= __("Category PvP") %></label>
-								<input type="text" class="form-control boxed" name="categoryPvP" value="">
+								<input type="text" class="form-control boxed" name="categoryPvP" value="" minlength="1" maxlength="50">
 							</div>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="serverOffline"><%= __("Server offline") %></label>
-								<input type="text" class="form-control boxed" name="serverOffline" value="">
+								<input type="text" class="form-control boxed" name="serverOffline" value="" minlength="1" maxlength="50">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="serverLow"><%= __("Server low") %></label>
-								<input type="text" class="form-control boxed" name="serverLow" value="">
+								<input type="text" class="form-control boxed" name="serverLow" value="" minlength="1" maxlength="50">
 							</div>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="serverMedium"><%= __("Server medium") %></label>
-								<input type="text" class="form-control boxed" name="serverMedium" value="">
+								<input type="text" class="form-control boxed" name="serverMedium" value="" minlength="1" maxlength="50">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="serverHigh"><%= __("Server high") %></label>
-								<input type="text" class="form-control boxed" name="serverHigh" value="">
+								<input type="text" class="form-control boxed" name="serverHigh" value="" minlength="1" maxlength="50">
 							</div>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="crowdNo"><%= __("Crowdness no") %></label>
-								<input type="text" class="form-control boxed" name="crowdNo" value="">
+								<input type="text" class="form-control boxed" name="crowdNo" value="" minlength="1" maxlength="50">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="crowdYes"><%= __("Crowdness yes") %></label>
-								<input type="text" class="form-control boxed" name="crowdYes" value="">
+								<input type="text" class="form-control boxed" name="crowdYes" value="" minlength="1" maxlength="50">
 							</div>
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="popup"><%= __("Popup") %></label>
-							<textarea class="form-control boxed" name="popup"></textarea>
+							<textarea class="form-control boxed" name="popup" minlength="1" maxlength="2048"></textarea>
 						</div>
 						<div class="form-group">
 							<button type="button" class="btn btn-primary" id="submit"><%= __("Add") %></button>

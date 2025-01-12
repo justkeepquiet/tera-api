@@ -32,7 +32,7 @@
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="maxActivations"><%= __("Maximum of activations") %></label>
-								<input type="number" class="form-control boxed" name="maxActivations" value="<%= maxActivations %>">
+								<input type="number" class="form-control boxed" name="maxActivations" value="<%= maxActivations %>" min="0" max="100000000">
 								<i>0 &mdash; <%= __("no limit on the number of activations.") %></i>
 							</div>
 						</div>
@@ -61,7 +61,7 @@
 								<label for="description[<%= shopLocale %>]" class="control-label"><%= __(shopLocale) %></label>
 							</div>
 							<div class="col-sm-10">
-								<input type="text" class="form-control boxed" name="description[<%= shopLocale %>]" value="<%= description[shopLocale] || "" %>">
+								<input type="text" class="form-control boxed" name="description[<%= shopLocale %>]" value="<%= description[shopLocale] || "" %>" minlength="1" maxlength="2048">
 							</div>
 						</div>
 						<%_ }) _%>

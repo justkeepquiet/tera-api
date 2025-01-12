@@ -18,7 +18,7 @@
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="price"><%= __("Price") %></label>
-								<input type="number" class="form-control boxed" name="price" value="<%= price %>">
+								<input type="number" class="form-control boxed" name="price" value="<%= price %>" min="0" max="100000000">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="userName"><%= __("Category ID") %></label>
@@ -45,7 +45,7 @@
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="sort"><%= __("Sort") %></label>
-								<input type="number" class="form-control boxed" name="sort" value="<%= sort %>">
+								<input type="number" class="form-control boxed" name="sort" value="<%= sort %>" min="-100000000" max="100000000">
 							</div>
 						</div>
 						<div class="form-group">

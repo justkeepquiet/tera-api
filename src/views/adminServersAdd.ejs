@@ -20,11 +20,11 @@
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="serverId"><%= __("Server ID") %></label>
-								<input type="number" class="form-control boxed" name="serverId" value="">
+								<input type="number" class="form-control boxed" name="serverId" value="" min="1">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="language"><%= __("Language code") %></label>
-								<input type="text" class="form-control boxed" name="language" value="<%= i18n.getLocale() %>">
+								<input type="text" class="form-control boxed" name="language" value="<%= i18n.getLocale() %>" minlength="2" maxlength="3">
 							</div>
 						</div>
 						<div class="form-group row">
@@ -34,31 +34,31 @@
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="loginPort"><%= __("Login port") %></label>
-								<input type="number" class="form-control boxed" name="loginPort" value="7801">
+								<input type="number" class="form-control boxed" name="loginPort" value="7801" min="0" max="65535">
 							</div>
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="nameString"><%= __("Name string") %></label>
-							<input type="text" class="form-control boxed" name="nameString" value="">
+							<input type="text" class="form-control boxed" name="nameString" value="" minlength="1" maxlength="256">
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="descrString"><%= __("Description string") %></label>
-							<input type="text" class="form-control boxed" name="descrString" value="">
+							<input type="text" class="form-control boxed" name="descrString" value="" minlength="1" maxlength="1024">
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="thresholdLow"><%= __("Threshold low") %></label>
-								<input type="number" class="form-control boxed" name="thresholdLow" value="100">
+								<input type="number" class="form-control boxed" name="thresholdLow" value="100" min="0" max="100000000">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="thresholdMedium"><%= __("Threshold medium") %></label>
-								<input type="number" class="form-control boxed" name="thresholdMedium" value="500">
+								<input type="number" class="form-control boxed" name="thresholdMedium" value="500" min="0" max="100000000">
 							</div>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="permission"><%= __("Permission") %></label>
-								<input type="number" class="form-control boxed" name="permission" value="0">
+								<input type="number" class="form-control boxed" name="permission" value="0" min="0" max="10000000000">
 							</div>
 						</div>
 						<div class="form-group">

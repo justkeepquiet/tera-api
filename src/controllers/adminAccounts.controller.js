@@ -118,6 +118,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 		body("passWord").trim()
 			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("Password field must be between 8 and 128 characters.")),
 		body("email").trim()
+			.isLength({ max: 128 }).withMessage(i18n.__("Email field must contain a valid email."))
 			.isEmail().withMessage(i18n.__("Email field must contain a valid email."))
 			.custom(value => accountModel.info.findOne({
 				where: { email: value }
@@ -245,6 +246,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 		body("passWord").trim().optional({ checkFalsy: true })
 			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("Password field must be between 8 and 128 characters.")),
 		body("email").trim()
+			.isLength({ max: 128 }).withMessage(i18n.__("Email field must contain a valid email."))
 			.isEmail().withMessage(i18n.__("Email field must contain a valid email."))
 			.custom((value, { req }) => accountModel.info.findOne({
 				where: {

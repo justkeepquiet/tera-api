@@ -24,7 +24,7 @@
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="language"><%= __("Language code") %></label>
-								<input type="text" class="form-control boxed" name="language" value="<%= language %>">
+								<input type="text" class="form-control boxed" name="language" value="<%= language %>" minlength="2" maxlength="3">
 							</div>
 						</div>
 						<div class="form-group row">
@@ -34,31 +34,31 @@
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="loginPort"><%= __("Login port") %></label>
-								<input type="number" class="form-control boxed" name="loginPort" value="<%= loginPort %>">
+								<input type="number" class="form-control boxed" name="loginPort" value="<%= loginPort %>" min="0" max="65535">
 							</div>
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="nameString"><%= __("Name string") %></label>
-							<input type="text" class="form-control boxed" name="nameString" value="<%= nameString %>">
+							<input type="text" class="form-control boxed" name="nameString" value="<%= nameString %>" minlength="1" maxlength="256">
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="descrString"><%= __("Description string") %></label>
-							<input type="text" class="form-control boxed" name="descrString" value="<%= descrString %>">
+							<input type="text" class="form-control boxed" name="descrString" value="<%= descrString %>" minlength="1" maxlength="1024">
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="thresholdLow"><%= __("Threshold low") %></label>
-								<input type="number" class="form-control boxed" name="thresholdLow" value="<%= thresholdLow %>">
+								<input type="number" class="form-control boxed" name="thresholdLow" value="<%= thresholdLow %>" min="0" max="100000000">
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="thresholdMedium"><%= __("Threshold medium") %></label>
-								<input type="number" class="form-control boxed" name="thresholdMedium" value="<%= thresholdMedium %>">
+								<input type="number" class="form-control boxed" name="thresholdMedium" value="<%= thresholdMedium %>" min="0" max="100000000">
 							</div>
 						</div>
 						<div class="form-group row">
 							<div class="col-sm-6">
 								<label class="control-label" for="permission"><%= __("Permission") %></label>
-								<input type="number" class="form-control boxed" name="permission" value="<%= permission %>">
+								<input type="number" class="form-control boxed" name="permission" value="<%= permission %>" min="0" max="10000000000">
 							</div>
 						</div>
 						<div class="form-group">
