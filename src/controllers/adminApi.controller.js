@@ -87,6 +87,11 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 
 		const activityReport = !isSteer || Object.values(req.user.functions).includes("/report_activity") ?
 			await reportModel.activity.findAll({
+				include: [{
+					as: "account",
+					required: false,
+					model: accountModel.info
+				}],
 				offset: 0, limit: 6,
 				order: [
 					["reportTime", "DESC"]
@@ -101,12 +106,18 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 					i18n.__("Enter game"),
 				ip: report.get("ip"),
 				accountDBID: report.get("accountDBID"),
+				userName: report.get("account")?.get("userName") || "-",
 				serverId: report.get("serverId")
 			})
 		);
 
 		const cheatsReport = !isSteer || Object.values(req.user.functions).includes("/report_cheats") ?
 			await reportModel.cheats.findAll({
+				include: [{
+					as: "account",
+					required: false,
+					model: accountModel.info
+				}],
 				offset: 0, limit: 6,
 				order: [
 					["reportTime", "DESC"]
@@ -174,6 +185,7 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 			cheatsReportItems.push({
 				reportTime: moment(report.get("reportTime")).tz(req.user.tz).format("YYYY-MM-DD HH:mm"),
 				accountDBID: report.get("accountDBID"),
+				userName: report.get("account")?.get("userName") || "-",
 				name,
 				skill: `${skillId} ${a}/${b}`,
 				dungeon: `(${huntingZoneId}) ${dungeon?.string || huntingZoneId}`,
@@ -187,6 +199,11 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 		const payLogs = !isSteer ||
 			Object.values(req.user.functions).includes("/shop_pay_logs") ?
 			await reportModel.shopPay.findAll({
+				include: [{
+					as: "account",
+					required: false,
+					model: accountModel.info
+				}],
 				offset: 0, limit: 8,
 				order: [
 					["createdAt", "DESC"]
@@ -197,6 +214,7 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 			payLogsItems.push({
 				createdAt: moment(report.get("createdAt")).tz(req.user.tz).format("YYYY-MM-DD HH:mm"),
 				accountDBID: report.get("accountDBID"),
+				userName: report.get("account")?.get("userName") || "-",
 				serverId: report.get("serverId"),
 				productId: report.get("productId"),
 				price: report.get("price"),

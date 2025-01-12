@@ -126,6 +126,7 @@
 										<tr>
 											<th><%= __("Report time") %></th>
 											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
 											<th><%= __("Name") %></th>
 											<th><%= __("Skill") %></th>
 											<th><%= __("Location") %></th>
@@ -183,7 +184,7 @@
 									"<td class=\"text-nowrap\">" + report.reportTime + "</td>" +
 									"<td>" + report.reportType + "</td>" +
 									"<td>" + (report.ip.length > 15 ? report.ip.substring(0, 15) + '...' : report.ip) + "</td>" +
-									"<td>" + report.accountDBID + "</td>" +
+									"<td><a href=\"/accounts?accountDBID=" + report.accountDBID + "\">" + report.accountDBID + "</a></td>" +
 									"<td>" + report.serverId + "</td>" +
 								"</tr>"
 							);
@@ -197,7 +198,7 @@
 							$("#payLogs").append(
 								"<tr>" +
 									"<td class=\"text-nowrap\">" + report.createdAt + "</td>" +
-									"<td>" + report.accountDBID + "</td>" +
+									"<td><a href=\"/accounts?accountDBID=" + report.accountDBID + "\">" + report.accountDBID + "</a></td>" +
 									"<td>" + report.serverId + "</td>" +
 									"<td><a href=\"/shop_products/edit?id=" + report.productId + "\">" + report.productId + "</a></td>" +
 									"<td>" + report.amount + "</td>" +
@@ -214,7 +215,8 @@
 							$("#cheatsReport").append(
 								"<tr>" +
 									"<td class=\"text-nowrap\">" + report.reportTime + "</td>" +
-									"<td>" + report.accountDBID + "</td>" +
+									"<td><a href=\"/accounts?accountDBID=" + report.accountDBID + "\">" + report.accountDBID + "</a></td>" +
+									"<td>" + report.userName + "</td>" +
 									"<td>" + report.name + "</td>" +
 									"<td>" + report.skill + "</td>" +
 									"<td>" + report.dungeon + "<br>" + report.creature + "<br>" + report.coords + "</td>" +
