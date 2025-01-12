@@ -34,6 +34,7 @@
 											<th><%= __("Registered") %></th>
 											<th><%= __("Permission") %></th>
 											<th><%= __("Privilege") %></th>
+											<th><%= __("Language") %></th>
 											<th><%= __("Last login") %></th>
 											<th><%= __("Last server") %></th>
 											<th><%= __("Last IP") %></th>
@@ -73,6 +74,7 @@ accounts.forEach(account => {
 			`<span class="text-success">${account.get("privilege")} <i class="fa fa-magic"></i></span>` :
 			account.get("privilege")
 		),
+		(account.get("language") ? __(account.get("language")) : "-"),
 		account.get("lastLoginTime") ? moment(account.get("lastLoginTime")).tz(user.tz).format("YYYY-MM-DD HH:mm") : "-",
 		account.get("lastLoginServer") ? `(${account.get("lastLoginServer")}) ${account.get("server")?.get("nameString") || ""}` : "-",
 		account.get("lastLoginIP") || "-",
@@ -92,7 +94,7 @@ _%>
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
 			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
+			columns: [null, null, null, null, null, { className: "text-nowrap" }, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});

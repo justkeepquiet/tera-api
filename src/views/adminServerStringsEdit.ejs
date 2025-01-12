@@ -14,8 +14,12 @@
 						<div class="alert alert-danger" id="errors" style="display: none;"></div>
 						<div class="form-group row">
 							<div class="col-sm-6">
-								<label class="control-label" for="language"><%= __("Language") %></label>
-								<input type="text" class="form-control boxed" name="language" value="<%= language %>" disabled>
+								<label class="control-label" for="language"><%= __("Language code") %></label>
+								<select class="form-control boxed" name="language" disabled>
+									<%_ ["cn", "de", "en", "fr", "jp", "kr", "ru", "se", "th", "tw"].forEach(languageCode => { _%>
+									<option value="<%= languageCode %>" <%= languageCode === language ? "selected" : "" %>>(<%= languageCode %>) <%= __(languageCode) %></option>
+									<%_ }); _%>
+								</select>
 							</div>
 						</div>
 						<div class="form-group row">

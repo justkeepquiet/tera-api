@@ -19,7 +19,7 @@
 											<th><%= __("ID") %></th>
 											<th><%= __("Name") %></th>
 											<th><%= __("Login IP:port") %></th>
-											<th><%= __("Language") %></th>
+											<th><%= __("Language code") %></th>
 											<th><%= __("Type") %></th>
 											<th><%= __("Permission") %></th>
 											<th><%= __("Enabled") %></th>
@@ -48,7 +48,7 @@ servers.forEach(server => {
 		server.get("serverId"),
 		`<a href="/servers/edit?serverId=${server.get("serverId")}">${server.get("nameString")}</a>`,
 		`${server.get("loginIp")}:${server.get("loginPort")}${isSlsOverridden(config, server.get("serverId")) ? ' <i class="fa fa-refresh text-warning"></i>' : ''}`,
-		server.get("language"),
+		`(${server.get("language")}) ${__(server.get("language"))}`,
 		server.get("isPvE") ? "PvE" : "PvP",
 		server.get("permission"),
 		`<span class="text-${server.get("isEnabled") ? "success" : "danger"}">${server.get("isEnabled") ? __("Yes") : __("No")}</span>`,

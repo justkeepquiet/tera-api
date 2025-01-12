@@ -24,7 +24,11 @@
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="language"><%= __("Language code") %></label>
-								<input type="text" class="form-control boxed" name="language" value="<%= i18n.getLocale() %>" minlength="2" maxlength="3">
+								<select class="form-control boxed" name="language">
+									<%_ ["cn", "de", "en", "fr", "jp", "kr", "ru", "se", "th", "tw"].forEach(languageCode => { _%>
+									<option value="<%= languageCode %>" <%= languageCode === i18n.getLocale() ? "selected" : "" %>>(<%= languageCode %>) <%= __(languageCode) %></option>
+									<%_ }); _%>
+								</select>
 							</div>
 						</div>
 						<div class="form-group row">

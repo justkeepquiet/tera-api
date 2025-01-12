@@ -16,7 +16,7 @@
 								<table class="table table-hover data-table-json mt-5">
 									<thead>
 										<tr>
-											<th><%= __("Game language") %></th>
+											<th><%= __("Language code") %></th>
 											<th><%= __("Category PvE") %></th>
 											<th><%= __("Category PvP") %></th>
 											<th><%= __("Server offline") %></th>
@@ -44,7 +44,7 @@ const tableData = [];
 
 strings.forEach(string => {
 	tableData.push([
-		string.get("language"),
+		`(${string.get("language")}) ${__(string.get("language"))}`,
 		string.get("categoryPvE"),
 		string.get("categoryPvP"),
 		string.get("serverOffline"),
@@ -65,7 +65,7 @@ _%>
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
 			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, null, null, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
+			columns: [{ className: "text-nowrap" }, null, null, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});

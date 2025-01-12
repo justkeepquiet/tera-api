@@ -45,7 +45,6 @@
 	"Language field must be a valid value.": "Поле 'Язык' должно содержать допустимое значение.",
 	"Language field must be between 2 and 3 characters.": "Поле 'Язык' должно содержать от 2 до 3 символов.",
 	"Name string field must be between 1 and 256 characters.": "Поле 'Строка имени' должно содержать от 1 до 256 символов.",
-	"Description field string must be between 1 and 1024 characters.": "Поле 'Строка описания' должно содержать от 1 до 1024 символов.",
 	"Threshold low field must contain the value as a number.": "Поле 'Нижний предел' содержать номерное значение.",
 	"Threshold medium field must contain the value as a number.": "Поле 'Средний предел' содержать номерное значение.",
 	"Only PvE field has invalid value.": "Поле 'Только PvE' имеет недопустимое значение.",

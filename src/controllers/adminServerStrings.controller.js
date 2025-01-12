@@ -59,8 +59,8 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
 		body("language").trim().toLowerCase()
-			.isAlpha().withMessage(i18n.__("Language field must be a valid value."))
-			.isLength({ min: 2, max: 3 }).withMessage(i18n.__("Language field must be between 2 and 3 characters.")),
+			.isIn(["cn", "de", "en", "fr", "jp", "kr", "ru", "se", "th", "tw"])
+			.withMessage(i18n.__("Language field must be a valid value.")),
 		body("categoryPvE").trim()
 			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Category PvE field must be between 1 and 50 characters.")),
 		body("categoryPvP").trim()

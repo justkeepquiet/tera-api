@@ -45,7 +45,6 @@
 	"Language field must be a valid value.": "Language field must be a valid value.",
 	"Language field must be between 2 and 3 characters.": "Language field must be between 2 and 3 characters.",
 	"Name string field must be between 1 and 256 characters.": "Name string field must be between 1 and 256 characters.",
-	"Description field string must be between 1 and 1024 characters.": "Description field string must be between 1 and 1024 characters.",
 	"Threshold low field must contain the value as a number.": "Threshold low field must contain the value as a number.",
 	"Threshold medium field must contain the value as a number.": "Threshold medium field must contain the value as a number.",
 	"Only PvE field has invalid value.": "Only PvE field has invalid value.",

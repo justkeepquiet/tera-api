@@ -93,12 +93,12 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 		body("loginPort")
 			.isPort().withMessage(i18n.__("Login port field must contain a valid port value.")),
 		body("language").trim().toLowerCase()
-			.isAlpha().withMessage(i18n.__("Language field must be a valid value."))
-			.isLength({ min: 2, max: 3 }).withMessage(i18n.__("Language field must be between 2 and 3 characters.")),
+			.isIn(["cn", "de", "en", "fr", "jp", "kr", "ru", "se", "th", "tw"])
+			.withMessage(i18n.__("Language field must be a valid value.")),
 		body("nameString").trim()
 			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
 		body("descrString").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field string must be between 1 and 1024 characters.")),
+			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description string field must be between 1 and 1024 characters.")),
 		body("permission")
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain the value as a number.")),
 		body("thresholdLow")
@@ -203,8 +203,8 @@ module.exports.editAction = ({ i18n, logger, queue, reportModel, serverModel }) 
 		body("loginPort")
 			.isPort().withMessage(i18n.__("Login port field must contain a valid port value.")),
 		body("language").trim().toLowerCase()
-			.isAlpha().withMessage(i18n.__("Language field must be a valid value."))
-			.isLength({ min: 2, max: 3 }).withMessage(i18n.__("Language field must be between 2 and 3 characters.")),
+			.isIn(["cn", "de", "en", "fr", "jp", "kr", "ru", "se", "th", "tw"])
+			.withMessage(i18n.__("Language field must be a valid value.")),
 		body("nameString").trim()
 			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
 		body("descrString").trim()
