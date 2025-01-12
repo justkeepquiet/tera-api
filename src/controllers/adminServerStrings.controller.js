@@ -17,6 +17,8 @@ const {
 	writeOperationReport
 } = require("../middlewares/admin.middlewares");
 
+const availableLanguages = ["cn", "de", "en", "fr", "jp", "kr", "ru", "se", "th", "tw"];
+
 /**
  * @param {modules} modules
  */
@@ -31,6 +33,7 @@ module.exports.index = ({ serverModel }) => [
 
 		res.render("adminServerStrings", {
 			layout: "adminLayout",
+			availableLanguages,
 			strings
 		});
 	}
@@ -39,15 +42,20 @@ module.exports.index = ({ serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = () => [
+module.exports.add = ({ serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
+		const strings = await serverModel.strings.findAll({ attributes: ["language"] });
+		const addedLanguages = strings?.map(string => string.get("language")) || [];
+
 		res.render("adminServerStringsAdd", {
-			layout: "adminLayout"
+			layout: "adminLayout",
+			availableLanguages,
+			addedLanguages
 		});
 	}
 ];
@@ -59,8 +67,15 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
 		body("language").trim().toLowerCase()
-			.isIn(["cn", "de", "en", "fr", "jp", "kr", "ru", "se", "th", "tw"])
-			.withMessage(i18n.__("Language field must be a valid value.")),
+			.isIn(availableLanguages)
+			.withMessage(i18n.__("Language code field must be a valid value."))
+			.custom(value => serverModel.strings.findOne({
+				where: { language: value }
+			}).then(data => {
+				if (data) {
+					return Promise.reject(i18n.__("Language code field contains already existing language code."));
+				}
+			})),
 		body("categoryPvE").trim()
 			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Category PvE field must be between 1 and 50 characters.")),
 		body("categoryPvP").trim()
@@ -134,6 +149,7 @@ module.exports.edit = ({ logger, serverModel }) => [
 
 		res.render("adminServerStringsEdit", {
 			layout: "adminLayout",
+			availableLanguages,
 			language: data.get("language"),
 			categoryPvE: data.get("categoryPvE"),
 			categoryPvP: data.get("categoryPvP"),

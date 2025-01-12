@@ -8,8 +8,6 @@
 const expressLayouts = require("express-ejs-layouts");
 const { query, body } = require("express-validator");
 
-const helpers = require("../utils/helpers");
-
 const {
 	accessFunctionHandler,
 	validationHandler,
@@ -18,6 +16,8 @@ const {
 	formResultSuccessHandler,
 	writeOperationReport
 } = require("../middlewares/admin.middlewares");
+
+const availableLanguages = ["cn", "de", "en", "fr", "jp", "kr", "ru", "se", "th", "tw"];
 
 const isSlsOverridden = (config, serverId = null) => {
 	try {
@@ -67,6 +67,7 @@ module.exports.add = ({ config, i18n }) => [
 		res.render("adminServersAdd", {
 			layout: "adminLayout",
 			i18n,
+			availableLanguages,
 			language: i18n.getLocale(),
 			isSlsOverridden: isSlsOverridden(config)
 		});
@@ -93,8 +94,8 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 		body("loginPort")
 			.isPort().withMessage(i18n.__("Login port field must contain a valid port value.")),
 		body("language").trim().toLowerCase()
-			.isIn(["cn", "de", "en", "fr", "jp", "kr", "ru", "se", "th", "tw"])
-			.withMessage(i18n.__("Language field must be a valid value.")),
+			.isIn(availableLanguages)
+			.withMessage(i18n.__("Language code field must be a valid value.")),
 		body("nameString").trim()
 			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
 		body("descrString").trim()
@@ -171,6 +172,7 @@ module.exports.edit = ({ config, planetDbs, logger, serverModel }) => [
 
 		res.render("adminServersEdit", {
 			layout: "adminLayout",
+			availableLanguages,
 			serverId: data.get("serverId"),
 			loginIp: data.get("loginIp"),
 			loginPort: data.get("loginPort"),
@@ -203,8 +205,8 @@ module.exports.editAction = ({ i18n, logger, queue, reportModel, serverModel }) 
 		body("loginPort")
 			.isPort().withMessage(i18n.__("Login port field must contain a valid port value.")),
 		body("language").trim().toLowerCase()
-			.isIn(["cn", "de", "en", "fr", "jp", "kr", "ru", "se", "th", "tw"])
-			.withMessage(i18n.__("Language field must be a valid value.")),
+			.isIn(availableLanguages)
+			.withMessage(i18n.__("Language code field must be a valid value.")),
 		body("nameString").trim()
 			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
 		body("descrString").trim()
