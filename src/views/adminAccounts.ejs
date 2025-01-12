@@ -94,7 +94,7 @@ _%>
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
 			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, null, null, null, null, { className: "text-nowrap" }, null, null, null, { className: "text-right text-nowrap" }]
+			columns: [null, null, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});
