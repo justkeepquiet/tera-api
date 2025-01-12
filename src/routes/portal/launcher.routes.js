@@ -28,7 +28,7 @@ module.exports = modules => {
 	const ipBlock = new IpBlockHandler(modules.geoip, modules.ipapi, modules.logger);
 	const passport = new Passport();
 	const i18n = new I18n({
-		directory: path.resolve(__dirname, "../../locales/launcher"),
+		staticCatalog: helpers.loadTranslations(path.resolve(__dirname, "../../locales/launcher"), []),
 		defaultLocale: env.string("API_PORTAL_LOCALE")
 	});
 
