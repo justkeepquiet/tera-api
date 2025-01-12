@@ -361,3 +361,33 @@ module.exports.getRevision = filePath => {
 
 	throw new Error("The specified path is not a file or directory.");
 };
+
+/**
+* @param {string} localesDir
+* @param {string[]} additionalDirs
+* @return {object}
+*/
+module.exports.loadTranslations = (localesDir, additionalDirs = []) => {
+	const translations = {};
+	const locales = fs.readdirSync(localesDir).filter(file => file.endsWith(".json"));
+
+	locales.forEach(localeFile => {
+		const locale = path.basename(localeFile, ".json");
+		translations[locale] = {};
+
+		const mainFilePath = path.join(localesDir, localeFile);
+
+		if (fs.existsSync(mainFilePath)) {
+			Object.assign(translations[locale], JSON.parse(fs.readFileSync(mainFilePath, "utf8")));
+		}
+
+		additionalDirs.forEach(dir => {
+			const additionalFilePath = path.join(dir, localeFile);
+			if (fs.existsSync(additionalFilePath)) {
+				Object.assign(translations[locale], JSON.parse(fs.readFileSync(additionalFilePath, "utf8")));
+			}
+		});
+	});
+
+	return translations;
+};

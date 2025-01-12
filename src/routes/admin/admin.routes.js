@@ -16,6 +16,7 @@ const Passport = require("passport").Passport;
 const LocalStrategy = require("passport-local").Strategy;
 
 const env = require("../../utils/env");
+const helpers = require("../../utils/helpers");
 const ApiError = require("../../lib/apiError");
 const adminController = require("../../controllers/admin.controller");
 const adminApiController = require("../../controllers/adminApi.controller");
@@ -43,8 +44,12 @@ const adminLauncherLogsController = require("../../controllers/adminLauncherLogs
 */
 module.exports = modules => {
 	const passport = new Passport();
+	const additionalLocalesDirs = [];
+
+	modules.pluginsLoader.loadComponent("locales.adminPanel", additionalLocalesDirs);
+
 	const i18n = new I18n({
-		directory: path.resolve(__dirname, "../../locales/admin"),
+		staticCatalog: helpers.loadTranslations(path.resolve(__dirname, "../../locales/admin"), additionalLocalesDirs),
 		defaultLocale: env.string("ADMIN_PANEL_LOCALE")
 	});
 
