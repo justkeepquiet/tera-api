@@ -217,7 +217,7 @@ moduleLoader.setAsync("datasheetModel", async () => {
 				const match = file.match(/_(\w{3})\.dat$/);
 
 				if (match) {
-					variants.push({ region: match[1], locale: helpers.regionToLanguage(match[1]) });
+					variants.push({ region: match[1], locale: helpers.regionToLanguage(match[1], config) });
 				}
 			});
 		} else {
@@ -225,7 +225,7 @@ moduleLoader.setAsync("datasheetModel", async () => {
 				const stats = fs.statSync(path.join(directory, file));
 
 				if (stats.isDirectory()) {
-					variants.push({ region: helpers.languageToRegion(file), locale: file });
+					variants.push({ region: helpers.languageToRegion(file, config), locale: file });
 				}
 			});
 		}

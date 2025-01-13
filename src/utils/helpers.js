@@ -16,7 +16,6 @@ const validationResult = require("express-validator").validationResult;
 const env = require("../utils/env");
 const logger = require("../utils/logger");
 
-
 /**
 * @param {string} filePath
 * @return {*}
@@ -77,51 +76,40 @@ module.exports.secondsToDhms = (__, seconds) => {
 };
 
 /**
-* @param {string} region
-* @return {Object[]}
-*/
-module.exports.regionToLanguage = region =>
-	({
-		CHN: "cn",
-		EUR: "en",
-		FRA: "fr",
-		GER: "de",
-		INT: "en",
-		JPN: "jp",
-		KOR: "kr",
-		RUS: "ru",
-		SE: "se",
-		THA: "th",
-		TW: "tw",
-		USA: "en-US"
-	}[region.toUpperCase()] || "en")
-;
+ * @param {string} region
+ * @param {ConfigManager} config
+ * @return {Object[]}
+ */
+module.exports.regionToLanguage = (region, config) => {
+	const regions = config.get("language").regions;
+
+	const language = Object.keys(regions).find(key =>
+		regions[key].toUpperCase() === region?.toUpperCase()
+	);
+
+	return language?.replace("_", "-") || "en";
+};
 
 /**
  * @param {string} language
+ * @param {ConfigManager} config
  * @return {Object[]}
  */
-module.exports.languageToRegion = language =>
-	({
-		cn: "CHN",
-		en: "EUR",
-		"en-GB": "EUR",
-		"en-US": "USA",
-		fr: "FRA",
-		de: "GER",
-		jp: "JPN",
-		kr: "KOR",
-		ru: "RUS",
-		se: "SE",
-		th: "THA",
-		tw: "TW"
-	}[language.replace("_", "-")] || "EUR")
-;
+module.exports.languageToRegion = (language, config) => {
+	const regions = config.get("language").regions;
+
+	const realKey = Object.keys(regions).find(key =>
+		key.replace("_", "-").toLowerCase() === language?.replace("_", "-").toLowerCase()
+	);
+
+	return regions[realKey] || "EUR"; // env.string("API_PORTAL_CLIENT_DEFAULT_REGION")
+};
 
 /**
-* @return {Object[]}
-*/
-module.exports.getClientRegions = () => {
+ * @param {ConfigManager} config
+ * @return {Object[]}
+ */
+module.exports.getClientRegions = config => {
 	const regions = [];
 
 	Object.keys(process.env).forEach(key => {
@@ -131,7 +119,7 @@ module.exports.getClientRegions = () => {
 			regions.push({
 				region: found[1],
 				name: process.env[key],
-				locale: module.exports.regionToLanguage(found[1])
+				locale: module.exports.regionToLanguage(found[1], config)
 			});
 		}
 	});
@@ -140,19 +128,44 @@ module.exports.getClientRegions = () => {
 };
 
 /**
-* @return {Object[]}
-*/
-module.exports.getClientLocales = () =>
-	module.exports.getClientRegions().map(r => r.locale)
+ * @param {ConfigManager} config
+ * @param {boolean} withDialect
+ * @return {string[]}
+ */
+module.exports.getSupportedLanguages = (config, withDialect = true) => {
+	const regions = config.get("language").regions;
+	const languages = Object.keys(regions).map(language => language.replace("_", "-"));
+
+	if (withDialect) {
+		return languages;
+	}
+
+	const uniqueLanguages = new Set();
+
+	for (const language of languages) {
+		uniqueLanguages.add(language.split("-")[0]);
+	}
+
+	return Array.from(uniqueLanguages);
+};
+
+/**
+ * @param {ConfigManager} config
+ * @return {Object[]}
+ */
+module.exports.getClientLocales = config =>
+	module.exports.getClientRegions(config).map(r => r.locale)
 ;
 
 /**
-* @return {string}
-*/
-module.exports.getPreferredLanguage = locale => {
+ * @param {string} locale
+ * @param {ConfigManager} config
+ * @return {string}
+ */
+module.exports.getPreferredLanguage = (locale, config) => {
 	let found = null;
 
-	const clientRegions = module.exports.getClientRegions();
+	const clientRegions = module.exports.getClientRegions(config);
 
 	clientRegions.sort((a, b) => a.locale.localeCompare(b.locale));
 	clientRegions.forEach(region => {
@@ -165,7 +178,7 @@ module.exports.getPreferredLanguage = locale => {
 	});
 
 	if (found === null) {
-		found = module.exports.regionToLanguage(env.string("API_PORTAL_CLIENT_DEFAULT_REGION"));
+		found = module.exports.regionToLanguage(env.string("API_PORTAL_CLIENT_DEFAULT_REGION"), config);
 	}
 
 	return found;

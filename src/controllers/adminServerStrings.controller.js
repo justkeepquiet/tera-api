@@ -8,6 +8,8 @@
 const expressLayouts = require("express-ejs-layouts");
 const { query, body } = require("express-validator");
 
+const helpers = require("../utils/helpers");
+
 const {
 	accessFunctionHandler,
 	validationHandler,
@@ -17,12 +19,10 @@ const {
 	writeOperationReport
 } = require("../middlewares/admin.middlewares");
 
-const availableLanguages = ["cn", "de", "en", "fr", "jp", "kr", "ru", "se", "th", "tw"];
-
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ serverModel }) => [
+module.exports.index = ({ config, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -33,7 +33,7 @@ module.exports.index = ({ serverModel }) => [
 
 		res.render("adminServerStrings", {
 			layout: "adminLayout",
-			availableLanguages,
+			availableLanguages: helpers.getSupportedLanguages(config, false),
 			strings
 		});
 	}
@@ -42,7 +42,7 @@ module.exports.index = ({ serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ serverModel }) => [
+module.exports.add = ({ config, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -54,7 +54,7 @@ module.exports.add = ({ serverModel }) => [
 
 		res.render("adminServerStringsAdd", {
 			layout: "adminLayout",
-			availableLanguages,
+			availableLanguages: helpers.getSupportedLanguages(config, false),
 			addedLanguages
 		});
 	}
@@ -63,11 +63,11 @@ module.exports.add = ({ serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
+module.exports.addAction = ({ config, i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
 		body("language").trim().toLowerCase()
-			.isIn(availableLanguages)
+			.isIn(helpers.getSupportedLanguages(config, false))
 			.withMessage(i18n.__("Language code field must be a valid value."))
 			.custom(value => serverModel.strings.findOne({
 				where: { language: value }
@@ -126,7 +126,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ logger, serverModel }) => [
+module.exports.edit = ({ config, logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -149,7 +149,7 @@ module.exports.edit = ({ logger, serverModel }) => [
 
 		res.render("adminServerStringsEdit", {
 			layout: "adminLayout",
-			availableLanguages,
+			availableLanguages: helpers.getSupportedLanguages(config, false),
 			language: data.get("language"),
 			categoryPvE: data.get("categoryPvE"),
 			categoryPvP: data.get("categoryPvP"),

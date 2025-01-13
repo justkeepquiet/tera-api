@@ -58,8 +58,8 @@ module.exports.MainHtml = ({ config, logger }) => [
 			patchNoCheck: env.bool("API_PORTAL_CLIENT_PATCH_NO_CHECK"),
 			startNoCheck: env.bool("API_PORTAL_LAUNCHER_DISABLE_CONSISTENCY_CHECK"),
 			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL"),
-			region: helpers.languageToRegion(req.user.language || env.string("API_PORTAL_LOCALE")),
-			regions: helpers.getClientRegions(),
+			region: helpers.languageToRegion(req.user.language || env.string("API_PORTAL_LOCALE"), config),
+			regions: helpers.getClientRegions(config),
 			lang: req.query.lang,
 			localeSelector: env.bool("API_PORTAL_LOCALE_SELECTOR"),
 			qaPrivilege: env.string("API_PORTAL_LAUNCHER_QA_PRIVILEGE"),
@@ -609,7 +609,7 @@ module.exports.SignupAction = modules => [
 					userName: login,
 					passWord: helpers.getPasswordString(password),
 					email,
-					language: helpers.getPreferredLanguage(modules.i18n.getLocale())
+					language: helpers.getPreferredLanguage(modules.i18n.getLocale(), modules.config)
 				});
 
 				const benefit = new Benefit(modules, account.get("accountDBID"));
@@ -732,7 +732,7 @@ module.exports.SignupVerifyAction = modules => [
 				userName: req.session.signupVerify.login,
 				passWord: helpers.getPasswordString(req.session.signupVerify.password),
 				email: req.session.signupVerify.email,
-				language: helpers.getPreferredLanguage(modules.i18n.getLocale())
+				language: helpers.getPreferredLanguage(modules.i18n.getLocale(), modules.config)
 			});
 
 			req.session.signupVerify = null;
@@ -771,7 +771,7 @@ module.exports.SignupVerifyAction = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.GetAccountInfoAction = ({ logger, rateLimitter, sequelize, accountModel }) => [
+module.exports.GetAccountInfoAction = ({ config, logger, rateLimitter, sequelize, accountModel }) => [
 	apiAuthSessionHandler(),
 	rateLimitterHandler(rateLimitter, "portalApi.launcher.getAccountInfoAction"),
 	/**
@@ -818,7 +818,7 @@ module.exports.GetAccountInfoAction = ({ logger, rateLimitter, sequelize, accoun
 			Permission: account.get("permission"),
 			Privilege: account.get("privilege"),
 			Language: account.get("language"),
-			Region: helpers.languageToRegion(account.get("language") || env.string("API_PORTAL_LOCALE")),
+			Region: helpers.languageToRegion(account.get("language") || env.string("API_PORTAL_LOCALE"), config),
 			UserNo: account.get("accountDBID"),
 			UserName: account.get("userName"),
 			Banned: account.get("banned") !== null || bannedByIp !== null
@@ -829,13 +829,13 @@ module.exports.GetAccountInfoAction = ({ logger, rateLimitter, sequelize, accoun
 /**
  * @param {modules} modules
  */
-module.exports.SetAccountLanguageAction = ({ logger, rateLimitter, accountModel }) => [
+module.exports.SetAccountLanguageAction = ({ config, logger, rateLimitter, accountModel }) => [
 	apiAuthSessionHandler(),
 	[
 		body("language")
-			.isIn(["cn", "en", "en-US", "fr", "de", "jp", "kr", "ru", "se", "th", "tw"])
+			.isIn(helpers.getSupportedLanguages(config, true))
 			.custom(value => {
-				if (helpers.getClientLocales().every(locale => locale !== value)) {
+				if (helpers.getClientLocales(config).every(locale => locale !== value)) {
 					return Promise.reject("language code not allowed");
 				}
 				return Promise.resolve();
@@ -860,7 +860,7 @@ module.exports.SetAccountLanguageAction = ({ logger, rateLimitter, accountModel 
 		await accountModel.info.update({
 			language: env.bool("API_PORTAL_LOCALE_SELECTOR") ?
 				language :
-				helpers.regionToLanguage(env.string("API_PORTAL_CLIENT_DEFAULT_REGION")),
+				helpers.regionToLanguage(env.string("API_PORTAL_CLIENT_DEFAULT_REGION"), config),
 			...ipFromLauncher ? { lastLoginIP: req.ip } : {}
 		}, {
 			where: { accountDBID: account.get("accountDBID") }

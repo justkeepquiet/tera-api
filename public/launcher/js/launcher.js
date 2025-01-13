@@ -9,17 +9,8 @@ function urlParam(name) {
 }
 
 function regionToLanguage(region) {
-	var regions = {
-		CHN: "cn", EUR: "en",
-		FRA: "fr", GER: "de",
-		INT: "en", JPN: "jp",
-		KOR: "kr", RUS: "ru",
-		SE: "se", THA: "th",
-		TW: "tw", USA: "en-US"
-	};
-
-	if (typeof regions[region] != "undefined") {
-		return regions[region];
+	if (typeof REGIONS[region] != "undefined") {
+		return REGIONS[region];
 	} else {
 		return "en";
 	}
