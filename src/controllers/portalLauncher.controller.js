@@ -835,7 +835,7 @@ module.exports.SetAccountLanguageAction = ({ config, logger, rateLimitter, accou
 		body("language")
 			.isIn(helpers.getSupportedLanguages(config, true))
 			.custom(value => {
-				if (helpers.getClientLocales(config).every(locale => locale !== value)) {
+				if (helpers.getClientLanguages(config).every(locale => locale !== value)) {
 					return Promise.reject("language code not allowed");
 				}
 				return Promise.resolve();

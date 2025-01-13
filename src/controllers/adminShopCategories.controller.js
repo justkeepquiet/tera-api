@@ -8,6 +8,8 @@
 const expressLayouts = require("express-ejs-layouts");
 const { query, body } = require("express-validator");
 
+const helpers = require("../utils/helpers");
+
 const {
 	accessFunctionHandler,
 	validationHandler,
@@ -58,7 +60,7 @@ module.exports.add = ({ config }) => [
 	async (req, res, next) => {
 		res.render("adminShopCategoriesAdd", {
 			layout: "adminLayout",
-			shopLocales: config.get("admin").shopLocales
+			shopLocales: helpers.getSupportedCategoryLocales("shop", config)
 		});
 	}
 ];
@@ -147,7 +149,7 @@ module.exports.edit = ({ config, logger, shopModel }) => [
 
 		res.render("adminShopCategoriesEdit", {
 			layout: "adminLayout",
-			shopLocales: config.get("admin").shopLocales,
+			shopLocales: helpers.getSupportedCategoryLocales("shop", config),
 			id: category.get("id"),
 			sort: category.get("sort"),
 			active: category.get("active"),
@@ -223,7 +225,7 @@ module.exports.editAction = ({ config, i18n, logger, sequelize, reportModel, sho
 					}
 				});
 
-				config.get("admin").shopLocales.forEach(language => {
+				helpers.getSupportedCategoryLocales("shop", config).forEach(language => {
 					if (title[language]) {
 						promises.push(shopModel.categoryStrings.create({
 							categoryId: id,

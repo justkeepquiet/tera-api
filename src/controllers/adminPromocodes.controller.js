@@ -76,7 +76,7 @@ module.exports.add = ({ config }) => [
 			layout: "adminLayout",
 			moment,
 			promocodeFunctions: helpers.getPromocodeFunctionsNames(config),
-			shopLocales: config.get("admin").shopLocales
+			shopLocales: helpers.getSupportedCategoryLocales("shop", config)
 		});
 	}
 ];
@@ -187,7 +187,7 @@ module.exports.edit = ({ config, logger, shopModel }) => [
 			layout: "adminLayout",
 			errors: null,
 			promocodeFunctions: helpers.getPromocodeFunctionsNames(config),
-			shopLocales: config.get("admin").shopLocales,
+			shopLocales: helpers.getSupportedCategoryLocales("shop", config),
 			promoCodeId: promocode.get("promoCodeId"),
 			promoCode: promocode.get("promoCode"),
 			aFunction: promocode.get("function"),
@@ -277,7 +277,7 @@ module.exports.editAction = ({ config, i18n, logger, sequelize, reportModel, sho
 					}
 				});
 
-				config.get("admin").shopLocales.forEach(language => {
+				helpers.getSupportedCategoryLocales("shop", config).forEach(language => {
 					if (description[language]) {
 						promises.push(shopModel.promoCodeStrings.create({
 							promoCodeId,

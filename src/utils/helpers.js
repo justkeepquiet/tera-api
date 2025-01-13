@@ -153,7 +153,7 @@ module.exports.getSupportedLanguages = (config, withDialect = true) => {
  * @param {ConfigManager} config
  * @return {Object[]}
  */
-module.exports.getClientLocales = config =>
+module.exports.getClientLanguages = config =>
 	module.exports.getClientRegions(config).map(r => r.locale)
 ;
 
@@ -182,6 +182,20 @@ module.exports.getPreferredLanguage = (locale, config) => {
 	}
 
 	return found;
+};
+
+/**
+ * @param {string} string
+ * @param {ConfigManager} config
+ * @return {string[]}
+ */
+module.exports.getSupportedCategoryLocales = (category, config) => {
+	const translations = module.exports.loadTranslations(path.resolve(__dirname, "../locales", category), []);
+	const clientLanguages = module.exports.getClientLanguages(config);
+
+	return Object.keys(translations).filter(language =>
+		clientLanguages.includes(language)
+	);
 };
 
 /**

@@ -188,7 +188,7 @@ module.exports.add = ({ config, i18n, shopModel }) => [
 			layout: "adminLayout",
 			errors: null,
 			moment,
-			shopLocales: config.get("admin").shopLocales,
+			shopLocales: helpers.getSupportedCategoryLocales("shop", config),
 			categories,
 			fromCategoryId,
 			categoryId
@@ -330,7 +330,7 @@ module.exports.addAction = modules => [
 			}
 
 			if (title || description) {
-				modules.config.get("admin").shopLocales.forEach(language =>
+				helpers.getSupportedCategoryLocales("shop", modules.config).forEach(language =>
 					promises.push(modules.shopModel.productStrings.create({
 						productId: product.get("id"),
 						...title[language] ? { title: title[language] } : {},
@@ -427,7 +427,7 @@ module.exports.edit = ({ config, logger, i18n, shopModel }) => [
 			layout: "adminLayout",
 			errors: null,
 			moment,
-			shopLocales: config.get("admin").shopLocales,
+			shopLocales: helpers.getSupportedCategoryLocales("shop", config),
 			categories,
 			id,
 			fromCategoryId,
@@ -691,7 +691,7 @@ module.exports.editAction = modules => [
 				}
 			});
 
-			modules.config.get("admin").shopLocales.forEach(language => {
+			helpers.getSupportedCategoryLocales("shop", modules.config).forEach(language => {
 				if (title[language] || description[language]) {
 					promises.push(modules.shopModel.productStrings.create({
 						productId: product.get("id"),
@@ -808,7 +808,7 @@ module.exports.editAllAction = modules => [
 			layout: "adminLayout",
 			errors: errors.array(),
 			moment,
-			shopLocales: modules.config.get("admin").shopLocales,
+			shopLocales: helpers.getSupportedCategoryLocales("shop", modules.config),
 			id,
 			categories,
 			categoryId: categoryIdEqual ? products[0].get("categoryId") : "",
