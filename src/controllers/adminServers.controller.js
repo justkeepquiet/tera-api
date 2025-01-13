@@ -226,7 +226,7 @@ module.exports.editAction = ({ config, i18n, logger, queue, reportModel, serverM
 		body("isEnabled").optional()
 			.isIn(["on"]).withMessage(i18n.__("Is enabled field has invalid value.")),
 		body("syncCharacters").optional()
-			.isIn(["on"]).withMessage(i18n.__("Sync characters field has invalid value."))
+			.isIn(["on"]).withMessage(i18n.__("Sync server state field has invalid value."))
 	],
 	formValidationHandler(logger),
 	/**

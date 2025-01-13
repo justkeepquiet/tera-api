@@ -44,31 +44,46 @@ class TasksActions {
 			throw Error(`Cannot find PlanetDB instance for server ID: ${serverId}`);
 		}
 
-		const characters = await planetDb.model.users.findAll({
+		const usersTotalCount = await planetDb.model.users.count({
+			distinct: true,
+			col: "accountDBID"
+		});
+
+		if (usersTotalCount !== null) {
+			await this.modules.serverModel.info.update({
+				usersTotal: usersTotalCount
+			}, {
+				where: { serverId }
+			});
+		}
+
+		const usersCharacters = await planetDb.model.users.findAll({
 			where: {
 				deletionStatus: 0,
 				class: { [Op.lte]: 12 } // server can set class 13, ignore it
 			}
 		});
 
-		await this.modules.sequelize.transaction(async () => {
-			await this.modules.accountModel.characters.destroy({
-				where: { serverId }
-			});
-
-			for (const character of characters) {
-				await this.modules.accountModel.characters.create({
-					characterId: character.get("userDBID"),
-					serverId,
-					accountDBID: character.get("accountDBID"),
-					name: character.get("userName"),
-					classId: character.get("class"),
-					genderId: character.get("gender"),
-					raceId: character.get("race"),
-					level: character.get("userLevel")
+		if (usersCharacters !== null) {
+			await this.modules.sequelize.transaction(async () => {
+				await this.modules.accountModel.characters.destroy({
+					where: { serverId }
 				});
-			}
-		});
+
+				for (const character of usersCharacters) {
+					await this.modules.accountModel.characters.create({
+						characterId: character.get("userDBID"),
+						serverId,
+						accountDBID: character.get("accountDBID"),
+						name: character.get("userName"),
+						classId: character.get("class"),
+						genderId: character.get("gender"),
+						raceId: character.get("race"),
+						level: character.get("userLevel")
+					});
+				}
+			});
+		}
 
 		const usersOnline = await planetDb.model.users.findAll({
 			where: {
@@ -76,17 +91,24 @@ class TasksActions {
 			}
 		});
 
-		const usersTotal = await planetDb.model.users.count({
-			distinct: true,
-			col: "accountDBID"
-		});
+		if (usersOnline !== null) {
+			await this.modules.sequelize.transaction(async () => {
+				await this.modules.accountModel.online.destroy({
+					where: { serverId }
+				});
 
-		if (usersOnline !== null && usersTotal !== null) {
-			await this.modules.serverModel.info.update({
-				usersOnline: usersOnline.length,
-				usersTotal
-			}, {
-				where: { serverId }
+				for (const user of usersOnline) {
+					await this.modules.accountModel.online.create({
+						accountDBID: user.get("accountDBID"),
+						serverId
+					});
+				}
+
+				await this.modules.serverModel.info.update({
+					usersOnline: usersOnline?.length
+				}, {
+					where: { serverId }
+				});
 			});
 		}
 	}
