@@ -7,30 +7,37 @@
 
 /*!40000 ALTER TABLE `server_strings` DISABLE KEYS */;
 INSERT IGNORE INTO `server_strings` (`language`, `categoryPvE`, `categoryPvP`, `serverOffline`, `serverLow`, `serverMedium`, `serverHigh`, `crowdNo`, `crowdYes`, `popup`) VALUES
+	('cn', 'PvE', 'PvP', '离线', '低', '中', '高', '否', '是', '目前无法连接到服务器。'),
+	('de', 'PvE', 'PvP', 'Offline', 'Niedrig', 'Mittel', 'Hoch', 'Nein', 'Ja', 'Der Server ist derzeit nicht erreichbar.'),
 	('en', 'PvE', 'PvP', 'Offline', 'Low', 'Medium', 'High', 'No', 'Yes', 'Unable to access the server at this time.'),
+	('fr', 'PvE', 'PvP', 'Hors ligne', 'Faible', 'Moyen', 'Élevé', 'Non', 'Oui', 'Impossible de se connecter au serveur pour le moment.'),
+	('jp', 'PvE', 'PvP', 'オフライン', '低い', '中', '高い', 'いいえ', 'はい', '現在、サーバーに接続できません。'),
+	('kr', 'PvE', 'PvP', '오프라인', '낮음', '중간', '높음', '아니요', '예', '현재 서버에 연결할 수 없습니다.'),
 	('ru', 'PvE', 'PvP', 'Отключен', 'Низко', 'Средне', 'Высоко', 'Нет', 'Да', 'В настоящее время невозможно войти на сервер.'),
-	('tw', 'PvE', 'PvP', '离线', '低的', '中间', '高的', '不', '是的', '此时无法访问服务器。');
+	('se', 'PvE', 'PvP', 'Offline', 'Låg', 'Medel', 'Hög', 'Nej', 'Ja', 'Kan inte ansluta till servern för tillfället.'),
+	('th', 'PvE', 'PvP', 'ออฟไลน์', 'ต่ำ', 'กลาง', 'สูง', 'ไม่', 'ใช่', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ในขณะนี้'),
+	('tw', 'PvE', 'PvP', '離線', '低', '中', '高', '否', '是', '目前無法連線到伺服器。');
 /*!40000 ALTER TABLE `server_strings` ENABLE KEYS */;
 
 /*!40000 ALTER TABLE `shop_categories` DISABLE KEYS */;
-INSERT IGNORE INTO `shop_categories` (`id`, `sort`, `active`, `createdAt`, `updatedAt`) VALUES
-	(1, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(2, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(3, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(4, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(5, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(6, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(7, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(8, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(9, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(10, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(11, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(12, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(13, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(14, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(15, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(16, 0, 1, '2022-07-24 05:51:20', '2022-07-24 05:51:20'),
-	(17, 0, 1, '2022-07-29 23:33:57', '2022-07-29 23:33:57');
+INSERT IGNORE INTO `shop_categories` (`id`, `sort`, `active`) VALUES
+	(1, 0, 1),
+	(2, 0, 1),
+	(3, 0, 1),
+	(4, 0, 1),
+	(5, 0, 1),
+	(6, 0, 1),
+	(7, 0, 1),
+	(8, 0, 1),
+	(9, 0, 1),
+	(10, 0, 1),
+	(11, 0, 1),
+	(12, 0, 1),
+	(13, 0, 1),
+	(14, 0, 1),
+	(15, 0, 1),
+	(16, 0, 1),
+	(17, 0, 1);
 /*!40000 ALTER TABLE `shop_categories` ENABLE KEYS */;
 
 /*!40000 ALTER TABLE `shop_category_strings` DISABLE KEYS */;
@@ -72,10 +79,10 @@ INSERT IGNORE INTO `shop_category_strings` (`id`, `language`, `categoryId`, `tit
 /*!40000 ALTER TABLE `shop_category_strings` ENABLE KEYS */;
 
 /*!40000 ALTER TABLE `shop_promocodes` DISABLE KEYS */;
-INSERT IGNORE INTO `shop_promocodes` (`promoCodeId`, `promoCode`, `function`, `validAfter`, `validBefore`, `active`, `createdAt`, `updatedAt`) VALUES
-	(1, 'FREE-70-LVLUP', 'add_item_70_scroll', '2022-06-01 23:06:00', '2025-06-20 23:06:00', 1, '2022-06-20 23:10:40', '2022-07-01 07:38:12'),
-	(2, 'FREE-100-COINS', 'fund_100_coins', '2022-06-01 00:52:13', '2025-06-22 00:52:21', 1, '2022-06-22 00:52:25', '2022-06-22 00:56:50'),
-	(3, 'FREE-VIP-30DAY', 'add_benefit_vip_30', '2022-06-01 01:06:00', '2025-06-22 01:06:00', 1, '2022-06-22 01:40:27', '2022-07-01 06:30:31');
+INSERT IGNORE INTO `shop_promocodes` (`promoCodeId`, `promoCode`, `function`, `validAfter`, `validBefore`, `active`) VALUES
+	(1, 'FREE-70-LVLUP', 'add_item_70_scroll', '2023-01-01 00:00:00', '2033-01-01 00:00:00', 1),
+	(2, 'FREE-100-COINS', 'fund_100_coins', '2023-01-01 00:00:00', '2033-01-01 00:00:00', 1),
+	(3, 'FREE-VIP-30DAY', 'add_benefit_vip_30', '2023-01-01 00:00:00', '2033-01-01 00:00:00', 1);
 /*!40000 ALTER TABLE `shop_promocodes` ENABLE KEYS */;
 
 /*!40000 ALTER TABLE `shop_promocode_strings` DISABLE KEYS */;
