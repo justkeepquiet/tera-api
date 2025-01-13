@@ -40,33 +40,29 @@ if (env.bool("API_PORTAL_CAPTCHA_ENABLE")) {
 /**
  * @param {modules} modules
  */
-module.exports.MainHtml = ({ config, logger }) => [
+module.exports.MainHtml = ({ config, localization, logger }) => [
 	authSessionHandler(),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		if (!req.query.lang) {
-			const lang = req?.user?.language || env.string("API_PORTAL_LOCALE");
-			return res.redirect(`/launcher/Main?lang=${lang}`);
-		}
-
 		const launcherConfig = config.get("launcher");
+		const language = req?.user?.language || env.string("API_PORTAL_LOCALE");
 
 		res.render("launcherMain", {
 			brandName,
 			patchNoCheck: env.bool("API_PORTAL_CLIENT_PATCH_NO_CHECK"),
 			startNoCheck: env.bool("API_PORTAL_LAUNCHER_DISABLE_CONSISTENCY_CHECK"),
-			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL"),
-			region: helpers.languageToRegion(req.user.language || env.string("API_PORTAL_LOCALE"), config),
-			regions: helpers.getClientRegions(config),
-			lang: req.query.lang,
-			localeSelector: env.bool("API_PORTAL_LOCALE_SELECTOR"),
 			qaPrivilege: env.string("API_PORTAL_LAUNCHER_QA_PRIVILEGE"),
+			localeSelector: env.bool("API_PORTAL_LOCALE_SELECTOR"),
+			patchUrl: env.string("API_PORTAL_CLIENT_PATCH_URL"),
+			region: localization.getRegionByLanguage(language),
+			localizations: localization.listClientLocalizations(),
 			actsMap: launcherConfig.actsMap,
 			pagesMap: launcherConfig.pagesMap,
 			host: req.headers.host || req.hostname,
 			user: req.user,
+			language,
 			helpers
 		});
 	},
@@ -609,7 +605,7 @@ module.exports.SignupAction = modules => [
 					userName: login,
 					passWord: helpers.getPasswordString(password),
 					email,
-					language: helpers.getPreferredLanguage(modules.i18n.getLocale(), modules.config)
+					language: modules.localization.getClientLanguageByLocale(req.query.locale)
 				});
 
 				const benefit = new Benefit(modules, account.get("accountDBID"));
@@ -732,7 +728,7 @@ module.exports.SignupVerifyAction = modules => [
 				userName: req.session.signupVerify.login,
 				passWord: helpers.getPasswordString(req.session.signupVerify.password),
 				email: req.session.signupVerify.email,
-				language: helpers.getPreferredLanguage(modules.i18n.getLocale(), modules.config)
+				language: modules.localization.getClientLanguageByLocale(req.query.locale)
 			});
 
 			req.session.signupVerify = null;
@@ -771,7 +767,7 @@ module.exports.SignupVerifyAction = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.GetAccountInfoAction = ({ config, logger, rateLimitter, sequelize, accountModel }) => [
+module.exports.GetAccountInfoAction = ({ config, localization, logger, rateLimitter, sequelize, accountModel }) => [
 	apiAuthSessionHandler(),
 	rateLimitterHandler(rateLimitter, "portalApi.launcher.getAccountInfoAction"),
 	/**
@@ -818,7 +814,7 @@ module.exports.GetAccountInfoAction = ({ config, logger, rateLimitter, sequelize
 			Permission: account.get("permission"),
 			Privilege: account.get("privilege"),
 			Language: account.get("language"),
-			Region: helpers.languageToRegion(account.get("language") || env.string("API_PORTAL_LOCALE"), config),
+			Region: localization.getRegionByLanguage(account.get("language") || env.string("API_PORTAL_LOCALE"), config),
 			UserNo: account.get("accountDBID"),
 			UserName: account.get("userName"),
 			Banned: account.get("banned") !== null || bannedByIp !== null
@@ -829,13 +825,13 @@ module.exports.GetAccountInfoAction = ({ config, logger, rateLimitter, sequelize
 /**
  * @param {modules} modules
  */
-module.exports.SetAccountLanguageAction = ({ config, logger, rateLimitter, accountModel }) => [
+module.exports.SetAccountLanguageAction = ({ localization, logger, rateLimitter, accountModel }) => [
 	apiAuthSessionHandler(),
 	[
 		body("language")
-			.isIn(helpers.getSupportedLanguages(config, true))
+			.isIn(localization.listAllLanguages())
 			.custom(value => {
-				if (helpers.getClientLanguages(config).every(locale => locale !== value)) {
+				if (localization.listClientLanguages().every(language => language !== value)) {
 					return Promise.reject("language code not allowed");
 				}
 				return Promise.resolve();
@@ -860,7 +856,7 @@ module.exports.SetAccountLanguageAction = ({ config, logger, rateLimitter, accou
 		await accountModel.info.update({
 			language: env.bool("API_PORTAL_LOCALE_SELECTOR") ?
 				language :
-				helpers.regionToLanguage(env.string("API_PORTAL_CLIENT_DEFAULT_REGION"), config),
+				localization.getLanguageByRegion(env.string("API_PORTAL_CLIENT_DEFAULT_REGION")),
 			...ipFromLauncher ? { lastLoginIP: req.ip } : {}
 		}, {
 			where: { accountDBID: account.get("accountDBID") }

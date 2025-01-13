@@ -5,6 +5,7 @@
  * @typedef {import("express").RequestHandler} RequestHandler
  */
 
+const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const { query, body } = require("express-validator");
 const moment = require("moment-timezone");
@@ -161,7 +162,7 @@ module.exports.index = ({ i18n, sequelize, shopModel, datasheetModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ config, i18n, shopModel }) => [
+module.exports.add = ({ localization, i18n, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -184,11 +185,13 @@ module.exports.add = ({ config, i18n, shopModel }) => [
 			]
 		});
 
+		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+
 		res.render("adminShopProductsAdd", {
 			layout: "adminLayout",
 			errors: null,
 			moment,
-			shopLocales: helpers.getSupportedCategoryLocales("shop", config),
+			languages,
 			categories,
 			fromCategoryId,
 			categoryId
@@ -330,7 +333,9 @@ module.exports.addAction = modules => [
 			}
 
 			if (title || description) {
-				helpers.getSupportedCategoryLocales("shop", modules.config).forEach(language =>
+				const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), modules.localization);
+
+				languages.forEach(language =>
 					promises.push(modules.shopModel.productStrings.create({
 						productId: product.get("id"),
 						...title[language] ? { title: title[language] } : {},
@@ -358,7 +363,7 @@ module.exports.addAction = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ config, logger, i18n, shopModel }) => [
+module.exports.edit = ({ localization, logger, i18n, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -423,11 +428,13 @@ module.exports.edit = ({ config, logger, i18n, shopModel }) => [
 			boxItemCounts.push(productItem.get("boxItemCount"));
 		});
 
+		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+
 		res.render("adminShopProductsEdit", {
 			layout: "adminLayout",
 			errors: null,
 			moment,
-			shopLocales: helpers.getSupportedCategoryLocales("shop", config),
+			languages,
 			categories,
 			id,
 			fromCategoryId,
@@ -691,7 +698,9 @@ module.exports.editAction = modules => [
 				}
 			});
 
-			helpers.getSupportedCategoryLocales("shop", modules.config).forEach(language => {
+			const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), modules.localization);
+
+			languages.forEach(language => {
 				if (title[language] || description[language]) {
 					promises.push(modules.shopModel.productStrings.create({
 						productId: product.get("id"),
@@ -804,11 +813,13 @@ module.exports.editAllAction = modules => [
 		const sortEqual = products.map(product => product.get("sort")).every((v, i, a) => v === a[0]);
 		const activeEqual = products.map(product => product.get("active")).every((v, i, a) => v === a[0]);
 
+		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), modules.localization);
+
 		res.render("adminShopProductsEditAll", {
 			layout: "adminLayout",
 			errors: errors.array(),
 			moment,
-			shopLocales: helpers.getSupportedCategoryLocales("shop", modules.config),
+			languages,
 			id,
 			categories,
 			categoryId: categoryIdEqual ? products[0].get("categoryId") : "",

@@ -18,7 +18,7 @@
 
 		if (result) {
 			if (result.Return) {
-				Launcher.goTo("Main?lang=<%= locale %>", true);
+				Launcher.goTo("Main", true);
 			} else {
 				switch (result.ReturnCode) {
 					case 10:
@@ -28,7 +28,7 @@
 						Launcher.showError("<%= __('The number of verification code entry attempts has been exceeded.') %>");
 
 						setTimeout(function() {
-							Launcher.goTo("LoginForm?lang=<%= locale %>");
+							Launcher.goTo("LoginForm?locale=<%= __req.query.locale %>");
 						}, 3000);
 						break;
 					default:
@@ -46,7 +46,7 @@
 		});
 
 		$("#btnToLogin").click(function() {
-			Launcher.goTo("LoginForm?lang=<%= locale %>");
+			Launcher.goTo("LoginForm?locale=<%= __req.query.locale %>");
 		});
 
 		$(window).on("load", function() {

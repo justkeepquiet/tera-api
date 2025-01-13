@@ -13,12 +13,12 @@
 <script type="text/javascript" src="/public/launcher/js/launcher-errors.js"></script>
 <script type="text/javascript" src="/public/launcher/js/launcher.js"></script>
 <script>
-	function authByLoginAndPassword(login, password, remember) {
+	function authByLoginAndPassword(login, password) {
 		var result = LauncherAPI.loginAction(login, password);
 
 		if (result) {
 			if (result.Return) {
-				Launcher.goTo("Main?lang=" + result.Language, true);
+				Launcher.goTo("Main", true);
 			} else {
 				switch (result.ReturnCode) {
 					case 9:
@@ -42,23 +42,21 @@
 	}
 
 	$(function() {
-		var locale = (navigator.language || navigator.userLanguage).split('-')[0];
-
-		if (!urlParam("lang")) {
-			return Launcher.goTo("LoginForm?lang=" + locale);
+		if (!getUrlParam("locale")) {
+			return Launcher.goTo("LoginForm?locale=" + locale);
 		}
 
 		$("#userLoginForm").submit(function() {
-			authByLoginAndPassword($('#login').val(), $('#password').val(), $('#remember').is(':checked'));
+			authByLoginAndPassword($('#login').val(), $('#password').val());
 			return false;
 		});
 
 		$("#btnJoin").click(function() {
-			Launcher.goTo("SignupForm?lang=" + locale);
+			Launcher.goTo("SignupForm?locale=" + locale);
 		});
 
 		$("#btnResetPass").click(function() {
-			Launcher.goTo("ResetPasswordForm?lang=" + locale);
+			Launcher.goTo("ResetPasswordForm?locale=" + locale);
 		});
 
 		$(window).on("load", function() {

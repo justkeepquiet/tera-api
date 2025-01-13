@@ -57,7 +57,7 @@ module.exports.index = ({ config, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ config, i18n }) => [
+module.exports.add = ({ config, localization, i18n }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -67,7 +67,7 @@ module.exports.add = ({ config, i18n }) => [
 		res.render("adminServersAdd", {
 			layout: "adminLayout",
 			i18n,
-			availableLanguages: helpers.getSupportedLanguages(config, false),
+			availableLanguages: localization.listAllLanguages(),
 			language: i18n.getLocale(),
 			isSlsOverridden: isSlsOverridden(config)
 		});
@@ -77,7 +77,7 @@ module.exports.add = ({ config, i18n }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ config, i18n, logger, reportModel, serverModel }) => [
+module.exports.addAction = ({ localization, i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
 		body("serverId")
@@ -94,7 +94,7 @@ module.exports.addAction = ({ config, i18n, logger, reportModel, serverModel }) 
 		body("loginPort")
 			.isPort().withMessage(i18n.__("Login port field must contain a valid port value.")),
 		body("language").trim().toLowerCase()
-			.isIn(helpers.getSupportedLanguages(config, false))
+			.isIn(localization.listAllLanguages())
 			.withMessage(i18n.__("Language code field must be a valid value.")),
 		body("nameString").trim()
 			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
@@ -149,7 +149,7 @@ module.exports.addAction = ({ config, i18n, logger, reportModel, serverModel }) 
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ config, planetDbs, logger, serverModel }) => [
+module.exports.edit = ({ config, localization, planetDbs, logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -172,7 +172,7 @@ module.exports.edit = ({ config, planetDbs, logger, serverModel }) => [
 
 		res.render("adminServersEdit", {
 			layout: "adminLayout",
-			availableLanguages: helpers.getSupportedLanguages(config, false),
+			availableLanguages: localization.listAllLanguages(),
 			serverId: data.get("serverId"),
 			loginIp: data.get("loginIp"),
 			loginPort: data.get("loginPort"),
@@ -196,7 +196,7 @@ module.exports.edit = ({ config, planetDbs, logger, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ config, i18n, logger, queue, reportModel, serverModel }) => [
+module.exports.editAction = ({ localization, i18n, logger, queue, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
 		query("serverId").notEmpty(),
@@ -205,7 +205,7 @@ module.exports.editAction = ({ config, i18n, logger, queue, reportModel, serverM
 		body("loginPort")
 			.isPort().withMessage(i18n.__("Login port field must contain a valid port value.")),
 		body("language").trim().toLowerCase()
-			.isIn(helpers.getSupportedLanguages(config, false))
+			.isIn(localization.listAllLanguages())
 			.withMessage(i18n.__("Language code field must be a valid value.")),
 		body("nameString").trim()
 			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),

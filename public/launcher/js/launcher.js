@@ -1,11 +1,12 @@
 var host = "http://" + location.hostname + ((location.port && location.port != 80) ? ":" + location.port : ""); // Only HTTP is supported!
+var locale = navigator.language || navigator.userLanguage;
+var secure = location.protocol == "https:";
 var debug = DEBUG_STR;
 
-function urlParam(name) {
+function getUrlParam(name) {
 	var results = new RegExp("[\\?&]" + name + "=([^&#]*)")
 		.exec(window.location.search);
-
-	return (results !== null) ? results[1] || 0 : false;
+	return (results !== null) ? results[1] || "" : "";
 }
 
 function regionToLanguage(region) {
@@ -126,7 +127,7 @@ var LauncherAPI = {
 		var response = null;
 
 		$.ajax({
-			url: "/launcher/" + action + "?lang=" + urlParam("lang") + "&secure=" + (location.protocol == "https:") + "&ts=" + Date.now(),
+			url: "/launcher/" + action + "?locale=" + locale + "&secure=" + secure + "&ts=" + Date.now(),
 			method: params ? "post" : "get",
 			data: params,
 			async: false,
@@ -367,7 +368,7 @@ var Launcher = {
 			LauncherAPI.setAccountLanguageAction(language);
 
 			if (reload) {
-				Launcher.goTo("Main" + "?lang=" + language);
+				Launcher.goTo("Main");
 			}
 		}
 

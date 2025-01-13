@@ -25,7 +25,7 @@
 
 		if (result) {
 			if (result.Return) {
-				Launcher.goTo("SignupVerifyForm?lang=<%= locale %>", true);
+				Launcher.goTo("SignupVerifyForm?locale=<%= __req.query.locale %>", true);
 			} else {
 				switch (result.ReturnCode) {
 					case 9:
@@ -64,7 +64,7 @@
 		});
 
 		$("#btnToLogin").click(function() {
-			Launcher.goTo("LoginForm?lang=<%= locale %>");
+			Launcher.goTo("LoginForm?locale=<%= __req.query.locale %>");
 		});
 
 		$(window).on("load", function() {

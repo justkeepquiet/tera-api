@@ -8,6 +8,7 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
  * @typedef {import("sequelize").DataTypes} DataTypes
  * @typedef {import("i18n")} i18n
  * @typedef {import("@maxmind/geoip2-node").ReaderModel} ReaderModel
+ * @typedef {import("./lib/localizationManager")} LocalizationManager
  * @typedef {import("./lib/ipApiClient")} IpApiClient
  * @typedef {import("./utils/logger").logger} logger
  * @typedef {import("./models/planetDb.model").planetDbModel} planetDbModel
@@ -33,6 +34,7 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
  * @property {ExpressServer.app} app
  * @property {i18n?} i18n
  * @property {PluginsLoader} pluginsLoader
+ * @property {LocalizationManager} localization
  * @property {Scheduler} scheduler
  * @property {RateLimitter} rateLimitter
  * @property {HubFunctions} hub
@@ -76,6 +78,7 @@ const IpApiClient = require("./lib/ipApiClient");
 const TasksActions = require("./actions/tasks.actions");
 const ServerCheckActions = require("./actions/serverCheck.actions");
 const CacheManager = require("./utils/cacheManager");
+const LocalizationManager = require("./lib/localizationManager");
 const ConfigManager = require("./lib/configManager");
 const helpers = require("./utils/helpers");
 const env = require("./utils/env");
@@ -89,6 +92,7 @@ const coreLogger = createLogger("Core", defaultLoggerParams);
 const moduleLoader = new CoreLoader(coreLogger);
 const config = new ConfigManager(createLogger("Config Manager", defaultLoggerParams));
 const pl = new PluginsLoader(moduleLoader, createLogger("Plugins Loader", defaultLoggerParams));
+const localization = new LocalizationManager(config.get("localization"));
 const cli = cliHelper(coreLogger, versions.app);
 
 pl.loadAll();
@@ -203,6 +207,7 @@ moduleLoader.setPromise("logger", async () => coreLogger);
 moduleLoader.setPromise("config", async () => config);
 moduleLoader.setPromise("cli", async () => cli);
 moduleLoader.setPromise("pluginsLoader", async () => pl);
+moduleLoader.setPromise("localization", async () => localization);
 
 moduleLoader.setAsync("datasheetModel", async () => {
 	const datasheetLogger = createLogger("Datasheet", defaultLoggerParams);
@@ -217,7 +222,7 @@ moduleLoader.setAsync("datasheetModel", async () => {
 				const match = file.match(/_(\w{3})\.dat$/);
 
 				if (match) {
-					variants.push({ region: match[1], locale: helpers.regionToLanguage(match[1], config) });
+					variants.push({ region: match[1], locale: localization.getLanguageByRegion(match[1]) });
 				}
 			});
 		} else {
@@ -225,7 +230,7 @@ moduleLoader.setAsync("datasheetModel", async () => {
 				const stats = fs.statSync(path.join(directory, file));
 
 				if (stats.isDirectory()) {
-					variants.push({ region: helpers.languageToRegion(file, config), locale: file });
+					variants.push({ region: localization.getRegionByLanguage(file), locale: file });
 				}
 			});
 		}

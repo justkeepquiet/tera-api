@@ -5,6 +5,7 @@
  * @typedef {import("express").RequestHandler} RequestHandler
  */
 
+const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const { query, body } = require("express-validator");
 const moment = require("moment-timezone");
@@ -65,18 +66,20 @@ module.exports.index = ({ i18n, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ config }) => [
+module.exports.add = ({ config, localization }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
+		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+
 		res.render("adminPromocodesAdd", {
 			layout: "adminLayout",
 			moment,
 			promocodeFunctions: helpers.getPromocodeFunctionsNames(config),
-			shopLocales: helpers.getSupportedCategoryLocales("shop", config)
+			languages
 		});
 	}
 ];
@@ -152,7 +155,7 @@ module.exports.addAction = ({ config, i18n, logger, sequelize, reportModel, shop
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ config, logger, shopModel }) => [
+module.exports.edit = ({ config, localization, logger, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -183,11 +186,13 @@ module.exports.edit = ({ config, logger, shopModel }) => [
 			description[string.get("language")] = string.get("description");
 		});
 
+		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+
 		res.render("adminPromocodesEdit", {
 			layout: "adminLayout",
 			errors: null,
 			promocodeFunctions: helpers.getPromocodeFunctionsNames(config),
-			shopLocales: helpers.getSupportedCategoryLocales("shop", config),
+			languages,
 			promoCodeId: promocode.get("promoCodeId"),
 			promoCode: promocode.get("promoCode"),
 			aFunction: promocode.get("function"),
@@ -203,7 +208,7 @@ module.exports.edit = ({ config, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ config, i18n, logger, sequelize, reportModel, shopModel }) => [
+module.exports.editAction = ({ config, localization, i18n, logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	[
 		query("promoCodeId").notEmpty(),
@@ -277,7 +282,9 @@ module.exports.editAction = ({ config, i18n, logger, sequelize, reportModel, sho
 					}
 				});
 
-				helpers.getSupportedCategoryLocales("shop", config).forEach(language => {
+				const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+
+				languages.forEach(language => {
 					if (description[language]) {
 						promises.push(shopModel.promoCodeStrings.create({
 							promoCodeId,

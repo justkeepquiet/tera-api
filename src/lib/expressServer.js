@@ -37,6 +37,7 @@ class ExpressServer {
 		this.app.use(cookieParser());
 
 		this.app.use((req, res, next) => {
+			res.locals.__req = req;
 			res.locals.__endpoint = req.path;
 			next();
 		});

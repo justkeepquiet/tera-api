@@ -6,6 +6,7 @@
 * @typedef {import("winston").Logger} Logger
 * @typedef {import("i18n").__} __
 * @typedef {import("../lib/configManager")} ConfigManager
+* @typedef {import("../lib/localizationManager")} LocalizationManager
 */
 
 const fs = require("fs");
@@ -76,122 +77,13 @@ module.exports.secondsToDhms = (__, seconds) => {
 };
 
 /**
- * @param {string} region
- * @param {ConfigManager} config
- * @return {Object[]}
- */
-module.exports.regionToLanguage = (region, config) => {
-	const regions = config.get("language").regions;
-
-	const language = Object.keys(regions).find(key =>
-		regions[key].toUpperCase() === region?.toUpperCase()
-	);
-
-	return language?.replace("_", "-") || "en";
-};
-
-/**
- * @param {string} language
- * @param {ConfigManager} config
- * @return {Object[]}
- */
-module.exports.languageToRegion = (language, config) => {
-	const regions = config.get("language").regions;
-
-	const realKey = Object.keys(regions).find(key =>
-		key.replace("_", "-").toLowerCase() === language?.replace("_", "-").toLowerCase()
-	);
-
-	return regions[realKey] || "EUR"; // env.string("API_PORTAL_CLIENT_DEFAULT_REGION")
-};
-
-/**
- * @param {ConfigManager} config
- * @return {Object[]}
- */
-module.exports.getClientRegions = config => {
-	const regions = [];
-
-	Object.keys(process.env).forEach(key => {
-		const found = key.match(/API_PORTAL_CLIENT_REGIONS_([A-Z]+)$/);
-
-		if (found) {
-			regions.push({
-				region: found[1],
-				name: process.env[key],
-				locale: module.exports.regionToLanguage(found[1], config)
-			});
-		}
-	});
-
-	return regions;
-};
-
-/**
- * @param {ConfigManager} config
- * @param {boolean} withDialect
- * @return {string[]}
- */
-module.exports.getSupportedLanguages = (config, withDialect = true) => {
-	const regions = config.get("language").regions;
-	const languages = Object.keys(regions).map(language => language.replace("_", "-"));
-
-	if (withDialect) {
-		return languages;
-	}
-
-	const uniqueLanguages = new Set();
-
-	for (const language of languages) {
-		uniqueLanguages.add(language.split("-")[0]);
-	}
-
-	return Array.from(uniqueLanguages);
-};
-
-/**
- * @param {ConfigManager} config
- * @return {Object[]}
- */
-module.exports.getClientLanguages = config =>
-	module.exports.getClientRegions(config).map(r => r.locale)
-;
-
-/**
- * @param {string} locale
- * @param {ConfigManager} config
- * @return {string}
- */
-module.exports.getPreferredLanguage = (locale, config) => {
-	let found = null;
-
-	const clientRegions = module.exports.getClientRegions(config);
-
-	clientRegions.sort((a, b) => a.locale.localeCompare(b.locale));
-	clientRegions.forEach(region => {
-		if (found === null && (
-			locale === region.locale ||
-			locale.split("-")[0] === region.locale.split("-")[0]
-		)) {
-			found = region.locale;
-		}
-	});
-
-	if (found === null) {
-		found = module.exports.regionToLanguage(env.string("API_PORTAL_CLIENT_DEFAULT_REGION"), config);
-	}
-
-	return found;
-};
-
-/**
  * @param {string} string
- * @param {ConfigManager} config
+ * @param {LocalizationManager} localization
  * @return {string[]}
  */
-module.exports.getSupportedCategoryLocales = (category, config) => {
-	const translations = module.exports.loadTranslations(path.resolve(__dirname, "../locales", category), []);
-	const clientLanguages = module.exports.getClientLanguages(config);
+module.exports.getSupportedLanguagesByDirectory = (directory, localization) => {
+	const translations = module.exports.loadTranslations(directory, []);
+	const clientLanguages = localization.listClientLanguages();
 
 	return Object.keys(translations).filter(language =>
 		clientLanguages.includes(language)

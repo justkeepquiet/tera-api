@@ -27,13 +27,13 @@
 						<div class="title-block">
 							<h3 class="title"><%= __("Category Title") %></h3>
 						</div>
-						<%_ shopLocales.forEach(shopLocale => { _%>
+						<%_ languages.forEach(language => { _%>
 						<div class="form-group row">
 							<div class="col-sm-2 mt-2">
-								<label for="title[<%= shopLocale %>]" class="control-label"><%= __(shopLocale) %></label>
+								<label for="title[<%= language %>]" class="control-label"><%= __(language) %></label>
 							</div>
 							<div class="col-sm-10">
-								<input type="text" class="form-control boxed" name="title[<%= shopLocale %>]" value="<%= title[shopLocale] || "" %>" minlength="1" maxlength="1024">
+								<input type="text" class="form-control boxed" name="title[<%= language %>]" value="<%= title[language] || "" %>" minlength="1" maxlength="1024">
 							</div>
 						</div>
 						<%_ }) _%>

@@ -28,9 +28,6 @@ module.exports = {
 		});
 
 		// `account_info`
-		await queryInterface.changeColumn("account_info", "language", {
-			type: Sequelize.DataTypes.STRING(5)
-		});
 		await queryInterface.sequelize.query("ALTER TABLE `account_info` DROP PRIMARY KEY, ADD PRIMARY KEY (`accountDBID`)");
 		await queryInterface.addIndex("account_info", ["userName"], {
 			unique: true,
@@ -199,9 +196,6 @@ module.exports = {
 		await queryInterface.addIndex("account_info", ["authKey"], {
 			unique: false,
 			name: "authKey"
-		});
-		await queryInterface.changeColumn("account_info", "language", {
-			type: Sequelize.DataTypes.STRING(3)
 		});
 
 		// `shop_promocode_strings`

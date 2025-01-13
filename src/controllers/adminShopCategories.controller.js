@@ -5,6 +5,7 @@
  * @typedef {import("express").RequestHandler} RequestHandler
  */
 
+const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const { query, body } = require("express-validator");
 
@@ -51,16 +52,18 @@ module.exports.index = ({ i18n, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ config }) => [
+module.exports.add = ({ localization }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
+		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+
 		res.render("adminShopCategoriesAdd", {
 			layout: "adminLayout",
-			shopLocales: helpers.getSupportedCategoryLocales("shop", config)
+			languages
 		});
 	}
 ];
@@ -116,7 +119,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel })
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ config, logger, shopModel }) => [
+module.exports.edit = ({ localization, logger, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -147,9 +150,11 @@ module.exports.edit = ({ config, logger, shopModel }) => [
 			title[string.get("language")] = string.get("title");
 		});
 
+		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+
 		res.render("adminShopCategoriesEdit", {
 			layout: "adminLayout",
-			shopLocales: helpers.getSupportedCategoryLocales("shop", config),
+			languages,
 			id: category.get("id"),
 			sort: category.get("sort"),
 			active: category.get("active"),
@@ -161,7 +166,7 @@ module.exports.edit = ({ config, logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ config, i18n, logger, sequelize, reportModel, shopModel }) => [
+module.exports.editAction = ({ localization, i18n, logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	[
 		query("id").notEmpty(),
@@ -225,7 +230,9 @@ module.exports.editAction = ({ config, i18n, logger, sequelize, reportModel, sho
 					}
 				});
 
-				helpers.getSupportedCategoryLocales("shop", config).forEach(language => {
+				const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+
+				languages.forEach(language => {
 					if (title[language]) {
 						promises.push(shopModel.categoryStrings.create({
 							categoryId: id,

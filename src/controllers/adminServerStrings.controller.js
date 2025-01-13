@@ -22,7 +22,7 @@ const {
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ config, serverModel }) => [
+module.exports.index = ({ localization, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -33,7 +33,7 @@ module.exports.index = ({ config, serverModel }) => [
 
 		res.render("adminServerStrings", {
 			layout: "adminLayout",
-			availableLanguages: helpers.getSupportedLanguages(config, false),
+			availableLanguages: localization.listAllLanguages(),
 			strings
 		});
 	}
@@ -42,7 +42,7 @@ module.exports.index = ({ config, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = ({ config, serverModel }) => [
+module.exports.add = ({ localization, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -54,7 +54,7 @@ module.exports.add = ({ config, serverModel }) => [
 
 		res.render("adminServerStringsAdd", {
 			layout: "adminLayout",
-			availableLanguages: helpers.getSupportedLanguages(config, false),
+			availableLanguages: localization.listAllLanguages(),
 			addedLanguages
 		});
 	}
@@ -63,11 +63,11 @@ module.exports.add = ({ config, serverModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ config, i18n, logger, reportModel, serverModel }) => [
+module.exports.addAction = ({ localization, i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
 		body("language").trim().toLowerCase()
-			.isIn(helpers.getSupportedLanguages(config, false))
+			.isIn(localization.listAllLanguages())
 			.withMessage(i18n.__("Language code field must be a valid value."))
 			.custom(value => serverModel.strings.findOne({
 				where: { language: value }
@@ -126,7 +126,7 @@ module.exports.addAction = ({ config, i18n, logger, reportModel, serverModel }) 
 /**
  * @param {modules} modules
  */
-module.exports.edit = ({ config, logger, serverModel }) => [
+module.exports.edit = ({ localization, logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
@@ -149,7 +149,7 @@ module.exports.edit = ({ config, logger, serverModel }) => [
 
 		res.render("adminServerStringsEdit", {
 			layout: "adminLayout",
-			availableLanguages: helpers.getSupportedLanguages(config, false),
+			availableLanguages: localization.listAllLanguages(),
 			language: data.get("language"),
 			categoryPvE: data.get("categoryPvE"),
 			categoryPvP: data.get("categoryPvP"),

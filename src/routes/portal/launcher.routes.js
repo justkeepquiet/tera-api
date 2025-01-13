@@ -29,7 +29,8 @@ module.exports = modules => {
 	const passport = new Passport();
 	const i18n = new I18n({
 		staticCatalog: helpers.loadTranslations(path.resolve(__dirname, "../../locales/launcher"), []),
-		defaultLocale: env.string("API_PORTAL_LOCALE")
+		defaultLocale: env.string("API_PORTAL_LOCALE"),
+		header: undefined
 	});
 
 	passport.serializeUser((user, done) => {
@@ -114,12 +115,13 @@ module.exports = modules => {
 	});
 
 	modules.app.use("/launcher", (req, res, next) => {
-		const locale = (req?.user?.language || req.query.lang || env.string("API_PORTAL_LOCALE")).split("-")[0];
+		const queryLanguage = modules.localization.getLanguageByLocale(req.query.locale);
+		const language = req?.user?.language || queryLanguage;
 
-		if (i18n.getLocales().includes(locale)) {
-			i18n.setLocale(locale);
-		} else {
-			i18n.setLocale(env.string("API_PORTAL_LOCALE"));
+		if (i18n.getLocales().includes(language)) {
+			i18n.setLocale(language);
+		} else if (language === "us" && i18n.getLocales().includes("en")) {
+			i18n.setLocale("en");
 		}
 
 		res.locals.__ = i18n.__;

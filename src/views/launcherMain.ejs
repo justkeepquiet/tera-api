@@ -28,8 +28,8 @@
 	var USER_LANG = (navigator.language || navigator.userLanguage).split('-')[0];
 
 	var REGIONS = {
-		<%_ regions.forEach(element => { _%>
-		"<%= element.region %>": "<%= element.locale %>",
+		<%_ localizations.forEach(localization => { _%>
+		"<%= localization.region %>": "<%= localization.language %>",
 		<%_ }) _%>
 	};
 
@@ -138,13 +138,13 @@
 			<div class="logo"><img src="/public/launcher/images/logo.png"></div>
 			<!--/logo-->
 			<div class="col">
-				<%_ if (localeSelector && regions.length > 1) { _%>
+				<%_ if (localeSelector && localizations.length > 1) { _%>
 				<ul class="nav" style="clear: both;">
-					<%_ regions.forEach(region => { _%>
-					<%_ if (region.locale == lang) { _%>
-						<li><span><img src="/public/launcher/images/flags/<%= region.locale %>.png"> <%= region.name %></span></li>
+					<%_ localizations.forEach(localization => { _%>
+					<%_ if (localization.language == language) { _%>
+						<li><span><img src="/public/launcher/images/flags/<%= localization.language %>.png"> <%= localization.name %></span></li>
 					<%_ } else { _%>
-						<li><a href="#" class="region" data-region="<%= region.region %>"><img src="/public/launcher/images/flags/<%= region.locale %>.png"> <%= region.name %></a></li>
+						<li><a href="#" class="region" data-region="<%= localization.region %>"><img src="/public/launcher/images/flags/<%= localization.language %>.png"> <%= localization.name %></a></li>
 					<% } %>
 					<% }) %>
 				</ul>
@@ -162,8 +162,8 @@
 						<table>
 							<tr><td><%= __("Disable file check") %></td><td><input type="checkbox" id="qaModeCheck" checked></td></tr>
 							<tr><td><%= __("Client language") %></td><td><select id="qaRegion">
-								<%_ regions.forEach(region => { _%>
-								<option value="<%= region.region %>"><%= region.name %></option>
+								<%_ localizations.forEach(localization => { _%>
+								<option value="<%= localization.region %>"><%= localization.name %></option>
 							<% }) %>
 							</select></td></tr>
 						</table>
