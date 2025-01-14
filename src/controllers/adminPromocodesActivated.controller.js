@@ -10,7 +10,6 @@ const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
 
 const PromoCodeActions = require("../actions/promoCode.actions");
-
 const {
 	accessFunctionHandler,
 	validationHandler,

@@ -11,8 +11,8 @@ const { query, body } = require("express-validator");
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 
-const helpers = require("../utils/helpers");
-const ServiceItem = require("../utils/boxHelper").ServiceItem;
+const { getSupportedLanguagesByDirectory, formatStrsheet, validationResultLog } = require("../utils/helpers");
+const { ServiceItem } = require("../utils/boxHelper");
 
 const {
 	accessFunctionHandler,
@@ -185,7 +185,7 @@ module.exports.add = ({ localization, i18n, shopModel }) => [
 			]
 		});
 
-		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+		const languages = getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
 
 		res.render("adminShopProductsAdd", {
 			layout: "adminLayout",
@@ -319,7 +319,7 @@ module.exports.addAction = modules => [
 						boxItemIds[index],
 						itemTemplateId,
 						resolvedItems[itemTemplateId].string,
-						helpers.formatStrsheet(resolvedItems[itemTemplateId].toolTip),
+						formatStrsheet(resolvedItems[itemTemplateId].toolTip),
 						req.user.userSn || 0
 					).then(boxItemId =>
 						modules.shopModel.productItems.create({
@@ -333,7 +333,7 @@ module.exports.addAction = modules => [
 			}
 
 			if (title || description) {
-				const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), modules.localization);
+				const languages = getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), modules.localization);
 
 				languages.forEach(language =>
 					promises.push(modules.shopModel.productStrings.create({
@@ -428,7 +428,7 @@ module.exports.edit = ({ localization, logger, i18n, shopModel }) => [
 			boxItemCounts.push(productItem.get("boxItemCount"));
 		});
 
-		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+		const languages = getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
 
 		res.render("adminShopProductsEdit", {
 			layout: "adminLayout",
@@ -614,7 +614,7 @@ module.exports.editAction = modules => [
 							boxItemIds[index],
 							itemTemplateId,
 							resolvedItems[itemTemplateId].string,
-							helpers.formatStrsheet(resolvedItems[itemTemplateId].toolTip),
+							formatStrsheet(resolvedItems[itemTemplateId].toolTip),
 							req.user.userSn || 0
 						).then(boxItemId =>
 							modules.shopModel.productItems.update({
@@ -661,7 +661,7 @@ module.exports.editAction = modules => [
 							boxItemIds[index],
 							itemTemplateId,
 							resolvedItems[itemTemplateId].string,
-							helpers.formatStrsheet(resolvedItems[itemTemplateId].toolTip),
+							formatStrsheet(resolvedItems[itemTemplateId].toolTip),
 							req.user.userSn || 0
 						).then(boxItemId =>
 							modules.shopModel.productItems.create({
@@ -698,7 +698,7 @@ module.exports.editAction = modules => [
 				}
 			});
 
-			const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), modules.localization);
+			const languages = getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), modules.localization);
 
 			languages.forEach(language => {
 				if (title[language] || description[language]) {
@@ -763,7 +763,7 @@ module.exports.editAllAction = modules => [
 		const { id } = req.body;
 		const { categoryId, validAfter, validBefore, price, sort, active, validate } = req.body;
 
-		const errors = helpers.validationResultLog(req, modules.logger);
+		const errors = validationResultLog(req, modules.logger);
 
 		const productIds = new Set(Array.isArray(id) ? id : [id]);
 
@@ -813,7 +813,7 @@ module.exports.editAllAction = modules => [
 		const sortEqual = products.map(product => product.get("sort")).every((v, i, a) => v === a[0]);
 		const activeEqual = products.map(product => product.get("active")).every((v, i, a) => v === a[0]);
 
-		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), modules.localization);
+		const languages = getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), modules.localization);
 
 		res.render("adminShopProductsEditAll", {
 			layout: "adminLayout",

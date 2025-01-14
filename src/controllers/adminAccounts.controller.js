@@ -11,7 +11,7 @@ const { query, body } = require("express-validator");
 const Op = require("sequelize").Op;
 
 const env = require("../utils/env");
-const helpers = require("../utils/helpers");
+const { getInitialBenefits, getPasswordString } = require("../utils/helpers");
 
 const {
 	validationHandler,
@@ -21,8 +21,6 @@ const {
 	accessFunctionHandler,
 	writeOperationReport
 } = require("../middlewares/admin.middlewares");
-
-const encryptPasswords = env.bool("API_PORTAL_USE_SHA512_PASSWORDS");
 
 /**
  * @param {modules} modules
@@ -84,7 +82,7 @@ module.exports.add = ({ i18n, datasheetModel }) => [
 
 		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()];
 
-		helpers.getInitialBenefits().forEach((benefitDays, benefitId) => {
+		getInitialBenefits().forEach((benefitDays, benefitId) => {
 			benefitIds.push(benefitId);
 			availableUntils.push(moment.tz(req.user.tz).add(benefitDays, "days"));
 		});
@@ -154,7 +152,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 		await sequelize.transaction(async () => {
 			const account = await accountModel.info.create({
 				userName,
-				passWord: helpers.getPasswordString(passWord),
+				passWord: getPasswordString(passWord),
 				email,
 				permission,
 				privilege
@@ -212,7 +210,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 
 		res.render("adminAccountsEdit", {
 			layout: "adminLayout",
-			encryptPasswords,
+			encryptPasswords: env.bool("API_PORTAL_USE_SHA512_PASSWORDS"),
 			moment,
 			accountDBID,
 			userName: data.get("userName"),
@@ -273,7 +271,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 
 		await accountModel.info.update({
 			userName,
-			...passWord ? { passWord: helpers.getPasswordString(passWord) } : {},
+			...passWord ? { passWord: getPasswordString(passWord) } : {},
 			email,
 			permission,
 			privilege,

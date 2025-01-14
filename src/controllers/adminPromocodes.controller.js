@@ -10,8 +10,7 @@ const expressLayouts = require("express-ejs-layouts");
 const { query, body } = require("express-validator");
 const moment = require("moment-timezone");
 
-const helpers = require("../utils/helpers");
-
+const { getSupportedLanguagesByDirectory, getPromocodeFunctionsNames } = require("../utils/helpers");
 const {
 	accessFunctionHandler,
 	validationHandler,
@@ -73,12 +72,12 @@ module.exports.add = ({ config, localization }) => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+		const languages = getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
 
 		res.render("adminPromocodesAdd", {
 			layout: "adminLayout",
 			moment,
-			promocodeFunctions: helpers.getPromocodeFunctionsNames(config),
+			promocodeFunctions: getPromocodeFunctionsNames(config),
 			languages
 		});
 	}
@@ -100,7 +99,7 @@ module.exports.addAction = ({ config, i18n, logger, sequelize, reportModel, shop
 				}
 			})),
 		body("aFunction")
-			.custom(value => helpers.getPromocodeFunctionsNames(config).includes(value))
+			.custom(value => getPromocodeFunctionsNames(config).includes(value))
 			.withMessage(i18n.__("Assigned function field contains invalid function.")),
 		body("validAfter")
 			.isISO8601().withMessage(i18n.__("Valid from field must contain a valid date.")),
@@ -186,12 +185,12 @@ module.exports.edit = ({ config, localization, logger, shopModel }) => [
 			description[string.get("language")] = string.get("description");
 		});
 
-		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+		const languages = getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
 
 		res.render("adminPromocodesEdit", {
 			layout: "adminLayout",
 			errors: null,
-			promocodeFunctions: helpers.getPromocodeFunctionsNames(config),
+			promocodeFunctions: getPromocodeFunctionsNames(config),
 			languages,
 			promoCodeId: promocode.get("promoCodeId"),
 			promoCode: promocode.get("promoCode"),
@@ -213,7 +212,7 @@ module.exports.editAction = ({ config, localization, i18n, logger, sequelize, re
 	[
 		query("promoCodeId").notEmpty(),
 		body("aFunction")
-			.custom(value => helpers.getPromocodeFunctionsNames(config).includes(value))
+			.custom(value => getPromocodeFunctionsNames(config).includes(value))
 			.withMessage(i18n.__("Assigned function field contains invalid function.")),
 		body("validAfter")
 			.isISO8601().withMessage(i18n.__("Valid from field must contain a valid date.")),
@@ -282,7 +281,7 @@ module.exports.editAction = ({ config, localization, i18n, logger, sequelize, re
 					}
 				});
 
-				const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+				const languages = getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
 
 				languages.forEach(language => {
 					if (description[language]) {

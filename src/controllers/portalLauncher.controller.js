@@ -12,12 +12,12 @@ const Op = require("sequelize").Op;
 const moment = require("moment-timezone");
 const body = require("express-validator").body;
 
+const ApiError = require("../lib/apiError");
 const Benefit = require("../actions/handlers/benefit");
 const Shop = require("../actions/handlers/shop");
 const env = require("../utils/env");
 const helpers = require("../utils/helpers");
 const SliderCaptcha = require("../utils/sliderCaptcha");
-const ApiError = require("../lib/apiError");
 
 const {
 	validationHandler,

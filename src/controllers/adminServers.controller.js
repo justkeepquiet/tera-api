@@ -8,8 +8,6 @@
 const expressLayouts = require("express-ejs-layouts");
 const { query, body } = require("express-validator");
 
-const helpers = require("../utils/helpers");
-
 const {
 	accessFunctionHandler,
 	validationHandler,

@@ -10,9 +10,9 @@ const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 
 const env = require("../utils/env");
-const helpers = require("../utils/helpers");
 const ApiError = require("../lib/apiError");
 const ChronoScrollActions = require("../actions/chronoScroll.actions");
+const { getCharCountString, getBenefitsArray } = require("../utils/helpers");
 const { validationHandler } = require("../middlewares/arbiterApi.middlewares");
 
 const reportActivity = env.bool("API_ARBITER_REPORT_ACTIVITY");
@@ -143,7 +143,7 @@ module.exports.GetUserInfo = ({ logger, sequelize, accountModel }) => [
 				where: { accountDBID: account.get("accountDBID") }
 			});
 
-			charCountInfo = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
+			charCountInfo = getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
 		} catch (err) {
 			logger.error(err);
 		}
@@ -153,7 +153,7 @@ module.exports.GetUserInfo = ({ logger, sequelize, accountModel }) => [
 				where: { accountDBID: account.get("accountDBID") }
 			});
 
-			benefit = helpers.getBenefitsArray(benefits, "benefitId", "availableUntil");
+			benefit = getBenefitsArray(benefits, "benefitId", "availableUntil");
 		} catch (err) {
 			logger.error(err);
 		}

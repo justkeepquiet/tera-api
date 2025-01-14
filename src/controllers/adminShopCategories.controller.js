@@ -9,8 +9,7 @@ const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const { query, body } = require("express-validator");
 
-const helpers = require("../utils/helpers");
-
+const { getSupportedLanguagesByDirectory } = require("../utils/helpers");
 const {
 	accessFunctionHandler,
 	validationHandler,
@@ -59,7 +58,7 @@ module.exports.add = ({ localization }) => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+		const languages = getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
 
 		res.render("adminShopCategoriesAdd", {
 			layout: "adminLayout",
@@ -150,7 +149,7 @@ module.exports.edit = ({ localization, logger, shopModel }) => [
 			title[string.get("language")] = string.get("title");
 		});
 
-		const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+		const languages = getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
 
 		res.render("adminShopCategoriesEdit", {
 			layout: "adminLayout",
@@ -230,7 +229,7 @@ module.exports.editAction = ({ localization, i18n, logger, sequelize, reportMode
 					}
 				});
 
-				const languages = helpers.getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
+				const languages = getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), localization);
 
 				languages.forEach(language => {
 					if (title[language]) {

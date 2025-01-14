@@ -8,7 +8,6 @@
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
-
 const {
 	accessFunctionHandler,
 	validationHandler,

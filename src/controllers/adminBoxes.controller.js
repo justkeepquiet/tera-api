@@ -10,9 +10,9 @@ const { query, body } = require("express-validator");
 const moment = require("moment-timezone");
 const Op = require("sequelize").Op;
 
-const helpers = require("../utils/helpers");
-const ServiceItem = require("../utils/boxHelper").ServiceItem;
-
+const ApiError = require("../lib/apiError");
+const { formatStrsheet } = require("../utils/helpers");
+const { ServiceItem } = require("../utils/boxHelper");
 const {
 	accessFunctionHandler,
 	validationHandler,
@@ -21,8 +21,6 @@ const {
 	formResultSuccessHandler,
 	writeOperationReport
 } = require("../middlewares/admin.middlewares");
-
-const ApiError = require("../lib/apiError");
 
 /**
  * @param {modules} modules
@@ -179,7 +177,7 @@ module.exports.addAction = modules => [
 						boxItemIds[index],
 						itemTemplateId,
 						resolvedItems[itemTemplateId].string,
-						helpers.formatStrsheet(resolvedItems[itemTemplateId].toolTip),
+						formatStrsheet(resolvedItems[itemTemplateId].toolTip),
 						req.user.userSn || 0
 					).then(boxItemId =>
 						modules.boxModel.items.create({
@@ -355,7 +353,7 @@ module.exports.editAction = modules => [
 							boxItemIds[index],
 							itemTemplateId,
 							resolvedItems[itemTemplateId].string,
-							helpers.formatStrsheet(resolvedItems[itemTemplateId].toolTip),
+							formatStrsheet(resolvedItems[itemTemplateId].toolTip),
 							req.user.userSn || 0
 						).then(boxItemId =>
 							modules.boxModel.items.update({
@@ -402,7 +400,7 @@ module.exports.editAction = modules => [
 							boxItemIds[index],
 							itemTemplateId,
 							resolvedItems[itemTemplateId].string,
-							helpers.formatStrsheet(resolvedItems[itemTemplateId].toolTip),
+							formatStrsheet(resolvedItems[itemTemplateId].toolTip),
 							req.user.userSn || 0
 						).then(boxItemId =>
 							modules.boxModel.items.create({

@@ -10,7 +10,7 @@ const moment = require("moment-timezone");
 const query = require("express-validator").query;
 const Op = require("sequelize").Op;
 
-const helpers = require("../utils/helpers");
+const { secondsToDhms } = require("../utils/helpers");
 const { apiAccessHandler, validationHandler } = require("../middlewares/admin.middlewares");
 
 /**
@@ -102,7 +102,7 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 			activityReportItems.push({
 				reportTime: moment(report.get("reportTime")).tz(req.user.tz).format("YYYY-MM-DD HH:mm"),
 				reportType: report.get("reportType") == 2 ?
-					`${i18n.__("Leave game")} (${helpers.secondsToDhms(i18n.__, report.get("playTime"))})` :
+					`${i18n.__("Leave game")} (${secondsToDhms(i18n.__, report.get("playTime"))})` :
 					i18n.__("Enter game"),
 				ip: report.get("ip"),
 				accountDBID: report.get("accountDBID"),

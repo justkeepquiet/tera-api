@@ -8,8 +8,8 @@
 const query = require("express-validator").query;
 const Op = require("sequelize").Op;
 
-const helpers = require("../utils/helpers");
 const ApiError = require("../lib/apiError");
+const { getCharCountString } = require("../utils/helpers");
 const { validationHandler } = require("../middlewares/portalLauncher.middlewares");
 
 /**
@@ -55,7 +55,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, sequelize, accountModel }) =>
 				where: { accountDBID: account.get("accountDBID") }
 			});
 
-			characterCount = helpers.getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
+			characterCount = getCharCountString(characters, account.get("lastLoginServer"), "serverId", "charCount");
 
 			bannedByIp = await accountModel.bans.findOne({
 				where: {

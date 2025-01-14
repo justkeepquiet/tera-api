@@ -11,10 +11,7 @@ const moment = require("moment-timezone");
 const validator = require("validator");
 const Op = require("sequelize").Op;
 
-const {
-	validationHandler,
-	accessFunctionHandler
-} = require("../middlewares/admin.middlewares");
+const { validationHandler, accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules

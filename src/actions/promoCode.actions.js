@@ -4,7 +4,7 @@
  * @typedef {import("../app").modules} modules
  */
 
-const { requireReload, chainPromise } = require("../utils/helpers");
+const { chainPromise } = require("../utils/helpers");
 
 class PromoCodeActions {
 	/**

@@ -9,12 +9,8 @@ const expressLayouts = require("express-ejs-layouts");
 const query = require("express-validator").query;
 const moment = require("moment-timezone");
 
-const helpers = require("../utils/helpers");
-
-const {
-	accessFunctionHandler,
-	writeOperationReport
-} = require("../middlewares/admin.middlewares");
+const { validationResultLog } = require("../utils/helpers");
+const { accessFunctionHandler, writeOperationReport } = require("../middlewares/admin.middlewares");
 
 /**
  * @param {modules} modules
@@ -81,7 +77,7 @@ module.exports.kickAction = ({ i18n, logger, hub, reportModel, accountModel, ser
 	 */
 	async (req, res, next) => {
 		const { accountDBID, serverId } = req.query;
-		const errors = helpers.validationResultLog(req, logger);
+		const errors = validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
 			throw new Error(errors.array()[0].msg);
@@ -122,7 +118,7 @@ module.exports.kickAllAction = ({ i18n, logger, hub, reportModel, serverModel })
 	 */
 	async (req, res, next) => {
 		const { serverId } = req.query;
-		const errors = helpers.validationResultLog(req, logger);
+		const errors = validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
 			throw new Error(errors.array()[0].msg);

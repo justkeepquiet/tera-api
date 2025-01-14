@@ -90,6 +90,7 @@ class LocalizationManager {
 
 	//
 	// Client
+	// TODO: we need to remove the hardcoded process.env parsing
 	//
 
 	getClientLanguageByLocale(locale) {
