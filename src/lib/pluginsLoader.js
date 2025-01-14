@@ -9,8 +9,6 @@ const fs = require("fs");
 const path = require("path");
 const dotenv = require("dotenv");
 
-const PLUGINS_PATH = "../plugins";
-
 function getObjectByPathString(object, pathString) {
 	const keys = pathString.split(".");
 	let current = object;
@@ -31,7 +29,8 @@ class PluginsLoader {
 	 * @param {modules} modules
 	 * @param {logger} logger
 	 */
-	constructor(modules, logger = null) {
+	constructor(pluginsPath, modules, logger = null) {
+		this.pluginsPath = pluginsPath;
 		this.modules = modules;
 		this.logger = logger;
 
@@ -39,10 +38,8 @@ class PluginsLoader {
 	}
 
 	list() {
-		const pluginsPath = path.join(__dirname, PLUGINS_PATH);
-
-		if (fs.existsSync(pluginsPath)) {
-			return fs.readdirSync(pluginsPath);
+		if (fs.existsSync(this.pluginsPath)) {
+			return fs.readdirSync(this.pluginsPath);
 		}
 
 		return [];
@@ -53,8 +50,8 @@ class PluginsLoader {
 	}
 
 	register(plugin) {
-		const pluginPath = path.join(__dirname, PLUGINS_PATH, plugin, "plugin.js");
-		const envPath = path.join(__dirname, PLUGINS_PATH, plugin, ".env");
+		const pluginPath = path.join(this.pluginsPath, plugin, "plugin.js");
+		const envPath = path.join(this.pluginsPath, plugin, ".env");
 
 		if (fs.existsSync(pluginPath)) {
 			if (fs.existsSync(envPath)) {

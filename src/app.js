@@ -36,6 +36,8 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
 
 require("dotenv").config();
 
+const path = require("path");
+
 const { createLogger } = require("./utils/logger");
 const cliHelper = require("./utils/cliHelper");
 const LocalizationManager = require("./lib/localizationManager");
@@ -48,7 +50,11 @@ const BackgroundQueue = require("./lib/backgroundQueue");
 const loggerParams = { colors: { debug: "gray" } };
 const logger = createLogger("Core", loggerParams);
 const versions = { app: APP_VERSION, db: DB_VERSION };
-const config = new ConfigManager(createLogger("Config Manager", loggerParams));
+
+const config = new ConfigManager(
+	path.join(__dirname, "../config"),
+	createLogger("Config Manager", loggerParams)
+);
 
 const cli = cliHelper(logger, versions.app);
 cli.addOption("-c, --component <items...>", "List of components");
@@ -57,7 +63,12 @@ const cliOptions = cli.getOptions();
 async function loadModules() {
 	const modules = { versions, logger, config, cli, gcCollect, checkComponent };
 
-	modules.pluginsLoader = new PluginsLoader(modules, createLogger("Plugins Loader", loggerParams));
+	modules.pluginsLoader = new PluginsLoader(
+		path.join(__dirname, "./plugins"),
+		modules,
+		createLogger("Plugins Loader", loggerParams)
+	);
+
 	modules.pluginsLoader.loadAll();
 
 	const localizationConfig = modules.config.get("localization");

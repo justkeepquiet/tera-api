@@ -2,22 +2,23 @@
 
 const fs = require("fs");
 const path = require("path");
-const { requireReload } = require("../utils/helpers");
-
-const CONFIG_PATH = "../../config";
 
 function requireConfig(withReload, filePath) {
-	return withReload ? requireReload(filePath) : require(filePath);
+	if (withReload) {
+		delete require.cache[require.resolve(filePath)];
+	}
+	return require(filePath);
 }
 
 class ConfigManager {
-	constructor(logger = null) {
+	constructor(configPath, logger = null) {
+		this.configPath = configPath;
 		this.logger = logger;
 	}
 
 	get(name, withReload = true) {
-		const filePath = path.join(__dirname, CONFIG_PATH, `${name}.js`);
-		const defaultFilePath = path.join(__dirname, CONFIG_PATH, `${name}.default.js`);
+		const filePath = path.join(this.configPath, `${name}.js`);
+		const defaultFilePath = path.join(this.configPath, `${name}.default.js`);
 
 		if (fs.existsSync(filePath)) {
 			return requireConfig(withReload, filePath);
