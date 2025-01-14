@@ -22,7 +22,11 @@ module.exports = async modules => {
 
 	const es = new ExpressServer(modules, {
 		logger: createLogger("Arbiter API", { colors: { debug: "bold blue" } }),
-		disableCache: true
+		disableCache: true,
+		trustProxy: env.bool("LOG_IP_ADDRESSES_FORWARDED_FOR"),
+		logLevel: env.string("LOG_LEVEL"),
+		logRequests: env.bool("LOG_API_REQUESTS"),
+		logIpAddresses: env.bool("LOG_IP_ADDRESSES")
 	});
 
 	es.setLogging();

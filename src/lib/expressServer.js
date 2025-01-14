@@ -5,29 +5,28 @@
  */
 
 const express = require("express");
-const path = require("path");
 const morgan = require("morgan");
 const morganBody = require("morgan-body");
 const cookieParser = require("cookie-parser");
 const compression = require("compression");
-
-const env = require("../utils/env");
-
-const VIEWS_PATH = "../views";
 
 class ExpressServer {
 	constructor(modules, params) {
 		this.app = express();
 
 		this.logger = params.logger || console;
+		this.logLevel = params.logLevel || "debug";
+		this.logIpAddresses = !!params.logIpAddresses;
+		this.logRequests = !!params.logRequests;
 		this.disableCache = !!params.disableCache;
 		this.enableCompression = params.enableCompression !== undefined ?
 			!!params.enableCompression : false;
+		this.viewsPath = params.viewsPath;
 
 		this.modules = { ...modules, app: this.app, logger: this.logger };
 		this.views = new Set();
 
-		if (env.bool("LOG_IP_ADDRESSES_FORWARDED_FOR")) {
+		if (params.trustProxy) {
 			this.app.enable("trust proxy");
 		}
 
@@ -56,9 +55,12 @@ class ExpressServer {
 		}
 
 		this.app.set("view engine", "ejs");
-		this.setViews(path.resolve(__dirname, VIEWS_PATH));
 
-		if (/^debug$/i.test(env.string("LOG_LEVEL"))) {
+		if (this.viewsPath) {
+			this.setViews(this.viewsPath);
+		}
+
+		if (/^debug$/i.test(this.logLevel)) {
 			morganBody(this.app, {
 				noColors: true,
 				prettify: false,
@@ -72,10 +74,10 @@ class ExpressServer {
 	}
 
 	setLogging() {
-		if (env.bool("LOG_API_REQUESTS")) {
+		if (this.logRequests) {
 			let logFormat = ":method :url :status - :response-time ms";
 
-			if (env.bool("LOG_IP_ADDRESSES")) {
+			if (this.logIpAddresses) {
 				logFormat = ":remote-addr :method :url :status - :response-time ms";
 			}
 

@@ -3,6 +3,7 @@
 /**
  * @typedef {import("../app").modules} modules
  */
+const path = require("path");
 
 const env = require("../utils/env");
 const { createLogger } = require("../utils/logger");
@@ -28,7 +29,12 @@ module.exports = async modules => {
 
 	const es = new ExpressServer(modules, {
 		logger: createLogger("Portal API", { colors: { debug: "blue" } }),
-		disableCache: env.bool("API_PORTAL_ENABLE_CACHE")
+		viewsPath: path.resolve(__dirname, "../views"),
+		disableCache: env.bool("API_PORTAL_ENABLE_CACHE"),
+		trustProxy: env.bool("LOG_IP_ADDRESSES_FORWARDED_FOR"),
+		logLevel: env.string("LOG_LEVEL"),
+		logRequests: env.bool("LOG_API_REQUESTS"),
+		logIpAddresses: env.bool("LOG_IP_ADDRESSES")
 	});
 
 	if (env.bool("API_PORTAL_PUBLIC_FOLDER_ENABLE")) {
