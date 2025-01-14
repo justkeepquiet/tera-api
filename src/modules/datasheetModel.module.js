@@ -28,14 +28,14 @@ const DATASHEETS_DIRECTORY = "../../data/datasheets";
 /**
  * @param {modules} modules
  */
-module.exports = async ({ checkComponent, pluginsLoader, localization }) => {
+module.exports = async ({ gcCollect, checkComponent, pluginsLoader, localization }) => {
 	/**
 	 * @param {logger} logger
 	 */
 	const loadDatasheetModelSync = (logger, datasheetModel, directory, region, locale, useBinary) => {
 		const cacheManager = new CacheManager(
 			path.join(__dirname, CACHE_DIRECTORY), "dc",
-			createLogger("CacheManager", { colors: { debug: "gray" } })
+			createLogger("Cache Manager", { colors: { debug: "gray" } })
 		);
 
 		const datasheetLoader = new DatasheetLoader(logger);
@@ -145,7 +145,7 @@ module.exports = async ({ checkComponent, pluginsLoader, localization }) => {
 
 		for (const { region, locale } of variants) {
 			if (loadDatasheetModelSync(datasheetLogger, datasheetModel, directory, region, locale, useBinary)) {
-				// gcCollect();
+				gcCollect();
 			}
 		}
 	} catch (err) {
