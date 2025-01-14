@@ -1,8 +1,9 @@
 "use strict";
 
-// WARNING!
-// Do not make changes to this list unless you know what you are doing!
 // CHANGES MADE ARE APPLIED ONLY AFTER THE PROCESS IS RESTARTED.
+
+// WARNING!
+// Do not make changes to this file unless you know what you are doing!
 
 const env = require("../src/utils/env");
 

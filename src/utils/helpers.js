@@ -228,10 +228,10 @@ module.exports.maskEmail = email => {
 */
 module.exports.getFilenamesFromDirectory = (directory, exts = [".png", ".jpg"]) => {
 	const files = fs.readdirSync(directory);
-	const imageFiles = files.filter(file =>
+	const filteredFiles = files.filter(file =>
 		exts.includes(path.extname(file).toLowerCase())
 	);
-	return imageFiles;
+	return filteredFiles;
 };
 
 /**
