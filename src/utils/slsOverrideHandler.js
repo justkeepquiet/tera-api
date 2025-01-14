@@ -26,6 +26,11 @@ class SlsOverrideHandler {
 	}
 
 	async applyOverrides(server) {
+		if (!this.servers) {
+			this.logger.warn("SLS Override Handler: Configuration not found.");
+			return false;
+		}
+
 		for (const overrideServer of this.servers) {
 			if (!overrideServer.enabled || overrideServer.serverId !== server.id) continue;
 

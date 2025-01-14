@@ -25,6 +25,10 @@ const portalLauncherController = require("../../controllers/portalLauncher.contr
  * @param {modules} modules
  */
 module.exports = modules => {
+	if (!modules.config.get("launcher")) {
+		throw "Cannot read configuration: launcher";
+	}
+
 	const ipBlock = new IpBlockHandler(modules.geoip, modules.ipapi, modules.logger);
 	const passport = new Passport();
 	const i18n = new I18n({

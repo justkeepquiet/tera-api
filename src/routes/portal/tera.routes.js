@@ -17,6 +17,10 @@ const portalAccountController = require("../../controllers/portalAccount.control
  * @param {modules} modules
  */
 module.exports = modules => {
+	if (!modules.config.get("slsOverride")) {
+		modules.logger.warn("Cannot read configuration: slsOverride");
+	}
+
 	const ipBlock = new IpBlockHandler(modules.geoip, modules.ipapi, modules.logger);
 
 	modules.serverModel.info.count().then(servers => {

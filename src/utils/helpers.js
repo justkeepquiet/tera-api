@@ -169,7 +169,7 @@ module.exports.unserializeRange = string =>
 * @return {array[]}
 */
 module.exports.getPromocodeFunctionsNames = config =>
-	Object.keys(config.get("promoCode"))
+	Object.keys(config?.get("promoCode") || {})
 ;
 
 /**

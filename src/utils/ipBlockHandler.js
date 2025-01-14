@@ -21,6 +21,11 @@ class IpBlockHandler {
 	}
 
 	async applyBlock(clientIp, endpoint, configs) {
+		if (!configs) {
+			this.logger.warn("IP Block Handler: Configuration not found.");
+			return false;
+		}
+
 		for (const config of configs) {
 			if (!config.enabled || !config.endpoints.some(el => endpoint.startsWith(el))) {
 				continue;

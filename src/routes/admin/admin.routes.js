@@ -44,6 +44,12 @@ const adminLauncherLogsController = require("../../controllers/adminLauncherLogs
 * @param {modules} modules
 */
 module.exports = modules => {
+	const adminConfig = modules.config.get("admin");
+
+	if (!adminConfig) {
+		throw "Cannot read configuration: admin";
+	}
+
 	const passport = new Passport();
 	const additionalLocalesDirs = [];
 
@@ -113,7 +119,7 @@ module.exports = modules => {
 	));
 
 	modules.app.use((req, res, next) => {
-		res.locals.__quickMenu = modules.config.get("admin").quickMenu;
+		res.locals.__quickMenu = adminConfig.quickMenu;
 		next();
 	});
 

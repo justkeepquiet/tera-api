@@ -20,7 +20,7 @@ const applyServerOverride = async (config, servers, clientIp, geoip, ipapi, logg
 			await serverOverrideHandler.applyOverrides(server);
 		}
 	} catch (_) {
-		logger.debug("Config file slsOverride is not found. Skip overrides.");
+		logger.warn("Config file slsOverride is not found. Skip overrides.");
 	}
 };
 

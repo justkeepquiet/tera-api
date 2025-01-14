@@ -16,6 +16,12 @@ class ChronoScrollActions {
 		this.userId = userId;
 
 		const config = modules.config.get("chronoScroll");
+
+		if (!config) {
+			this.modules.logger.warn("Cannot read configuration: chronoScroll");
+			return;
+		}
+
 		this.controller = {};
 
 		Object.keys(config).forEach(itemId => {

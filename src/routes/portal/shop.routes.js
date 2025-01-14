@@ -24,6 +24,10 @@ const portalShopController = require("../../controllers/portalShop.controller");
  * @param {modules} modules
  */
 module.exports = modules => {
+	if (!modules.config.get("shop")) {
+		throw "Cannot read configuration: shop";
+	}
+
 	const ipBlock = new IpBlockHandler(modules.geoip, modules.ipapi, modules.logger);
 	const passport = new Passport();
 	const i18n = new I18n({

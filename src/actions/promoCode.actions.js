@@ -16,6 +16,12 @@ class PromoCodeActions {
 		this.userId = userId;
 
 		const config = modules.config.get("promoCode");
+
+		if (!config) {
+			this.modules.logger.warn("Cannot read configuration: promoCode");
+			return;
+		}
+
 		this.controller = {};
 
 		Object.keys(config).forEach(itemId => {

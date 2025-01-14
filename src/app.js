@@ -60,11 +60,23 @@ async function loadModules() {
 	modules.pluginsLoader = new PluginsLoader(modules, createLogger("Plugins Loader", loggerParams));
 	modules.pluginsLoader.loadAll();
 
-	modules.localization = new LocalizationManager(modules.config.get("localization"));
+	const localizationConfig = modules.config.get("localization");
+
+	if (!localizationConfig) {
+		throw "Cannot read configuration: localization";
+	}
+
+	modules.localization = new LocalizationManager(localizationConfig);
 	modules.scheduler = new Scheduler(createLogger("Scheduler", loggerParams));
 
+	const rateLimitsConfig = config.get("rateLimits");
+
+	if (!rateLimitsConfig) {
+		throw "Cannot read configuration: rateLimits";
+	}
+
 	modules.rateLimitter = new RateLimitter(
-		config.get("rateLimits"),
+		rateLimitsConfig,
 		createLogger("Rate Limitter", loggerParams)
 	);
 
