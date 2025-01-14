@@ -19,9 +19,9 @@ module.exports.defaultRegion = env.string("API_PORTAL_CLIENT_DEFAULT_REGION");
 // determines which languages the Launcher and SLS will support (including Server Strings).
 //
 // Properties:
-//  "localization" - Localization code used by the game (ISO 3166-1 alpha-3 based).
 //  "language" - Country language code used in the database, locale files and flags (ISO 3166-1 alpha-2 based).
 //  "locales" - Locale codes for matching the language (ICU based).
+//  "region" - Localization code used by the game (ISO 3166-1 alpha-3 based).
 module.exports.localizations = [
 	// United Kingdom (EU)
 	{
