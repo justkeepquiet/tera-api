@@ -1,7 +1,7 @@
 "use strict";
 
 /**
- * @typedef {import("../lib/coreLoader")} CoreLoader
+ * @typedef {import("../app").modules} modules
  * @typedef {import("../utils/logger")} logger
  */
 
@@ -28,11 +28,11 @@ function getObjectByPathString(object, pathString) {
 
 class PluginsLoader {
 	/**
-	 * @param {CoreLoader} moduleLoader
+	 * @param {modules} modules
 	 * @param {logger} logger
 	 */
-	constructor(moduleLoader, logger = null) {
-		this.moduleLoader = moduleLoader;
+	constructor(modules, logger = null) {
+		this.modules = modules;
 		this.logger = logger;
 
 		this.plugins = new Map();
@@ -77,7 +77,7 @@ class PluginsLoader {
 
 			if (componentObject !== undefined) {
 				if (typeof componentObject === "function") {
-					const componentResult = await componentObject.call(null, ...args, this.moduleLoader);
+					const componentResult = await componentObject.call(null, ...args, this.modules);
 
 					results.set(plugin, componentResult);
 				} else {
