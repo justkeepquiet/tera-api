@@ -4,6 +4,8 @@
 * @typedef {import("../app").modules} modules
 */
 
+const env = require("../utils/env");
+
 /**
 * @param {modules} modules
 */
@@ -15,5 +17,7 @@ module.exports = modules => {
 	modules.app.use("/shop", require("./portal/shop.routes")(modules));
 
 	// Launcher
-	modules.app.use("/launcher", require("./portal/launcher.routes")(modules));
+	if (!env.bool("API_PORTAL_LAUNCHER_DISABLE")) {
+		modules.app.use("/launcher", require("./portal/launcher.routes")(modules));
+	}
 };
