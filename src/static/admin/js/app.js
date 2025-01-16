@@ -295,7 +295,7 @@ $.fn.loadInputData = function(endpoint, fnResultFormat) {
 $.fn.addAutocomplete = function(endpoint, fnFormatResult, fnFormatOnSelect) {
 	this.autocomplete({
 		serviceUrl: endpoint,
-		width: 400,
+		width: 480,
 		forceFixPosition: true,
 		preventBadQueries: false,
 		triggerSelectOnValidInput: false,
