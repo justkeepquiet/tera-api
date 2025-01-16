@@ -14,7 +14,7 @@
 						<div class="alert alert-danger" id="errors" style="display: none;"></div>
 						<div class="form-group">
 							<label class="control-label" for="userName"><%= __("Name") %></label>
-							<input type="text" class="form-control boxed" name="userName" value="<%= userName %>" minlength="1" maxlength="64">
+							<input type="text" class="form-control boxed" name="userName" value="<%= userName %>" minlength="3" maxlength="24">
 						</div>
 						<div class="form-group">
 						<% if (encryptPasswords) { %>
