@@ -41,6 +41,11 @@ module.exports.index = ({ accountModel, serverModel }) => [
 			},
 			include: [
 				{
+					as: "online",
+					model: accountModel.online,
+					required: false
+				},
+				{
 					as: "banned",
 					model: accountModel.bans,
 					required: false

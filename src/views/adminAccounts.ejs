@@ -61,7 +61,7 @@ accounts.forEach(account => {
 
 	tableData.push([
 		account.get("accountDBID"),
-		`<a href="/accounts/edit?accountDBID=${account.get("accountDBID")}">${account.get("userName")}</a>${banned ? ' <i class="fa fa-ban text-danger"></i>' : ""}</a>`,
+		`<a href="/accounts/edit?accountDBID=${account.get("accountDBID")}">${account.get("userName")}</a>${account.get("online") ? ' <i class="fa fa-sitemap text-success"></i>' : ""}${banned ? ' <i class="fa fa-ban text-danger"></i>' : ""}</a>`,
 		moment(account.get("registerTime")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		(account.get("permission") >= 256 ?
 			`<span class="text-primary">${account.get("permission")} <i class="fa fa-wrench"></i></span>` :

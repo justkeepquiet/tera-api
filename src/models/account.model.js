@@ -42,6 +42,12 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		as: "banned"
 	});
 
+	model.info.hasOne(model.online, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "online"
+	});
+
 	model.info.hasMany(model.characters, {
 		foreignKey: "accountDBID",
 		sourceKey: "accountDBID",
