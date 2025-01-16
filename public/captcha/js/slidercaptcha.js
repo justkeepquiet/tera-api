@@ -59,6 +59,7 @@
         modal: false,
         width: 360,
         height: 160,
+        className: "sc-small",
         formText: 'I am human',
         loadingText: 'Loading...',
         barText: 'Slide To Verify',
@@ -148,7 +149,12 @@
             placeholderContainer.appendChild(placeholderCheckbox);
             placeholderContainer.appendChild(placeholderCaption);
             placeholderContainer.appendChild(placeholderCopyright);
+
             el.appendChild(placeholderContainer);
+
+            if (this.options.className) {
+                el.classList.add(this.options.className);
+            }
 
             document.body.appendChild(modalContainer);
         } else {
