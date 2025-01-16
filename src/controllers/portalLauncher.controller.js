@@ -413,14 +413,16 @@ module.exports.ResetPasswordVerifyAction = ({ logger, rateLimitter, accountModel
 			throw new ApiError("invalid verification code", 11);
 		}
 
-		await accountModel.info.update({
-			passWord: helpers.getPasswordString(password)
-		}, {
-			where: { email: req.session.resetPasswordVerify.email }
-		});
+		const email = req.session.resetPasswordVerify.email;
 
 		req.session.resetPasswordVerify = null;
 		req.session.passwordChanged = true;
+
+		await accountModel.info.update({
+			passWord: helpers.getPasswordString(password)
+		}, {
+			where: { email }
+		});
 
 		res.json({
 			Return: true,
@@ -713,16 +715,20 @@ module.exports.SignupVerifyAction = modules => [
 			throw new ApiError("invalid verification code", 10);
 		}
 
+		const userName = req.session.signupVerify.login;
+		const passWord = helpers.getPasswordString(req.session.signupVerify.password);
+		const email = req.session.signupVerify.email;
+
+		req.session.signupVerify = null;
+
 		await modules.sequelize.transaction(async () => {
 			// Create user account
 			const account = await modules.accountModel.info.create({
-				userName: req.session.signupVerify.login,
-				passWord: helpers.getPasswordString(req.session.signupVerify.password),
-				email: req.session.signupVerify.email,
+				userName,
+				passWord,
+				email,
 				language: modules.localization.getClientLanguageByLocale(req.query.locale)
 			});
-
-			req.session.signupVerify = null;
 
 			const benefit = new Benefit(modules, account.get("accountDBID"));
 			const promises = [];
