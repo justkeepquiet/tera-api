@@ -2,6 +2,11 @@
 sc-placeholder-container
 */
 
+.sc-placeholder-container, .sc-placeholder-container * {
+    -webkit-box-sizing: content-box !important;
+    box-sizing: content-box !important;
+}
+
 .sc-placeholder-container {
     margin: 0 auto;
     background: #f9f9f9;
@@ -61,10 +66,44 @@ sc-placeholder-container
     background: #EBEBEB;
 }
 
+.sc-large .sc-placeholder-container {
+    width: 270px;
+    height: 72px;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+}
+
+.sc-large .sc-placeholder-caption {
+    margin-top: 3px;
+}
+
+.sc-large .sc-placeholder-checkbox {
+    margin-top: 0;
+    width: 28px;
+    height: 28px;
+    font-size: 28px;
+    line-height: 28px;
+}
+
+.sc-large .sc-checkbox-icon {
+    margin-top: 4px;
+}
+
+.sc-large .sc-placeholder-copyright {
+    position: relative;
+    width: 100%;
+    text-align: right;
+    margin-bottom: 25px;
+}
 
 /*
 sc-modal-container
 */
+.sc-modal-container, .sc-modal-container * {
+    -webkit-box-sizing: content-box !important;
+    box-sizing: content-box !important;
+}
 
 .sc-modal-container {
     position: fixed;
