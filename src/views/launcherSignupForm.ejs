@@ -35,7 +35,7 @@
 						Launcher.showError("<%= __('This login is already exists.') %>");
 						break;
 					case 11:
-						Launcher.showError("<%= __('Please enter a login containing 3 to 13 Latin letters or numbers.') %>");
+						Launcher.showError("<%= __('Please enter a login containing 3 to 24 Latin letters or numbers.') %>");
 						break;
 					case 12:
 						Launcher.showError("<%= __('Please enter valid email address.') %>");
@@ -83,7 +83,7 @@
 <%_ } _%>
 		<div class="form-group">
 			<div class="col">
-				<input type="text" class="form-control form-uid" id="login" name="login" value="" placeholder="<%= __('Enter login') %>" maxlength="13" tabindex="1">
+				<input type="text" class="form-control form-uid" id="login" name="login" value="" placeholder="<%= __('Enter login') %>" maxlength="24" tabindex="1">
 			</div>
 		</div>
 		<div class="form-group">

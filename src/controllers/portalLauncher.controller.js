@@ -478,7 +478,7 @@ module.exports.SignupFormHtml = ({ i18n, logger }) => [
 module.exports.SignupAction = modules => [
 	[
 		body("login").trim()
-			.isLength({ min: 3, max: 13 }).withMessage(11)
+			.isLength({ min: 3, max: 24 }).withMessage(11)
 			.isAlphanumeric().withMessage(11),
 		body("email").trim()
 			.isLength({ max: 128 }).withMessage(12)
