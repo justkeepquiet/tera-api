@@ -11,7 +11,6 @@ const express = require("express");
 const ApiError = require("../../lib/apiError");
 const IpBlockHandler = require("../../utils/ipBlockHandler");
 const portalSlsController = require("../../controllers/portalSls.controller");
-const portalAccountController = require("../../controllers/portalAccount.controller");
 
 /**
  * @param {modules} modules
@@ -65,9 +64,6 @@ module.exports = modules => {
 		.get("/ShopAuth", (req, res) => {
 			res.redirect(301, `/shop/Auth?${new URLSearchParams(req.query).toString()}`);
 		})
-
-		// Account API (deprecated)
-		.get("/GetAccountInfoByUserNo", portalAccountController.GetAccountInfoByUserNo(modules))
 
 		.use(
 			/**
