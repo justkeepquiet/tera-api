@@ -110,12 +110,12 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 	expressLayouts,
 	[
 		body("userName").trim()
-			.isLength({ min: 3, max: 24 }).withMessage(i18n.__("Name field must be between 3 and 24 characters."))
+			.isLength({ min: 3, max: 24 }).withMessage(i18n.__("User name must be between 3 and 24 characters."))
 			.custom(value => accountModel.info.findOne({
 				where: { userName: value }
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("Name field contains already existing name."));
+					return Promise.reject(i18n.__("User name contains already existing name."));
 				}
 			})),
 		body("passWord").trim()
@@ -235,7 +235,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 	[
 		query("accountDBID").notEmpty(),
 		body("userName").trim()
-			.isLength({ min: 3, max: 24 }).withMessage(i18n.__("Name field must be between 3 and 24 characters."))
+			.isLength({ min: 3, max: 24 }).withMessage(i18n.__("User name must be between 3 and 24 characters."))
 			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
 					userName: req.body.userName,
@@ -243,7 +243,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 				}
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("Name field contains already existing name."));
+					return Promise.reject(i18n.__("User name contains already existing name."));
 				}
 			})),
 		body("passWord").trim().optional({ checkFalsy: true })
