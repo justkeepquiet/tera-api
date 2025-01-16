@@ -30,6 +30,7 @@
 									<thead>
 										<tr>
 											<th><%= __("ID") %></th>
+											<th></th>
 											<th><%= __("User name") %></th>
 											<th><%= __("Registered") %></th>
 											<th><%= __("Permission") %></th>
@@ -59,9 +60,14 @@ accounts.forEach(account => {
 		moment(account.get("banned")?.get("startTime")) < moment() &&
 		moment(account.get("banned")?.get("endTime")) > moment();
 
+	const iconClass = banned ?
+		"fa fa-ban text-danger" :
+		(account.get("online") ? "fa fa-circle text-success" : "fa fa-circle text-danger");
+
 	tableData.push([
 		account.get("accountDBID"),
-		`<a href="/accounts/edit?accountDBID=${account.get("accountDBID")}">${account.get("userName")}</a>${account.get("online") ? ' <i class="fa fa-sitemap text-success"></i>' : ""}${banned ? ' <i class="fa fa-ban text-danger"></i>' : ""}</a>`,
+		`<i class="${iconClass}"></i>`,
+		`${banned ? "<s>" : ""}<a href="/accounts/edit?accountDBID=${account.get("accountDBID")}">${account.get("userName")}</a>${banned ? "</s>" : ""}`,
 		moment(account.get("registerTime")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		(account.get("permission") >= 256 ?
 			`<span class="text-primary">${account.get("permission")} <i class="fa fa-wrench"></i></span>` :
@@ -93,8 +99,8 @@ _%>
 	$(function() {
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
-			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, null, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
+			columnDefs: [{ orderable: false, targets: [1, -1] }],
+			columns: [null, { className: "col-icon-dot" }, null, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});

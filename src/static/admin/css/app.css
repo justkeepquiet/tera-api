@@ -1524,6 +1524,14 @@ span a {
   .table .checkbox + span:before {
     line-height: 20px; }
 
+.col-icon-dot {
+  padding-right: 0 !important; }
+  .col-icon-dot i {
+    position: absolute;
+    font-size: 11px;
+    line-height: 27px;
+    margin-left: -7px; }
+
 .row-sm {
   margin-left: -10px;
   margin-right: -10px; }
