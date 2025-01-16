@@ -278,6 +278,8 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 		const { secure } = req.query;
 		const { email } = req.body;
 
+		req.session.captchaVerified = false;
+
 		const account = await accountModel.info.findOne({
 			where: {
 				[Op.or]: [{ email }, { userName: email }]
@@ -318,8 +320,6 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 				logger.error(error);
 			}
 		});
-
-		req.session.captchaVerified = false;
 
 		res.json({
 			Return: true,
@@ -554,6 +554,8 @@ module.exports.SignupAction = modules => [
 		const { secure } = req.query;
 		const { login, password, email } = req.body;
 
+		req.session.captchaVerified = false;
+
 		if (isEmailVerifyEnabled) {
 			const code = helpers.generateVerificationCode();
 			const ttl = moment().add(1, "hour"); // 1 hour
@@ -622,8 +624,6 @@ module.exports.SignupAction = modules => [
 				}
 			});
 		}
-
-		req.session.captchaVerified = false;
 
 		res.json({
 			Return: true,
