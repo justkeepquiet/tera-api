@@ -295,6 +295,7 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 
 		req.session.resetPasswordVerify = { email: account.get("email"), code, ttl, failsCount: 0 };
 
+		// no awaiting
 		app.render("email/resetPasswordVerify", { ...res.locals,
 			host: req.headers.host || req.hostname,
 			secure: secure === "true",
@@ -316,14 +317,14 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 			} catch (error) {
 				logger.error(error);
 			}
+		});
 
-			req.session.captchaVerified = false;
+		req.session.captchaVerified = false;
 
-			res.json({
-				Return: true,
-				ReturnCode: 0,
-				Msg: "success"
-			});
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success"
 		});
 	}
 ];
@@ -568,6 +569,7 @@ module.exports.SignupAction = modules => [
 				failsCount: 0
 			};
 
+			// no awaiting
 			modules.app.render("email/emailVerify", { ...res.locals,
 				host: req.headers.host || req.hostname,
 				secure: secure === "true",
@@ -589,14 +591,6 @@ module.exports.SignupAction = modules => [
 				} catch (error) {
 					modules.logger.error(error);
 				}
-
-				req.session.captchaVerified = false;
-
-				res.json({
-					Return: true,
-					ReturnCode: 0,
-					Msg: "success"
-				});
 			});
 		} else {
 			await modules.sequelize.transaction(async () => {
@@ -626,19 +620,16 @@ module.exports.SignupAction = modules => [
 
 					await shop.fund(initialShopBalance);
 				}
-
-				req.session.captchaVerified = false;
-
-				// Login account
-				req.login(account, () => {
-					res.json({
-						Return: true,
-						ReturnCode: 0,
-						Msg: "success"
-					});
-				});
 			});
 		}
+
+		req.session.captchaVerified = false;
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success"
+		});
 	}
 ];
 
