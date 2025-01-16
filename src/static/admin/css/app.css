@@ -1525,6 +1525,7 @@ span a {
     line-height: 20px; }
 
 .col-icon-dot {
+  padding-left: 19px !important;
   padding-right: 0 !important; }
   .col-icon-dot i {
     position: absolute;
