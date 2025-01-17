@@ -44,7 +44,7 @@
     "express-validator": "^6.14.0",
     "flexsearch": "^0.7.43",
     "i18n": "^0.14.2",
-    "jsonwebtoken": "^9.0.0",
+    "jose": "^5.9.6",
     "memorystore": "^1.6.7",
     "moment-timezone": "^0.5.34",
     "morgan": "^1.10.0",

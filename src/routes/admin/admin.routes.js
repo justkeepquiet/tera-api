@@ -14,6 +14,8 @@ const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const Passport = require("passport").Passport;
 const LocalStrategy = require("passport-local").Strategy;
+const CustomStrategy = require("passport-custom").Strategy;
+const { jwtDecrypt } = require("jose");
 
 const env = require("../../utils/env");
 const helpers = require("../../utils/helpers");
@@ -68,55 +70,74 @@ module.exports = modules => {
 		done(null, user);
 	});
 
-	passport.use(new LocalStrategy({ usernameField: "login", passReqToCallback: true },
-		(req, login, password, done) => {
-			const remember = !!req.body.remember;
-			const tz = moment.tz.zone(req.body.tz)?.name || moment.tz.guess();
+	const authenticateUser = (req, login, password, done) => {
+		const remember = !!req.body.remember;
+		const tz = moment.tz.zone(req.body.tz)?.name || moment.tz.guess();
 
-			if (env.bool("STEER_ENABLE")) {
-				return modules.steer.openSession(login, password, req.ip).then(({ sessionKey, userSn }) =>
-					modules.steer.getFunctionList(sessionKey).then(functions =>
-						done(null, {
-							type: "steer",
-							login,
-							userSn,
-							sessionKey,
-							functions,
-							tz,
-							remember
-						})
-					)
-				).catch(err => {
-					if (err.resultCode) {
-						if (err.resultCode() < 100) {
-							modules.logger.error(err);
-						} else {
-							modules.logger.warn(err);
-						}
-
-						done(null, false, `err_${err.resultCode()}`);
-					} else {
+		if (env.bool("STEER_ENABLE")) {
+			return modules.steer.openSession(login, password, req.ip).then(({ sessionKey, userSn }) =>
+				modules.steer.getFunctionList(sessionKey).then(functions =>
+					done(null, {
+						type: "steer",
+						login,
+						password,
+						userSn,
+						sessionKey,
+						functions,
+						tz,
+						remember
+					})
+				)
+			).catch(err => {
+				if (err.resultCode) {
+					if (err.resultCode() < 100) {
 						modules.logger.error(err);
-						done(null, false, "err_1");
+					} else {
+						modules.logger.warn(err);
 					}
-				});
-			}
 
-			if (login === env.string("ADMIN_PANEL_QA_USER") &&
-				password === env.string("ADMIN_PANEL_QA_PASSWORD")
-			) {
-				done(null, {
-					type: "qa",
-					login,
-					password,
-					tz,
-					remember
-				});
-			} else {
-				done(null, false, "Invalid QA login or password.");
-			}
+					done(null, false, `err_${err.resultCode()}`);
+				} else {
+					modules.logger.error(err);
+					done(null, false, "err_1");
+				}
+			});
 		}
-	));
+
+		if (login === env.string("ADMIN_PANEL_QA_USER") &&
+			password === env.string("ADMIN_PANEL_QA_PASSWORD")
+		) {
+			done(null, {
+				type: "qa",
+				login,
+				password,
+				tz,
+				remember
+			});
+		} else {
+			done(null, false, "Invalid QA login or password.");
+		}
+	};
+
+	passport.use(new LocalStrategy(
+		{ usernameField: "login", passReqToCallback: true }, authenticateUser)
+	);
+
+	passport.use(new CustomStrategy(
+		async (req, done) => {
+			let payload = null;
+
+			try {
+				const secret = env.string("API_PORTAL_SECRET");
+				const secretKey = await helpers.createKeyFromString(secret);
+				const jwe = req.cookies["connect.rid"] || "";
+
+				payload = (await jwtDecrypt(jwe, secretKey)).payload;
+			} catch (_) {}
+
+			authenticateUser(req, payload?.login, payload?.password, done);
+		})
+	);
 
 	modules.app.use((req, res, next) => {
 		res.locals.__quickMenu = adminConfig.quickMenu;

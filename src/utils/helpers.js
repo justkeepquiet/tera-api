@@ -203,6 +203,17 @@ module.exports.getPasswordString = password => {
 };
 
 /**
+ * @param {string} secretWord
+ */
+module.exports.createKeyFromString = async secretWord => {
+	const encoder = new TextEncoder();
+	const keyData = encoder.encode(secretWord);
+	const hashBuffer = await crypto.subtle.digest("SHA-256", keyData);
+
+	return new Uint8Array(hashBuffer);
+};
+
+/**
 * @return {string}
 */
 module.exports.generateVerificationCode = () =>

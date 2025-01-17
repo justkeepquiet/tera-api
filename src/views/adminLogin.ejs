@@ -24,11 +24,11 @@
 						<form id="login-form" action="" method="POST" novalidate="">
 							<div class="form-group">
 								<label for="login"><%= __("Login ID") %></label>
-								<input type="text" class="form-control boxed" name="login" id="login" value="<%= login %>" required>
+								<input type="text" class="form-control boxed" name="login" id="login" value="" required>
 							</div>
 							<div class="form-group">
 								<label for="password"><%= __("Password") %></label>
-								<input type="password" class="form-control boxed" name="password" id="password" value="<%= password %>" required>
+								<input type="password" class="form-control boxed" name="password" id="password" value="" required>
 							</div>
 							<div class="form-group">
 								<label for="remember">
@@ -39,6 +39,7 @@
 							<div class="form-group">
 								<button type="submit" class="btn btn-block btn-primary"><%= __("Login") %></button>
 							</div>
+							<input type="hidden" name="useToken" id="useToken" value="false">
 							<input type="hidden" name="tz" id="tz" value="">
 						</form>
 					</div>
@@ -49,22 +50,36 @@
 		<script src="/static/js/app.js"></script>
 		<script>
 			$(function() {
+				var login = "<%= login %>";
+				var password = "<%= password ? `hide_${Date.now()}` : "" %>";
+
+				$("#login").val(login);
+				$("#password").val(password);
+				$("#useToken").val("<%= login ? "true" : "false" %>");
 				$("#tz").val(Intl.DateTimeFormat().resolvedOptions().timeZone);
-				if (!$("#login-form").length) {
-					return false;
+
+				if ($("#login-form").length) {
+					var loginValidationSettings = {
+						rules: {
+							login: "required",
+							password: "required"
+						},
+						messages: {
+							login: "<%= __('Please enter login') %>",
+							password: "<%= __('Please enter password') %>"
+						}
+					};
+
+					$.extend(loginValidationSettings, config.validations);
+
+					$("#login-form").submit(function() {
+						if ($("#login").val() !== login || $("#password").val() !== password) {
+							$("#useToken").val("false");
+						}
+					});
+
+					$("#login-form").validate(loginValidationSettings);
 				}
-				var loginValidationSettings = {
-					rules: {
-						login: "required",
-						password: "required"
-					},
-					messages: {
-						login: "<%= __('Please enter login') %>",
-						password: "<%= __('Please enter password') %>"
-					}
-				};
-				$.extend(loginValidationSettings, config.validations);
-				$("#login-form").validate(loginValidationSettings);
 			});
 		</script>
 	</body>

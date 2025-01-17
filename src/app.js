@@ -6,7 +6,7 @@ const APP_VERSION = process.env.npm_package_version || require("../package.json"
 /**
  * @typedef {object} modules
  * @property {versions} versions
- * @property {logger} logger
+ * @property {import("./utils/logger")} logger
  * @property {ConfigManager} config
  * @property {cliHelper} cli
  * @property {gcCollect} gcCollect

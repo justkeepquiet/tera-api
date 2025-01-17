@@ -7,11 +7,12 @@
 
 const expressLayouts = require("express-ejs-layouts");
 const moment = require("moment-timezone");
-const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const Op = require("sequelize").Op;
+const { EncryptJWT, jwtDecrypt } = require("jose");
 
 const env = require("../utils/env");
+const { createKeyFromString } = require("../utils/helpers");
 const { accessFunctionHandler } = require("../middlewares/admin.middlewares");
 
 /**
@@ -100,7 +101,11 @@ module.exports.login = () => [
 		let payload = null;
 
 		try {
-			payload = jwt.verify(req.cookies["connect.rid"], env.string("API_PORTAL_SECRET"));
+			const secret = env.string("API_PORTAL_SECRET");
+			const secretKey = await createKeyFromString(secret);
+			const jwe = req.cookies["connect.rid"] || "";
+
+			payload = (await jwtDecrypt(jwe, secretKey)).payload;
 		} catch (_) {}
 
 		res.render("adminLogin", {
@@ -114,12 +119,14 @@ module.exports.login = () => [
 /**
  * @param {modules} modules
  */
-module.exports.loginAction = ({ passport }) => [
+module.exports.loginAction = ({ logger, passport }) => [
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		passport.authenticate("local", (error, user, msg) => {
+		const strategy = req.body.useToken === "true" ? "custom" : "local";
+
+		passport.authenticate(strategy, (error, user, msg) => {
 			if (error) {
 				return res.render("adminLogin", {
 					errorMessage: `Operation failed: ${error}`, login: "", password: ""
@@ -132,19 +139,30 @@ module.exports.loginAction = ({ passport }) => [
 				});
 			}
 
-			req.login(user, () => {
+			req.login(user, async () => {
 				if (user.remember) {
-					const maxAge = 86400000 * 7;
+					try {
+						const maxAge = 86400000 * 7;
 
-					const token = jwt.sign({
-						login: user.login,
-						password: user.password
-					}, env.string("ADMIN_PANEL_SECRET"), {
-						algorithm: "HS256",
-						expiresIn: maxAge
-					});
+						const payload = {
+							login: user.login,
+							password: user.password
+						};
 
-					res.cookie("connect.rid", token, { maxAge });
+						const secret = env.string("ADMIN_PANEL_SECRET");
+						const secretKey = await createKeyFromString(secret);
+						const expTime = Math.floor(Date.now() / 1000) + maxAge / 1000;
+
+						const jwe = await new EncryptJWT(payload)
+							.setProtectedHeader({ alg: "dir", enc: "A128CBC-HS256" })
+							.setIssuedAt()
+							.setExpirationTime(expTime)
+							.encrypt(secretKey);
+
+						res.cookie("connect.rid", jwe, { maxAge });
+					} catch (err) {
+						logger.error(err);
+					}
 				} else {
 					res.clearCookie("connect.rid");
 				}
