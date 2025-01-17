@@ -137,8 +137,8 @@ module.exports.loginAction = ({ passport }) => [
 					const maxAge = 86400000 * 7;
 
 					const token = jwt.sign({
-						login: req.body.login,
-						password: req.body.password
+						login: user.login,
+						password: user.password
 					}, env.string("ADMIN_PANEL_SECRET"), {
 						algorithm: "HS256",
 						expiresIn: maxAge
