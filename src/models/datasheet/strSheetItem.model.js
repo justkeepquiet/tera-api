@@ -2,7 +2,7 @@
 
 const { Index } = require("flexsearch");
 
-class StrSheetAccountBenefitModel {
+class StrSheetItemModel {
 	constructor() {
 		this.data = new Map();
 		this.stringIndex = new Index({
@@ -59,4 +59,4 @@ class StrSheetAccountBenefitModel {
 	}
 }
 
-module.exports = StrSheetAccountBenefitModel;
+module.exports = StrSheetItemModel;

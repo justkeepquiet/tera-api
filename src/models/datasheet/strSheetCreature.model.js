@@ -1,6 +1,6 @@
 "use strict";
 
-class StrSheetAccountBenefitModel {
+class StrSheetCreatureModel {
 	constructor() {
 		this.data = new Map();
 	}
@@ -40,4 +40,4 @@ class StrSheetAccountBenefitModel {
 	}
 }
 
-module.exports = StrSheetAccountBenefitModel;
+module.exports = StrSheetCreatureModel;
