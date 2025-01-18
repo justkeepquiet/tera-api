@@ -190,7 +190,7 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 					type = "PPS (packets/sec)";
 					break;
 				case 1:
-					type = "Meme Slash";
+					type = "Memeslash";
 					break;
 			}
 
