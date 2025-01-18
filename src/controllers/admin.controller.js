@@ -124,7 +124,7 @@ module.exports.loginAction = ({ logger, passport }) => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const strategy = req.body.useToken === "true" ? "custom" : "local";
+		const strategy = req.body?.useToken === "true" ? "custom" : "local";
 
 		passport.authenticate(strategy, (error, user, msg) => {
 			if (error) {

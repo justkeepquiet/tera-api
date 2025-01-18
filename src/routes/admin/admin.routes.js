@@ -71,8 +71,8 @@ module.exports = modules => {
 	});
 
 	const authenticateUser = (req, login, password, done) => {
-		const remember = !!req.body.remember;
-		const tz = moment.tz.zone(req.body.tz)?.name || moment.tz.guess();
+		const remember = !!req.body?.remember;
+		const tz = moment.tz.zone(req.body?.tz)?.name || moment.tz.guess();
 
 		if (env.bool("STEER_ENABLE")) {
 			return modules.steer.openSession(login, password, req.ip).then(({ sessionKey, userSn }) =>
