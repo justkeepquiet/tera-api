@@ -14,8 +14,13 @@ const gatewayShopController = require("../../controllers/gatewayShop.controller"
  * @param {modules} modules
  */
 module.exports = modules => express.Router()
+	.get("/ListAccounts", gatewayShopController.ListAccounts(modules))
 	.get("/GetAccountInfoByUserNo", gatewayShopController.GetAccountInfoByUserNo(modules))
 	.post("/FundByUserNo", gatewayShopController.FundByUserNo(modules))
+	.get("/ListPromoCodes", gatewayShopController.ListPromoCodes(modules))
+	.get("/ListPromoCodesActivatedByUserNo", gatewayShopController.ListPromoCodesActivatedByUserNo(modules))
+	.get("/ListPromoCodesActivatedById", gatewayShopController.ListPromoCodesActivatedById(modules))
+	.get("/ActivatePromoCodeByUserNo", gatewayShopController.ActivatePromoCodeByUserNo(modules)) // TODO
 
 	.use(
 		/**

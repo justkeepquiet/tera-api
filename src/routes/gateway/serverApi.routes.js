@@ -14,7 +14,11 @@ const gatewayServerController = require("../../controllers/gatewayServer.control
  * @param {modules} modules
  */
 module.exports = modules => express.Router()
+	.get("/ListServers", gatewayServerController.ListServers(modules))
+	.get("/ListOnlineAccountsByServerId", gatewayServerController.ListOnlineAccountsByServerId(modules))
 	.get("/GetServerInfoByServerId", gatewayServerController.GetServerInfoByServerId(modules))
+	.post("/KickAccountByUserNo", gatewayServerController.KickAccountByUserNo(modules))
+	.post("/KickAllAccountsByServerId", gatewayServerController.KickAllAccountsByServerId(modules))
 
 	.use(
 		/**
