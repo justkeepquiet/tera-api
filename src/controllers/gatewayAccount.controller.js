@@ -6,9 +6,11 @@
  */
 
 const moment = require("moment-timezone");
-const query = require("express-validator").query;
+const { query, body } = require("express-validator");
 const Op = require("sequelize").Op;
+const validator = require("validator");
 
+const helpers = require("../utils/helpers");
 const { validationHandler } = require("../middlewares/gateway.middlewares");
 
 /**
@@ -56,8 +58,8 @@ module.exports.ListAccounts = ({ accountModel }) => [
  */
 module.exports.ListCharactersByUserNo = ({ logger, accountModel }) => [
 	[
-		query("serverId").isNumeric(),
-		query("userNo").isNumeric()
+		query("userNo").isNumeric(),
+		query("serverId").isNumeric()
 	],
 	validationHandler(logger),
 	/**
@@ -251,6 +253,75 @@ module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => 
 			Msg: "success",
 			UserNo: account.get("accountDBID"),
 			Banned: isBanned
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.BanAccountByUserNo = ({ logger, hub, accountModel }) => [
+	[
+		body("userNo").isNumeric()
+			.custom(value => accountModel.bans.findOne({
+				where: { accountDBID: value }
+			}).then(data => {
+				if (value && data !== null) {
+					return Promise.reject("Already banned account ID");
+				}
+			}))
+			.custom(value => accountModel.info.findOne({
+				where: { accountDBID: value }
+			}).then(data => {
+				if (value && data === null) {
+					return Promise.reject("Not existing account ID");
+				}
+			})),
+		body("startTime")
+			.isISO8601().withMessage("Must contain a valid ISO 8601"),
+		body("endTime")
+			.isISO8601().withMessage("Must contain a valid ISO 8601"),
+		body("ip").optional().trim()
+			.custom(value => {
+				const ip = helpers.unserializeRange(value);
+				return ip.length === 0 || ip.length === ip.filter(e => validator.isIP(e)).length;
+			})
+			.withMessage("Must contain a valid IP value"),
+		body("description").trim()
+			.isLength({ min: 1, max: 1024 }).withMessage("Must be between 1 and 1024 characters")
+	],
+	validationHandler(logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { userNo, startTime, endTime, active, ip, description } = req.body;
+
+		const account = await accountModel.info.findOne({
+			where: { accountDBID: userNo }
+		});
+
+		await accountModel.bans.create({
+			accountDBID: account.get("accountDBID"),
+			startTime: moment.tz(startTime, req.user.tz).toDate(),
+			endTime: moment.tz(endTime, req.user.tz).toDate(),
+			active: active == "on",
+			ip: JSON.stringify(helpers.unserializeRange(ip)),
+			description
+		});
+
+		if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
+			hub.kickUser(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
+				if (err.resultCode() !== 2) {
+					logger.warn(err.toString());
+				}
+			});
+		}
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success"
 		});
 	}
 ];

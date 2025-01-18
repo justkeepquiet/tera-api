@@ -19,6 +19,7 @@ module.exports = modules => express.Router()
 	.get("/ListBenefitsByUserNo", gatewayAccountController.ListBenefitsByUserNo(modules))
 	.get("/GetAccountInfoByUserNo", gatewayAccountController.GetAccountInfoByUserNo(modules))
 	.get("/GetAccountBanByUserNo", gatewayAccountController.GetAccountBanByUserNo(modules))
+	.post("/BanAccountByUserNo", gatewayAccountController.BanAccountByUserNo(modules))
 
 	.use(
 		/**
