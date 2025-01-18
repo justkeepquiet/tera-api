@@ -211,7 +211,7 @@
 					}
 					$("#cheatsReport").empty();
 					if (data.cheatsReport.length === 0) {
-						$("#cheatsReport").html("<tr><td colspan=\"7\" class=\"text-center\"><%= __("No data available in table") %></td></tr>");
+						$("#cheatsReport").html("<tr><td colspan=\"10\" class=\"text-center\"><%= __("No data available in table") %></td></tr>");
 					} else {
 						data.cheatsReport.forEach(report => {
 							$("#cheatsReport").append(
