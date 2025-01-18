@@ -22,7 +22,7 @@ const {
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ i18n, accountModel, shopModel }) => [
+module.exports.index = ({ accountModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
@@ -114,14 +114,9 @@ module.exports.addAction = modules => [
 		body("promoCodeId")
 			.isInt({ min: 0 }).withMessage(modules.i18n.__("Promo code ID field must contain a valid number."))
 			.custom(value => modules.shopModel.promoCodes.findOne({
-				attributes: [
-					"validAfter",
-					"validBefore",
-					"active",
-					"currentActivations",
-					"maxActivations",
-					[modules.sequelize.fn("NOW"), "dateNow"]
-				],
+				attributes: {
+					include: [[modules.sequelize.fn("NOW"), "dateNow"]]
+				},
 				where: { promoCodeId: value }
 			}).then(data => {
 				if (value) {
@@ -205,7 +200,7 @@ module.exports.addAction = modules => [
 			return modules.shopModel.promoCodeActivated.destroy({
 				where: {
 					promoCodeId: promocode.get("promoCodeId"),
-					accountDBID: req.user.accountDBID
+					accountDBID: account.get("accountDBID")
 				}
 			}).then(() => modules.shopModel.promoCodes.decrement({
 				currentActivations: 1
