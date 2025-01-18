@@ -20,7 +20,7 @@ module.exports = modules => express.Router()
 	.get("/ListPromoCodes", gatewayShopController.ListPromoCodes(modules))
 	.get("/ListPromoCodesActivatedByUserNo", gatewayShopController.ListPromoCodesActivatedByUserNo(modules))
 	.get("/ListPromoCodesActivatedById", gatewayShopController.ListPromoCodesActivatedById(modules))
-	.get("/ActivatePromoCodeByUserNo", gatewayShopController.ActivatePromoCodeByUserNo(modules)) // TODO
+	.post("/ActivatePromoCodeByUserNo", gatewayShopController.ActivatePromoCodeByUserNo(modules))
 
 	.use(
 		/**
