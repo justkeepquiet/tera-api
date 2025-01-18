@@ -12,8 +12,12 @@ module.exports.validationHandler = logger =>
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
-		if (!helpers.validationResultLog(req, logger).isEmpty()) {
-			throw new ApiError("invalid parameter", 2);
+		const result = helpers.validationResultLog(req, logger);
+
+		if (!result.isEmpty()) {
+			throw new ApiError("invalid parameter: ".concat(result.array()
+				.map(e => `${e.location}:${e.param}=${e.msg}`).join(", ")
+			), 2);
 		}
 
 		next();
