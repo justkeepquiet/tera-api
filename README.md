@@ -99,12 +99,35 @@ The API includes one more server (Gateway API Server) designed for remote access
 
 If you need to implement a TERA Shop balance change using your external billing site, please use this API instead of directly changing the database.
 
-### Available endpoints
+### Server API Endpoints
 
-Endpoint | Method | Arguments | Description
---- | --- | --- | ---
-/serverApi/GetServerInfoByServerId | GET | serverId | Request the server information of specified server ID.
-/accountApi/GetAccountInfoByUserNo | GET | userNo | Request the account information of specified account ID.
-/accountApi/GetAccountBanByUserNo | GET | userNo, clientIP | Request the account banned status of specified account ID and client IP.
-/shopApi/GetAccountInfoByUserNo | GET | userNo | Request the TERA Shop balance of the specified account ID.
-/shopApi/FundByUserNo | POST | userNo, transactionId, amount | Fund the TERA Shop balance of the specified account ID.
+Endpoint                                | Method | Arguments            | Description
+---                                     | ---    | ---                  | ---
+/serverApi/ListServers                  | GET    | -                    | Retrieve a list of all available servers.
+/serverApi/ListOnlineAccountsByServerId | GET    | `serverId`           | Retrieve a list of online accounts for a specific server ID.
+/serverApi/GetServerInfoByServerId      | GET    | `serverId`           | Request the server information of specified server ID.
+/serverApi/KickAccountByUserNo          | POST   | `userNo`, `serverId` | Disconnect a specific account from the server by account ID and server ID.
+/serverApi/KickAllAccountsByServerId    | POST   | `serverId`           | Disconnect all accounts from a specified server ID.
+
+### Account API Endpoints
+
+Endpoint                                | Method | Arguments                                              | Description
+---                                     | ---    | ---                                                    | ---
+/accountApi/ListAccounts                | GET    | -                                                      | Retrieve a list of all registered accounts.
+/accountApi/ListCharactersByUserNo      | GET    | `userNo`, `serverId`                                   | Retrieve a list of characters associated with a specific account ID and server ID.
+/accountApi/ListBenefitsByUserNo        | GET    | `userNo`                                               | Retrieve a list of benefits assigned to a specific account ID.
+/accountApi/GetAccountInfoByUserNo      | GET    | `userNo`                                               | Request the account information of specified account ID.
+/accountApi/GetAccountBanByUserNo       | GET    | `userNo`, `clientIP`                                   | Request the account banned status of specified account ID and client IP.
+/accountApi/BanAccountByUserNo          | POST   | `userNo`, `startTime`, `endTime`, `ip?`, `description` | Ban a specific account by its account ID.
+
+### Shop API Endpoints
+
+Endpoint                                  | Method | Arguments                           | Description
+---                                       | ---    | ---                                 | ---
+/shopApi/ListAccounts                     | GET    | -                                   | Retrieve a list of all shop accounts.
+/shopApi/GetAccountInfoByUserNo           | GET    | `userNo`                            | Request the TERA Shop balance of the specified account ID.
+/shopApi/FundByUserNo                     | POST   | `userNo`, `transactionId`, `amount` | Add funds to the TERA Shop balance of the specified account ID.
+/shopApi/ListPromoCodes                   | GET    | -                                   | Retrieve a list of all available promo codes.
+/shopApi/ListPromoCodesActivatedByUserNo  | GET    | `userNo`                            | Retrieve a list of promo codes activated by a specific account ID.
+/shopApi/ListPromoCodesActivatedById      | GET    | `id`                                | Retrieve information about a specific activated promo code ID.
+/shopApi/ActivatePromoCodeByUserNo        | POST   | `promoCodeId`, `userNo`             | Activate a specific promo code ID for a specified account ID.
