@@ -17,9 +17,11 @@
 											<th><%= __("Report time") %></th>
 											<th><%= __("Account ID") %></th>
 											<th><%= __("User name") %></th>
-											<th><%= __("Name") %></th>
+											<th><%= __("Character") %></th>
+											<th><%= __("Type") %></th>
 											<th><%= __("Skill") %></th>
-											<th><%= __("Location") %></th>
+											<th><%= __("Hits") %>/<%= __("Limit") %></th>
+											<th><%= __("Target") %></th>
 											<th><%= __("Client IP") %></th>
 											<th><%= __("Server ID") %></th>
 										</tr>
@@ -38,17 +40,30 @@
 const tableData = [];
 
 reports.forEach(report => {
-	const [account, name, a, b, skillId, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
+	const [account, name, hits, limit, skillId, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
 
-	const dungeon = datasheetModel.strSheetDungeon[locale]?.getOne(huntingZoneId);
-	const creature = datasheetModel.strSheetCreature[locale]?.getOne(huntingZoneId, templateId);
+	const dungeon = datasheetModel.strSheetDungeon.get(locale)?.getOne(huntingZoneId);
+	const creature = datasheetModel.strSheetCreature.get(locale)?.getOne(huntingZoneId, templateId);
+
+	let type = __("Other");
+
+	switch (report.get("type")) {
+		case 0:
+			type = "PPS (packets/sec)";
+			break;
+		case 1:
+			type = "Meme Slash";
+			break;
+	}
 
 	tableData.push([
 		moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		report.get("accountDBID"),
 		report.get("account")?.get("userName") || "-",
 		name,
-		`${skillId} ${a}/${b}`,
+		type,
+		skillId,
+		`${hits}/${limit}`,
 		`(${huntingZoneId}) ${dungeon?.string || huntingZoneId}<br>(${templateId}) ${creature?.name || templateId}<br>${x}, ${y}, ${z}`,
 		report.get("ip"),
 		`(${report.get("serverId")}) ${report.get("server")?.get("nameString") || ""}`

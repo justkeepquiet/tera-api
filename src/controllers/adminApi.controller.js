@@ -125,6 +125,7 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 			}) : [];
 
 		/*
+		const skillIconData = datasheetModel.skillIconData.get("en")?.getAll() || [];
 		const cachedSkills = new Map();
 		const charactersPromises = [];
 
@@ -145,7 +146,7 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 		];
 
 		cheatsReport.forEach(report => {
-			const [account, name, a, b, skillId] = report.get("cheatInfo").split(",");
+			const [account, name, hits, limit, skillId] = report.get("cheatInfo").split(",");
 			const key = name + skillId + report.get("accountDBID") + report.get("serverId");
 
 			if (!cachedSkills.has(key)) {
@@ -159,14 +160,14 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 					}
 				}).then(chatacter => {
 					if (chatacter !== null) {
-						const skill = datasheetModel.skillIconData.get(i18n.getLocale())?.getAll().find(s =>
+						const skill = skillIconData.find(s =>
 							s.skillId === skillId &&
 							s.class === classIds[chatacter.get("classId")]
 						);
 
 						if (skill) {
 							cachedSkills.set(key, skill);
-						);
+						}
 					}
 				}));
 			}
@@ -177,17 +178,31 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 		*/
 
 		cheatsReport.forEach(report => {
-			const [account, name, a, b, skillId, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
+			const [account, name, hits, limit, skillId, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
 
 			const dungeon = datasheetModel.strSheetDungeon.get(i18n.getLocale())?.getOne(huntingZoneId);
 			const creature = datasheetModel.strSheetCreature.get(i18n.getLocale())?.getOne(huntingZoneId, templateId);
+
+			let type = i18n.__("Other");
+
+			switch (report.get("type")) {
+				case 0:
+					type = "PPS (packets/sec)";
+					break;
+				case 1:
+					type = "Meme Slash";
+					break;
+			}
 
 			cheatsReportItems.push({
 				reportTime: moment(report.get("reportTime")).tz(req.user.tz).format("YYYY-MM-DD HH:mm"),
 				accountDBID: report.get("accountDBID"),
 				userName: report.get("account")?.get("userName") || "-",
 				name,
-				skill: `${skillId} ${a}/${b}`,
+				type,
+				skill: skillId,
+				hits,
+				limit,
 				dungeon: `(${huntingZoneId}) ${dungeon?.string || huntingZoneId}`,
 				creature: `(${templateId}) ${creature?.name || templateId}`,
 				coords: `${x}, ${y}, ${z}`,
