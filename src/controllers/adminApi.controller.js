@@ -159,7 +159,7 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 					}
 				}).then(chatacter => {
 					if (chatacter !== null) {
-						const skill = datasheetModel.skillIconData[i18n.getLocale()]?.getAll().find(s =>
+						const skill = datasheetModel.skillIconData.get(i18n.getLocale())?.getAll().find(s =>
 							s.skillId === skillId &&
 							s.class === classIds[chatacter.get("classId")]
 						);
@@ -179,8 +179,8 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 		cheatsReport.forEach(report => {
 			const [account, name, a, b, skillId, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
 
-			const dungeon = datasheetModel.strSheetDungeon[i18n.getLocale()]?.getOne(huntingZoneId);
-			const creature = datasheetModel.strSheetCreature[i18n.getLocale()]?.getOne(huntingZoneId, templateId);
+			const dungeon = datasheetModel.strSheetDungeon.get(i18n.getLocale())?.getOne(huntingZoneId);
+			const creature = datasheetModel.strSheetCreature.get(i18n.getLocale())?.getOne(huntingZoneId, templateId);
 
 			cheatsReportItems.push({
 				reportTime: moment(report.get("reportTime")).tz(req.user.tz).format("YYYY-MM-DD HH:mm"),
@@ -344,27 +344,27 @@ module.exports.getItems = ({ logger, i18n, datasheetModel }) => [
 		let queryResult = [];
 
 		if (req.query.value || !isNaN(req.query.query)) {
-			const result = datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(req.query.value || req.query.query);
+			const result = datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(req.query.value || req.query.query);
 
 			if (result) {
 				queryResult = [result];
 			}
 		} else if (req.query.query) {
-			queryResult = datasheetModel.strSheetItem[i18n.getLocale()]?.findAll(req.query.query, { limit: 25 });
+			queryResult = datasheetModel.strSheetItem.get(i18n.getLocale())?.findAll(req.query.query, { limit: 25 });
 		}
 
 		const items = queryResult
 			.map(({ itemTemplateId, string, toolTip }) => ({
-				...datasheetModel.itemData[i18n.getLocale()]?.getOne(itemTemplateId),
+				...datasheetModel.itemData.get(i18n.getLocale())?.getOne(itemTemplateId),
 				string, toolTip
 			}))
 			.map(itemData => ({
 				...itemData,
-				itemConversion: (datasheetModel.itemConversion[i18n.getLocale()]?.getOne(itemData.itemTemplateId) || [])
+				itemConversion: (datasheetModel.itemConversion.get(i18n.getLocale())?.getOne(itemData.itemTemplateId) || [])
 					.map(({ itemTemplateId }) =>
-						datasheetModel.itemData[i18n.getLocale()]?.getOne(itemTemplateId)
+						datasheetModel.itemData.get(i18n.getLocale())?.getOne(itemTemplateId)
 					),
-				skillIconData: datasheetModel.skillIconData[i18n.getLocale()]?.getOne(itemData.linkSkillId)
+				skillIconData: datasheetModel.skillIconData.get(i18n.getLocale())?.getOne(itemData.linkSkillId)
 			}));
 
 		res.json({

@@ -48,8 +48,8 @@ module.exports.index = ({ i18n, queue, boxModel, datasheetModel }) => [
 			const items = [];
 
 			box.get("item").forEach(item => {
-				const itemData = datasheetModel.itemData[i18n.getLocale()]?.getOne(item.get("itemTemplateId"));
-				const strSheetItem = datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(item.get("itemTemplateId"));
+				const itemData = datasheetModel.itemData.get(i18n.getLocale())?.getOne(item.get("itemTemplateId"));
+				const strSheetItem = datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(item.get("itemTemplateId"));
 
 				items.push({
 					itemTemplateId: item.get("itemTemplateId"),
@@ -124,7 +124,7 @@ module.exports.addAction = modules => [
 		body("itemTemplateIds.*")
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => {
-				if (value && !modules.datasheetModel.itemData[modules.i18n.getLocale()]?.getOne(value)) {
+				if (value && !modules.datasheetModel.itemData.get(modules.i18n.getLocale())?.getOne(value)) {
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
 				}
 				return true;
@@ -155,7 +155,7 @@ module.exports.addAction = modules => [
 
 		if (itemTemplateIds) {
 			itemTemplateIds.forEach(itemTemplateId =>
-				resolvedItems[itemTemplateId] = modules.datasheetModel.strSheetItem[modules.i18n.getLocale()]?.getOne(itemTemplateId)
+				resolvedItems[itemTemplateId] = modules.datasheetModel.strSheetItem.get(modules.i18n.getLocale())?.getOne(itemTemplateId)
 			);
 		}
 
@@ -275,7 +275,7 @@ module.exports.editAction = modules => [
 		body("itemTemplateIds.*")
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => {
-				if (value && !modules.datasheetModel.itemData[modules.i18n.getLocale()]?.getOne(value)) {
+				if (value && !modules.datasheetModel.itemData.get(modules.i18n.getLocale())?.getOne(value)) {
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
 				}
 				return true;
@@ -323,7 +323,7 @@ module.exports.editAction = modules => [
 
 		if (itemTemplateIds) {
 			itemTemplateIds.forEach(itemTemplateId =>
-				resolvedItems[itemTemplateId] = modules.datasheetModel.strSheetItem[modules.i18n.getLocale()]?.getOne(itemTemplateId)
+				resolvedItems[itemTemplateId] = modules.datasheetModel.strSheetItem.get(modules.i18n.getLocale())?.getOne(itemTemplateId)
 			);
 		}
 

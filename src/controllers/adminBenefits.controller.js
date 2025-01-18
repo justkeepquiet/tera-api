@@ -29,7 +29,7 @@ module.exports.index = ({ i18n, accountModel, datasheetModel }) => [
 	 */
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
-		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()];
+		const accountBenefits = datasheetModel.strSheetAccountBenefit.get(i18n.getLocale());
 
 		if (!accountDBID) {
 			return res.render("adminBenefits", {
@@ -83,7 +83,7 @@ module.exports.add = ({ logger, i18n, accountModel, datasheetModel }) => [
 	 */
 	async (req, res, next) => {
 		const { accountDBID } = req.query;
-		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()];
+		const accountBenefits = datasheetModel.strSheetAccountBenefit.get(i18n.getLocale());
 
 		res.render("adminBenefitsAdd", {
 			layout: "adminLayout",
@@ -178,7 +178,7 @@ module.exports.edit = ({ logger, i18n, accountModel, datasheetModel }) => [
 	 */
 	async (req, res, next) => {
 		const { accountDBID, benefitId } = req.query;
-		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()];
+		const accountBenefits = datasheetModel.strSheetAccountBenefit.get(i18n.getLocale());
 
 		const data = await accountModel.benefits.findOne({
 			where: { benefitId, accountDBID }

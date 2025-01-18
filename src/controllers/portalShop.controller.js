@@ -147,7 +147,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 		let whereSearch = {};
 
 		if (searchParts.length !== 0) {
-			const foundItems = datasheetModel.strSheetItem[i18n.getLocale()]?.findAll(search);
+			const foundItems = datasheetModel.strSheetItem.get(i18n.getLocale())?.findAll(search);
 
 			const foundProducts = await shopModel.products.findAll({
 				where: whereProduct,
@@ -231,8 +231,8 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 			};
 
 			product.get("item").forEach(productItem => {
-				const itemData = datasheetModel.itemData[i18n.getLocale()]?.getOne(productItem.get("itemTemplateId"));
-				const strSheetItem = datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(productItem.get("itemTemplateId"));
+				const itemData = datasheetModel.itemData.get(i18n.getLocale())?.getOne(productItem.get("itemTemplateId"));
+				const strSheetItem = datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(productItem.get("itemTemplateId"));
 
 				if (strSheetItem) {
 					if (!productInfo.title) {
@@ -379,8 +379,8 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 		const conversions = [];
 
 		productItems.forEach(item => {
-			const itemData = datasheetModel.itemData[i18n.getLocale()]?.getOne(item.get("itemTemplateId"));
-			const strSheetItem = datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(item.get("itemTemplateId"));
+			const itemData = datasheetModel.itemData.get(i18n.getLocale())?.getOne(item.get("itemTemplateId"));
+			const strSheetItem = datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(item.get("itemTemplateId"));
 
 			items.push({
 				itemTemplateId: item.get("itemTemplateId"),
@@ -391,17 +391,17 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 				string: strSheetItem?.string
 			});
 
-			const conversion = (datasheetModel.itemConversion[i18n.getLocale()]?.getOne(item.itemTemplateId) || [])
+			const conversion = (datasheetModel.itemConversion.get(i18n.getLocale())?.getOne(item.itemTemplateId) || [])
 				.map(({ itemTemplateId }) => ({
-					...datasheetModel.itemData[i18n.getLocale()]?.getOne(itemTemplateId) || {},
-					...datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(itemTemplateId) || {}
+					...datasheetModel.itemData.get(i18n.getLocale())?.getOne(itemTemplateId) || {},
+					...datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(itemTemplateId) || {}
 				}));
 
 			conversions.push(...conversion);
 		});
 
-		const itemData = datasheetModel.itemData[i18n.getLocale()]?.getOne(items[0].itemTemplateId);
-		const strSheetItem = datasheetModel.strSheetItem[i18n.getLocale()]?.getOne(items[0].itemTemplateId);
+		const itemData = datasheetModel.itemData.get(i18n.getLocale())?.getOne(items[0].itemTemplateId);
+		const strSheetItem = datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(items[0].itemTemplateId);
 
 		if (!productObj.title) {
 			productObj.title = strSheetItem.string;
@@ -640,7 +640,7 @@ module.exports.PurchaseAction = modules => [
 		const items = [];
 
 		shopProduct.get("item").forEach(item => {
-			const strSheetItem = modules.datasheetModel.strSheetItem[modules.i18n.getLocale()]?.getOne(item.get("itemTemplateId"));
+			const strSheetItem = modules.datasheetModel.strSheetItem.get(modules.i18n.getLocale())?.getOne(item.get("itemTemplateId"));
 
 			promises.push(serviceItem.checkCreate(
 				item.get("boxItemId"),

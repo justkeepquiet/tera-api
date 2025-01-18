@@ -85,7 +85,7 @@ module.exports.add = ({ i18n, datasheetModel }) => [
 		const benefitIds = [];
 		const availableUntils = [];
 
-		const accountBenefits = datasheetModel.strSheetAccountBenefit[i18n.getLocale()];
+		const accountBenefits = datasheetModel.strSheetAccountBenefit.get(i18n.getLocale());
 
 		getInitialBenefits().forEach((benefitDays, benefitId) => {
 			benefitIds.push(benefitId);

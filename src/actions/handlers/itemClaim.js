@@ -30,10 +30,10 @@ class ItemClaim {
 			}
 
 			const modelLocale = this.getModelLocale();
-			const itemData = this.modules.datasheetModel.itemData[modelLocale]?.getOne(item.item_template_id);
+			const itemData = this.modules.datasheetModel.itemData.get(modelLocale)?.getOne(item.item_template_id);
 
 			if (itemData) {
-				const strSheetItem = this.modules.datasheetModel.strSheetItem[modelLocale]?.getOne(item.item_template_id);
+				const strSheetItem = this.modules.datasheetModel.strSheetItem.get(modelLocale)?.getOne(item.item_template_id);
 				const title = strSheetItem.string || "undefined";
 				const description = formatStrsheet(strSheetItem.toolTip) || "undefined";
 
@@ -69,11 +69,11 @@ class ItemClaim {
 	}
 
 	getModelLocale() {
-		if (this.modules.datasheetModel.itemData["en"] !== undefined) {
+		if (this.modules.datasheetModel.itemData.has("en")) {
 			return "en";
 		}
 
-		return Object.keys(this.modules.datasheetModel.itemData)[0];
+		return Array.from(this.modules.datasheetModel.itemData.keys())[0];
 	}
 }
 

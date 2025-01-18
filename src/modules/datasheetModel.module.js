@@ -2,13 +2,13 @@
 
 /**
  * @typedef {object} datasheetModel
- * @property {import("../models/datasheet/strSheetAccountBenefit.model")[]?} strSheetAccountBenefit
- * @property {import("../models/datasheet/strSheetDungeon.model")[]?} strSheetDungeon
- * @property {import("../models/datasheet/strSheetCreature.model")[]?} strSheetCreature
- * @property {import("../models/datasheet/itemConversion.model")[]?} itemConversion
- * @property {import("../models/datasheet/itemData.model")[]?} itemData
- * @property {import("../models/datasheet/skillIconData.model")[]?} skillIconData
- * @property {import("../models/datasheet/strSheetItem.model")[]?} strSheetItem
+ * @property {Map<string,import("../models/datasheet/strSheetAccountBenefit.model")>?} strSheetAccountBenefit
+ * @property {Map<string,import("../models/datasheet/strSheetDungeon.model")>?} strSheetDungeon
+ * @property {Map<string,import("../models/datasheet/strSheetCreature.model")>?} strSheetCreature
+ * @property {Map<string,import("../models/datasheet/itemConversion.model")>?} itemConversion
+ * @property {Map<string,import("../models/datasheet/itemData.model")>?} itemData
+ * @property {Map<string,import("../models/datasheet/skillIconData.model")>?} skillIconData
+ * @property {Map<string,import("../models/datasheet/strSheetItem.model")>?} strSheetItem
  *
  * @typedef {import("../app").modules} modules
  */
@@ -62,7 +62,7 @@ module.exports = async ({ gcCollect, checkComponent, pluginsLoader, localization
 
 		const addModel = (section, model) => {
 			if (datasheetModel[section] === undefined) {
-				datasheetModel[section] = {};
+				datasheetModel[section] = new Map();
 			}
 
 			const instance = new model();
@@ -70,11 +70,11 @@ module.exports = async ({ gcCollect, checkComponent, pluginsLoader, localization
 
 			if (cache !== null && typeof instance.import === "function") {
 				instance.import(cache);
-				datasheetModel[section][locale] = instance;
+				datasheetModel[section].set(locale, instance);
 
 				datasheetLoader.logger.info(`Model loaded from cache: ${section} (${locale})`);
 			} else {
-				datasheetModel[section][locale] = datasheetLoader.addModel(instance);
+				datasheetModel[section].set(locale, datasheetLoader.addModel(instance));
 			}
 		};
 
@@ -105,7 +105,7 @@ module.exports = async ({ gcCollect, checkComponent, pluginsLoader, localization
 			dirty = true;
 
 			for (const [section, locales] of Object.entries(datasheetModel)) {
-				const instance = locales[locale];
+				const instance = locales.get(locale);
 
 				if (typeof instance.export === "function") {
 					cacheManager.save(`${locale}-${section}`, instance.export(), cacheRevision); // save cache
@@ -121,7 +121,7 @@ module.exports = async ({ gcCollect, checkComponent, pluginsLoader, localization
 	const datasheetLogger = createLogger("Datasheet", { colors: { debug: "gray" } });
 	const useBinary = env.bool("DATASHEET_USE_BINARY");
 	const directory = path.join(__dirname, DATASHEETS_DIRECTORY);
-	const datasheetModel = [];
+	const datasheetModel = {};
 	const variants = [];
 
 	try {
