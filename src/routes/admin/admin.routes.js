@@ -198,7 +198,7 @@ module.exports = modules => {
 			 */
 			(err, req, res, next) => {
 				if (err instanceof ApiError) {
-					res.status(500).json({ result_code: err.code, msg: err.message });
+					res.json({ result_code: err.code, msg: err.message });
 				} else {
 					modules.logger.error(err);
 					res.status(500).json({ result_code: 1, msg: "internal server error" });
@@ -338,15 +338,16 @@ module.exports = modules => {
 		(err, req, res, next) => {
 			if (!(err instanceof ApiError)) {
 				modules.logger.error(err);
+				res.status(500);
 			}
 
 			if (typeof res["__render"] === "function") {
-				res.status(500).render("adminError", {
+				res.render("adminError", {
 					layout: "adminLayout",
 					err: err.message || err.toString()
 				});
 			} else {
-				res.status(500).send("Internal Server Error");
+				res.send("Internal Server Error");
 			}
 		}
 	);

@@ -15,4 +15,18 @@ const arbiterAuthController = require("../../controllers/arbiterAuth.controller"
  */
 module.exports = modules => express.Router()
 	.get("/RequestAPIServerStatusAvailable", arbiterAuthController.RequestAPIServerStatusAvailable(modules))
+
+	.use(
+		/**
+		 * @type {ErrorRequestHandler}
+		 */
+		(err, req, res, next) => {
+			if (err instanceof ApiError) {
+				res.json({ Return: false, ReturnCode: err.code, Msg: err.message });
+			} else {
+				modules.logger.error(err);
+				res.status(500).json({ Return: false, ReturnCode: 1, Msg: "internal server error" });
+			}
+		}
+	)
 ;

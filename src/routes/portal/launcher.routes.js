@@ -170,7 +170,7 @@ module.exports = modules => {
 			 */
 			(err, req, res, next) => {
 				if (err instanceof ApiError) {
-					res.status(500).json({ Return: false, ReturnCode: err.code, Msg: err.message });
+					res.json({ Return: false, ReturnCode: err.code, Msg: err.message });
 				} else {
 					modules.logger.error(err);
 					res.status(500).json({ Return: false, ReturnCode: 1, Msg: "internal server error" });
