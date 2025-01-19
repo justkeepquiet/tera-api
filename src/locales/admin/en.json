@@ -52,6 +52,7 @@
 	"Is crowdness field has invalid value.": "Is crowdness field has invalid value.",
 	"Is available field has invalid value.": "Is available field has invalid value.",
 	"Is enabled field has invalid value.": "Is enabled field has invalid value.",
+	"Sync server state": "Sync server state",
 	"Sync server state with PlanetDB after saving": "Sync server state with PlanetDB after saving",
 	"Sync server state field has invalid value.": "Sync server state field has invalid value.",
 	"Description string field must be between 1 and 1024 characters.": "Description string field must be between 1 and 1024 characters.",
