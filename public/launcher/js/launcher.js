@@ -317,7 +317,7 @@ var Launcher = {
 			var maintenance = LauncherAPI.getMaintenanceStatusAction();
 
 			if (maintenance && maintenance.Return && maintenance.StartTime) {
-				Launcher.showError(maintenance.Description || serverMaintenanceString);
+				Launcher.showError(serverMaintenanceString);
 				Launcher.enableLaunchButton("btn-gamestart");
 				return;
 			}

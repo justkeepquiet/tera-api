@@ -963,8 +963,7 @@ module.exports.GetMaintenanceStatusAction = ({ sequelize, serverModel }) => [
 				ReturnCode: 0,
 				Msg: "success",
 				StartTime: moment(maintenance.get("startTime")).unix(),
-				EndTime: moment(maintenance.get("startTime")).unix(),
-				Description: maintenance.get("description")
+				EndTime: moment(maintenance.get("startTime")).unix()
 			});
 		} else {
 			res.json({
