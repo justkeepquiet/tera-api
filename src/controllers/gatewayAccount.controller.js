@@ -205,7 +205,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, accountModel }) => [
  */
 module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => [
 	[
-		query("userNo").trim().isNumeric()
+		query("userNo").optional().trim().isNumeric()
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
@@ -213,16 +213,30 @@ module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => 
 					return Promise.reject("Not existing account ID");
 				}
 			})),
-		query("clientIP").trim().isNumeric()
+		query("clientIP").optional().trim()
 	],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { userNo, clientIP } = req.query;
+		const { clientIP } = req.query;
+		let userNo = req.query.userNo;
 
-		const account = await accountModel.info.findOne({
+		const bannedByIp = clientIP ? await accountModel.bans.findOne({
+			where: {
+				active: 1,
+				ip: { [Op.like]: `%"${clientIP}"%` },
+				startTime: { [Op.lt]: sequelize.fn("NOW") },
+				endTime: { [Op.gt]: sequelize.fn("NOW") }
+			}
+		}) : null;
+
+		if (!userNo && bannedByIp) {
+			userNo = bannedByIp.get("accountDBID");
+		}
+
+		const account = userNo ? await accountModel.info.findOne({
 			where: { accountDBID: userNo },
 			include: [{
 				as: "banned",
@@ -234,27 +248,20 @@ module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => 
 				},
 				required: false
 			}]
-		});
+		}) : null;
 
-		const bannedByIp = await accountModel.bans.findOne({
-			where: {
-				active: 1,
-				ip: { [Op.like]: `%"${clientIP}"%` },
-				startTime: { [Op.lt]: sequelize.fn("NOW") },
-				endTime: { [Op.gt]: sequelize.fn("NOW") }
-			}
-		});
-
-		const isBanned = account.get("banned") !== null || bannedByIp !== null;
+		const isBanned = account?.get("banned") !== null || bannedByIp !== null;
 
 		res.json({
 			Return: true,
 			ReturnCode: 0,
 			Msg: "success",
-			UserNo: account.get("accountDBID"),
 			Banned: isBanned,
-			StartTime: account.get("banned") ? moment(account.get("banned").get("startTime")).unix() : null,
-			EndTime: account.get("banned") ? moment(account.get("banned").get("endTime")).unix() : null
+			UserNo: account?.get("accountDBID") || null,
+			Description: account?.get("banned")?.get("description") ?? null,
+			Ip: account?.get("banned") ? JSON.parse(account.get("banned").get("ip")) : null,
+			StartTime: account?.get("banned") ? moment(account.get("banned").get("startTime")).unix() : null,
+			EndTime: account?.get("banned") ? moment(account.get("banned").get("endTime")).unix() : null
 		});
 	}
 ];

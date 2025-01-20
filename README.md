@@ -117,7 +117,7 @@ Endpoint                                | Method | Arguments                    
 /accountApi/ListCharactersByUserNo      | GET    | `userNo`, `serverId`                                   | Retrieve a list of characters associated with a specific account ID and server ID.
 /accountApi/ListBenefitsByUserNo        | GET    | `userNo`                                               | Retrieve a list of benefits assigned to a specific account ID.
 /accountApi/GetAccountInfoByUserNo      | GET    | `userNo`                                               | Request the account information of specified account ID.
-/accountApi/GetAccountBanByUserNo       | GET    | `userNo`, `clientIP`                                   | Request the account banned status of specified account ID and client IP.
+/accountApi/GetAccountBanByUserNo       | GET    | `userNo`, `clientIP`                                   | Request the account banned status of specified account ID or client IP.
 /accountApi/BanAccountByUserNo          | POST   | `userNo`, `startTime`, `endTime`, `ip?`, `description` | Ban a specific account by its account ID.
 
 ### Shop API Endpoints
