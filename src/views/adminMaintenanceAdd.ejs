@@ -27,7 +27,7 @@
 							<textarea type="text" class="form-control boxed" name="description" placeholder="<%= __("optional") %>" minlength="1" maxlength="1024"></textarea>
 						</div>
 						<div class="form-group">
-							<button type="button" class="btn btn-primary" id="submit"><%= __("Add") %></button>
+							<button type="submit" class="btn btn-primary"><%= __("Add") %></button>
 						</div>
 					</form>
 				</div>
@@ -38,8 +38,6 @@
 <%- contentFor("scripts") %>
 <script>
 	$(function() {
-		$("#submit").click(function() {
-			onFormSubmit(location);
-		});
+		$("#form").validate(config.validations);
 	});
 </script>

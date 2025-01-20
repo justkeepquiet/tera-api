@@ -24,22 +24,59 @@ config.validations = {
 	// add error class
 	highlight: function(element, errorClass, validClass) {
 		$("#error-message").hide();
-		$(element).parents("div.form-group")
-			.addClass(errorClass)
-			.removeClass(validClass);
+		$(element).parents("div.form-group").addClass(errorClass).removeClass(validClass);
+		$(element).addClass(errorClass).removeClass(validClass);
 	},
 
 	// add error class
+	/*
 	unhighlight: function(element, errorClass, validClass) {
+		var fieldName = $(element).attr("name");
+		console.log(fieldName);
 		$("#error-message").hide();
-		$(element).parents(".has-error")
-			.removeClass(errorClass)
-			.addClass(validClass);
+		$(element).parents(".has-error").removeClass(errorClass).addClass(validClass);
+		$(element).removeClass(errorClass).addClass(validClass);
+	},
+	*/
+
+	// place after autocomplete tag
+	errorPlacement: function(error, element) {
+		var autocompleteElement = element.next(".autocomplete-result");
+		if (autocompleteElement.length) {
+			autocompleteElement.after(error);
+		} else {
+			element.after(error);
+		}
 	},
 
 	// submit handler
 	submitHandler: function(form) {
-		form.submit();
+		renameFormArrayFields($(form));
+		hideFormErrors();
+		$.ajax({
+			type: "POST",
+			url: $(form).attr("action") || location,
+			data: $(form).serialize(),
+			success: function(reply) {
+				if (reply.result_code === 0) {
+					location.replace(reply.success_url || location);
+					return;
+				}
+				if (reply.errors && reply.errors.length !== 0) {
+					if (reply.result_code === 2) {
+						showFormFieldsErrors($(form), reply.errors);
+					} else {
+						showFormErrors(reply.errors);
+					}
+					return;
+				}
+				showFormErrors(reply.msg);
+			},
+			fail: function(err) {
+				showFormErrors(err);
+			}
+		});
+		return false;
 	}
 };
 
@@ -50,6 +87,89 @@ config.delayTime = 50;
 config.chart = {};
 config.chart.colorPrimary = tinycolor($ref.find(".chart .color-primary").css("color"));
 config.chart.colorSecondary = tinycolor($ref.find(".chart .color-secondary").css("color"));
+
+function showFormFieldsErrors(form, formErrors) {
+	var validator = form.validate(config.validations);
+	var errors = [];
+	var scrollTop = 0;
+	formErrors.forEach(error => {
+		var param = error.param;
+		if (param.indexOf(".") != -1) {
+			var [name, key] = error.param.split(".");
+			param = name + "[" + key + "]";
+		}
+		var el = form.find("[name='" + param + "']");
+		if (el.length) {
+			if (!scrollTop) {
+				var elementTop = el.offset().top;
+				var containerScrollTop = $(".main-wrapper").scrollTop();
+				scrollTop = containerScrollTop + elementTop - 200;
+			}
+			validator.showErrors({ [param]: error.msg });
+		} else {
+			errors.push(error);
+		}
+	});
+	if (scrollTop) {
+		$(".main-wrapper").animate({ scrollTop: scrollTop }, "fast");
+	}
+	if (errors.length) {
+		showFormErrors(errors);
+	}
+}
+
+function showFormErrors(errors) {
+	$("#errors").empty();
+	if (Array.isArray(errors)) {
+		var errorList = $("<ul class='mb-0'></ul>");
+		for (var error of errors) {
+			var listItem = $("<li></li>").text(error.msg);
+			errorList.append(listItem);
+		}
+		$("#errors").append(errorList);
+	} else {
+		$("#errors").append("<i class='fa fa-warning'></i> " + errors);
+	}
+	$("#errors").show();
+	$(".main-wrapper").animate({ scrollTop: 0 }, "fast");
+}
+
+function hideFormErrors() {
+	$("#errors").hide();
+	$("#errors").empty();
+}
+
+function renameFormArrayFields(form) {
+	var groups = {};
+	form.find("[name*=\"[\"]").each(function() {
+		var element = $(this);
+		var name = element.attr("name");
+		var baseName = name.replace(/\[\d*\]/, "[]");
+		element.attr("name", baseName);
+	});
+	form.find("label[for*=\"[\"]").each(function() {
+		var label = $(this);
+		var forAttr = label.attr("for");
+		var baseFor = forAttr.replace(/\[\d*\]/, "[]");
+		label.attr("for", baseFor);
+	});
+	form.find("[name$=\"[]\"]").each(function() {
+		var element = $(this);
+		var originalName = element.attr("name");
+		var baseName = originalName.slice(0, -2);
+		if (!groups[baseName]) {
+			groups[baseName] = 0;
+		}
+		var newIndex = groups[baseName];
+		var newName = `${baseName}[${newIndex}]`;
+		element.attr("name", newName);
+		var label = $(`label[for="${originalName}"]`).first();
+		if (label.length) {
+			label.attr("for", newName);
+		}
+		groups[baseName]++;
+	});
+}
 
 $(function() {
 	animate({
@@ -531,46 +651,6 @@ function addAutocomplete() {
 				"<small class='item-grade-" + suggestion.data.rareGrade + "'>(" + suggestion.value + ") " + suggestion.data.title + "</small></div>");
 		}
 	);
-}
-
-function showFormErrors(errors) {
-	var errorsContainer = $("#errors");
-	errorsContainer.empty();
-
-	if (Array.isArray(errors)) {
-		var errorList = $("<ul class='mb-0'></ul>");
-		for (var error of errors) {
-			var listItem = $("<li></li>").text(error.msg);
-			errorList.append(listItem);
-		}
-
-		errorsContainer.append(errorList);
-	} else {
-		errorsContainer.append("<i class='fa fa-warning'></i> " + errors);
-	}
-
-	errorsContainer.show();
-	$(".main-wrapper").animate({ scrollTop: 0 }, "fast");
-}
-
-function onFormSubmit(postUrl) {
-	$.ajax({
-		type: "POST",
-		url: postUrl,
-		data: $("#form").serialize(),
-		success: function(reply) {
-			if (reply.result_code === 0) {
-				location.replace(reply.success_url || location);
-			} else if (reply.errors && reply.errors.length !== 0) {
-				showFormErrors(reply.errors);
-			} else {
-				showFormErrors(reply.msg);
-			}
-		},
-		fail: function(err) {
-			showFormErrors(err);
-		}
-	});
 }
 
 $(function() {

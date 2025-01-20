@@ -783,6 +783,9 @@ textarea {
 .form-group.has-error .form-control-feedback {
   color: #FF4444; }
 
+.form-group.has-error input.has-error, .form-group textarea.has-error, .form-group select.has-error {
+  border-color: #FF4444; }
+
 .form-group.has-warning span.has-warning {
   color: #fe974b;
   font-size: 13px;
@@ -3055,7 +3058,7 @@ table.dataTable {
 .autocomplete-result {
   background: #fff;
   width: 85%;
-  height: 36px;
+  height: 35px;
   display: block;
   margin: -37px 0 0 1px;
   position: absolute;

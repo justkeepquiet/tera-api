@@ -88,7 +88,7 @@
 						</div>
 						<div class="form-group row"></div>
 						<div class="form-group">
-							<button type="button" class="btn btn-primary" id="submit"><%= __("Add") %></button>
+							<button type="submit" class="btn btn-primary"><%= __("Add") %></button>
 						</div>
 					</form>
 				</div>
@@ -139,8 +139,6 @@
 				$(this).closest(".row").remove();
 			});
 		});
-		$("#submit").click(function() {
-			onFormSubmit(location);
-		});
+		$("#form").validate(config.validations);
 	});
 </script>

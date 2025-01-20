@@ -58,28 +58,27 @@
 				$("#useToken").val("<%= login ? "true" : "false" %>");
 				$("#tz").val(Intl.DateTimeFormat().resolvedOptions().timeZone);
 
-				if ($("#login-form").length) {
-					var loginValidationSettings = {
-						rules: {
-							login: "required",
-							password: "required"
-						},
-						messages: {
-							login: "<%= __('Please enter login') %>",
-							password: "<%= __('Please enter password') %>"
-						}
-					};
+				var loginValidationSettings = $.extend({}, config.validations, {
+					rules: {
+						login: "required",
+						password: "required"
+					},
+					messages: {
+						login: "<%= __('Please enter login') %>",
+						password: "<%= __('Please enter password') %>"
+					},
+					submitHandler: function(form) {
+						form.submit();
+					}
+				});
 
-					$.extend(loginValidationSettings, config.validations);
+				$("#login-form").submit(function() {
+					if ($("#login").val() !== login || $("#password").val() !== password) {
+						$("#useToken").val("false");
+					}
+				});
 
-					$("#login-form").submit(function() {
-						if ($("#login").val() !== login || $("#password").val() !== password) {
-							$("#useToken").val("false");
-						}
-					});
-
-					$("#login-form").validate(loginValidationSettings);
-				}
+				$("#login-form").validate(loginValidationSettings);
 			});
 		</script>
 	</body>
