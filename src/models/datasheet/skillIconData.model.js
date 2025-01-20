@@ -1,8 +1,8 @@
 "use strict";
 
-class SkillIconDataModel {
+class StrSheetAccountBenefitModel {
 	constructor() {
-		this.data = [];
+		this.data = new Map();
 	}
 
 	get section() {
@@ -13,7 +13,9 @@ class SkillIconDataModel {
 		return {
 			"/SkillIconData/Icon": ({ attributes }) => {
 				if (attributes.iconName !== undefined) {
-					this.data.push({
+					const id = [attributes.skillId, attributes.class, attributes.race, attributes.gender].join("-");
+
+					this.data.set(id, {
 						skillId: attributes.skillId,
 						class: attributes.class.toLowerCase(),
 						race: attributes.race.toLowerCase(),
@@ -33,9 +35,13 @@ class SkillIconDataModel {
 		this.data = data;
 	}
 
+	getOne(skillId, class_, race, gender) {
+		return this.data.get([skillId, class_, race, gender].join("-"));
+	}
+
 	getAll() {
-		return this.data;
+		return this.data.values();
 	}
 }
 
-module.exports = SkillIconDataModel;
+module.exports = StrSheetAccountBenefitModel;

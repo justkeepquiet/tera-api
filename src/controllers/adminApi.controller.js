@@ -124,59 +124,6 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
 				]
 			}) : [];
 
-		/*
-		const skillIconData = datasheetModel.skillIconData.get("en")?.getAll() || [];
-		const cachedSkills = new Map();
-		const charactersPromises = [];
-
-		const classIds = [
-			"warrior",
-			"lancer",
-			"slayer",
-			"berserker",
-			"sorcerer",
-			"archer",
-			"priest",
-			"elementalist",
-			"soulless",
-			"engineer",
-			"fighter",
-			"assassin",
-			"glaiver"
-		];
-
-		cheatsReport.forEach(report => {
-			const [account, name, hits, limit, skillId] = report.get("cheatInfo").split(",");
-			const key = name + skillId + report.get("accountDBID") + report.get("serverId");
-
-			if (!cachedSkills.has(key)) {
-				cachedSkills.set(key, null);
-
-				charactersPromises.push(accountModel.characters.findOne({
-					where: {
-						accountDBID: report.get("accountDBID"),
-						serverId: report.get("serverId"),
-						name
-					}
-				}).then(chatacter => {
-					if (chatacter !== null) {
-						const skill = skillIconData.find(s =>
-							s.skillId === skillId &&
-							s.class === classIds[chatacter.get("classId")]
-						);
-
-						if (skill) {
-							cachedSkills.set(key, skill);
-						}
-					}
-				}));
-			}
-		});
-
-		await Promise.all(charactersPromises);
-		console.log(cachedSkills.entries());
-		*/
-
 		cheatsReport.forEach(report => {
 			const [account, name, hits, limit, skillId, zoneId, x, y, z, huntingZoneId, templateId] = report.get("cheatInfo").split(",");
 
@@ -379,7 +326,13 @@ module.exports.getItems = ({ logger, i18n, datasheetModel }) => [
 					.map(({ itemTemplateId }) =>
 						datasheetModel.itemData.get(i18n.getLocale())?.getOne(itemTemplateId)
 					),
-				skillIconData: datasheetModel.skillIconData.get(i18n.getLocale())?.getOne(itemData.linkSkillId)
+				skillIconData: itemData.linkSkillId ?
+					datasheetModel.skillIconData.get(i18n.getLocale())?.getOne(
+						itemData.linkSkillId,
+						"Common",
+						"Common",
+						"Common"
+					) : null
 			}));
 
 		res.json({
