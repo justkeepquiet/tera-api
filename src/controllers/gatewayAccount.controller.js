@@ -256,7 +256,7 @@ module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => 
 			Return: true,
 			ReturnCode: 0,
 			Msg: "success",
-			Banned: isBanned,
+			IsBanned: isBanned,
 			UserNo: account?.get("accountDBID") || null,
 			Description: account?.get("banned")?.get("description") ?? null,
 			Ip: account?.get("banned") ? JSON.parse(account.get("banned").get("ip")) : null,
