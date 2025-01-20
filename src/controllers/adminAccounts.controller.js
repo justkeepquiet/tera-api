@@ -138,7 +138,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Benefit ID field must contain a valid number."))
 			.custom((value, { req }) => {
 				const benefitIds = req.body.benefitIds.filter((e, i) =>
-					req.body.benefitIds.lastIndexOf(e) == i && req.body.benefitIds.indexOf(e) != i
+					e && req.body.benefitIds.lastIndexOf(e) == i && req.body.benefitIds.indexOf(e) != i
 				);
 
 				return benefitIds.length === 0 || !benefitIds.includes(value);

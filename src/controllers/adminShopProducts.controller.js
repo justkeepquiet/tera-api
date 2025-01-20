@@ -236,7 +236,7 @@ module.exports.addAction = modules => [
 			})
 			.custom((value, { req }) => {
 				const itemTemplateIds = req.body.itemTemplateIds.filter((e, i) =>
-					req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
+					e && req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
 				);
 
 				return !itemTemplateIds.includes(value);
@@ -246,7 +246,7 @@ module.exports.addAction = modules => [
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
 		body("boxItemCounts.*").trim()
 			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("Count field has invalid value.")),
-		body("itemTemplateIds").trim().notEmpty()
+		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the product.")),
 		// Additional info
 		body("icon").optional().trim().toLowerCase()
@@ -500,7 +500,7 @@ module.exports.editAction = modules => [
 			})
 			.custom((value, { req }) => {
 				const itemTemplateIds = req.body.itemTemplateIds.filter((e, i) =>
-					req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
+					e && req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
 				);
 
 				return !itemTemplateIds.includes(value);
@@ -510,7 +510,7 @@ module.exports.editAction = modules => [
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
 		body("boxItemCounts.*").trim()
 			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("Count field has invalid value.")),
-		body("itemTemplateIds").trim().notEmpty()
+		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the product.")),
 		// Additional info
 		body("icon").optional().trim().toLowerCase()
