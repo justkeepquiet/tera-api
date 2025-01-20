@@ -39,6 +39,8 @@ async function databaseMigrationProcedure(sequelize, migrationLogger, migrations
 		await migrationManager.runMigrations();
 	}
 
+	migrationLogger.info(`DB version: ${dbVersion}`);
+
 	return passed;
 }
 

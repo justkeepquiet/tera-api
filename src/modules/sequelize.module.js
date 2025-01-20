@@ -91,7 +91,5 @@ module.exports = async modules => {
 
 	await modules.pluginsLoader.loadComponent("models.after", sequelize, DataTypes);
 
-	sequelizeLogger.info(`DB version: ${modules.versions.db}`);
-
 	return sequelize;
 };
