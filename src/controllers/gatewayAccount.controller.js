@@ -31,8 +31,8 @@ module.exports.ListAccounts = ({ accountModel }) => [
 				UserName: account.get("userName"),
 				AuthKey: account.get("authKey"),
 				Email: account.get("email"),
-				RegisterTime: account.get("registerTime"),
-				LastLoginTime: account.get("lastLoginTime"),
+				RegisterTime: moment(account.get("registerTime")).unix(),
+				LastLoginTime: moment(account.get("lastLoginTime")).unix(),
 				LastLoginIP: account.get("lastLoginIP"),
 				LastLoginServer: account.get("lastLoginServer"),
 				PlayTimeLast: account.get("playTimeLast"),
@@ -58,8 +58,8 @@ module.exports.ListAccounts = ({ accountModel }) => [
  */
 module.exports.ListCharactersByUserNo = ({ logger, accountModel }) => [
 	[
-		query("userNo").isNumeric(),
-		query("serverId").isNumeric()
+		query("userNo").trim().isNumeric(),
+		query("serverId").trim().isNumeric()
 	],
 	validationHandler(logger),
 	/**
@@ -88,7 +88,7 @@ module.exports.ListCharactersByUserNo = ({ logger, accountModel }) => [
 		characters.forEach(character => {
 			data.push({
 				UserNo: character.get("accountDBID"),
-				UserName: character.get("info")?.get("userName"),
+				UserName: character.get("info")?.get("userName") || null,
 				ServerId: character.get("serverId"),
 				Id: character.get("characterId"),
 				Name: character.get("name"),
@@ -112,7 +112,7 @@ module.exports.ListCharactersByUserNo = ({ logger, accountModel }) => [
  * @param {modules} modules
  */
 module.exports.ListBenefitsByUserNo = ({ logger, accountModel }) => [
-	[query("userNo").isNumeric()],
+	[query("userNo").trim().isNumeric()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
@@ -137,10 +137,10 @@ module.exports.ListBenefitsByUserNo = ({ logger, accountModel }) => [
 
 			data.push({
 				UserNo: benefit.get("accountDBID"),
-				UserName: benefit.get("info")?.get("userName"),
+				UserName: benefit.get("info")?.get("userName") || null,
 				BenefitId: benefit.get("benefitId"),
 				IsAvailable: isAvailable,
-				AvailableUntil: benefit.get("availableUntil")
+				AvailableUntil: moment(benefit.get("availableUntil")).unix()
 			});
 		});
 
@@ -158,7 +158,7 @@ module.exports.ListBenefitsByUserNo = ({ logger, accountModel }) => [
  */
 module.exports.GetAccountInfoByUserNo = ({ logger, accountModel }) => [
 	[
-		query("userNo").isNumeric()
+		query("userNo").trim().isNumeric()
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
@@ -186,8 +186,8 @@ module.exports.GetAccountInfoByUserNo = ({ logger, accountModel }) => [
 			UserName: account.get("userName"),
 			AuthKey: account.get("authKey"),
 			Email: account.get("email"),
-			RegisterTime: account.get("registerTime"),
-			LastLoginTime: account.get("lastLoginTime"),
+			RegisterTime: moment(account.get("registerTime")).unix(),
+			LastLoginTime: moment(account.get("lastLoginTime")).unix(),
 			LastLoginIP: account.get("lastLoginIP"),
 			LastLoginServer: account.get("lastLoginServer"),
 			PlayTimeLast: account.get("playTimeLast"),
@@ -205,7 +205,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, accountModel }) => [
  */
 module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => [
 	[
-		query("userNo").isNumeric()
+		query("userNo").trim().isNumeric()
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
@@ -213,7 +213,7 @@ module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => 
 					return Promise.reject("Not existing account ID");
 				}
 			})),
-		query("clientIP").isNumeric()
+		query("clientIP").trim().isNumeric()
 	],
 	validationHandler(logger),
 	/**
@@ -252,7 +252,9 @@ module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => 
 			ReturnCode: 0,
 			Msg: "success",
 			UserNo: account.get("accountDBID"),
-			Banned: isBanned
+			Banned: isBanned,
+			StartTime: account.get("banned") ? moment(account.get("banned").get("startTime")).unix() : null,
+			EndTime: account.get("banned") ? moment(account.get("banned").get("endTime")).unix() : null
 		});
 	}
 ];
@@ -262,7 +264,7 @@ module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => 
  */
 module.exports.BanAccountByUserNo = ({ logger, hub, accountModel }) => [
 	[
-		body("userNo").isNumeric()
+		body("userNo").trim().isNumeric()
 			.custom(value => accountModel.bans.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
@@ -277,9 +279,9 @@ module.exports.BanAccountByUserNo = ({ logger, hub, accountModel }) => [
 					return Promise.reject("Not existing account ID");
 				}
 			})),
-		body("startTime")
+		body("startTime").trim()
 			.isISO8601().withMessage("Must contain a valid ISO 8601"),
-		body("endTime")
+		body("endTime").trim()
 			.isISO8601().withMessage("Must contain a valid ISO 8601"),
 		body("ip").optional().trim()
 			.custom(value => {

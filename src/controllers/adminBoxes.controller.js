@@ -118,10 +118,10 @@ module.exports.addAction = modules => [
 			.isLength({ min: 1, max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters.")),
 		body("icon").optional().trim()
 			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Icon must be between 1 and 255 characters.")),
-		body("days")
+		body("days").trim()
 			.isInt({ min: 1, max: 4000 }).withMessage(modules.i18n.__("Days field must contain the value as a number.")),
 		// Items
-		body("itemTemplateIds.*")
+		body("itemTemplateIds.*").trim()
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => {
 				if (value && !modules.datasheetModel.itemData.get(modules.i18n.getLocale())?.getOne(value)) {
@@ -136,11 +136,11 @@ module.exports.addAction = modules => [
 				return !itemTemplateIds.includes(value);
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
-		body("boxItemIds.*").optional({ checkFalsy: true })
+		body("boxItemIds.*").optional({ checkFalsy: true }).trim()
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
-		body("boxItemCounts.*")
+		body("boxItemCounts.*").trim()
 			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("Count field has invalid value.")),
-		body("itemTemplateIds").notEmpty()
+		body("itemTemplateIds").trim().notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the box."))
 	],
 	formValidationHandler(modules.logger),
@@ -207,7 +207,7 @@ module.exports.edit = ({ logger, boxModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("id").notEmpty()
+		query("id").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**
@@ -262,17 +262,17 @@ module.exports.edit = ({ logger, boxModel }) => [
 module.exports.editAction = modules => [
 	accessFunctionHandler,
 	[
-		query("id").notEmpty(),
+		query("id").trim().notEmpty(),
 		body("title").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(modules.i18n.__("Title must be between 1 and 1024 characters.")),
 		body("content").trim()
 			.isLength({ min: 1, max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters.")),
 		body("icon").optional().trim()
 			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Icon must be between 1 and 255 characters.")),
-		body("days")
+		body("days").trim()
 			.isInt({ min: 1, max: 4000 }).withMessage(modules.i18n.__("Days field must contain the value as a number.")),
 		// Items
-		body("itemTemplateIds.*")
+		body("itemTemplateIds.*").trim()
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
 			.custom(value => {
 				if (value && !modules.datasheetModel.itemData.get(modules.i18n.getLocale())?.getOne(value)) {
@@ -287,11 +287,11 @@ module.exports.editAction = modules => [
 				return !itemTemplateIds.includes(value);
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
-		body("boxItemIds.*").optional({ checkFalsy: true })
+		body("boxItemIds.*").optional({ checkFalsy: true }).trim()
 			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
-		body("boxItemCounts.*")
+		body("boxItemCounts.*").trim()
 			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("Count field has invalid value.")),
-		body("itemTemplateIds").notEmpty()
+		body("itemTemplateIds").trim().notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the box."))
 	],
 	formValidationHandler(modules.logger),
@@ -431,7 +431,7 @@ module.exports.deleteAction = modules => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("id").notEmpty()
+		query("id").trim().notEmpty()
 	],
 	validationHandler(modules.logger),
 	/**
@@ -500,7 +500,7 @@ module.exports.send = modules => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("id").notEmpty()
+		query("id").trim().notEmpty()
 	],
 	validationHandler(modules.logger),
 	/**
@@ -564,8 +564,8 @@ module.exports.send = modules => [
 module.exports.sendAction = modules => [
 	accessFunctionHandler,
 	[
-		query("id").notEmpty(),
-		body("serverId").optional({ checkFalsy: true })
+		query("id").trim().notEmpty(),
+		body("serverId").optional({ checkFalsy: true }).trim()
 			.isInt().withMessage(modules.i18n.__("Server ID field must contain a valid number."))
 			.custom((value, { req }) => modules.serverModel.info.findOne({
 				where: { ...req.body.serverId ? { serverId: req.body.serverId } : {} }
@@ -574,7 +574,7 @@ module.exports.sendAction = modules => [
 					return Promise.reject(modules.i18n.__("Server ID field contains not existing server ID."));
 				}
 			})),
-		body("accountDBID")
+		body("accountDBID").trim()
 			.isInt().withMessage(modules.i18n.__("Account ID field must contain a valid number."))
 			.custom(value => modules.accountModel.info.findOne({
 				where: { accountDBID: value }
@@ -583,7 +583,7 @@ module.exports.sendAction = modules => [
 					return Promise.reject(modules.i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
-		body("characterId").optional({ checkFalsy: true })
+		body("characterId").optional({ checkFalsy: true }).trim()
 			.isInt().withMessage(modules.i18n.__("Character ID field must contain a valid number."))
 			.custom((value, { req }) => modules.accountModel.characters.findOne({
 				where: {
@@ -716,7 +716,7 @@ module.exports.sendAll = modules => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("id").notEmpty()
+		query("id").trim().notEmpty()
 	],
 	validationHandler(modules.logger),
 	/**
@@ -793,8 +793,8 @@ module.exports.sendAll = modules => [
 module.exports.sendAllAction = modules => [
 	accessFunctionHandler,
 	[
-		query("id").notEmpty(),
-		body("serverId").optional({ checkFalsy: true })
+		query("id").trim().notEmpty(),
+		body("serverId").optional({ checkFalsy: true }).trim()
 			.isInt().withMessage(modules.i18n.__("Server ID field must contain a valid number."))
 			.custom((value, { req }) => modules.serverModel.info.findOne({
 				where: { ...req.body.serverId ? { serverId: req.body.serverId } : {} }
@@ -803,7 +803,7 @@ module.exports.sendAllAction = modules => [
 					return Promise.reject(modules.i18n.__("Server ID field contains not existing server ID."));
 				}
 			})),
-		body("loginAfterTime")
+		body("loginAfterTime").trim()
 			.isISO8601().withMessage(modules.i18n.__("Last login field must contain a valid date."))
 	],
 	formValidationHandler(modules.logger),
@@ -919,7 +919,7 @@ module.exports.sendResult = ({ logger, queue }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("id").notEmpty()
+		query("id").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**

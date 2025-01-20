@@ -55,7 +55,7 @@ module.exports.view = ({ logger, reportModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("id").notEmpty()
+		query("id").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**

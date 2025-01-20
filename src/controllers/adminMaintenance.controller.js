@@ -61,9 +61,9 @@ module.exports.add = () => [
 module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
-		body("startTime")
+		body("startTime").trim()
 			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
-		body("endTime")
+		body("endTime").trim()
 			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
 		body("description").optional().trim()
 			.isLength({ max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
@@ -95,7 +95,7 @@ module.exports.edit = ({ logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("id").notEmpty()
+		query("id").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**
@@ -126,10 +126,10 @@ module.exports.edit = ({ logger, serverModel }) => [
 module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
-		query("id").notEmpty(),
-		body("startTime")
+		query("id").trim().notEmpty(),
+		body("startTime").trim()
 			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
-		body("endTime")
+		body("endTime").trim()
 			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
 		body("description").optional().trim()
 			.isLength({ max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
@@ -164,7 +164,7 @@ module.exports.deleteAction = ({ logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("id").notEmpty()
+		query("id").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**

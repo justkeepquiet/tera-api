@@ -73,11 +73,11 @@ module.exports.add = ({ localization }) => [
 module.exports.addAction = ({ i18n, logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	[
-		body("sort")
+		body("sort").trim()
 			.isInt({ min: -1e8, max: 1e8 }).withMessage(i18n.__("Sort field must contain the value as a number.")),
-		body("active").optional()
+		body("active").optional().trim()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
-		body("title.*")
+		body("title.*").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Title field must be between 1 and 1024 characters."))
 	],
 	formValidationHandler(logger),
@@ -122,7 +122,7 @@ module.exports.edit = ({ localization, logger, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("id").notEmpty()
+		query("id").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**
@@ -168,12 +168,12 @@ module.exports.edit = ({ localization, logger, shopModel }) => [
 module.exports.editAction = ({ localization, i18n, logger, sequelize, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	[
-		query("id").notEmpty(),
-		body("sort")
+		query("id").trim().notEmpty(),
+		body("sort").trim()
 			.isInt({ min: -1e8, max: 1e8 }).withMessage(i18n.__("Sort field must contain the value as a number.")),
-		body("active").optional()
+		body("active").optional().trim()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
-		body("title.*")
+		body("title.*").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Title field must be between 1 and 1024 characters."))
 	],
 	formValidationHandler(logger),
@@ -261,7 +261,7 @@ module.exports.deleteAction = ({ logger, sequelize, reportModel, shopModel }) =>
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("id").notEmpty()
+		query("id").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**

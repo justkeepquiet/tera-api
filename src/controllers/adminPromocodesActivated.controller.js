@@ -81,9 +81,9 @@ module.exports.add = ({ logger, i18n, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("promoCodeId").optional({ checkFalsy: true })
+		query("promoCodeId").optional({ checkFalsy: true }).trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("Promo code ID field must contain a valid number.")),
-		query("accountDBID").optional({ checkFalsy: true })
+		query("accountDBID").optional({ checkFalsy: true }).trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 	],
 	validationHandler(logger),
@@ -111,7 +111,7 @@ module.exports.add = ({ logger, i18n, shopModel }) => [
 module.exports.addAction = modules => [
 	accessFunctionHandler,
 	[
-		body("promoCodeId")
+		body("promoCodeId").trim()
 			.isInt({ min: 0 }).withMessage(modules.i18n.__("Promo code ID field must contain a valid number."))
 			.custom(value => modules.shopModel.promoCodes.findOne({
 				attributes: {
@@ -138,7 +138,7 @@ module.exports.addAction = modules => [
 					}
 				}
 			})),
-		body("accountDBID")
+		body("accountDBID").trim()
 			.isInt({ min: 0 }).withMessage(modules.i18n.__("Account ID field must contain a valid number."))
 			.custom(value => modules.accountModel.info.findOne({
 				where: { accountDBID: value }
@@ -228,7 +228,7 @@ module.exports.deleteAction = ({ logger, sequelize, reportModel, shopModel }) =>
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("id").notEmpty()
+		query("id").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**

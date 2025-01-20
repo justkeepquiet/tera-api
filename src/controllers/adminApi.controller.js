@@ -204,7 +204,7 @@ module.exports.homeStats = ({ i18n, sequelize, datasheetModel, serverModel, acco
  */
 module.exports.getAccounts = ({ logger, sequelize, accountModel }) => [
 	apiAccessHandler,
-	[query("value").optional({ checkFalsy: true }).isInt()],
+	[query("value").optional({ checkFalsy: true }).trim().isInt()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
@@ -260,7 +260,7 @@ module.exports.getAccounts = ({ logger, sequelize, accountModel }) => [
  */
 module.exports.getCharacters = ({ logger, sequelize, accountModel }) => [
 	apiAccessHandler,
-	[query("value").optional({ checkFalsy: true }).isInt()],
+	[query("value").optional({ checkFalsy: true }).trim().isInt()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
@@ -297,7 +297,7 @@ module.exports.getCharacters = ({ logger, sequelize, accountModel }) => [
  */
 module.exports.getItems = ({ logger, i18n, datasheetModel }) => [
 	apiAccessHandler,
-	[query("value").optional({ checkFalsy: true }).isInt()],
+	[query("value").optional({ checkFalsy: true }).trim().isInt()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}

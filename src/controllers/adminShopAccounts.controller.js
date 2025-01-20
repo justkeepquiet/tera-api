@@ -57,7 +57,7 @@ module.exports.add = ({ logger, i18n }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("accountDBID").optional({ checkFalsy: true })
+		query("accountDBID").optional({ checkFalsy: true }).trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 	],
 	validationHandler(logger),
@@ -80,7 +80,7 @@ module.exports.add = ({ logger, i18n }) => [
 module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
 	[
-		body("accountDBID")
+		body("accountDBID").trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom(value => shopModel.accounts.findOne({
 				where: { accountDBID: value }
@@ -96,11 +96,11 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
-		body("balance")
+		body("balance").trim()
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Balance field must contain a valid number.")),
-		body("discount")
+		body("discount").trim()
 			.isInt({ min: 0, max: 100 }).withMessage(i18n.__("Discount field must contain a valid number.")),
-		body("active").optional()
+		body("active").optional().trim()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value."))
 	],
 	formValidationHandler(logger),
@@ -138,7 +138,7 @@ module.exports.edit = ({ logger, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("accountDBID").notEmpty()
+		query("accountDBID").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**
@@ -171,12 +171,12 @@ module.exports.edit = ({ logger, shopModel }) => [
 module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	[
-		query("accountDBID").notEmpty(),
-		body("balance")
+		query("accountDBID").trim().notEmpty(),
+		body("balance").trim()
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Balance field must contain a valid number.")),
-		body("discount")
+		body("discount").trim()
 			.isInt({ min: 0, max: 100 }).withMessage(i18n.__("Discount field must contain a valid number.")),
-		body("active").optional()
+		body("active").optional().trim()
 			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value."))
 	],
 	formValidationHandler(logger),
@@ -228,7 +228,7 @@ module.exports.deleteAction = ({ logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("accountDBID").notEmpty()
+		query("accountDBID").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**

@@ -5,6 +5,7 @@
  * @typedef {import("express").RequestHandler} RequestHandler
  */
 
+const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
 
 const { validationHandler } = require("../middlewares/gateway.middlewares");
@@ -54,7 +55,7 @@ module.exports.ListServers = ({ serverModel }) => [
  * @param {modules} modules
  */
 module.exports.ListOnlineAccountsByServerId = ({ logger, accountModel }) => [
-	[query("serverId").isNumeric()],
+	[query("serverId").trim().isNumeric()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
@@ -66,7 +67,8 @@ module.exports.ListOnlineAccountsByServerId = ({ logger, accountModel }) => [
 			where: { serverId },
 			include: [{
 				as: "info",
-				model: accountModel.info
+				model: accountModel.info,
+				required: true
 			}]
 		});
 
@@ -76,9 +78,9 @@ module.exports.ListOnlineAccountsByServerId = ({ logger, accountModel }) => [
 			data.push({
 				ServerId: account.get("serverId"),
 				UserNo: account.get("accountDBID"),
-				UserName: account.get("info")?.get("userName"),
-				LastLoginIP: account.get("info")?.get("lastLoginIP"),
-				LastLoginTime: account.get("info")?.get("lastLoginTime")
+				UserName: account.get("info").get("userName"),
+				LastLoginIP: account.get("info").get("lastLoginIP"),
+				LastLoginTime: moment(account.get("info").get("lastLoginTime")).unix()
 			});
 		});
 
@@ -96,7 +98,7 @@ module.exports.ListOnlineAccountsByServerId = ({ logger, accountModel }) => [
  */
 module.exports.GetServerInfoByServerId = ({ logger, serverModel, accountModel }) => [
 	[
-		query("serverId").isNumeric()
+		query("serverId").trim().isNumeric()
 			.custom(value => serverModel.info.findOne({
 				where: { serverId: value }
 			}).then(data => {
@@ -149,7 +151,7 @@ module.exports.GetServerInfoByServerId = ({ logger, serverModel, accountModel })
  */
 module.exports.KickAccountByUserNo = ({ logger, hub, accountModel, serverModel }) => [
 	[
-		body("userNo").isNumeric()
+		body("userNo").trim().isNumeric()
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
@@ -157,7 +159,7 @@ module.exports.KickAccountByUserNo = ({ logger, hub, accountModel, serverModel }
 					return Promise.reject("Not existing account ID");
 				}
 			})),
-		body("serverId").isNumeric()
+		body("serverId").trim().isNumeric()
 			.custom(value => serverModel.info.findOne({
 				where: { serverId: value }
 			}).then(data => {
@@ -188,7 +190,7 @@ module.exports.KickAccountByUserNo = ({ logger, hub, accountModel, serverModel }
  */
 module.exports.KickAllAccountsByServerId = ({ logger, hub, serverModel }) => [
 	[
-		body("serverId").isNumeric()
+		body("serverId").trim().isNumeric()
 			.custom(value => serverModel.info.findOne({
 				where: { serverId: value }
 			}).then(data => {

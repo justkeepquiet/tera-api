@@ -34,11 +34,11 @@ module.exports.ListAccounts = ({ accountModel, shopModel }) => [
 		accounts.forEach(account => {
 			data.push({
 				UserNo: account.get("accountDBID"),
-				UserName: account.get("info")?.get("userName"),
+				UserName: account.get("info")?.get("userName") || null,
 				Balance: account.get("balance"),
 				Discount: account.get("discount"),
 				IsActive: !!account.get("active"),
-				RegisterTime: account.get("createdAt")
+				RegisterTime: moment(account.get("createdAt")).unix()
 			});
 		});
 
@@ -56,7 +56,7 @@ module.exports.ListAccounts = ({ accountModel, shopModel }) => [
  */
 module.exports.GetAccountInfoByUserNo = ({ logger, accountModel, shopModel }) => [
 	[
-		query("userNo").isNumeric()
+		query("userNo").trim().isNumeric()
 			.custom(value => shopModel.accounts.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
@@ -87,11 +87,11 @@ module.exports.GetAccountInfoByUserNo = ({ logger, accountModel, shopModel }) =>
 			ReturnCode: 0,
 			Msg: "success",
 			UserNo: account.get("accountDBID"),
-			UserName: account.get("info")?.get("userName"),
+			UserName: account.get("info")?.get("userName") || null,
 			Balance: account.get("balance"),
 			Discount: account.get("discount"),
 			IsActive: !!account.get("active"),
-			RegisterTime: account.get("createdAt")
+			RegisterTime: moment(account.get("createdAt")).unix()
 		});
 	}
 ];
@@ -101,7 +101,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, accountModel, shopModel }) =>
  */
 module.exports.FundByUserNo = modules => [
 	[
-		body("userNo").isNumeric()
+		body("userNo").trim().isNumeric()
 			.custom(value => modules.accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
@@ -109,8 +109,8 @@ module.exports.FundByUserNo = modules => [
 					return Promise.reject("Not existing account ID");
 				}
 			})),
-		body("transactionId").isNumeric(),
-		body("amount").isInt({ min: 1 })
+		body("transactionId").trim().isNumeric(),
+		body("amount").trim().isInt({ min: 1 })
 	],
 	validationHandler(modules.logger),
 	/**
@@ -168,8 +168,8 @@ module.exports.ListPromoCodes = ({ shopModel }) => [
 				Function: promocode.get("function"),
 				CurrentActivations: promocode.get("currentActivations"),
 				MaxActivations: promocode.get("maxActivations"),
-				ValidAfter: promocode.get("validAfter"),
-				ValidBefore: promocode.get("validBefore"),
+				ValidAfterTime: moment(promocode.get("validAfter")).unix(),
+				ValidBeforeTime: moment(promocode.get("validBefore")).unix(),
 				IsActive: !!promocode.get("active"),
 				IsValid: valid
 			});
@@ -188,7 +188,7 @@ module.exports.ListPromoCodes = ({ shopModel }) => [
  * @param {modules} modules
  */
 module.exports.ListPromoCodesActivatedByUserNo = ({ logger, accountModel, shopModel }) => [
-	[query("userNo").isNumeric()],
+	[query("userNo").trim().isNumeric()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
@@ -219,9 +219,8 @@ module.exports.ListPromoCodesActivatedByUserNo = ({ logger, accountModel, shopMo
 				Id: activated.get("promoCodeId"),
 				String: activated.get("info").get("promoCode"),
 				UserNo: activated.get("accountDBID"),
-				UserName: activated.get("account")?.get("userName"),
-				ActivationTime: activated.get("createdAt")
-
+				UserName: activated.get("account")?.get("userName") || null,
+				ActivationTime: moment(activated.get("createdAt")).unix()
 			});
 		});
 
@@ -238,7 +237,7 @@ module.exports.ListPromoCodesActivatedByUserNo = ({ logger, accountModel, shopMo
  * @param {modules} modules
  */
 module.exports.ListPromoCodesActivatedById = ({ logger, accountModel, shopModel }) => [
-	[query("id").isNumeric()],
+	[query("id").trim().isNumeric()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
@@ -269,8 +268,8 @@ module.exports.ListPromoCodesActivatedById = ({ logger, accountModel, shopModel 
 				Id: activated.get("promoCodeId"),
 				String: activated.get("info").get("promoCode"),
 				UserNo: activated.get("accountDBID"),
-				UserName: activated.get("account")?.get("userName"),
-				ActivationTime: activated.get("createdAt")
+				UserName: activated.get("account")?.get("userName") || null,
+				ActivationTime: moment(activated.get("createdAt")).unix()
 
 			});
 		});
@@ -290,8 +289,7 @@ module.exports.ListPromoCodesActivatedById = ({ logger, accountModel, shopModel 
  */
 module.exports.ActivatePromoCodeByUserNo = modules => [
 	[
-		body("promoCodeId")
-			.isNumeric()
+		body("promoCodeId").trim().isNumeric()
 			.custom(value => modules.shopModel.promoCodes.findOne({
 				attributes: {
 					include: [[modules.sequelize.fn("NOW"), "dateNow"]]
@@ -317,8 +315,7 @@ module.exports.ActivatePromoCodeByUserNo = modules => [
 					}
 				}
 			})),
-		body("userNo")
-			.isNumeric()
+		body("userNo").trim().isNumeric()
 			.custom(value => modules.accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {

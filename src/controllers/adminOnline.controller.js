@@ -53,7 +53,7 @@ module.exports.kickAction = ({ i18n, logger, hub, reportModel, accountModel, ser
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("accountDBID")
+		query("accountDBID").trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
@@ -62,7 +62,7 @@ module.exports.kickAction = ({ i18n, logger, hub, reportModel, accountModel, ser
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
-		query("serverId")
+		query("serverId").trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain a valid number."))
 			.custom(value => serverModel.info.findOne({
 				where: { serverId: value }
@@ -103,7 +103,7 @@ module.exports.kickAllAction = ({ i18n, logger, hub, reportModel, serverModel })
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("serverId")
+		query("serverId").trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("Server ID field must contain a valid number."))
 			.custom(value => serverModel.info.findOne({
 				where: { serverId: value }

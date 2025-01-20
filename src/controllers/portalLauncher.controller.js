@@ -248,7 +248,7 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 		}
 	},
 	[
-		body("email")
+		body("email").trim()
 			.custom(value => accountModel.info.findOne({
 				where: {
 					[Op.or]: [{ email: value }, { userName: value }]
@@ -516,7 +516,7 @@ module.exports.SignupAction = modules => [
 		}
 	},
 	[
-		body("login")
+		body("login").trim()
 			.custom(value => modules.accountModel.info.findOne({
 				where: {
 					userName: value
@@ -526,7 +526,7 @@ module.exports.SignupAction = modules => [
 					return Promise.reject(10);
 				}
 			})),
-		body("email")
+		body("email").trim()
 			.custom(value => modules.accountModel.info.findOne({
 				where: {
 					email: value
@@ -825,7 +825,7 @@ module.exports.GetAccountInfoAction = ({ config, localization, logger, rateLimit
 module.exports.SetAccountLanguageAction = ({ localization, logger, rateLimitter, accountModel }) => [
 	apiAuthSessionHandler(),
 	[
-		body("language")
+		body("language").trim()
 			.isIn(localization.listAllLanguages())
 			.custom(value => {
 				if (localization.listClientLanguages().every(language => language !== value)) {
@@ -1048,7 +1048,7 @@ module.exports.CaptchaCreate = () => [
  */
 module.exports.CaptchaVerify = ({ logger, rateLimitter }) => [
 	[
-		body("answer").notEmpty()
+		body("answer").trim().notEmpty()
 	],
 	validationHandler(logger),
 	rateLimitterHandler(rateLimitter, "portalApi.launcher.captchaVerify"),

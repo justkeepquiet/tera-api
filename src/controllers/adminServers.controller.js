@@ -78,7 +78,7 @@ module.exports.add = ({ config, localization, i18n }) => [
 module.exports.addAction = ({ localization, i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
-		body("serverId")
+		body("serverId").trim()
 			.isInt({ min: 1 }).withMessage(i18n.__("Server ID field must contain the value as a number."))
 			.custom(value => serverModel.info.findOne({
 				where: { serverId: value }
@@ -89,7 +89,7 @@ module.exports.addAction = ({ localization, i18n, logger, reportModel, serverMod
 			})),
 		body("loginIp").trim()
 			.isIP().withMessage(i18n.__("Login IP field must contain a valid IP value.")),
-		body("loginPort")
+		body("loginPort").trim()
 			.isPort().withMessage(i18n.__("Login port field must contain a valid port value.")),
 		body("language").trim().toLowerCase()
 			.isIn(localization.listAllLanguages())
@@ -98,19 +98,19 @@ module.exports.addAction = ({ localization, i18n, logger, reportModel, serverMod
 			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
 		body("descrString").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description string field must be between 1 and 1024 characters.")),
-		body("permission")
+		body("permission").trim()
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain the value as a number.")),
-		body("thresholdLow")
+		body("thresholdLow").trim()
 			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Threshold low field must contain the value as a number.")),
-		body("thresholdMedium")
+		body("thresholdMedium").trim()
 			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Threshold medium field must contain the value as a number.")),
-		body("isPvE").optional()
+		body("isPvE").optional().trim()
 			.isIn(["on"]).withMessage(i18n.__("Only PvE field has invalid value.")),
-		body("isCrowdness").optional()
+		body("isCrowdness").optional().trim()
 			.isIn(["on"]).withMessage(i18n.__("Is crowdness field has invalid value.")),
-		body("isAvailable").optional()
+		body("isAvailable").optional().trim()
 			.isIn(["on"]).withMessage(i18n.__("Is available field has invalid value.")),
-		body("isEnabled").optional()
+		body("isEnabled").optional().trim()
 			.isIn(["on"]).withMessage(i18n.__("Is enabled field has invalid value."))
 	],
 	formValidationHandler(logger),
@@ -151,7 +151,7 @@ module.exports.edit = ({ config, localization, planetDbs, logger, serverModel })
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("serverId").notEmpty()
+		query("serverId").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**
@@ -197,10 +197,10 @@ module.exports.edit = ({ config, localization, planetDbs, logger, serverModel })
 module.exports.editAction = ({ localization, i18n, logger, queue, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
-		query("serverId").notEmpty(),
+		query("serverId").trim().notEmpty(),
 		body("loginIp").trim()
 			.isIP().withMessage(i18n.__("Login IP field must contain a valid IP value.")),
-		body("loginPort")
+		body("loginPort").trim()
 			.isPort().withMessage(i18n.__("Login port field must contain a valid port value.")),
 		body("language").trim().toLowerCase()
 			.isIn(localization.listAllLanguages())
@@ -209,21 +209,21 @@ module.exports.editAction = ({ localization, i18n, logger, queue, reportModel, s
 			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
 		body("descrString").trim()
 			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description string field must be between 1 and 1024 characters.")),
-		body("permission")
+		body("permission").trim()
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain the value as a number.")),
-		body("thresholdLow")
+		body("thresholdLow").trim()
 			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Threshold low field must contain the value as a number.")),
-		body("thresholdMedium")
+		body("thresholdMedium").trim()
 			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Threshold medium field must contain the value as a number.")),
-		body("isPvE").optional()
+		body("isPvE").optional().trim()
 			.isIn(["on"]).withMessage(i18n.__("Only PvE field has invalid value.")),
-		body("isCrowdness").optional()
+		body("isCrowdness").optional().trim()
 			.isIn(["on"]).withMessage(i18n.__("Is crowdness field has invalid value.")),
-		body("isAvailable").optional()
+		body("isAvailable").optional().trim()
 			.isIn(["on"]).withMessage(i18n.__("Is available field has invalid value.")),
-		body("isEnabled").optional()
+		body("isEnabled").optional().trim()
 			.isIn(["on"]).withMessage(i18n.__("Is enabled field has invalid value.")),
-		body("syncCharacters").optional()
+		body("syncCharacters").optional().trim()
 			.isIn(["on"]).withMessage(i18n.__("Sync server state field has invalid value."))
 	],
 	formValidationHandler(logger),
@@ -274,7 +274,7 @@ module.exports.deleteAction = ({ logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("serverId").notEmpty()
+		query("serverId").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**

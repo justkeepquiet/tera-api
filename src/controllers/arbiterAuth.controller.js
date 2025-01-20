@@ -41,7 +41,10 @@ module.exports.RequestAPIServerStatusAvailable = ({ logger, serverModel }) => [
  * @param {modules} modules
  */
 module.exports.RequestAuthkey = ({ logger, accountModel }) => [
-	[body("clientIP").notEmpty(), body("userNo").isNumeric()],
+	[
+		body("clientIP").notEmpty(),
+		body("userNo").isNumeric()
+	],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
@@ -69,7 +72,10 @@ module.exports.RequestAuthkey = ({ logger, accountModel }) => [
  * @param {modules} modules
  */
 module.exports.GameAuthenticationLogin = ({ logger, sequelize, accountModel }) => [
-	[body("authKey").notEmpty(), body("userNo").isNumeric()],
+	[
+		body("authKey").notEmpty(),
+		body("userNo").isNumeric()
+	],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}

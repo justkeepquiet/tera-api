@@ -127,7 +127,7 @@ module.exports.edit = ({ localization, logger, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("language").notEmpty()
+		query("language").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**
@@ -167,7 +167,7 @@ module.exports.edit = ({ localization, logger, serverModel }) => [
 module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
-		query("language").notEmpty(),
+		query("language").trim().notEmpty(),
 		body("categoryPvE").trim()
 			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Category PvE field must be between 1 and 50 characters.")),
 		body("categoryPvP").trim()
@@ -224,7 +224,7 @@ module.exports.deleteAction = ({ logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("language").notEmpty()
+		query("language").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**

@@ -67,7 +67,7 @@ module.exports.add = ({ logger, i18n, accountModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("accountDBID").optional({ checkFalsy: true })
+		query("accountDBID").optional({ checkFalsy: true }).trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
@@ -100,7 +100,7 @@ module.exports.add = ({ logger, i18n, accountModel, datasheetModel }) => [
 module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	[
-		body("accountDBID")
+		body("accountDBID").trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
@@ -109,7 +109,7 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
 				}
 			})),
-		body("benefitId")
+		body("benefitId").trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("Benefit ID field must contain a valid number."))
 			.custom((value, { req }) => accountModel.benefits.findOne({
 				where: {
@@ -169,8 +169,8 @@ module.exports.edit = ({ logger, i18n, accountModel, datasheetModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("accountDBID").notEmpty(),
-		query("benefitId").notEmpty()
+		query("accountDBID").trim().notEmpty(),
+		query("benefitId").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**
@@ -205,8 +205,8 @@ module.exports.edit = ({ logger, i18n, accountModel, datasheetModel }) => [
 module.exports.editAction = ({ logger, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	[
-		query("accountDBID").notEmpty(),
-		query("benefitId").notEmpty(),
+		query("accountDBID").trim().notEmpty(),
+		query("benefitId").trim().notEmpty(),
 		body("availableUntil").trim()
 			.isISO8601().withMessage("Available until field must contain a valid date.")
 	],
@@ -260,8 +260,8 @@ module.exports.deleteAction = ({ logger, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("accountDBID").notEmpty(),
-		query("benefitId").notEmpty()
+		query("accountDBID").trim().notEmpty(),
+		query("benefitId").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**

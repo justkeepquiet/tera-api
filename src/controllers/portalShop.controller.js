@@ -79,7 +79,7 @@ module.exports.MainHtml = () => [
 module.exports.PartialMenuHtml = ({ i18n, logger, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
-	[query("active").optional().isNumeric()],
+	[query("active").optional().trim().isNumeric()],
 	validationHandler(logger),
 	/**
 	 * @type {RequestHandler}
@@ -118,7 +118,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[
-		body("category").optional().isNumeric(),
+		body("category").optional().trim().isNumeric(),
 		body("search").optional().trim().isLength({ max: 128 })
 	],
 	validationHandler(logger),
@@ -282,8 +282,8 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[
-		body("id").isNumeric(),
-		body("search").optional()
+		body("id").trim().isNumeric(),
+		body("search").optional().trim()
 	],
 	validationHandler(logger),
 	/**
@@ -559,8 +559,8 @@ module.exports.GetAccountInfo = ({ logger, shopModel }) => [
 module.exports.PurchaseAction = modules => [
 	shopStatusHandler,
 	authSessionHandler(modules.logger),
-	[body("productId").notEmpty().isNumeric()],
-	[body("quantity").notEmpty().isInt({ min: 1, max: 99 })],
+	[body("productId").trim().notEmpty().isNumeric()],
+	[body("quantity").trim().notEmpty().isInt({ min: 1, max: 99 })],
 	validationHandler(modules.logger),
 	rateLimitterHandler(modules.rateLimitter, "portalApi.shop.purchaseAction"),
 	/**

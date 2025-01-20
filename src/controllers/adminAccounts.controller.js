@@ -130,11 +130,11 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 					return Promise.reject(i18n.__("Email field contains already existing email."));
 				}
 			})),
-		body("permission")
+		body("permission").trim()
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain a valid number.")),
-		body("privilege")
+		body("privilege").trim()
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Privilege field must contain a valid number.")),
-		body("benefitIds.*").optional()
+		body("benefitIds.*").optional().trim()
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Benefit ID field must contain a valid number."))
 			.custom((value, { req }) => {
 				const benefitIds = req.body.benefitIds.filter((e, i) =>
@@ -144,7 +144,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 				return benefitIds.length === 0 || !benefitIds.includes(value);
 			})
 			.withMessage(i18n.__("Added benefit already exists.")),
-		body("availableUntils.*").optional()
+		body("availableUntils.*").optional().trim()
 			.isISO8601().withMessage("Available field until must contain a valid date.")
 	],
 	formValidationHandler(logger),
@@ -196,7 +196,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("accountDBID").notEmpty()
+		query("accountDBID").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**
@@ -233,7 +233,7 @@ module.exports.edit = ({ logger, accountModel }) => [
 module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	[
-		query("accountDBID").notEmpty(),
+		query("accountDBID").trim().notEmpty(),
 		body("userName").trim()
 			.isLength({ min: 3, max: 24 }).withMessage(i18n.__("User name must be between 3 and 24 characters."))
 			.custom((value, { req }) => accountModel.info.findOne({
@@ -246,7 +246,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 					return Promise.reject(i18n.__("User name contains already existing name."));
 				}
 			})),
-		body("passWord").trim().optional({ checkFalsy: true })
+		body("passWord").optional({ checkFalsy: true }).trim()
 			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("Password field must be between 8 and 128 characters.")),
 		body("email").trim()
 			.isLength({ max: 128 }).withMessage(i18n.__("Email field must contain a valid email."))
@@ -261,9 +261,9 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 					return Promise.reject(i18n.__("Email field contains already existing email."));
 				}
 			})),
-		body("permission")
+		body("permission").trim()
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain a valid number.")),
-		body("privilege")
+		body("privilege").trim()
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Privilege field must contain a valid number."))
 	],
 	formValidationHandler(logger),
@@ -300,7 +300,7 @@ module.exports.deleteAction = ({ logger, hub, sequelize, reportModel, accountMod
 	accessFunctionHandler,
 	expressLayouts,
 	[
-		query("accountDBID").notEmpty()
+		query("accountDBID").trim().notEmpty()
 	],
 	validationHandler(logger),
 	/**
