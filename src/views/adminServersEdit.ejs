@@ -88,12 +88,14 @@
 								<button type="button" class="btn btn-primary" id="submit"><%= __("Save") %></button>
 							</div>
 							<div class="col-sm-9 text-right small">
-								<%_ if (isSyncCharactersAvailable) { _%>
 								<label>
+								<%_ if (isSyncCharactersAvailable) { _%>
 									<input type="checkbox" class="checkbox rounded" name="syncCharacters" <%- syncCharacters ? "checked=\"checked\"" : "" %>>
-									<span><%= __("Sync server state with PlanetDB after saving") %></span>
-								</label>
+									<span><%= __("Sync of server state with the PlanetDB database after saving") %></span>
+								<%_ } else { _%>
+									<i><%= __("Sync of server state with the PlanetDB database is not configured.") %></i>
 								<%_ } _%>
+								</label>
 							</div>
 						</div>
 					</form>
