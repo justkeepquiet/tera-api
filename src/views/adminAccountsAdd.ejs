@@ -126,7 +126,7 @@
 				"			<a class='btn btn-secondary btn-sm remove-benefit' title='' href='#''><i class='fa fa-minus'></i></a></label>" +
 				"		<select class='form-control boxed' name='benefitIds[]'>" +
 				"			<option value=''>- <%= __('None') %> -</option>" +
-				"			<% Array.from(accountBenefits).forEach(({ string, id }) => { %><option value='<%= id %>'>(<%= id %>) <%= string %></option><% }) %>" +
+				"			<% Array.from(accountBenefits.getAll()).forEach(({ string, id }) => { %><option value='<%= id %>'>(<%= id %>) <%= string %></option><% }) %>" +
 				"		</select>" +
 				"	</div>" +
 				"	<div class='col-sm-6'>" +
