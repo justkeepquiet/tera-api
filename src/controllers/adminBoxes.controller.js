@@ -129,9 +129,10 @@ module.exports.addAction = modules => [
 				}
 				return true;
 			})
-			.custom((value, { req }) => {
+			.custom((value, { req, path: reqPath }) => {
+				const id = parseInt(reqPath.match(/\[(\d+)\]/)?.[1]);
 				const itemTemplateIds = req.body.itemTemplateIds.filter((e, i) =>
-					e && req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
+					e && id > req.body.itemTemplateIds.indexOf(e) && req.body.itemTemplateIds.lastIndexOf(e) == i
 				);
 				return !itemTemplateIds.includes(value);
 			})
@@ -280,9 +281,10 @@ module.exports.editAction = modules => [
 				}
 				return true;
 			})
-			.custom((value, { req }) => {
+			.custom((value, { req, path: reqPath }) => {
+				const id = parseInt(reqPath.match(/\[(\d+)\]/)?.[1]);
 				const itemTemplateIds = req.body.itemTemplateIds.filter((e, i) =>
-					e && req.body.itemTemplateIds.lastIndexOf(e) == i && req.body.itemTemplateIds.indexOf(e) != i
+					e && id > req.body.itemTemplateIds.indexOf(e) && req.body.itemTemplateIds.lastIndexOf(e) == i
 				);
 				return !itemTemplateIds.includes(value);
 			})

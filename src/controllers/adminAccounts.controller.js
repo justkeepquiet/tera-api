@@ -136,11 +136,11 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Privilege field must contain a valid number.")),
 		body("benefitIds.*").optional().trim()
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Benefit ID field must contain a valid number."))
-			.custom((value, { req }) => {
+			.custom((value, { req, path: reqPath }) => {
+				const id = parseInt(reqPath.match(/\[(\d+)\]/)?.[1]);
 				const benefitIds = req.body.benefitIds.filter((e, i) =>
-					e && req.body.benefitIds.lastIndexOf(e) == i && req.body.benefitIds.indexOf(e) != i
+					e && id > req.body.benefitIds.indexOf(e) && req.body.benefitIds.lastIndexOf(e) == i
 				);
-
 				return benefitIds.length === 0 || !benefitIds.includes(value);
 			})
 			.withMessage(i18n.__("Added benefit already exists.")),
