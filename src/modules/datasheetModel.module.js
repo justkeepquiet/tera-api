@@ -2,13 +2,13 @@
 
 /**
  * @typedef {object} datasheetModel
- * @property {Map<string,import("../models/datasheet/strSheetAccountBenefit.model")>?} strSheetAccountBenefit
- * @property {Map<string,import("../models/datasheet/strSheetDungeon.model")>?} strSheetDungeon
- * @property {Map<string,import("../models/datasheet/strSheetCreature.model")>?} strSheetCreature
- * @property {Map<string,import("../models/datasheet/itemConversion.model")>?} itemConversion
- * @property {Map<string,import("../models/datasheet/itemData.model")>?} itemData
- * @property {Map<string,import("../models/datasheet/skillIconData.model")>?} skillIconData
- * @property {Map<string,import("../models/datasheet/strSheetItem.model")>?} strSheetItem
+ * @property {Map<string, import("../models/datasheet/strSheetAccountBenefit.model")>?} strSheetAccountBenefit
+ * @property {Map<string, import("../models/datasheet/strSheetDungeon.model")>?} strSheetDungeon
+ * @property {Map<string, import("../models/datasheet/strSheetCreature.model")>?} strSheetCreature
+ * @property {Map<string, import("../models/datasheet/itemConversion.model")>?} itemConversion
+ * @property {Map<string, import("../models/datasheet/itemData.model")>?} itemData
+ * @property {Map<string, import("../models/datasheet/skillIconData.model")>?} skillIconData
+ * @property {Map<string, import("../models/datasheet/strSheetItem.model")>?} strSheetItem
  *
  * @typedef {import("../app").modules} modules
  */
@@ -22,9 +22,6 @@ const { getRevision } = require("../utils/helpers");
 const CacheManager = require("../utils/cacheManager");
 const DatasheetLoader = require("../lib/datasheetLoader");
 
-const CACHE_DIRECTORY = "../../data/cache";
-const DATASHEETS_DIRECTORY = "../../data/datasheets";
-
 /**
  * @param {modules} modules
  */
@@ -34,7 +31,7 @@ module.exports = async ({ gcCollect, checkComponent, pluginsLoader, localization
 	 */
 	const loadDatasheetModelSync = (logger, datasheetModel, directory, region, locale, useBinary) => {
 		const cacheManager = new CacheManager(
-			path.join(__dirname, CACHE_DIRECTORY), "dc",
+			path.join(__dirname, "../../data/cache"), "dc",
 			createLogger("Cache Manager", { colors: { debug: "gray" } })
 		);
 
@@ -60,7 +57,9 @@ module.exports = async ({ gcCollect, checkComponent, pluginsLoader, localization
 			datasheetLoader.fromXml(directoryPath);
 		}
 
-		const addModel = (section, model) => {
+		const addModel = section => {
+			const model = require(`../models/datasheet/${section}.model`);
+
 			if (datasheetModel[section] === undefined) {
 				datasheetModel[section] = new Map();
 			}
@@ -78,31 +77,28 @@ module.exports = async ({ gcCollect, checkComponent, pluginsLoader, localization
 			}
 		};
 
-		pluginsLoader.loadComponent("datasheetModels.before", addModel);
+		pluginsLoader.loadComponent("datasheetModel.before", addModel);
 
 		if (checkComponent("admin_panel")) {
-			addModel("strSheetAccountBenefit", require("../models/datasheet/strSheetAccountBenefit.model"));
-			addModel("strSheetDungeon", require("../models/datasheet/strSheetDungeon.model"));
-			addModel("strSheetCreature", require("../models/datasheet/strSheetCreature.model"));
+			addModel("skillIconData");
+			addModel("strSheetAccountBenefit");
+			addModel("strSheetDungeon");
+			addModel("strSheetCreature");
 		}
 
 		if (checkComponent("admin_panel") || checkComponent("portal_api")) {
-			addModel("itemConversion", require("../models/datasheet/itemConversion.model"));
-			addModel("skillIconData", require("../models/datasheet/skillIconData.model"));
+			addModel("itemConversion");
 		}
 
 		if (checkComponent("admin_panel") || checkComponent("portal_api") || checkComponent("arbiter_api")) {
-			addModel("itemData", require("../models/datasheet/itemData.model"));
-			addModel("strSheetItem", require("../models/datasheet/strSheetItem.model"));
+			addModel("itemData");
+			addModel("strSheetItem");
 		}
 
-		pluginsLoader.loadComponent("datasheetModels.after", addModel);
-
-		let dirty = false;
+		pluginsLoader.loadComponent("datasheetModel.after", addModel);
 
 		if (datasheetLoader.loader.sections.length !== 0) {
 			datasheetLoader.load();
-			dirty = true;
 
 			for (const [section, locales] of Object.entries(datasheetModel)) {
 				const instance = locales.get(locale);
@@ -113,14 +109,16 @@ module.exports = async ({ gcCollect, checkComponent, pluginsLoader, localization
 					datasheetLoader.logger.info(`Model saved to cache: ${section} (${locale})`);
 				}
 			}
+
+			return true;
 		}
 
-		return dirty;
+		return false;
 	};
 
 	const datasheetLogger = createLogger("Datasheet", { colors: { debug: "gray" } });
 	const useBinary = env.bool("DATASHEET_USE_BINARY");
-	const directory = path.join(__dirname, DATASHEETS_DIRECTORY);
+	const directory = path.join(__dirname, "../../data/datasheets");
 	const datasheetModel = {};
 	const variants = [];
 
