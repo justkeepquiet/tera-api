@@ -38,7 +38,7 @@ module.exports.ListAccounts = ({ accountModel, shopModel }) => [
 				Balance: account.get("balance"),
 				Discount: account.get("discount"),
 				IsActive: !!account.get("active"),
-				RegisterTime: moment(account.get("createdAt")).unix()
+				RegisterTime: moment(account.get("createdAt")).toISOString()
 			});
 		});
 
@@ -91,7 +91,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, accountModel, shopModel }) =>
 			Balance: account.get("balance"),
 			Discount: account.get("discount"),
 			IsActive: !!account.get("active"),
-			RegisterTime: moment(account.get("createdAt")).unix()
+			RegisterTime: moment(account.get("createdAt")).toISOString()
 		});
 	}
 ];
@@ -168,8 +168,8 @@ module.exports.ListPromoCodes = ({ shopModel }) => [
 				Function: promocode.get("function"),
 				CurrentActivations: promocode.get("currentActivations"),
 				MaxActivations: promocode.get("maxActivations"),
-				ValidAfterTime: moment(promocode.get("validAfter")).unix(),
-				ValidBeforeTime: moment(promocode.get("validBefore")).unix(),
+				ValidAfterTime: moment(promocode.get("validAfter")).toISOString(),
+				ValidBeforeTime: moment(promocode.get("validBefore")).toISOString(),
 				IsActive: !!promocode.get("active"),
 				IsValid: valid
 			});
@@ -220,7 +220,7 @@ module.exports.ListPromoCodesActivatedByUserNo = ({ logger, accountModel, shopMo
 				String: activated.get("info").get("promoCode"),
 				UserNo: activated.get("accountDBID"),
 				UserName: activated.get("account")?.get("userName") || null,
-				ActivationTime: moment(activated.get("createdAt")).unix()
+				ActivationTime: moment(activated.get("createdAt")).toISOString()
 			});
 		});
 
@@ -269,7 +269,7 @@ module.exports.ListPromoCodesActivatedById = ({ logger, accountModel, shopModel 
 				String: activated.get("info").get("promoCode"),
 				UserNo: activated.get("accountDBID"),
 				UserName: activated.get("account")?.get("userName") || null,
-				ActivationTime: moment(activated.get("createdAt")).unix()
+				ActivationTime: moment(activated.get("createdAt")).toISOString()
 
 			});
 		});

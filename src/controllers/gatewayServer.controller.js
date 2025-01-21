@@ -80,7 +80,7 @@ module.exports.ListOnlineAccountsByServerId = ({ logger, accountModel }) => [
 				UserNo: account.get("accountDBID"),
 				UserName: account.get("info").get("userName"),
 				LastLoginIP: account.get("info").get("lastLoginIP"),
-				LastLoginTime: moment(account.get("info").get("lastLoginTime")).unix()
+				LastLoginTime: moment(account.get("info").get("lastLoginTime")).toISOString()
 			});
 		});
 

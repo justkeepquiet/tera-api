@@ -31,8 +31,8 @@ module.exports.ListAccounts = ({ accountModel }) => [
 				UserName: account.get("userName"),
 				AuthKey: account.get("authKey"),
 				Email: account.get("email"),
-				RegisterTime: moment(account.get("registerTime")).unix(),
-				LastLoginTime: moment(account.get("lastLoginTime")).unix(),
+				RegisterTime: moment(account.get("registerTime")).toISOString(),
+				LastLoginTime: moment(account.get("lastLoginTime")).toISOString(),
 				LastLoginIP: account.get("lastLoginIP"),
 				LastLoginServer: account.get("lastLoginServer"),
 				PlayTimeLast: account.get("playTimeLast"),
@@ -312,14 +312,14 @@ module.exports.BanAccountByUserNo = ({ logger, hub, accountModel }) => [
 
 		await accountModel.bans.create({
 			accountDBID: account.get("accountDBID"),
-			startTime: moment.tz(startTime, req.user.tz).toDate(),
-			endTime: moment.tz(endTime, req.user.tz).toDate(),
+			startTime: moment(startTime).toISOString(),
+			endTime: moment(endTime).toISOString(),
 			active: active == "on",
 			ip: JSON.stringify(helpers.unserializeRange(ip)),
 			description
 		});
 
-		if (account.get("lastLoginServer") && moment.tz(startTime, req.user.tz) < moment() && moment.tz(endTime, req.user.tz) > moment()) {
+		if (account.get("lastLoginServer") && moment(startTime) < moment() && moment(endTime) > moment()) {
 			hub.kickUser(account.get("lastLoginServer"), account.get("accountDBID"), 264).catch(err => {
 				if (err.resultCode() !== 2) {
 					logger.warn(err.toString());
