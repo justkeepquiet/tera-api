@@ -10,6 +10,7 @@ const { query, body } = require("express-validator");
 const Op = require("sequelize").Op;
 const validator = require("validator");
 
+const Benefit = require("../actions/handlers/benefit");
 const helpers = require("../utils/helpers");
 const { validationHandler } = require("../middlewares/gateway.middlewares");
 
@@ -262,6 +263,142 @@ module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => 
 			Ip: account?.get("banned") ? JSON.parse(account.get("banned").get("ip")) : null,
 			StartTime: account?.get("banned") ? moment(account.get("banned").get("startTime")).unix() : null,
 			EndTime: account?.get("banned") ? moment(account.get("banned").get("endTime")).unix() : null
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.RegisterNewAccount = modules => [
+	[
+		body("login").trim()
+			.isLength({ min: 3, max: 24 }).withMessage("Must contain a string between 3 and 24 characters long")
+			.isAlphanumeric().withMessage("Contains an invalid value")
+			.custom(value => modules.accountModel.info.findOne({
+				where: { userName: value }
+			}).then(user => {
+				if (user) {
+					return Promise.reject("Contains an existing login");
+				}
+			})),
+		body("email").trim()
+			.isLength({ max: 128 }).withMessage("Should not be more than 128 characters length")
+			.isEmail().withMessage("Contains an invalid email")
+			.custom(value => modules.accountModel.info.findOne({
+				where: { email: value }
+			}).then(user => {
+				if (user) {
+					return Promise.reject("Contains an existing email");
+				}
+			})),
+		body("password").trim()
+			.isLength({ min: 8, max: 128 }).withMessage("Must contain a string between 8 and 128 characters long")
+	],
+	validationHandler(modules.logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { login, email } = req.body;
+		const passWord = helpers.getPasswordString(req.body.password);
+
+		const account = await modules.accountModel.info.create({
+			userName: login,
+			passWord,
+			email,
+			language: modules.localization.defaultLanguage
+		});
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			UserNo: account.get("accountDBID")
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.AddBenefitByUserNo = modules => [
+	[
+		body("userNo").trim()
+			.isInt({ min: 0 }).withMessage("Must contain a valid number")
+			.custom(value => modules.accountModel.info.findOne({
+				where: { accountDBID: value }
+			}).then(data => {
+				if (value && data === null) {
+					return Promise.reject("Contains not existing account ID");
+				}
+			})),
+		body("benefitId").trim()
+			.isInt({ min: 0 }).withMessage("Must contain a valid number"),
+		body("benefitDays").trim()
+			.isInt({ min: 1 }).withMessage("Must contain a valid number")
+	],
+	validationHandler(modules.logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { userNo, benefitId, benefitDays } = req.body;
+
+		const online = await modules.accountModel.online.findOne({
+			where: { accountDBID: userNo }
+		});
+
+		const serverId = online !== null ? online.get("serverId") : null;
+		const benefit = new Benefit(modules, userNo, serverId);
+
+		await benefit.addBenefit(benefitId, benefitDays);
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success"
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.RemoveBenefitByUserNo = modules => [
+	[
+		body("userNo").trim()
+			.isInt({ min: 0 }).withMessage("Must contain a valid number")
+			.custom(value => modules.accountModel.info.findOne({
+				where: { accountDBID: value }
+			}).then(data => {
+				if (value && data === null) {
+					return Promise.reject("Contains not existing account ID");
+				}
+			})),
+		body("benefitId").trim()
+			.isInt({ min: 0 }).withMessage("Must contain a valid number")
+	],
+	validationHandler(modules.logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { userNo, benefitId } = req.body;
+
+		const online = await modules.accountModel.online.findOne({
+			where: { accountDBID: userNo }
+		});
+
+		const serverId = online !== null ? online.get("serverId") : null;
+		const benefit = new Benefit(modules, userNo, serverId);
+
+		await benefit.removeBenefit(benefitId);
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success"
 		});
 	}
 ];

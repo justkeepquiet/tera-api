@@ -118,6 +118,9 @@ Endpoint                                | Method | Arguments                    
 /accountApi/ListBenefitsByUserNo        | GET    | `userNo`                                               | Retrieve a list of benefits assigned to a specific account ID.
 /accountApi/GetAccountInfoByUserNo      | GET    | `userNo`                                               | Request the account information of specified account ID.
 /accountApi/GetAccountBanByUserNo       | GET    | `userNo`, `clientIP`                                   | Request the account banned status of specified account ID or client IP.
+/accountApi/RegisterNewAccount          | POST   | `login`, `email`, `password`                           | Register a new account based on the specified data.
+/accountApi/AddBenefitByUserNo          | POST   | `userNo`, `benefitId`, `benefitDays`                   | Add a benefit by its ID and number of days for the specified account ID.
+/accountApi/RemoveBenefitByUserNo       | POST   | `userNo`, `benefitId`                                  | Remove a benefit by its ID from the specified account ID.
 /accountApi/BanAccountByUserNo          | POST   | `userNo`, `startTime`, `endTime`, `ip?`, `description` | Ban a specific account by its account ID.
 
 ### Shop API Endpoints
