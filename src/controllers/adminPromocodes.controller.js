@@ -90,7 +90,7 @@ module.exports.addAction = ({ config, i18n, logger, sequelize, reportModel, shop
 	accessFunctionHandler,
 	[
 		body("promoCode").trim()
-			.isLength({ min: 6, max: 16 }).withMessage(i18n.__("The field must be between 6 and 16 characters."))
+			.isLength({ min: 6, max: 20 }).withMessage(i18n.__("The field must be between 6 and 20 characters."))
 			.custom(value => shopModel.promoCodes.findOne({
 				where: { promoCode: value }
 			}).then(data => {

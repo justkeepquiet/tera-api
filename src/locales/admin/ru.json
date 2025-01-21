@@ -65,7 +65,7 @@
 	"The field contains inactive promo code ID.": "Поле содержит неактивный ID промокода.",
 	"The field contains expired promo code ID.": "Поле содержит просроченный ID промокода.",
 	"The field contains the promo code ID with the activation limit reached.": "Поле содержит ID промокода с достигнутым пределом по количеству активаций.",
-	"The field must be between 6 and 16 characters.": "Поле должно содержать от 6 до 16 символов.",
+	"The field must be between 6 and 20 characters.": "Поле должно содержать от 6 до 20 символов.",
 	"The field contains not existing account ID.": "Поле содержит несуществующий ID.",
 	"Shop account with specified account ID already exists.": "Аккаунт магазина с указанным ID уже существует.",
 	"This promo code has already been activated on the specified account ID.": "Этот промокод уже активирован для указанного ID аккаунта.",

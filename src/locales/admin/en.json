@@ -65,7 +65,7 @@
 	"The field contains inactive promo code ID.": "The field contains inactive promo code ID.",
 	"The field contains expired promo code ID.": "The field contains expired promo code ID.",
 	"The field contains the promo code ID with the activation limit reached.": "The field contains the promo code ID with the activation limit reached.",
-	"The field must be between 6 and 16 characters.": "The field must be between 6 and 16 characters.",
+	"The field must be between 6 and 20 characters.": "The field must be between 6 and 20 characters.",
 	"The field contains not existing account ID.": "The field contains not existing account ID.",
 	"Shop account with specified account ID already exists.": "Shop account with specified account ID already exists.",
 	"This promo code has already been activated on the specified account ID.": "This promo code has already been activated on the specified account ID.",
