@@ -110,32 +110,32 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 	expressLayouts,
 	[
 		body("userName").trim()
-			.isLength({ min: 3, max: 24 }).withMessage(i18n.__("User name must be between 3 and 24 characters."))
+			.isLength({ min: 3, max: 24 }).withMessage(i18n.__("The field must be between 3 and 24 characters."))
 			.custom(value => accountModel.info.findOne({
 				where: { userName: value }
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("User name contains already existing name."));
+					return Promise.reject(i18n.__("The field contains already existing name."));
 				}
 			})),
 		body("passWord").trim()
-			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("Password field must be between 8 and 128 characters.")),
+			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("The field must be between 8 and 128 characters.")),
 		body("email").trim()
-			.isLength({ max: 128 }).withMessage(i18n.__("Email field must contain a valid email."))
-			.isEmail().withMessage(i18n.__("Email field must contain a valid email."))
+			.isLength({ max: 128 }).withMessage(i18n.__("The field must contain a valid email."))
+			.isEmail().withMessage(i18n.__("The field must contain a valid email."))
 			.custom(value => accountModel.info.findOne({
 				where: { email: value }
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("Email field contains already existing email."));
+					return Promise.reject(i18n.__("The field contains already existing email."));
 				}
 			})),
 		body("permission").trim()
-			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("The field must contain a valid number.")),
 		body("privilege").trim()
-			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Privilege field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("The field must contain a valid number.")),
 		body("benefitIds.*").optional().trim()
-			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Benefit ID field must contain a valid number."))
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("The field must contain a valid number."))
 			.custom((value, { req, path: reqPath }) => {
 				const id = parseInt(reqPath.match(/\[(\d+)\]/)?.[1]);
 				const benefitIds = req.body.benefitIds.filter((e, i) =>
@@ -145,7 +145,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 			})
 			.withMessage(i18n.__("Added benefit already exists.")),
 		body("availableUntils.*").optional().trim()
-			.isISO8601().withMessage("Available field until must contain a valid date.")
+			.isISO8601().withMessage("The field until must contain a valid date.")
 	],
 	formValidationHandler(logger),
 	/**
@@ -235,7 +235,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 	[
 		query("accountDBID").trim().notEmpty(),
 		body("userName").trim()
-			.isLength({ min: 3, max: 24 }).withMessage(i18n.__("User name must be between 3 and 24 characters."))
+			.isLength({ min: 3, max: 24 }).withMessage(i18n.__("The field must be between 3 and 24 characters."))
 			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
 					userName: req.body.userName,
@@ -243,14 +243,14 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 				}
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("User name contains already existing name."));
+					return Promise.reject(i18n.__("The field contains already existing name."));
 				}
 			})),
 		body("passWord").optional({ checkFalsy: true }).trim()
-			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("Password field must be between 8 and 128 characters.")),
+			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("The field must be between 8 and 128 characters.")),
 		body("email").trim()
-			.isLength({ max: 128 }).withMessage(i18n.__("Email field must contain a valid email."))
-			.isEmail().withMessage(i18n.__("Email field must contain a valid email."))
+			.isLength({ max: 128 }).withMessage(i18n.__("The field must contain a valid email."))
+			.isEmail().withMessage(i18n.__("The field must contain a valid email."))
 			.custom((value, { req }) => accountModel.info.findOne({
 				where: {
 					email: req.body.email,
@@ -258,13 +258,13 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 				}
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("Email field contains already existing email."));
+					return Promise.reject(i18n.__("The field contains already existing email."));
 				}
 			})),
 		body("permission").trim()
-			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("The field must contain a valid number.")),
 		body("privilege").trim()
-			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Privilege field must contain a valid number."))
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("The field must contain a valid number."))
 	],
 	formValidationHandler(logger),
 	/**

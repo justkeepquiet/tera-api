@@ -62,11 +62,11 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 	accessFunctionHandler,
 	[
 		body("startTime").trim()
-			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("endTime").trim()
-			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("description").optional().trim()
-			.isLength({ max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
+			.isLength({ max: 1024 }).withMessage(i18n.__("The field must be between 1 and 1024 characters."))
 	],
 	formValidationHandler(logger),
 	/**
@@ -128,11 +128,11 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	[
 		query("id").trim().notEmpty(),
 		body("startTime").trim()
-			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("endTime").trim()
-			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("description").optional().trim()
-			.isLength({ max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
+			.isLength({ max: 1024 }).withMessage(i18n.__("The field must be between 1 and 1024 characters."))
 	],
 	formValidationHandler(logger),
 	/**

@@ -90,27 +90,27 @@ module.exports.addAction = ({ config, i18n, logger, sequelize, reportModel, shop
 	accessFunctionHandler,
 	[
 		body("promoCode").trim()
-			.isLength({ min: 6, max: 16 }).withMessage(i18n.__("Promo code field must be between 6 and 16 characters."))
+			.isLength({ min: 6, max: 16 }).withMessage(i18n.__("The field must be between 6 and 16 characters."))
 			.custom(value => shopModel.promoCodes.findOne({
 				where: { promoCode: value }
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("Promo code field contains an existing promo code."));
+					return Promise.reject(i18n.__("The field contains an existing promo code."));
 				}
 			})),
 		body("aFunction").trim()
 			.custom(value => getPromocodeFunctionsNames(config).includes(value))
-			.withMessage(i18n.__("Assigned function field contains invalid function.")),
+			.withMessage(i18n.__("The field contains invalid function.")),
 		body("validAfter").trim()
-			.isISO8601().withMessage(i18n.__("Valid from field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("validBefore").trim()
-			.isISO8601().withMessage(i18n.__("Valid to field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("maxActivations").trim()
-			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Maximum of activations field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("active").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value.")),
 		body("description.*").trim()
-			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Description must be between 1 and 2048 characters."))
+			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("The field must be between 1 and 2048 characters."))
 	],
 	formValidationHandler(logger),
 	/**
@@ -213,17 +213,17 @@ module.exports.editAction = ({ config, localization, i18n, logger, sequelize, re
 		query("promoCodeId").trim().notEmpty(),
 		body("aFunction").trim()
 			.custom(value => getPromocodeFunctionsNames(config).includes(value))
-			.withMessage(i18n.__("Assigned function field contains invalid function.")),
+			.withMessage(i18n.__("The field contains invalid function.")),
 		body("validAfter").trim()
-			.isISO8601().withMessage(i18n.__("Valid from field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("validBefore").trim()
-			.isISO8601().withMessage(i18n.__("Valid to field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("maxActivations").trim()
-			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Maximum of activations field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("active").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value.")),
 		body("description.*").trim()
-			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Description field must be between 1 and 2048 characters."))
+			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("The field must be between 1 and 2048 characters."))
 	],
 	formValidationHandler(logger),
 	/**

@@ -57,12 +57,12 @@ module.exports.add = ({ logger, i18n, accountModel }) => [
 	expressLayouts,
 	[
 		query("accountDBID").optional({ checkFalsy: true }).trim()
-			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
+			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
 				if (value && data === null) {
-					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
+					return Promise.reject(i18n.__("The field contains not existing account ID."));
 				}
 			}))
 	],
@@ -88,35 +88,35 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 	accessFunctionHandler,
 	[
 		body("accountDBID").trim()
-			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
+			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
 			.custom(value => accountModel.bans.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
 				if (value && data !== null) {
-					return Promise.reject(i18n.__("Account ID field contains already banned account ID."));
+					return Promise.reject(i18n.__("The field contains already banned account ID."));
 				}
 			}))
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
 				if (value && data === null) {
-					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
+					return Promise.reject(i18n.__("The field contains not existing account ID."));
 				}
 			})),
 		body("startTime").trim()
-			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("endTime").trim()
-			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("ip").optional().trim()
 			.custom(value => {
 				const ip = helpers.unserializeRange(value);
 				return ip.length === 0 || ip.length === ip.filter(e => validator.isIP(e)).length;
 			})
-			.withMessage(i18n.__("IP address field must contain a valid IP value.")),
+			.withMessage(i18n.__("The field must contain a valid IP value.")),
 		body("active").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value.")),
 		body("description").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
+			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("The field must be between 1 and 1024 characters."))
 	],
 	formValidationHandler(logger),
 	/**
@@ -197,19 +197,19 @@ module.exports.editAction = ({ i18n, logger, hub, reportModel, accountModel }) =
 	[
 		query("accountDBID").trim().notEmpty(),
 		body("startTime").trim()
-			.isISO8601().withMessage(i18n.__("Start time field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("endTime").trim()
-			.isISO8601().withMessage(i18n.__("End time field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("ip").optional().trim()
 			.custom(value => {
 				const ip = helpers.unserializeRange(value);
 				return ip.length === 0 || ip.length === ip.filter(e => validator.isIP(e)).length;
 			})
-			.withMessage(i18n.__("IP address field must contain a valid IP value.")),
+			.withMessage(i18n.__("The field must contain a valid IP value.")),
 		body("active").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value.")),
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value.")),
 		body("description").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description field must be between 1 and 1024 characters."))
+			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("The field must be between 1 and 1024 characters."))
 	],
 	formValidationHandler(logger),
 	/**

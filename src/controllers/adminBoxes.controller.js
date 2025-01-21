@@ -113,16 +113,16 @@ module.exports.addAction = modules => [
 	accessFunctionHandler,
 	[
 		body("title").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(modules.i18n.__("Title must be between 1 and 1024 characters.")),
+			.isLength({ min: 1, max: 1024 }).withMessage(modules.i18n.__("The field must be between 1 and 1024 characters.")),
 		body("content").trim()
-			.isLength({ min: 1, max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters.")),
+			.isLength({ min: 1, max: 2048 }).withMessage(modules.i18n.__("The field must be between 1 and 2048 characters.")),
 		body("icon").optional().trim()
-			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Icon must be between 1 and 255 characters.")),
+			.isLength({ max: 2048 }).withMessage(modules.i18n.__("The field must be between 1 and 255 characters.")),
 		body("days").trim()
-			.isInt({ min: 1, max: 4000 }).withMessage(modules.i18n.__("Days field must contain the value as a number.")),
+			.isInt({ min: 1, max: 4000 }).withMessage(modules.i18n.__("The field must contain the value as a number.")),
 		// Items
 		body("itemTemplateIds.*").trim()
-			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("The field has invalid value."))
 			.custom(value => {
 				if (value && !modules.datasheetModel.itemData.get(modules.i18n.getLocale())?.getOne(value)) {
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
@@ -138,9 +138,9 @@ module.exports.addAction = modules => [
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true }).trim()
-			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("The field has invalid value.")),
 		body("boxItemCounts.*").trim()
-			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("Count field has invalid value.")),
+			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("The field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the box."))
 	],
@@ -265,16 +265,16 @@ module.exports.editAction = modules => [
 	[
 		query("id").trim().notEmpty(),
 		body("title").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(modules.i18n.__("Title must be between 1 and 1024 characters.")),
+			.isLength({ min: 1, max: 1024 }).withMessage(modules.i18n.__("The field must be between 1 and 1024 characters.")),
 		body("content").trim()
-			.isLength({ min: 1, max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters.")),
+			.isLength({ min: 1, max: 2048 }).withMessage(modules.i18n.__("The field must be between 1 and 2048 characters.")),
 		body("icon").optional().trim()
-			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Icon must be between 1 and 255 characters.")),
+			.isLength({ max: 2048 }).withMessage(modules.i18n.__("The field must be between 1 and 255 characters.")),
 		body("days").trim()
-			.isInt({ min: 1, max: 4000 }).withMessage(modules.i18n.__("Days field must contain the value as a number.")),
+			.isInt({ min: 1, max: 4000 }).withMessage(modules.i18n.__("The field must contain the value as a number.")),
 		// Items
 		body("itemTemplateIds.*").trim()
-			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("The field has invalid value."))
 			.custom(value => {
 				if (value && !modules.datasheetModel.itemData.get(modules.i18n.getLocale())?.getOne(value)) {
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
@@ -290,9 +290,9 @@ module.exports.editAction = modules => [
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true }).trim()
-			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("The field has invalid value.")),
 		body("boxItemCounts.*").trim()
-			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("Count field has invalid value.")),
+			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("The field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the box."))
 	],
@@ -568,25 +568,25 @@ module.exports.sendAction = modules => [
 	[
 		query("id").trim().notEmpty(),
 		body("serverId").optional({ checkFalsy: true }).trim()
-			.isInt().withMessage(modules.i18n.__("Server ID field must contain a valid number."))
+			.isInt().withMessage(modules.i18n.__("The field must contain a valid number."))
 			.custom((value, { req }) => modules.serverModel.info.findOne({
 				where: { ...req.body.serverId ? { serverId: req.body.serverId } : {} }
 			}).then(data => {
 				if (data === null) {
-					return Promise.reject(modules.i18n.__("Server ID field contains not existing server ID."));
+					return Promise.reject(modules.i18n.__("The field contains not existing server ID."));
 				}
 			})),
 		body("accountDBID").trim()
-			.isInt().withMessage(modules.i18n.__("Account ID field must contain a valid number."))
+			.isInt().withMessage(modules.i18n.__("The field must contain a valid number."))
 			.custom(value => modules.accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
 				if (value && data === null) {
-					return Promise.reject(modules.i18n.__("Account ID field contains not existing account ID."));
+					return Promise.reject(modules.i18n.__("The field contains not existing account ID."));
 				}
 			})),
 		body("characterId").optional({ checkFalsy: true }).trim()
-			.isInt().withMessage(modules.i18n.__("Character ID field must contain a valid number."))
+			.isInt().withMessage(modules.i18n.__("The field must contain a valid number."))
 			.custom((value, { req }) => modules.accountModel.characters.findOne({
 				where: {
 					characterId: req.body.characterId,
@@ -595,7 +595,7 @@ module.exports.sendAction = modules => [
 				}
 			}).then(data => {
 				if (req.body.characterId && data === null) {
-					return Promise.reject(modules.i18n.__("Character ID field contains not existing character ID."));
+					return Promise.reject(modules.i18n.__("The field contains not existing character ID."));
 				}
 			}))
 	],
@@ -797,16 +797,16 @@ module.exports.sendAllAction = modules => [
 	[
 		query("id").trim().notEmpty(),
 		body("serverId").optional({ checkFalsy: true }).trim()
-			.isInt().withMessage(modules.i18n.__("Server ID field must contain a valid number."))
+			.isInt().withMessage(modules.i18n.__("The field must contain a valid number."))
 			.custom((value, { req }) => modules.serverModel.info.findOne({
 				where: { ...req.body.serverId ? { serverId: req.body.serverId } : {} }
 			}).then(data => {
 				if (data === null) {
-					return Promise.reject(modules.i18n.__("Server ID field contains not existing server ID."));
+					return Promise.reject(modules.i18n.__("The field contains not existing server ID."));
 				}
 			})),
 		body("loginAfterTime").trim()
-			.isISO8601().withMessage(modules.i18n.__("Last login field must contain a valid date."))
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date."))
 	],
 	formValidationHandler(modules.logger),
 	/**

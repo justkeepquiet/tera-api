@@ -79,39 +79,39 @@ module.exports.addAction = ({ localization, i18n, logger, reportModel, serverMod
 	accessFunctionHandler,
 	[
 		body("serverId").trim()
-			.isInt({ min: 1 }).withMessage(i18n.__("Server ID field must contain the value as a number."))
+			.isInt({ min: 1 }).withMessage(i18n.__("The field must contain the value as a number."))
 			.custom(value => serverModel.info.findOne({
 				where: { serverId: value }
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("Server ID field contains an existing server ID."));
+					return Promise.reject(i18n.__("The field contains an existing server ID."));
 				}
 			})),
 		body("loginIp").trim()
-			.isIP().withMessage(i18n.__("Login IP field must contain a valid IP value.")),
+			.isIP().withMessage(i18n.__("The field must contain a valid IP value.")),
 		body("loginPort").trim()
-			.isPort().withMessage(i18n.__("Login port field must contain a valid port value.")),
+			.isPort().withMessage(i18n.__("The field must contain a valid port value.")),
 		body("language").trim().toLowerCase()
 			.isIn(localization.listAllLanguages())
-			.withMessage(i18n.__("Language code field must be a valid value.")),
+			.withMessage(i18n.__("The field must be a valid value.")),
 		body("nameString").trim()
-			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
+			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("The field must be between 1 and 256 characters.")),
 		body("descrString").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description string field must be between 1 and 1024 characters.")),
+			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("The field must be between 1 and 1024 characters.")),
 		body("permission").trim()
-			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("thresholdLow").trim()
-			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Threshold low field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("thresholdMedium").trim()
-			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Threshold medium field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("isPvE").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Only PvE field has invalid value.")),
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value.")),
 		body("isCrowdness").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Is crowdness field has invalid value.")),
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value.")),
 		body("isAvailable").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Is available field has invalid value.")),
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value.")),
 		body("isEnabled").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Is enabled field has invalid value."))
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value."))
 	],
 	formValidationHandler(logger),
 	/**
@@ -199,32 +199,32 @@ module.exports.editAction = ({ localization, i18n, logger, queue, reportModel, s
 	[
 		query("serverId").trim().notEmpty(),
 		body("loginIp").trim()
-			.isIP().withMessage(i18n.__("Login IP field must contain a valid IP value.")),
+			.isIP().withMessage(i18n.__("The field must contain a valid IP value.")),
 		body("loginPort").trim()
-			.isPort().withMessage(i18n.__("Login port field must contain a valid port value.")),
+			.isPort().withMessage(i18n.__("The field must contain a valid port value.")),
 		body("language").trim().toLowerCase()
 			.isIn(localization.listAllLanguages())
-			.withMessage(i18n.__("Language code field must be a valid value.")),
+			.withMessage(i18n.__("The field must be a valid value.")),
 		body("nameString").trim()
-			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("Name string field must be between 1 and 256 characters.")),
+			.isLength({ min: 1, max: 256 }).withMessage(i18n.__("The field must be between 1 and 256 characters.")),
 		body("descrString").trim()
-			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("Description string field must be between 1 and 1024 characters.")),
+			.isLength({ min: 1, max: 1024 }).withMessage(i18n.__("The field must be between 1 and 1024 characters.")),
 		body("permission").trim()
-			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Permission field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("thresholdLow").trim()
-			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Threshold low field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("thresholdMedium").trim()
-			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("Threshold medium field must contain the value as a number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("isPvE").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Only PvE field has invalid value.")),
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value.")),
 		body("isCrowdness").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Is crowdness field has invalid value.")),
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value.")),
 		body("isAvailable").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Is available field has invalid value.")),
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value.")),
 		body("isEnabled").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Is enabled field has invalid value.")),
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value.")),
 		body("syncCharacters").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Sync server state field has invalid value."))
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value."))
 	],
 	formValidationHandler(logger),
 	/**

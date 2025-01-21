@@ -68,12 +68,12 @@ module.exports.add = ({ logger, i18n, accountModel, datasheetModel }) => [
 	expressLayouts,
 	[
 		query("accountDBID").optional({ checkFalsy: true }).trim()
-			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
+			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
 				if (value && data === null) {
-					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
+					return Promise.reject(i18n.__("The field contains not existing account ID."));
 				}
 			}))
 	],
@@ -101,16 +101,16 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 	accessFunctionHandler,
 	[
 		body("accountDBID").trim()
-			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
+			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
 				if (value && data === null) {
-					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
+					return Promise.reject(i18n.__("The field contains not existing account ID."));
 				}
 			})),
 		body("benefitId").trim()
-			.isInt({ min: 0 }).withMessage(i18n.__("Benefit ID field must contain a valid number."))
+			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
 			.custom((value, { req }) => accountModel.benefits.findOne({
 				where: {
 					accountDBID: req.body.accountDBID,
@@ -118,11 +118,11 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 				}
 			}).then(data => {
 				if (data !== null) {
-					return Promise.reject(i18n.__("Benefit ID field contains existing benefit ID on account."));
+					return Promise.reject(i18n.__("The field contains existing benefit ID on account."));
 				}
 			})),
 		body("availableUntil").trim()
-			.isISO8601().withMessage("Available until field must contain a valid date.")
+			.isISO8601().withMessage("The field must contain a valid date.")
 	],
 	formValidationHandler(logger),
 	/**
@@ -208,7 +208,7 @@ module.exports.editAction = ({ logger, hub, reportModel, accountModel }) => [
 		query("accountDBID").trim().notEmpty(),
 		query("benefitId").trim().notEmpty(),
 		body("availableUntil").trim()
-			.isISO8601().withMessage("Available until field must contain a valid date.")
+			.isISO8601().withMessage("The field must contain a valid date.")
 	],
 	formValidationHandler(logger),
 	/**

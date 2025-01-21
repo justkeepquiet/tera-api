@@ -206,9 +206,9 @@ module.exports.addAction = modules => [
 	accessFunctionHandler,
 	[
 		body("price").trim()
-			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("The field must contain a valid number.")),
 		body("sort").trim()
-			.isInt({ min: -1e8, max: 1e8 }).withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
+			.isInt({ min: -1e8, max: 1e8 }).withMessage(modules.i18n.__("The field must contain the value as a number.")),
 		body("categoryId").trim()
 			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
@@ -216,18 +216,18 @@ module.exports.addAction = modules => [
 				}
 			}).then(data => {
 				if (!data) {
-					return Promise.reject(modules.i18n.__("Category field must contain an existing category ID."));
+					return Promise.reject(modules.i18n.__("The field must contain an existing category ID."));
 				}
 			})),
 		body("validAfter").trim()
-			.isISO8601().withMessage(modules.i18n.__("Valid from field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("validBefore").trim()
-			.isISO8601().withMessage(modules.i18n.__("Valid to field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("active").optional().trim()
-			.isIn(["on"]).withMessage(modules.i18n.__("Active field has invalid value.")),
+			.isIn(["on"]).withMessage(modules.i18n.__("The field has invalid value.")),
 		// Items
 		body("itemTemplateIds.*").trim()
-			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("The field has invalid value."))
 			.custom(value => {
 				if (value && !modules.datasheetModel.itemData.get(modules.i18n.getLocale())?.getOne(value)) {
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
@@ -243,32 +243,32 @@ module.exports.addAction = modules => [
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true }).trim()
-			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("The field has invalid value.")),
 		body("boxItemCounts.*").trim()
-			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("Count field has invalid value.")),
+			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("The field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the product.")),
 		// Additional info
 		body("icon").optional().trim().toLowerCase()
-			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Icon must be between 1 and 255 characters.")),
+			.isLength({ max: 2048 }).withMessage(modules.i18n.__("The field must be between 1 and 255 characters.")),
 		body("rareGrade").optional()
-			.isIn(["", "0", "1", "2", "3", "4", "5"]).withMessage(modules.i18n.__("Rare grade field has invalid value.")),
+			.isIn(["", "0", "1", "2", "3", "4", "5"]).withMessage(modules.i18n.__("The field has invalid value.")),
 		body("title.*").optional().trim()
-			.isLength({ max: 1024 }).withMessage(modules.i18n.__("Title must be between 1 and 1024 characters.")),
+			.isLength({ max: 1024 }).withMessage(modules.i18n.__("The field must be between 1 and 1024 characters.")),
 		body("description.*").optional().trim()
-			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters.")),
+			.isLength({ max: 2048 }).withMessage(modules.i18n.__("The field must be between 1 and 2048 characters.")),
 		body("tag").optional().trim()
-			.isIn(["", "0", "1", "2", "3"]).withMessage(modules.i18n.__("Tag field has invalid value.")),
+			.isIn(["", "0", "1", "2", "3"]).withMessage(modules.i18n.__("The field has invalid value.")),
 		body("tagValidAfter").optional({ checkFalsy: true }).trim()
-			.isISO8601().withMessage(modules.i18n.__("Tag valid from field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("tagValidBefore").optional({ checkFalsy: true }).trim()
-			.isISO8601().withMessage(modules.i18n.__("Tag valid to field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("discount").trim()
-			.isInt({ min: 0, max: 100 }).withMessage(modules.i18n.__("Discount field must contain a valid number.")),
+			.isInt({ min: 0, max: 100 }).withMessage(modules.i18n.__("The field must contain a valid number.")),
 		body("discountValidAfter").optional({ checkFalsy: true }).trim()
-			.isISO8601().withMessage(modules.i18n.__("Discount valid from field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("discountValidBefore").optional({ checkFalsy: true }).trim()
-			.isISO8601().withMessage(modules.i18n.__("Discount valid to field must contain a valid date."))
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date."))
 
 	],
 	formValidationHandler(modules.logger),
@@ -470,9 +470,9 @@ module.exports.editAction = modules => [
 	[
 		query("id").trim().notEmpty(),
 		body("price").trim()
-			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("The field must contain a valid number.")),
 		body("sort").trim()
-			.isInt({ min: -1e8, max: 1e8 }).withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
+			.isInt({ min: -1e8, max: 1e8 }).withMessage(modules.i18n.__("The field must contain the value as a number.")),
 		body("categoryId").trim()
 			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
@@ -480,18 +480,18 @@ module.exports.editAction = modules => [
 				}
 			}).then(data => {
 				if (!data) {
-					return Promise.reject(modules.i18n.__("Category field must contain an existing category ID."));
+					return Promise.reject(modules.i18n.__("The field must contain an existing category ID."));
 				}
 			})),
 		body("validAfter").trim()
-			.isISO8601().withMessage(modules.i18n.__("Valid from field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("validBefore").trim()
-			.isISO8601().withMessage(modules.i18n.__("Valid to field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("active").optional().trim()
-			.isIn(["on"]).withMessage(modules.i18n.__("Active field has invalid value.")),
+			.isIn(["on"]).withMessage(modules.i18n.__("The field has invalid value.")),
 		// Items
 		body("itemTemplateIds.*").trim()
-			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Item template ID field has invalid value."))
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("The field has invalid value."))
 			.custom(value => {
 				if (value && !modules.datasheetModel.itemData.get(modules.i18n.getLocale())?.getOne(value)) {
 					return Promise.reject(`${modules.i18n.__("A non-existent item has been added")}: ${value}`);
@@ -507,32 +507,32 @@ module.exports.editAction = modules => [
 			})
 			.withMessage(modules.i18n.__("Added item already exists.")),
 		body("boxItemIds.*").optional({ checkFalsy: true }).trim()
-			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("Service item ID field has invalid value.")),
+			.isInt({ min: 1, max: 1e8 }).withMessage(modules.i18n.__("The field has invalid value.")),
 		body("boxItemCounts.*").trim()
-			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("Count field has invalid value.")),
+			.isInt({ min: 1, max: 1e6 }).withMessage(modules.i18n.__("The field has invalid value.")),
 		body("itemTemplateIds").notEmpty()
 			.withMessage(modules.i18n.__("No items have been added to the product.")),
 		// Additional info
 		body("icon").optional().trim().toLowerCase()
-			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Icon must be between 1 and 255 characters.")),
+			.isLength({ max: 2048 }).withMessage(modules.i18n.__("The field must be between 1 and 255 characters.")),
 		body("rareGrade").optional().trim()
-			.isIn(["", "0", "1", "2", "3", "4", "5"]).withMessage(modules.i18n.__("Rare grade field has invalid value.")),
+			.isIn(["", "0", "1", "2", "3", "4", "5"]).withMessage(modules.i18n.__("The field has invalid value.")),
 		body("title.*").optional().trim()
-			.isLength({ max: 1024 }).withMessage(modules.i18n.__("Title must be between 1 and 1024 characters.")),
+			.isLength({ max: 1024 }).withMessage(modules.i18n.__("The field must be between 1 and 1024 characters.")),
 		body("description.*").optional().trim()
-			.isLength({ max: 2048 }).withMessage(modules.i18n.__("Description must be between 1 and 2048 characters.")),
+			.isLength({ max: 2048 }).withMessage(modules.i18n.__("The field must be between 1 and 2048 characters.")),
 		body("tag").optional().trim()
-			.isIn(["", "0", "1", "2", "3"]).withMessage(modules.i18n.__("Tag field has invalid value.")),
+			.isIn(["", "0", "1", "2", "3"]).withMessage(modules.i18n.__("The field has invalid value.")),
 		body("tagValidAfter").optional({ checkFalsy: true }).trim()
-			.isISO8601().withMessage(modules.i18n.__("Tag valid from field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("tagValidBefore").optional({ checkFalsy: true }).trim()
-			.isISO8601().withMessage(modules.i18n.__("Tag valid to field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("discount").trim()
-			.isInt({ min: 0, max: 100 }).withMessage(modules.i18n.__("Discount field must contain a valid number.")),
+			.isInt({ min: 0, max: 100 }).withMessage(modules.i18n.__("The field must contain a valid number.")),
 		body("discountValidAfter").optional({ checkFalsy: true }).trim()
-			.isISO8601().withMessage(modules.i18n.__("Discount valid from field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("discountValidBefore").optional({ checkFalsy: true }).trim()
-			.isISO8601().withMessage(modules.i18n.__("Discount valid to field must contain a valid date."))
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date."))
 	],
 	formValidationHandler(modules.logger),
 	/**
@@ -736,9 +736,9 @@ module.exports.editAllAction = modules => [
 	expressLayouts,
 	[
 		body("price").optional({ checkFalsy: true }).trim()
-			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("Price field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e8 }).withMessage(modules.i18n.__("The field must contain a valid number.")),
 		body("sort").optional({ checkFalsy: true }).trim()
-			.isInt({ min: -1e8, max: 1e8 }).withMessage(modules.i18n.__("Sort field must contain the value as a number.")),
+			.isInt({ min: -1e8, max: 1e8 }).withMessage(modules.i18n.__("The field must contain the value as a number.")),
 		body("categoryId").optional({ checkFalsy: true }).trim()
 			.custom((value, { req }) => modules.shopModel.categories.findOne({
 				where: {
@@ -746,15 +746,15 @@ module.exports.editAllAction = modules => [
 				}
 			}).then(data => {
 				if (!data) {
-					return Promise.reject(modules.i18n.__("Category field must contain an existing category ID."));
+					return Promise.reject(modules.i18n.__("The field must contain an existing category ID."));
 				}
 			})),
 		body("validAfter").optional({ checkFalsy: true }).trim()
-			.isISO8601().withMessage(modules.i18n.__("Valid from field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("validBefore").optional({ checkFalsy: true }).trim()
-			.isISO8601().withMessage(modules.i18n.__("Valid to field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("active").optional({ checkFalsy: true }).trim()
-			.isIn(["on", "off"]).withMessage(modules.i18n.__("Active field has invalid value."))
+			.isIn(["on", "off"]).withMessage(modules.i18n.__("The field has invalid value."))
 	],
 	/**
 	 * @type {RequestHandler}

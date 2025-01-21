@@ -82,9 +82,9 @@ module.exports.add = ({ logger, i18n, shopModel }) => [
 	expressLayouts,
 	[
 		query("promoCodeId").optional({ checkFalsy: true }).trim()
-			.isInt({ min: 0 }).withMessage(i18n.__("Promo code ID field must contain a valid number.")),
+			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number.")),
 		query("accountDBID").optional({ checkFalsy: true }).trim()
-			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
+			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
 	],
 	validationHandler(logger),
 	/**
@@ -112,7 +112,7 @@ module.exports.addAction = modules => [
 	accessFunctionHandler,
 	[
 		body("promoCodeId").trim()
-			.isInt({ min: 0 }).withMessage(modules.i18n.__("Promo code ID field must contain a valid number."))
+			.isInt({ min: 0 }).withMessage(modules.i18n.__("The field must contain a valid number."))
 			.custom(value => modules.shopModel.promoCodes.findOne({
 				attributes: {
 					include: [[modules.sequelize.fn("NOW"), "dateNow"]]
@@ -121,25 +121,25 @@ module.exports.addAction = modules => [
 			}).then(data => {
 				if (value) {
 					if (data === null) {
-						return Promise.reject(modules.i18n.__("Promo code ID field contains not existing promo code ID."));
+						return Promise.reject(modules.i18n.__("The field contains not existing promo code ID."));
 					}
 					if (!data.get("active")) {
-						return Promise.reject(modules.i18n.__("Promo code ID field contains inactive promo code ID."));
+						return Promise.reject(modules.i18n.__("The field contains inactive promo code ID."));
 					}
 					if (moment(data.get("dateNow")).isBefore(data.get("validAfter")) ||
 						moment(data.get("dateNow")).isAfter(data.get("validBefore"))
 					) {
-						return Promise.reject(modules.i18n.__("Promo code ID field contains expired promo code ID."));
+						return Promise.reject(modules.i18n.__("The field contains expired promo code ID."));
 					}
 					if (data.get("maxActivations") > 0 &&
 						data.get("currentActivations") >= data.get("maxActivations")
 					) {
-						return Promise.reject(modules.i18n.__("Promo code ID field contains the promo code ID with the activation limit reached."));
+						return Promise.reject(modules.i18n.__("The field contains the promo code ID with the activation limit reached."));
 					}
 				}
 			})),
 		body("accountDBID").trim()
-			.isInt({ min: 0 }).withMessage(modules.i18n.__("Account ID field must contain a valid number."))
+			.isInt({ min: 0 }).withMessage(modules.i18n.__("The field must contain a valid number."))
 			.custom(value => modules.accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {

@@ -65,32 +65,32 @@ module.exports.addAction = ({ localization, i18n, logger, reportModel, serverMod
 	[
 		body("language").trim().toLowerCase()
 			.isIn(localization.listAllLanguages())
-			.withMessage(i18n.__("Language code field must be a valid value."))
+			.withMessage(i18n.__("The field must be a valid value."))
 			.custom(value => serverModel.strings.findOne({
 				where: { language: value }
 			}).then(data => {
 				if (data) {
-					return Promise.reject(i18n.__("Language code field contains already existing language code."));
+					return Promise.reject(i18n.__("The field contains already existing language code."));
 				}
 			})),
 		body("categoryPvE").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Category PvE field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("categoryPvP").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Category PvP field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("serverOffline").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Server offline field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("serverLow").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Server low field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("serverMedium").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Server medium field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("serverHigh").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Server high field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("crowdNo").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Crowdness no field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("crowdYes").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Crowdness yes field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("popup").trim()
-			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Popup field must be between 1 and 2048 characters."))
+			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("The field must be between 1 and 2048 characters."))
 	],
 	formValidationHandler(logger),
 	/**
@@ -169,23 +169,23 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 	[
 		query("language").trim().notEmpty(),
 		body("categoryPvE").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Category PvE field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("categoryPvP").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Category PvP field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("serverOffline").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Server offline field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("serverLow").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Server low field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("serverMedium").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Server medium field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("serverHigh").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Server high field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("crowdNo").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Crowdness no field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("crowdYes").trim()
-			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("Crowdness yes field must be between 1 and 50 characters.")),
+			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),
 		body("popup").trim()
-			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("Popup field must be between 1 and 2048 characters."))
+			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("The field must be between 1 and 2048 characters."))
 	],
 	formValidationHandler(logger),
 	/**

@@ -58,7 +58,7 @@ module.exports.add = ({ logger, i18n }) => [
 	expressLayouts,
 	[
 		query("accountDBID").optional({ checkFalsy: true }).trim()
-			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
+			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
 	],
 	validationHandler(logger),
 	/**
@@ -81,7 +81,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 	accessFunctionHandler,
 	[
 		body("accountDBID").trim()
-			.isInt({ min: 0 }).withMessage(i18n.__("Account ID field must contain a valid number."))
+			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
 			.custom(value => shopModel.accounts.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
@@ -93,15 +93,15 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 				where: { accountDBID: value }
 			}).then(data => {
 				if (value && data === null) {
-					return Promise.reject(i18n.__("Account ID field contains not existing account ID."));
+					return Promise.reject(i18n.__("The field contains not existing account ID."));
 				}
 			})),
 		body("balance").trim()
-			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Balance field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("The field must contain a valid number.")),
 		body("discount").trim()
-			.isInt({ min: 0, max: 100 }).withMessage(i18n.__("Discount field must contain a valid number.")),
+			.isInt({ min: 0, max: 100 }).withMessage(i18n.__("The field must contain a valid number.")),
 		body("active").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value."))
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value."))
 	],
 	formValidationHandler(logger),
 	/**
@@ -173,11 +173,11 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	[
 		query("accountDBID").trim().notEmpty(),
 		body("balance").trim()
-			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("Balance field must contain a valid number.")),
+			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("The field must contain a valid number.")),
 		body("discount").trim()
-			.isInt({ min: 0, max: 100 }).withMessage(i18n.__("Discount field must contain a valid number.")),
+			.isInt({ min: 0, max: 100 }).withMessage(i18n.__("The field must contain a valid number.")),
 		body("active").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("Active field has invalid value."))
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value."))
 	],
 	formValidationHandler(logger),
 	/**
