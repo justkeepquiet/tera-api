@@ -15,8 +15,12 @@ class Shop {
 		this.params = params;
 	}
 
-	async fund(amount) {
-		let balance = amount;
+	async addBalance(amount) {
+		let balance = parseInt(amount);
+
+		if (balance < 1) {
+			throw Error("Invalid percent value");
+		}
 
 		const account = await this.modules.shopModel.accounts.findOne({
 			where: { accountDBID: this.userId }
@@ -43,6 +47,38 @@ class Shop {
 			balance,
 			description: this.params.report
 		});
+	}
+
+	async addDiscount(percent) {
+		let discount = parseInt(percent);
+
+		if (discount < 1 || discount > 100) {
+			throw Error("Invalid percent value");
+		}
+
+		const account = await this.modules.shopModel.accounts.findOne({
+			where: { accountDBID: this.userId }
+		});
+
+		if (account !== null) {
+			discount = Math.min(account.get("discount") + percent, 100);
+
+			await this.modules.shopModel.accounts.increment({
+				discount: percent
+			}, {
+				where: { accountDBID: this.userId }
+			});
+		} else {
+			await this.modules.shopModel.accounts.create({
+				accountDBID: this.userId,
+				discount: percent
+			});
+		}
+	}
+
+	// deprecated call
+	async fund(amount) {
+		return await this.addBalance(amount);
 	}
 }
 

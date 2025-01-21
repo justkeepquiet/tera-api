@@ -41,11 +41,16 @@ module.exports = {
 
 	// FREE-100-COINS
 	fund_100_coins: [
-		[Shop, { fund: [100] }]
+		[Shop, { addBalance: [100] }]
 	],
 
 	// FREE-VIP-30DAY
 	add_benefit_vip_30: [
 		[Benefit, { addBenefit: [benefitId, 30] }]
+	],
+
+	// DISCOUNT-10-PERCENT
+	discount_10_percent: [
+		[Shop, { addDiscount: [10] }]
 	]
 };
