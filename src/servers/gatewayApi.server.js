@@ -7,12 +7,15 @@
 const env = require("../utils/env");
 const { createLogger } = require("../utils/logger");
 const ExpressServer = require("../lib/expressServer");
+const TasksActions = require("../actions/tasks.actions");
 
 /**
  * @param {modules} modules
  */
 module.exports = async modules => {
 	if (!modules.checkComponent("gateway_api")) return;
+
+	const tasksActions = new TasksActions(modules);
 
 	if (!env.number("API_GATEWAY_LISTEN_PORT")) {
 		throw "Invalid configuration parameter: API_GATEWAY_LISTEN_PORT";
@@ -37,4 +40,7 @@ module.exports = async modules => {
 		env.string("API_GATEWAY_LISTEN_HOST"),
 		env.number("API_GATEWAY_LISTEN_PORT")
 	);
+
+	modules.queue.setModel(modules.queueModel.tasks);
+	modules.queue.setHandlers(tasksActions);
 };

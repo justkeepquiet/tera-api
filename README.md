@@ -131,3 +131,11 @@ Endpoint                                  | Method | Arguments                  
 /shopApi/ListPromoCodesActivatedByUserNo  | GET    | `userNo`                            | Retrieve a list of promo codes activated by a specific account ID.
 /shopApi/ListPromoCodesActivatedById      | GET    | `id`                                | Retrieve information about a specific activated promo code ID.
 /shopApi/ActivatePromoCodeByUserNo        | POST   | `promoCodeId`, `userNo`             | Activate a specific promo code ID for a specified account ID.
+
+### Box API Endpoints
+
+Endpoint                                  | Method | Arguments                                      | Description
+---                                       | ---    | ---                                            | ---
+/boxApi/ListBoxes                         | GET    | -                                              | Retrieve a list of all available Boxes with contains items.
+/boxApi/SendBoxToAccountByUserNo          | POST   | `boxId`, `userNo`, `characterId?`, `serverId?` | Send the specified Box to the a specific account ID, character ID, server ID.
+/boxApi/SendBoxesToAllByServerId          | POST   | `boxId`, `loginAfterTime`, `serverId?`         | Send specified Box to all accounts active after the specified date (ISO 8601).
