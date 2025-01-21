@@ -75,16 +75,16 @@ module.exports.SendBoxToAccountByUserNo = modules => [
 	[
 		body("boxId").trim().notEmpty(),
 		body("userNo").trim()
-			.isInt().withMessage("Must contain a valid number.")
+			.isInt().withMessage("Must contain a valid number")
 			.custom(value => modules.accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
 				if (value && data === null) {
-					return Promise.reject("Contains not existing account ID.");
+					return Promise.reject("Contains not existing account ID");
 				}
 			})),
 		body("characterId").optional({ checkFalsy: true }).trim()
-			.isInt().withMessage("Must contain a valid number.")
+			.isInt().withMessage("Must contain a valid number")
 			.custom((value, { req }) => modules.accountModel.characters.findOne({
 				where: {
 					characterId: req.body.characterId,
@@ -93,16 +93,16 @@ module.exports.SendBoxToAccountByUserNo = modules => [
 				}
 			}).then(data => {
 				if (req.body.characterId && data === null) {
-					return Promise.reject("Contains not existing character ID.");
+					return Promise.reject("Contains not existing character ID");
 				}
 			})),
 		body("serverId").optional({ checkFalsy: true }).trim()
-			.isInt().withMessage("Must contain a valid number.")
+			.isInt().withMessage("Must contain a valid number")
 			.custom((value, { req }) => modules.serverModel.info.findOne({
 				where: { ...req.body.serverId ? { serverId: req.body.serverId } : {} }
 			}).then(data => {
 				if (data === null) {
-					return Promise.reject("Contains not existing server ID.");
+					return Promise.reject("Contains not existing server ID");
 				}
 			}))
 	],
@@ -164,13 +164,13 @@ module.exports.SendBoxToAccountByUserNo = modules => [
 		const errors = [];
 
 		if (box.get("item").length !== itemChecks.size) {
-			errors.push("There are no Service Items for the specified service item IDs.");
+			errors.push("There are no Service Items for the specified service item IDs");
 		}
 
 		const task = await modules.queue.findByTag("createBox", boxId, 1);
 
 		if (task.length > 0) {
-			errors.push("Task with this box ID is already running. Check tasks queue.");
+			errors.push("Task with this box ID is already running");
 		}
 
 		if (errors.length > 0) {
@@ -214,14 +214,14 @@ module.exports.SendBoxesToAllByServerId = modules => [
 	[
 		body("boxId").trim().notEmpty(),
 		body("loginAfterTime").trim()
-			.isISO8601().withMessage("Must contain a ISO 8601 date."),
+			.isISO8601().withMessage("Must contain a valid ISO 8601"),
 		body("serverId").optional({ checkFalsy: true }).trim()
-			.isInt().withMessage("Must contain a valid number.")
+			.isInt().withMessage("Must contain a valid number")
 			.custom((value, { req }) => modules.serverModel.info.findOne({
 				where: { ...req.body.serverId ? { serverId: req.body.serverId } : {} }
 			}).then(data => {
 				if (data === null) {
-					return Promise.reject("Contains not existing server ID.");
+					return Promise.reject("Contains not existing server ID");
 				}
 			}))
 	],
@@ -288,13 +288,13 @@ module.exports.SendBoxesToAllByServerId = modules => [
 		const errors = [];
 
 		if (box.get("item").length !== itemChecks.size) {
-			errors.push("There are no Service Items for the specified service item IDs.");
+			errors.push("There are no Service Items for the specified service item IDs");
 		}
 
 		const task = await modules.queue.findByTag("createBox", boxId, 1);
 
 		if (task.length > 0) {
-			errors.push("Task with this box ID is already running. Check tasks queue.");
+			errors.push("Task with this box ID is already running");
 		}
 
 		if (errors.length > 0) {
