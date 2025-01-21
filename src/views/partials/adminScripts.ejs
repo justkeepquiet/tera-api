@@ -42,4 +42,7 @@
 	};
 </script>
 <script src="/static/js/vendor.js"></script>
+<%_ if (locale !== "en") { _%>
+<script src="/static/js/vendor/jquery-validation/localization/messages_<%= locale %>.min.js"></script>
+<%_ } _%>
 <script src="/static/js/app.js"></script>
