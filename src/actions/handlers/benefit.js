@@ -25,6 +25,10 @@ class Benefit {
 
 		let totalDays = parseInt(days);
 
+		if (totalDays < 1) {
+			throw Error("Invalid days value");
+		}
+
 		if (benefit === null) {
 			await this.modules.accountModel.benefits.create({
 				accountDBID: this.userId,
