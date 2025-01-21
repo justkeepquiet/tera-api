@@ -138,4 +138,4 @@ Endpoint                                  | Method | Arguments                  
 ---                                       | ---    | ---                                            | ---
 /boxApi/ListBoxes                         | GET    | -                                              | Retrieve a list of all available Boxes with contains items.
 /boxApi/SendBoxToAccountByUserNo          | POST   | `boxId`, `userNo`, `characterId?`, `serverId?` | Send the specified Box to the a specific account ID, character ID, server ID.
-/boxApi/SendBoxesToAllByServerId          | POST   | `boxId`, `loginAfterTime`, `serverId?`         | Send specified Box to all accounts active after the specified date (ISO 8601).
+/boxApi/SendBoxesToAllByServerId          | POST   | `boxId`, `loginAfterTime`, `serverId?`         | Send specified Box to all accounts active after the specified date.
