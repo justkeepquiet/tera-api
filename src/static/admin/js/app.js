@@ -372,81 +372,6 @@ var modalMedia = {
 };
 */
 
-$.fn.loadInputData = function(endpoint, fnResultFormat) {
-	this.each(function() {
-		var input = $(this);
-
-		if (!input.val() || input.closest("form").hasClass("form-inline")) {
-			return;
-		}
-
-		$.ajax({
-			url: endpoint + "?value=" + input.val(),
-			method: "get",
-			async: false,
-			success: function(data) {
-				if (data.result_code !== 0 || data.suggestions.length === 0) {
-					return;
-				}
-
-				var suggestion = data.suggestions[0];
-				var result = fnResultFormat(suggestion);
-
-				input.after(result);
-
-				if (input.attr("disabled")) {
-					return input.next().addClass("autocomplete-disabled");
-				}
-				input.next().click(function() {
-					$(this).prev().focus();
-					$(this).hide();
-				});
-				input.change(function() {
-					$(this).next().remove();
-				});
-				input.focusout(function() {
-					$(this).next().show();
-				});
-			}
-		});
-	});
-};
-
-$.fn.addAutocomplete = function(endpoint, fnFormatResult, fnFormatOnSelect) {
-	this.autocomplete({
-		serviceUrl: endpoint,
-		width: 480,
-		forceFixPosition: true,
-		preventBadQueries: false,
-		triggerSelectOnValidInput: false,
-		appendTo: ".content",
-		formatResult: function(suggestion, currentValue) {
-			return fnFormatResult(suggestion, currentValue);
-		},
-		onSelect: function(suggestion) {
-			if ($(this).closest("form").hasClass("form-inline")) {
-				return;
-			}
-			var input = $(this);
-			var result = fnFormatOnSelect(suggestion);
-
-			input.change();
-			input.after(result);
-
-			result.click(function() {
-				$(this).prev().focus();
-				$(this).hide();
-			});
-			input.change(function() {
-				$(this).next().remove();
-			});
-			input.focusout(function() {
-				$(this).next().show();
-			});
-		}
-	});
-};
-
 $(function() {
 	/*
 	$(".data-table").DataTable(dataTablesSettings);
@@ -483,97 +408,117 @@ $(function() {
 	});
 });
 
-$(function() {
-	loadNotifications();
-	setInterval(loadNotifications, 60000);
+$.fn.addAutocomplete = function(endpoint, fnFormatResult, fnFormatOnSelect) {
+	function clickEvent() {
+		$(this).prev().focus();
+		$(this).hide();
+	}
 
-	$("#notifications-dropdown").click(function() {
-		loadNotifications();
-	});
-});
+	function changeEvent() {
+		$(this).next().remove();
+	}
 
-function loadNotifications() {
-	$.ajax({
-		url: "/api/notifications",
-		method: "get",
-		async: false,
-		success: function(data) {
-			if (data.result_code === 0) {
-				$("#counter").html(data.count);
-				$("#counter").removeClass("text-danger");
-				$("#notifications-container").empty().hide();
+	function focusoutEvent() {
+		$(this).next().show();
+	}
 
-				if (data.count > 0) {
-					$("#counter").addClass("text-danger");
+	function applyDataOnChangeEvent() {
+		applyData($(this));
+	}
 
-					data.items.forEach(function(item) {
-						$("#notifications-container").append(
-							"<li><a href=\"/tasks\" class=\"notification-item\">" +
-							"<div class=\"body-col\"><span class=\"" + item.class + "\"><i class=\"fa " + item.icon + "\"></i> " + item.message + "</span></div>" +
-							"</a></li>"
-						);
-					});
+	function applyData(input) {
+		$.ajax({
+			url: endpoint + "?value=" + input.val(),
+			method: "get",
+			async: false,
+			success: function(data) {
+				if (data.result_code !== 0 || data.suggestions.length === 0) {
+					return;
+				}
 
-					$("#notifications-container").show();
+				var suggestion = data.suggestions[0];
+				var result = fnFormatOnSelect(suggestion);
+
+				input.after(result);
+
+				if (input.attr("disabled")) {
+					return input.next().addClass("autocomplete-disabled");
+				}
+
+				input.next().off("click", clickEvent); // next element
+				input.next().on("click", clickEvent);
+
+				input.off("focusout", focusoutEvent);
+				input.on("focusout", focusoutEvent);
+
+				input.off("change", changeEvent);
+				input.on("change", changeEvent);
+
+				if (!input.closest("form").hasClass("form-inline")) {
+					input.off("change", applyDataOnChangeEvent);
+					input.on("change", applyDataOnChangeEvent);
 				}
 			}
+		});
+	}
+
+	this.each(function() {
+		var input = $(this);
+
+		if (input.hasClass("autocomplete-input")) { // prevent reinitialization
+			return;
+		}
+
+		if (!input.closest("form").hasClass("form-inline")) {
+			if (input.val()) {
+				applyData(input);
+			}
+
+			input.off("change", applyDataOnChangeEvent);
+			input.on("change", applyDataOnChangeEvent);
+		}
+
+		input.addClass("autocomplete-input");
+	});
+
+	this.autocomplete({
+		serviceUrl: endpoint,
+		width: 480,
+		forceFixPosition: true,
+		preventBadQueries: false,
+		triggerSelectOnValidInput: false,
+		appendTo: ".content",
+		formatResult: function(suggestion, currentValue) {
+			return fnFormatResult(suggestion, currentValue);
+		},
+		onSelect: function(suggestion) {
+			var input = $(this);
+
+			if (input.closest("form").hasClass("form-inline")) {
+				return;
+			}
+
+			var result = fnFormatOnSelect(suggestion);
+
+			input.change();
+			input.after(result);
+
+			result.off("click", clickEvent);
+			result.on("click", clickEvent);
+
+			input.off("focusout", focusoutEvent);
+			input.on("focusout", focusoutEvent);
+
+			input.off("change", changeEvent);
+			input.on("change", changeEvent);
+
+			if (applyOnChange) {
+				input.off("change", applyDataOnChangeEvent);
+				input.on("change", applyDataOnChangeEvent);
+			}
 		}
 	});
-}
-
-$(function() {
-	$("input[name='accountDBID'][type='text']").loadInputData("/api/getAccounts",
-		function(suggestion) {
-			var value = suggestion.value + " - " + suggestion.data.userName;
-
-			if (suggestion.data.email != "") {
-				value += " (" + suggestion.data.email + ")";
-			}
-
-			return $("<div class='autocomplete-result'><span>" + value + "</span></div>");
-		}
-	);
-
-	$("input[name='characterId'][type='text']").loadInputData("/api/getCharacters",
-		function(suggestion) {
-			return $("<div class='autocomplete-result'><span>" + suggestion.value + " - " + suggestion.data.name +
-				" (" + suggestion.data.accountDBID + ", " + suggestion.data.serverId + ")" + "</span></div>");
-		}
-	);
-
-	$("input[name='itemTemplateIds\\[\\]'][type='text']").loadInputData("/api/getItems",
-		function(suggestion) {
-			// icon for additional info in shop ptoduct
-			var icons = $("#itemIcons");
-			for (var icon of suggestion.data.icons) {
-				if (icons.find("img[data-value='" + icon + "']").length === 0) {
-					icons.append("<label data-id='" + suggestion.value + "'><span><img src='/static/images/tera-icons/" + icon + ".png' class='item-icon-form item-icon-grade-0 itemIcon' data-value='" + icon + "'></span></label>");
-				}
-			}
-			function selectIcon() {
-				$(".itemIcon").each(function() {
-					if ($(this).css("border", "0").data("value") == $("input[name='icon']").val()) {
-						$(this).css("border", "2px solid #0075FF");
-					}
-				});
-			}
-			selectIcon();
-			$(".itemIcon").click(function() {
-				$("input[name='icon']").val($(this).data("value"));
-				selectIcon();
-			});
-			return $("<div class='autocomplete-result'>" +
-				"<div class='item-icon-input'>" +
-					"<img src='/static/images/tera-icons/" + suggestion.data.icon + ".png' class='item-icon-grade-" + suggestion.data.rareGrade + " item-icon'>" +
-					"<img src='/static/images/icons/icon_grade_" + suggestion.data.rareGrade + ".png' class='item-icon-grade'>" +
-				"</div>" +
-				"<small class='item-grade-" + suggestion.data.rareGrade + "'>(" + suggestion.value + ") " + suggestion.data.title + "</small></div>");
-		}
-	);
-
-	// bind autocomplete hooks
-	addAutocomplete();
-});
+};
 
 function addAutocomplete() {
 	$("input[name='accountDBID'][type='text']").addAutocomplete("/api/getAccounts",
@@ -651,6 +596,46 @@ function addAutocomplete() {
 				"<small class='item-grade-" + suggestion.data.rareGrade + "'>(" + suggestion.value + ") " + suggestion.data.title + "</small></div>");
 		}
 	);
+}
+
+$(function() {
+	addAutocomplete();
+
+	loadNotifications();
+	setInterval(loadNotifications, 60000);
+
+	$("#notifications-dropdown").click(function() {
+		loadNotifications();
+	});
+});
+
+function loadNotifications() {
+	$.ajax({
+		url: "/api/notifications",
+		method: "get",
+		async: false,
+		success: function(data) {
+			if (data.result_code === 0) {
+				$("#counter").html(data.count);
+				$("#counter").removeClass("text-danger");
+				$("#notifications-container").empty().hide();
+
+				if (data.count > 0) {
+					$("#counter").addClass("text-danger");
+
+					data.items.forEach(function(item) {
+						$("#notifications-container").append(
+							"<li><a href=\"/tasks\" class=\"notification-item\">" +
+							"<div class=\"body-col\"><span class=\"" + item.class + "\"><i class=\"fa " + item.icon + "\"></i> " + item.message + "</span></div>" +
+							"</a></li>"
+						);
+					});
+
+					$("#notifications-container").show();
+				}
+			}
+		}
+	});
 }
 
 $(function() {
