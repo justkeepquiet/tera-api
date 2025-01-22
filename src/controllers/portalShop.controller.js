@@ -23,6 +23,35 @@ const {
 	rateLimitterHandler
 } = require("../middlewares/portalShop.middlewares");
 
+const calculatePriceWithDiscount = (shopProduct, shopAccount = null, session = null) => {
+	const discount = { product: 0, coupon: 0, account: 0 };
+	const initialPrice = shopProduct.get("price");
+
+	let finalPrice = initialPrice;
+
+	if (shopProduct.get("discount") > 0 &&
+		shopProduct.get("discountValidAfter") &&
+		shopProduct.get("discountValidBefore") &&
+		moment(shopProduct.get("dateNow")).isSameOrAfter(shopProduct.get("discountValidAfter")) &&
+		moment(shopProduct.get("dateNow")).isSameOrBefore(shopProduct.get("discountValidBefore"))
+	) {
+		discount.product = shopProduct.get("discount");
+		finalPrice = helpers.subtractPercentage(finalPrice, discount.product);
+	}
+
+	if (session?.usedCoupon && session.usedCoupon.discount > 0) {
+		discount.coupon = session.usedCoupon.discount;
+		finalPrice = helpers.subtractPercentage(finalPrice, discount.coupon);
+	}
+
+	if (shopAccount !== null && shopAccount.get("discount") > 0) {
+		discount.account = shopAccount.get("discount");
+		finalPrice = helpers.subtractPercentage(finalPrice, discount.account);
+	}
+
+	return { initialPrice, finalPrice, discount };
+};
+
 /**
  * @param {modules} modules
  */
@@ -171,7 +200,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 			};
 		}
 
-		(await shopModel.products.findAll({
+		const shopProducts = await shopModel.products.findAll({
 			where: { ...whereProduct, ...whereSearch },
 			attributes: {
 				include: [[sequelize.fn("NOW"), "dateNow"]]
@@ -193,17 +222,10 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 				["id", "ASC"],
 				[{ as: "item", model: shopModel.productItems }, "createdAt", "ASC"]
 			]
-		})).forEach(product => {
-			let productDiscount = 0;
+		});
 
-			if (product.get("discount") > 0 &&
-				product.get("discountValidAfter") &&
-				product.get("discountValidBefore") &&
-				moment(product.get("dateNow")).isSameOrAfter(product.get("discountValidAfter")) &&
-				moment(product.get("dateNow")).isSameOrBefore(product.get("discountValidBefore"))
-			) {
-				productDiscount = product.get("discount");
-			}
+		shopProducts.forEach(product => {
+			const { finalPrice, discount } = calculatePriceWithDiscount(product, null, null);
 
 			let tag = null;
 
@@ -216,11 +238,9 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 				tag = product.get("tag");
 			}
 
-			const priceWithDiscount = helpers.subtractPercentage(product.get("price"), productDiscount);
-
 			const productInfo = {
-				price: priceWithDiscount,
-				discount: productDiscount,
+				price: finalPrice,
+				discount: discount.product,
 				title: product.get("strings")[0]?.get("title"),
 				description: product.get("strings")[0]?.get("description"),
 				icon: product.get("icon"),
@@ -318,22 +338,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 			where: { accountDBID: req.user.accountDBID }
 		});
 
-		let accountDiscount = 0;
-
-		if (shopAccount !== null) {
-			accountDiscount = shopAccount.get("discount");
-		}
-
-		let productDiscount = 0;
-
-		if (product.get("discount") > 0 &&
-			product.get("discountValidAfter") &&
-			product.get("discountValidBefore") &&
-			moment(product.get("dateNow")).isSameOrAfter(product.get("discountValidAfter")) &&
-			moment(product.get("dateNow")).isSameOrBefore(product.get("discountValidBefore"))
-		) {
-			productDiscount = product.get("discount");
-		}
+		const { finalPrice, discount } = calculatePriceWithDiscount(product, shopAccount, null);
 
 		let tag = null;
 
@@ -346,17 +351,13 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 			tag = product.get("tag");
 		}
 
-		const priceWithDiscount = helpers.subtractPercentage(
-			helpers.subtractPercentage(product.get("price"), productDiscount),
-			accountDiscount
-		);
-
 		const productObj = {
 			id: product.get("id"),
 			categoryId: product.get("categoryId"),
-			price: priceWithDiscount,
+			price: finalPrice,
 			originalPrice: product.get("price"),
-			discount: productDiscount,
+			discount: discount.product,
+			accountDiscount: discount.account,
 			title: product.get("strings")[0]?.get("title"),
 			description: product.get("strings")[0]?.get("description"),
 			icon: product.get("icon"),
@@ -559,15 +560,18 @@ module.exports.GetAccountInfo = ({ logger, shopModel }) => [
 module.exports.PurchaseAction = modules => [
 	shopStatusHandler,
 	authSessionHandler(modules.logger),
-	[body("productId").trim().notEmpty().isNumeric()],
-	[body("quantity").trim().notEmpty().isInt({ min: 1, max: 99 })],
+	[
+		body("productId").trim().notEmpty().isNumeric(),
+		body("quantity").trim().notEmpty().isInt({ min: 1, max: 99 }),
+		body("userNo").optional({ checkFalsy: true }).trim().isInt()
+	],
 	validationHandler(modules.logger),
 	rateLimitterHandler(modules.rateLimitter, "portalApi.shop.purchaseAction"),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { productId, quantity } = req.body;
+		const { productId, quantity, userNo } = req.body;
 		const serviceItem = new ServiceItem(modules);
 
 		const shopProduct = await modules.shopModel.products.findOne({
@@ -590,6 +594,14 @@ module.exports.PurchaseAction = modules => [
 			throw new ApiError("product not exists", 2000);
 		}
 
+		const recipientAccount = await modules.accountModel.info.findOne({
+			where: { accountDBID: userNo || req.user.accountDBID }
+		});
+
+		if (recipientAccount === null) {
+			throw new ApiError("recipient account not exists", 5000);
+		}
+
 		let shopAccount = await modules.shopModel.accounts.findOne({
 			where: { accountDBID: req.user.accountDBID, active: 1 }
 		});
@@ -602,25 +614,7 @@ module.exports.PurchaseAction = modules => [
 			});
 		}
 
-		let productDiscount = 0;
-
-		if (shopProduct.get("discount") > 0 &&
-			shopProduct.get("discountValidAfter") &&
-			shopProduct.get("discountValidBefore") &&
-			moment(shopProduct.get("dateNow")).isSameOrAfter(shopProduct.get("discountValidAfter")) &&
-			moment(shopProduct.get("dateNow")).isSameOrBefore(shopProduct.get("discountValidBefore"))
-		) {
-			productDiscount = shopProduct.get("discount");
-		}
-
-		const priceWithDiscount = helpers.subtractPercentage(
-			helpers.subtractPercentage(shopProduct.get("price"), productDiscount),
-			shopAccount.get("discount")
-		);
-
-		if (shopAccount.get("balance") < priceWithDiscount * quantity) {
-			throw new ApiError("low balance", 1000);
-		}
+		const { finalPrice } = calculatePriceWithDiscount(shopProduct, shopAccount, req.session);
 
 		const logResult = await modules.reportModel.shopPay.create({
 			accountDBID: req.user.accountDBID,
@@ -628,7 +622,7 @@ module.exports.PurchaseAction = modules => [
 			ip: req.user.lastLoginIP,
 			productId: shopProduct.get("id"),
 			quantity,
-			price: priceWithDiscount,
+			price: finalPrice,
 			status: "deposit"
 		});
 
@@ -636,40 +630,37 @@ module.exports.PurchaseAction = modules => [
 			throw new ApiError("internal error", 1);
 		}
 
-		const promises = [];
 		const items = [];
 
-		shopProduct.get("item").forEach(item => {
+		for (const item of shopProduct.get("item")) {
 			const strSheetItem = modules.datasheetModel.strSheetItem.get(modules.i18n.getLocale())?.getOne(item.get("itemTemplateId"));
 
-			promises.push(serviceItem.checkCreate(
+			const boxItemId = await serviceItem.checkCreate(
 				item.get("boxItemId"),
 				item.get("itemTemplateId"),
 				strSheetItem?.string,
 				helpers.formatStrsheet(strSheetItem?.toolTip),
 				0
-			).then(boxItemId => {
-				items.push({
-					item_id: boxItemId,
-					item_count: item.get("boxItemCount") * quantity,
-					item_template_id: item.get("itemTemplateId")
+			);
+
+			items.push({
+				item_id: boxItemId,
+				item_count: item.get("boxItemCount") * quantity,
+				item_template_id: item.get("itemTemplateId")
+			});
+
+			if (boxItemId != item.get("boxItemId")) {
+				await modules.shopModel.productItems.update({ boxItemId }, {
+					where: { id: item.get("id") }
 				});
-
-				if (boxItemId != item.get("boxItemId")) {
-					return modules.shopModel.productItems.update({ boxItemId }, {
-						where: { id: item.get("id") }
-					});
-				}
-			}));
-		});
-
-		await Promise.all(promises);
+			}
+		}
 
 		if (items.length === 0) {
 			throw new ApiError("items not exists", 3000);
 		}
 
-		const cost = priceWithDiscount * quantity;
+		const cost = finalPrice * quantity;
 
 		await modules.shopModel.accounts.decrement({
 			balance: cost
@@ -684,17 +675,19 @@ module.exports.PurchaseAction = modules => [
 			description: `Buy,ID: ${shopProduct.get("id")},Log ID: ${logResult.get("id")}`
 		});
 
+		const itemClaim = new ItemClaim(
+			modules,
+			recipientAccount.get("accountDBID"),
+			recipientAccount.get("lastLoginServer"),
+			{
+				logType: 3,
+				logId: logResult.get("id")
+			}
+		);
+
 		// no awaiting
 		modules.sequelize.transaction(async () => {
-			const boxId = await (new ItemClaim(
-				modules,
-				req.user.accountDBID,
-				req.user.lastLoginServer,
-				{
-					logType: 3,
-					logId: logResult.get("id")
-				}
-			)).makeBox({
+			const boxId = await itemClaim.makeBox({
 				title: modules.i18n.__("_box_title_"),
 				content: modules.i18n.__("_box_content_"),
 				icon: "GiftBox02.bmp",

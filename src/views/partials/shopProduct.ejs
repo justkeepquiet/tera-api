@@ -1,6 +1,6 @@
 <div class="main">
 	<div class="text-light well" style="margin-bottom: 10px;">
-		<div class="row well-small">
+		<div class="row well-small product-header">
 			<div class="item-icon-block">
 				<img src="/public/shop/images/tera-icons/<%= product.icon %>.png" class="icon_grade_<%= product.rareGrade %> item-icon" alt=""">
 				<img src="/public/shop/images/icons/icon_grade_<%= product.rareGrade %>.png" class="item-icon-grade" alt="">
@@ -14,7 +14,9 @@
 					<%_ if (product.discount > 0) { _%>
 					<span class="badge discount-badge"><%= __("%s% off", product.discount) %></span>
 					<%_ } _%>
-					<span id="shop_discount" class="badge user-discount-badge"></span>
+					<%_ if (product.accountDiscount > 0) { _%>
+					<span class="badge user-discount-badge"><%= __("%s% off", product.accountDiscount) %></span>
+					<%_ } _%>
 				</h5>
 				<small><%- helpers.formatStrsheet(product.description) %></small>
 			</div>
@@ -102,7 +104,7 @@
 			<div class="span3 buy-block-right" id="buy_block">
 				<div id="buy_available" style="margin-top: 10px;">
 					<%= __("Your price") %>: <span class="gold"><strong class="price-value"><%= product.price %></strong> <i class="fas fa-coins"></i></span><br>
-					<input id="quantity" type="number" value="1" min="1" max="99" step="1" class="quantity"> <button class="btn btn-large btn-danger" href="#" id="buy"><%= __("Buy") %></a>
+					<input id="quantity" type="number" value="1" min="1" max="99" step="1" class="quantity"> <button class="btn btn-large btn-danger" href="#" id="buy"><%= __("Buy") %></button>
 				</div>
 				<div id="buy_inprogress" style="display: none; margin-top: 45px;">
 					<%= __("Purchase in progress") %>...
@@ -149,12 +151,6 @@
 				}
 			});
 		}
-		shopGetAccountInfo(function(result) {
-			if (result.ReturnCode == 0 && result.shopDiscount > 0) {
-				var shopDiscount = '<%= __("%s% off") %>'.replace('%s', result.shopDiscount);
-				$('#shop_discount').html(shopDiscount);
-			}
-		});
 		var quantity = 1;
 		$(".quantity-value").html(quantity);
 		$(".price-value").html(<%= product.price %> * quantity);
