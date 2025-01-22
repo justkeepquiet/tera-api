@@ -24,6 +24,7 @@ const ApiError = require("../../lib/apiError");
 const adminController = require("../../controllers/admin.controller");
 const adminApiController = require("../../controllers/adminApi.controller");
 const adminOperationsReportController = require("../../controllers/adminOperationsReport.controller");
+const adminGatewayReportController = require("../../controllers/adminGatewayReport.controller");
 const adminServersController = require("../../controllers/adminServers.controller");
 const adminServerStringsController = require("../../controllers/adminServerStrings.controller");
 const adminMaintenanceController = require("../../controllers/adminMaintenance.controller");
@@ -215,8 +216,12 @@ module.exports = modules => {
 		.get("/home", adminController.home(mod))
 		.get("/profile", adminController.profile(mod))
 		.get("/settings", adminController.settings(mod))
+		// Operations Report
 		.get("/operations_report", adminOperationsReportController.index(mod))
 		.get("/operations_report/view", adminOperationsReportController.view(mod))
+		// Gateway Report
+		.get("/gateway_report", adminGatewayReportController.index(mod))
+		.get("/gateway_report/view", adminGatewayReportController.view(mod))
 		// Account Management
 		.get("/accounts", adminAccountsController.index(mod))
 		.get("/accounts/add", adminAccountsController.add(mod))

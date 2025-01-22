@@ -12,7 +12,7 @@ const validator = require("validator");
 
 const Benefit = require("../actions/handlers/benefit");
 const helpers = require("../utils/helpers");
-const { validationHandler } = require("../middlewares/gateway.middlewares");
+const { validationHandler, writeOperationReport } = require("../middlewares/gateway.middlewares");
 
 /**
  * @param {modules} modules
@@ -303,18 +303,25 @@ module.exports.RegisterNewAccount = modules => [
 		const { login, email } = req.body;
 		const passWord = helpers.getPasswordString(req.body.password);
 
-		const account = await modules.accountModel.info.create({
+		res.locals.__account = await modules.accountModel.info.create({
 			userName: login,
 			passWord,
 			email,
 			language: modules.localization.defaultLanguage
 		});
 
+		next();
+	},
+	writeOperationReport(modules.reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
 		res.json({
 			Return: true,
 			ReturnCode: 0,
 			Msg: "success",
-			UserNo: account.get("accountDBID")
+			UserNo: res.locals.__account.get("accountDBID")
 		});
 	}
 ];
@@ -354,6 +361,13 @@ module.exports.AddBenefitByUserNo = modules => [
 
 		await benefit.addBenefit(benefitId, benefitDays);
 
+		next();
+	},
+	writeOperationReport(modules.reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
 		res.json({
 			Return: true,
 			ReturnCode: 0,
@@ -395,6 +409,13 @@ module.exports.RemoveBenefitByUserNo = modules => [
 
 		await benefit.removeBenefit(benefitId);
 
+		next();
+	},
+	writeOperationReport(modules.reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
 		res.json({
 			Return: true,
 			ReturnCode: 0,
@@ -406,7 +427,7 @@ module.exports.RemoveBenefitByUserNo = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.BanAccountByUserNo = ({ logger, hub, accountModel }) => [
+module.exports.BanAccountByUserNo = ({ logger, hub, reportModel, accountModel }) => [
 	[
 		body("userNo").trim().isNumeric()
 			.custom(value => accountModel.bans.findOne({
@@ -464,6 +485,13 @@ module.exports.BanAccountByUserNo = ({ logger, hub, accountModel }) => [
 			});
 		}
 
+		next();
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
 		res.json({
 			Return: true,
 			ReturnCode: 0,

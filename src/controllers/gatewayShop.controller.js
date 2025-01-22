@@ -10,7 +10,7 @@ const { query, body } = require("express-validator");
 
 const PromoCodeActions = require("../actions/promoCode.actions");
 const Shop = require("../actions/handlers/shop");
-const { validationHandler } = require("../middlewares/gateway.middlewares");
+const { validationHandler, writeOperationReport } = require("../middlewares/gateway.middlewares");
 
 /**
  * @param {modules} modules
@@ -133,9 +133,16 @@ module.exports.FundByUserNo = modules => [
 				}
 			);
 
-			await shop.fund(amount);
+			await shop.addBalance(amount);
 		});
 
+		next();
+	},
+	writeOperationReport(modules.reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
 		res.json({
 			Return: true,
 			ReturnCode: 0,
@@ -283,7 +290,6 @@ module.exports.ListPromoCodesActivatedById = ({ logger, accountModel, shopModel 
 	}
 ];
 
-
 /**
  * @param {modules} modules
  */
@@ -385,6 +391,13 @@ module.exports.ActivatePromoCodeByUserNo = modules => [
 			}));
 		});
 
+		next();
+	},
+	writeOperationReport(modules.reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
 		res.json({
 			Return: true,
 			ReturnCode: 0,

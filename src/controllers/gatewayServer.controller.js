@@ -8,7 +8,7 @@
 const moment = require("moment-timezone");
 const { query, body } = require("express-validator");
 
-const { validationHandler } = require("../middlewares/gateway.middlewares");
+const { validationHandler, writeOperationReport } = require("../middlewares/gateway.middlewares");
 
 /**
  * @param {modules} modules
@@ -149,7 +149,7 @@ module.exports.GetServerInfoByServerId = ({ logger, serverModel, accountModel })
 /**
  * @param {modules} modules
  */
-module.exports.KickAccountByUserNo = ({ logger, hub, accountModel, serverModel }) => [
+module.exports.KickAccountByUserNo = ({ logger, hub, reportModel, accountModel, serverModel }) => [
 	[
 		body("userNo").trim().isNumeric()
 			.custom(value => accountModel.info.findOne({
@@ -177,6 +177,13 @@ module.exports.KickAccountByUserNo = ({ logger, hub, accountModel, serverModel }
 
 		await hub.kickUser(serverId, userNo, 33);
 
+		next();
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
 		res.json({
 			Return: true,
 			ReturnCode: 0,
@@ -188,7 +195,7 @@ module.exports.KickAccountByUserNo = ({ logger, hub, accountModel, serverModel }
 /**
  * @param {modules} modules
  */
-module.exports.KickAllAccountsByServerId = ({ logger, hub, serverModel }) => [
+module.exports.KickAllAccountsByServerId = ({ logger, hub, reportModel, serverModel }) => [
 	[
 		body("serverId").trim().isNumeric()
 			.custom(value => serverModel.info.findOne({
@@ -208,6 +215,13 @@ module.exports.KickAllAccountsByServerId = ({ logger, hub, serverModel }) => [
 
 		await hub.bulkKick(serverId, 33);
 
+		next();
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
 		res.json({
 			Return: true,
 			ReturnCode: 0,

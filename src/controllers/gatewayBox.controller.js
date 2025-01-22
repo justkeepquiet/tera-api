@@ -11,7 +11,7 @@ const Op = require("sequelize").Op;
 
 const ApiError = require("../lib/apiError");
 const { ServiceItem } = require("../utils/boxHelper");
-const { validationHandler } = require("../middlewares/gateway.middlewares");
+const { validationHandler, writeOperationReport } = require("../middlewares/gateway.middlewares");
 
 /**
  * @param {modules} modules
@@ -199,6 +199,13 @@ module.exports.SendBoxToAccountByUserNo = modules => [
 		],
 		box.get("id"));
 
+		next();
+	},
+	writeOperationReport(modules.reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
 		res.json({
 			Return: true,
 			ReturnCode: 0,
@@ -325,6 +332,13 @@ module.exports.SendBoxesToAllByServerId = modules => [
 			box.get("id"))
 		);
 
+		next();
+	},
+	writeOperationReport(modules.reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
 		res.json({
 			Return: true,
 			ReturnCode: 0,

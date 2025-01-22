@@ -6,6 +6,7 @@
 
 const ApiError = require("../lib/apiError");
 const helpers = require("../utils/helpers");
+const databaseLogger = require("../utils/logger").createLogger("Database");
 
 module.exports.validationHandler = logger =>
 	/**
@@ -19,6 +20,27 @@ module.exports.validationHandler = logger =>
 				.map(e => `${e.location}:${e.param}=${e.msg}`).join(", ")
 			), 2);
 		}
+
+		next();
+	}
+;
+
+/**
+ * @param {reportModel} reportModel
+ */
+module.exports.writeOperationReport = (reportModel, params = {}) =>
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
+		reportModel.gateway.create({
+			ip: req.ip,
+			endpoint: res.locals.__endpoint,
+			payload: JSON.stringify([req.query || {}, req.body || {}]),
+			reportType: params.reportType || 1
+		}).catch(err => {
+			databaseLogger.error(err);
+		});
 
 		next();
 	}

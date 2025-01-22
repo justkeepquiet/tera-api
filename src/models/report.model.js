@@ -15,6 +15,7 @@
  * @property {import("sequelize").ModelCtor<Model<any, any>>} shopPay
  * @property {import("sequelize").ModelCtor<Model<any, any>>} adminOp
  * @property {import("sequelize").ModelCtor<Model<any, any>>} boxes
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} gateway
  */
 
 /**
@@ -32,7 +33,8 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		shopFund: require("./report/reportShopFund.model")(sequelize, DataTypes),
 		shopPay: require("./report/reportShopPay.model")(sequelize, DataTypes),
 		adminOp: require("./report/reportAdminOp.model")(sequelize, DataTypes),
-		boxes: require("./report/reportBoxes.model")(sequelize, DataTypes)
+		boxes: require("./report/reportBoxes.model")(sequelize, DataTypes),
+		gateway: require("./report/reportGateway.model")(sequelize, DataTypes)
 	};
 
 	if (syncTables) {
@@ -45,6 +47,7 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		await model.shopPay.sync();
 		await model.adminOp.sync();
 		await model.boxes.sync();
+		await model.gateway.sync();
 	}
 
 	// activity

@@ -42,7 +42,7 @@
 			{ name: __("Bans"), page: "/bans" }
 		] },
 		{ icon: "fa-rocket", name: __("Launcher"), elements: [
-			{ name: __("Logs"), page: "/launcher_logs" }
+			{ name: __("Log"), page: "/launcher_logs" }
 		] },
 		{ icon: "fa-shopping-cart", name: __("Shop"), elements: [
 			{ name: __("Products"), page: "/shop_products" },
@@ -61,14 +61,17 @@
 			{ name: __("Boxes"), page: "/boxes" },
 			{ name: __("Logs"), page: "/boxes_logs" }
 		] },
-		{ icon: "fa-book", name: __("Reports"), elements: [
+		{ icon: "fa-book", name: __("Game Reports"), elements: [
 			{ name: __("Activity"), page: "/report_activity" },
 			{ name: __("Characters"), page: "/report_characters" },
 			{ name: __("Cheats"), page: "/report_cheats" },
 			{ name: __("Chronoscrolls"), page: "/report_chronoscrolls" }
 		] },
-		{ icon: "fa-tasks", name: __("Tasks Queue"), page: "/tasks" },
-		{ icon: "fa-file-text", name: __("Operations Report"), page: "/operations_report" }, // <span class="label label-primary">10</span>
+		{ icon: "fa-file-text", name: __("Logs"), elements: [
+			{ name: __("Operations"), page: "/operations_report" },
+			{ name: __("Gateway API"), page: "/gateway_report" },
+		] },
+		{ icon: "fa-tasks", name: __("Tasks Queue"), page: "/tasks" }, // <span class="label label-primary">10</span>
 		{ icon: "fa-gear", name: __("API Settings"), page: "/settings" }
 	];
 

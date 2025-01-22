@@ -1,0 +1,93 @@
+<%_
+const [query, body] = JSON.parse(report.get("payload"));
+_%>
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("View Gateway API Report") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-secondary history-back" title="" href="#"><i class="fa fa-chevron-left"></i> <%= __("Back to list") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col form">
+				<div class="card card-block">
+					<div class="form-group row">
+						<div class="col-sm-6">
+							<label class="control-label" for="reportTime"><%= __("Report time") %></label>
+							<input type="datetime-local" class="form-control boxed" name="reportTime" value="<%= moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DDTHH:mm") %>" readonly>
+						</div>
+					</div>
+					<div class="form-group row">
+						<div class="col-sm-6">
+							<label class="control-label" for="reportTime"><%= __("Endpoint") %></label>
+							<input type="text" class="form-control boxed" name="reportTime" value="<%= report.get("endpoint") %>" readonly>
+						</div>
+						<div class="col-sm-6">
+							<label class="control-label" for="userId"><%= __("IP address") %></label>
+							<input type="text" class="form-control boxed" name="userId" value="<%= report.get("ip") %>" readonly>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="col form">
+				<div class="card card-block">
+					<div class="title-block">
+						<h3 class="title"><%= __("Request Parameters") %></h3>
+					</div>
+					<%_ Object.keys(query).forEach(key => { _%>
+					<%_ if (query[key] !== "" && !/^from.+/.test(key)) { _%>
+						<div class="form-group row">
+							<div class="col-sm-4 mt-2">
+								<label class="control-label"><%= key %></label>
+							</div>
+							<div class="col-sm-8">
+								<input type="text" class="form-control boxed" value="<%= query[key] %>" readonly>
+							</div>
+						</div>
+					<%_ } _%>
+					<%_ }) _%>
+					<%_ Object.keys(body).forEach(key => { _%>
+					<%_ if (key !== "validate") { _%>
+						<div class="form-group row">
+							<div class="col-sm-4 mt-2">
+								<label class="control-label"><%= strings[key] || key %></label>
+							</div>
+							<div class="col-sm-8">
+							<%_ if (body[key].constructor === Array) { _%>
+								<%_ body[key].forEach((v, k) => { _%>
+								<div class="form-group row">
+									<div class="col-sm-2 mt-2">
+										<label class="control-label">#<%= strings[k] || k %></label>
+									</div>
+									<div class="col-sm-10">
+										<input type="text" class="form-control boxed" value="<%= v %>" readonly>
+									</div>
+								</div>
+								<%_ }) _%>
+							<%_ } else if (body[key].constructor === Object) { _%>
+								<%_ Object.keys(body[key]).forEach(k => { _%>
+								<div class="form-group row">
+									<div class="col-sm-2 mt-2">
+										<label class="control-label"><%= strings[k] || k %></label>
+									</div>
+									<div class="col-sm-10">
+										<input type="text" class="form-control boxed" value="<%= body[key][k] %>" readonly>
+									</div>
+								</div>
+								<%_ }) _%>
+							<%_ } else { _%>
+								<input type="text" class="form-control boxed" value="<%= body[key] %>" readonly>
+							<%_ } _%>
+							</div>
+						</div>
+					<%_ } _%>
+					<%_ }) _%>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>

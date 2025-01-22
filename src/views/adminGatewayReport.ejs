@@ -1,0 +1,81 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Gateway API Report") %></h1>
+	</div>
+	<section class="section">
+		<form class="form-inline" action="" method="GET">
+			<div class="form-group">
+				<label for="from"><%= __("Period from") %></label>
+				<input type="datetime-local" class="form-control boxed" name="from" value="<%= from.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
+			</div>
+			<div class="form-group">
+				<label for="to"><%= __("to") %></label>
+				<input type="datetime-local" class="form-control boxed" name="to" value="<%= to.tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
+			</div>
+			<div class="form-group">
+				<label for="endpoint"><%= __("Endpoint") %></label>
+				<input type="text" class="form-control boxed" name="endpoint" value="<%= endpoint %>">
+			</div>
+			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
+		</form>
+	</section>
+	<section class="section" style="display: none;">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<table class="table table-hover data-table-json mt-5">
+								<thead>
+									<tr>
+										<th><%= __("Report time") %></th>
+										<th><%= __("Endpoint") %></th>
+										<th><%= __("Parameters") %></th>
+										<th><%= __("IP address") %></th>
+										<th></th>
+									</tr>
+								</thead>
+							</table>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+reports.forEach(report => {
+	const [query, body] = JSON.parse(report.get("payload"));
+	const parameters = [];
+
+	Object.keys(query).forEach(key => {
+		if (query[key] !== "" && !/^from.+/.test(key)) {
+			parameters.push(`<span class="text-secondary">${key}</span>: ${query[key]}`)
+		}
+	});
+
+	tableData.push([
+		moment(report.get("reportTime")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
+		`<a href="/gateway_report/view?id=${report.get("id")}&amp;from=${from.tz(user.tz).format("YYYY-MM-DDTHH:mm")}&amp;to=${to.tz(user.tz).format("YYYY-MM-DDTHH:mm")}">${report.get("endpoint")}</a>`,
+		parameters.join("<br>") || "-",
+		report.get("ip"),
+		`<a class="btn btn-secondary btn-sm" href="/gateway_report/view?id=${report.get("id")}&amp;from=${from.tz(user.tz).format("YYYY-MM-DDTHH:mm")}&amp;to=${to.tz(user.tz).format("YYYY-MM-DDTHH:mm")}"><i class="fa fa-file-text-o"></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]],
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".section").show();
+	});
+</script>
