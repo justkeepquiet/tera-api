@@ -54,6 +54,7 @@ module.exports = async modules => {
 	);
 
 	modules.queue.setModel(modules.queueModel.tasks);
+	modules.queue.setLogsModel(modules.reportModel.queueTasks);
 	modules.queue.setHandlers(tasksActions);
 
 	modules.scheduler.start({

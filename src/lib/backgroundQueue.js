@@ -12,19 +12,27 @@ class BackgroundQueue {
 		this.status = {
 			created: 0,
 			pending: 1,
-			rejected: 2
+			rejected: 2,
+			cancelled: 3, // logs only
+			completed: 4 // logs only
 		};
 
 		/**
 		 * @type {model}
 		 */
 		this.model = null;
+
+		/**
+		 * @type {model}
+		 */
+		this.logsModel = null;
+
 		this.handlers = null;
-		this.logger = params.logger || console;
+		this.logger = params?.logger || console;
 
 		this.queue = new Queue({
-			concurrent: params.concurrent || 1,
-			interval: params.interval || 100
+			concurrent: params?.concurrent || 1,
+			interval: params?.interval || 100
 		});
 
 		this.queue.on("start", () => this.logger.info("Started."));
@@ -35,99 +43,138 @@ class BackgroundQueue {
 		this.model = model;
 	}
 
+	setLogsModel(model) {
+		this.logsModel = model;
+	}
+
 	setHandlers(handlers) {
 		this.handlers = handlers;
 	}
 
-	findById(id) {
-		return this.model.findOne({ where: { id } });
+	async findById(id) {
+		return await this.model.findOne({ where: { id } });
 	}
 
-	findByTag(handler, tag, limit = null) {
-		return this.model.findAll({
+	async findByTag(handler, tag, limit = null) {
+		return await this.model.findAll({
 			where: { handler, tag }, ...limit ? { offset: 0, limit } : {}
 		});
 	}
 
-	findByStatus(status, limit = null) {
-		return this.model.findAll({
+	async findByStatus(status, limit = null) {
+		return await this.model.findAll({
 			where: { status }, ...limit ? { offset: 0, limit } : {}
 		});
 	}
 
-	insert(handler, args = [], tag = null) {
+	async insert(handler, args = [], tag = null) {
 		if (typeof this.handlers[handler] !== "function") {
-			return Promise.reject(new TypeError("Handler is not a function."));
+			throw new TypeError("Handler is not a function.");
 		}
 
-		return this.model.create({
+		const task = await this.model.create({
 			status: this.status.created,
 			tag,
 			handler,
 			arguments: JSON.stringify(args)
-		}).then(task =>
-			this.push(task.get("id"), this.handlers, this.handlers[handler], args)
-		);
+		});
+
+		if (this.logsModel) {
+			this.addToLog(task, this.status.created);
+		}
+
+		return this.push(task, this.handlers, this.handlers[handler], args);
 	}
 
-	clear(status = null, handler = null, tag = null) {
+	async clear(status = null, handler = null, tag = null) {
 		if (status !== null || handler !== null || tag !== null) {
-			return this.model.destroy({
-				where: {
-					status,
-					...handler ? { handler } : {},
-					...tag ? { tag } : {}
+			const where = { status, ...handler ? { handler } : {}, ...tag ? { tag } : {} };
+
+			if (this.logsModel) {
+				const tasks = await this.model.findAll({ where });
+
+				for (const task of tasks) {
+					this.addToLog(task, this.status.cancelled);
 				}
-			});
+			}
+
+			return await this.model.destroy({ where });
 		}
 
 		this.queue.clear();
 
-		return this.model.truncate();
+		return await this.model.truncate();
 	}
 
-	start(rejected = false) {
+	async start(rejected = false) {
 		if (this.queue.shouldRun) {
-			return Promise.resolve();
+			return;
 		}
 
-		return this.model.findAll({
+		const tasks = await this.model.findAll({
 			where: { ...!rejected ? { status: { [Op.ne]: this.status.rejected } } : {} }
-		}).then(tasks => {
-			if (tasks === null) return;
-
-			tasks.forEach(task =>
-				this.push(
-					task.get("id"),
-					this.handlers,
-					this.handlers[task.get("handler")],
-					JSON.parse(task.get("arguments"))
-				)
-			);
 		});
+
+		if (tasks === null) {
+			return;
+		}
+
+		// no awaiting
+		tasks.forEach(task =>
+			this.push(
+				task,
+				this.handlers,
+				this.handlers[task.get("handler")],
+				JSON.parse(task.get("arguments"))
+			)
+		);
 	}
 
-	push(id, instance, handler, args) {
-		const task = () => this.model.update({
-			status: this.status.pending
-		}, {
-			where: { id }
-		}).then(() =>
-			handler.call(instance, ...args).then(() =>
-				this.model.destroy({ where: { id } })
-			).catch(err => {
+	async push(task, instance, handler, args) {
+		const id = task.get("id");
+
+		const taskFn = async () => {
+			try {
+				await this.model.update({
+					status: this.status.pending
+				}, {
+					where: { id }
+				});
+
+				await handler.call(instance, ...args);
+				await this.model.destroy({ where: { id } });
+
+				if (this.logsModel) {
+					this.addToLog(task, this.status.completed);
+				}
+			} catch (err) {
 				this.logger.warn(`Task ${id} has error: ${err}`);
 
-				return this.model.update({
+				await this.model.update({
 					status: this.status.rejected,
 					message: err.toString()
 				}, {
 					where: { id }
 				});
-			})
-		);
 
-		this.queue.enqueue(task);
+				if (this.logsModel) {
+					this.addToLog(task, this.status.rejected);
+				}
+			}
+		};
+
+		this.queue.enqueue(taskFn);
+	}
+
+	async addToLog(task, status) {
+		await this.logsModel.create({
+			status,
+			taskId: task.get("id"),
+			tag: task.get("tag"),
+			handler: task.get("handler"),
+			arguments: task.get("arguments"),
+			message: task.get("message")
+		});
 	}
 }
 

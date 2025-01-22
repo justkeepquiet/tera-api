@@ -15,11 +15,13 @@
 			</div>
 			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
 		</form>
+		
 	</section>
 	<section class="section">
-		<a class="btn btn-primary" title="" href="/tasks/restart"><%= __("Restart tasks queue") %></a>
-		<a class="btn btn-warning ml-2" title="" href="/tasks/cancel_failed?handler=<%= handler %>&amp;tag=<%= tag %>" data-toggle="modal" data-target="#confirm-del-modal"><%= __("Cancel failed tasks") %></a>
-		<a class="btn btn-danger ml-2" title="" href="/tasks/cancel_all" data-toggle="modal" data-target="#confirm-del-modal"><%= __("Cancel all tasks") %></a>
+		<a class="btn btn-primary mr-2" title="" href="/tasks/restart"><%= __("Restart tasks queue") %></a>
+		<a class="btn btn-warning mr-2" title="" href="/tasks/cancel_failed?handler=<%= handler %>&amp;tag=<%= tag %>" data-toggle="modal" data-target="#confirm-del-modal"><%= __("Cancel failed tasks") %></a>
+		<a class="btn btn-danger mr-3" title="" href="/tasks/cancel_all" data-toggle="modal" data-target="#confirm-del-modal"><%= __("Cancel all tasks") %></a>
+		<a class="btn btn-success" title="" href="/tasks_logs?handler=<%= handler %>&amp;tag=<%= tag %>"><%= __("Show tasks log") %></a>
 	</section>
 	<section class="section" style="display: none;">
 		<div class="row">
@@ -37,6 +39,7 @@
 											<th><%= __("Task tag") %></th>
 											<th><%= __("Status") %></th>
 											<th><%= __("Message") %></th>
+											<th></th>
 										</tr>
 									</thead>
 								</table>
@@ -60,6 +63,7 @@ tasks.forEach(task => {
 		task.get("tag") || "-",
 		`<span class="text-${{ "0": "primary", "1": "warning", "2": "danger"}[task.get("status")]}">${__({ "0": "Created", "1": "Pending", "2": "Failed"}[task.get("status")])}</span>`,
 		task.get("message") || "-",
+		`<a class="btn btn-secondary btn-sm" href="/tasks_logs?taskId=${task.get("id")}"><i class="fa fa-file-text-o"></i></a>`,
 	]);
 });
 _%>
@@ -68,7 +72,9 @@ _%>
 	$(function() {
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
-			order: [[0, "desc"]]
+			order: [[0, "desc"]],
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});

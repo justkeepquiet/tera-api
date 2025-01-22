@@ -41,6 +41,7 @@ const adminPromocodesActivatedController = require("../../controllers/adminPromo
 const adminBoxesController = require("../../controllers/adminBoxes.controller");
 const adminShopLogsController = require("../../controllers/adminShopLogs.controller");
 const adminTasksController = require("../../controllers/adminTasks.controller");
+const adminTasksLogsController = require("../../controllers/adminTasksLogs.controller");
 const adminLauncherLogsController = require("../../controllers/adminLauncherLogs.controller");
 
 /**
@@ -248,7 +249,7 @@ module.exports = modules => {
 		.get("/bans/edit", adminBansController.edit(mod))
 		.post("/bans/edit", adminBansController.editAction(mod))
 		.get("/bans/delete", adminBansController.deleteAction(mod))
-		// Servers List (SLS(mod))
+		// Servers List (SLS)
 		.get("/servers", adminServersController.index(mod))
 		.get("/servers/add", adminServersController.add(mod))
 		.post("/servers/add", adminServersController.addAction(mod))
@@ -271,7 +272,7 @@ module.exports = modules => {
 		.get("/maintenance/delete", adminMaintenanceController.deleteAction(mod))
 		// Launcher Logs
 		.get("/launcher_logs", adminLauncherLogsController.index(mod))
-		// Report
+		// Game Reports
 		.get("/report_activity", adminReportController.activity(mod))
 		.get("/report_characters", adminReportController.characters(mod))
 		.get("/report_cheats", adminReportController.cheats(mod))
@@ -326,12 +327,15 @@ module.exports = modules => {
 		.get("/boxes/send_all", adminBoxesController.sendAll(mod))
 		.post("/boxes/send_all", adminBoxesController.sendAllAction(mod))
 		.get("/boxes/send_result", adminBoxesController.sendResult(mod))
+		// Boxes Logs
 		.get("/boxes_logs", adminBoxesController.logs(mod))
-		// Tasks queue
+		// Tasks Queue
 		.get("/tasks", adminTasksController.index(mod))
 		.get("/tasks/restart", adminTasksController.restartAction(mod))
 		.get("/tasks/cancel_failed", adminTasksController.cancelFailedAction(mod))
 		.get("/tasks/cancel_all", adminTasksController.cancelAllAction(mod))
+		// Tasks Queue Logs
+		.get("/tasks_logs", adminTasksLogsController.index(mod))
 	;
 
 	modules.pluginsLoader.loadComponent("routes.adminPanel.admin", router, mod);

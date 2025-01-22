@@ -49,7 +49,7 @@
 			{ name: __("Categories"), page: "/shop_categories" },
 			{ name: __("Accounts"), page: "/shop_accounts" }
 		] },
-		{ icon: "fa-file-text", name: __("Shop Logs"), elements: [
+		{ icon: "fa-suitcase", name: __("Shop Logs"), elements: [
 			{ name: __("Fund Logs"), page: "/shop_fund_logs" },
 			{ name: __("Pay Logs"), page: "/shop_pay_logs" }
 		] },
@@ -59,7 +59,7 @@
 		] },
 		{ icon: "fa-truck", name: __("Item Claim"), elements: [
 			{ name: __("Boxes"), page: "/boxes" },
-			{ name: __("Logs"), page: "/boxes_logs" }
+			{ name: __("Log"), page: "/boxes_logs" }
 		] },
 		{ icon: "fa-book", name: __("Game Reports"), elements: [
 			{ name: __("Activity"), page: "/report_activity" },
@@ -71,8 +71,11 @@
 			{ name: __("Operations"), page: "/operations_report" },
 			{ name: __("Gateway API"), page: "/gateway_report" },
 		] },
-		{ icon: "fa-tasks", name: __("Tasks Queue"), page: "/tasks" }, // <span class="label label-primary">10</span>
-		{ icon: "fa-gear", name: __("API Settings"), page: "/settings" }
+		{ icon: "fa-tasks", name: __("Tasks Queue"), elements: [
+			{ name: __("Queue"), page: "/tasks" },
+			{ name: __("Log"), page: "/tasks_logs" },
+		] },
+		{ icon: "fa-gear", name: __("API Settings"), page: "/settings" } // <span class="label label-primary">10</span>
 	];
 
 	__modules.pluginsLoader.loadComponent("views.adminPanel.adminSidebar.menuContents", menuContents, __);
