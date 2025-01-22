@@ -107,6 +107,19 @@ module.exports.writeOperationReport = (reportModel, params = {}) =>
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
+		const query = { ...req.query || {} };
+		const body = { ...req.body || {} };
+
+		["passWord", "password"].forEach(key => {
+			if (query[key] !== undefined) {
+				query[key] = "[removed]";
+			}
+
+			if (body[key] !== undefined) {
+				body[key] = "[removed]";
+			}
+		});
+
 		reportModel.adminOp.create({
 			userSn: req?.user?.userSn,
 			userId: req?.user?.login,
@@ -114,7 +127,7 @@ module.exports.writeOperationReport = (reportModel, params = {}) =>
 			userTz: req?.user?.tz,
 			ip: req.ip,
 			function: req.path,
-			payload: JSON.stringify([req.query || {}, req.body || {}]),
+			payload: JSON.stringify([query, body]),
 			reportType: params.reportType || 1
 		}).catch(err => {
 			databaseLogger.error(err);

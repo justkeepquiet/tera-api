@@ -33,10 +33,23 @@ module.exports.writeOperationReport = (reportModel, params = {}) =>
 	 * @type {RequestHandler}
 	 */
 	(req, res, next) => {
+		const query = { ...req.query || {} };
+		const body = { ...req.body || {} };
+
+		["passWord", "password"].forEach(key => {
+			if (query[key] !== undefined) {
+				query[key] = "[removed]";
+			}
+
+			if (body[key] !== undefined) {
+				body[key] = "[removed]";
+			}
+		});
+
 		reportModel.gateway.create({
 			ip: req.ip,
 			endpoint: res.locals.__endpoint,
-			payload: JSON.stringify([req.query || {}, req.body || {}]),
+			payload: JSON.stringify([query, body]),
 			reportType: params.reportType || 1
 		}).catch(err => {
 			databaseLogger.error(err);
