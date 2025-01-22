@@ -36,6 +36,11 @@ module.exports = (sequelize, DataTypes) =>
 	}, {
 		indexes: [
 			{
+				name: "endpoint",
+				unique: false,
+				fields: ["endpoint"]
+			},
+			{
 				name: "reportTime",
 				unique: false,
 				fields: ["reportTime"]
