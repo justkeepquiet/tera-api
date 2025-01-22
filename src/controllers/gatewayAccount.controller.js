@@ -300,8 +300,8 @@ module.exports.RegisterNewAccount = modules => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { login, email } = req.body;
-		const passWord = helpers.getPasswordString(req.body.password);
+		const { login, email, password } = req.body;
+		const passWord = helpers.getPasswordString(password);
 
 		res.locals.__account = await modules.accountModel.info.create({
 			userName: login,
