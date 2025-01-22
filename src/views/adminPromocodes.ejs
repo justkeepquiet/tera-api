@@ -52,7 +52,7 @@ promocodes.forEach(promocode => {
 		`<a href="/promocodes/edit?promoCodeId=${promocode.get("promoCodeId")}">${promocode.get("promoCode")}</a>`,
 		promocode.get("strings")[0]?.get("description") || "-",
 		promocode.get("function"),
-		promocode.get("maxActivations") > 0 ? `${promocode.get("currentActivations")}/${promocode.get("maxActivations")}` : promocode.get("currentActivations"),
+		`<a href="/promocodes_activated?promoCodeId=${promocode.get("promoCodeId")}">${promocode.get("maxActivations") > 0 ? `${promocode.get("currentActivations")}/${promocode.get("maxActivations")}` : promocode.get("currentActivations")}</a>`,
 		moment(promocode.get("validAfter")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		moment(promocode.get("validBefore")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		promocode.get("active") ? __("Yes") : __("No"),
