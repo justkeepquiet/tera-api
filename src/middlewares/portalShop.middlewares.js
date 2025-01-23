@@ -17,7 +17,7 @@ module.exports.validationHandler = logger =>
 		const result = helpers.validationResultLog(req, logger);
 
 		if (!result.isEmpty()) {
-			throw new ApiError("invalid parameter: ".concat(result.array()
+			throw new ApiError("Invalid parameter: ".concat(result.array()
 				.map(e => `${e.location}:${e.param}=${e.msg}`).join(", ")
 			), 2);
 		}
@@ -61,7 +61,7 @@ module.exports.rateLimitterHandler = (rateLimitter, endpoint, points = 1) =>
 		const result = await rateLimitter.consume(endpoint, req.ip, points);
 
 		if (!result) {
-			throw new ApiError("too many requests", 9);
+			throw new ApiError("Too many requests", 9);
 		}
 
 		next();

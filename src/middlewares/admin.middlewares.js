@@ -18,7 +18,7 @@ module.exports.validationHandler = logger =>
 		const result = helpers.validationResultLog(req, logger);
 
 		if (!result.isEmpty()) {
-			throw new ApiError("invalid parameter: ".concat(result.array()
+			throw new ApiError("Invalid parameter: ".concat(result.array()
 				.map(e => `${e.location}:${e.param}=${e.msg}`).join(", ")
 			), 2);
 		}
@@ -35,7 +35,7 @@ module.exports.formValidationHandler = logger =>
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
-			res.json({ result_code: 2, msg: "invalid parameter", errors: errors.array() });
+			res.json({ result_code: 2, msg: "Invalid parameter", errors: errors.array() });
 		} else {
 			next();
 		}
@@ -66,7 +66,7 @@ module.exports.formResultSuccessHandler = successUrl =>
  */
 module.exports.apiAccessHandler = (req, res, next) => {
 	if (!req.isAuthenticated()) {
-		throw new ApiError("invalid parameter", 3);
+		throw new ApiError("Invalid parameter", 3);
 	}
 
 	res.locals.user = req.user;

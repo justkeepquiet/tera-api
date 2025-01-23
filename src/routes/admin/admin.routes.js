@@ -203,7 +203,7 @@ module.exports = modules => {
 					res.json({ result_code: err.code, msg: err.message });
 				} else {
 					modules.logger.error(err);
-					res.status(500).json({ result_code: 1, msg: "internal server error" });
+					res.status(500).json({ result_code: 1, msg: "Internal Server Error" });
 				}
 			}
 		)

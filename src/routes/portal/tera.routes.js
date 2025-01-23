@@ -74,7 +74,7 @@ module.exports = modules => {
 					res.json({ Return: false, ReturnCode: err.code, Msg: err.message });
 				} else {
 					modules.logger.error(err);
-					res.status(500).json({ Return: false, ReturnCode: 1, Msg: "internal server error" });
+					res.status(500).json({ Return: false, ReturnCode: 1, Msg: "Internal Server Error" });
 				}
 			}
 		)

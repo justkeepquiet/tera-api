@@ -124,7 +124,7 @@ module.exports.LoginAction = ({ logger, rateLimitter, passport, accountModel }) 
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
-			throw new ApiError("invalid parameter", errors.array()[0].msg);
+			throw new ApiError("Invalid parameter", errors.array()[0].msg);
 		}
 
 		next();
@@ -136,7 +136,7 @@ module.exports.LoginAction = ({ logger, rateLimitter, passport, accountModel }) 
 	async (req, res, next) => {
 		passport.authenticate("local", (error, user) => {
 			if (error) {
-				return next(new ApiError("invalid login or password", 12));
+				return next(new ApiError("Invalid login or password", 12));
 			}
 
 			req.login(user, () => next());
@@ -227,7 +227,7 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
-			throw new ApiError("invalid parameter", errors.array()[0].msg);
+			throw new ApiError("Invalid parameter", errors.array()[0].msg);
 		}
 
 		next();
@@ -238,13 +238,13 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 	 */
 	async (req, res, next) => {
 		if (!isEmailVerifyEnabled) {
-			throw new ApiError("email verify disabled", 100);
+			throw new ApiError("Email verify disabled", 100);
 		}
 
 		if (req.session.captchaVerified) {
 			next();
 		} else {
-			next(new ApiError("captcha error", 12));
+			next(new ApiError("Captcha error", 12));
 		}
 	},
 	[
@@ -266,7 +266,7 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
-			throw new ApiError("invalid parameter", errors.array()[0].msg);
+			throw new ApiError("Invalid parameter", errors.array()[0].msg);
 		}
 
 		next();
@@ -287,7 +287,7 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 		});
 
 		if (account === null) {
-			throw new ApiError("account not exist", 50000);
+			throw new ApiError("Account not exist", 50000);
 		}
 
 		const code = helpers.generateVerificationCode();
@@ -306,7 +306,7 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 		}, async (err, html) => {
 			if (err) {
 				logger.error(err);
-				return next(new ApiError("internal error", 1));
+				return next(new ApiError("Internal error", 1));
 			}
 
 			try {
@@ -377,7 +377,7 @@ module.exports.ResetPasswordVerifyAction = ({ logger, rateLimitter, accountModel
 		const errors = helpers.validationResultLog(req, logger);
 
 		if (!errors.isEmpty()) {
-			throw new ApiError("invalid parameter", errors.array()[0].msg);
+			throw new ApiError("Invalid parameter", errors.array()[0].msg);
 		}
 
 		next();
@@ -388,29 +388,29 @@ module.exports.ResetPasswordVerifyAction = ({ logger, rateLimitter, accountModel
 	 */
 	async (req, res, next) => {
 		if (!isEmailVerifyEnabled) {
-			throw new ApiError("email verify disabled", 100);
+			throw new ApiError("Email verify disabled", 100);
 		}
 
 		const { code, password } = req.body;
 
 		if (!req.session.resetPasswordVerify) {
-			throw new ApiError("invalid verification code", 11);
+			throw new ApiError("Invalid verification code", 11);
 		}
 
 		if (moment().isAfter(req.session.resetPasswordVerify.ttl)) {
-			throw new ApiError("invalid verification code", 11);
+			throw new ApiError("Invalid verification code", 11);
 		}
 
 		if (req.session.resetPasswordVerify.failsCount >= 10) {
 			req.session.resetPasswordVerify = null;
 
-			throw new ApiError("attempts has been exceeded", 12);
+			throw new ApiError("Attempts has been exceeded", 12);
 		}
 
 		if (req.session.resetPasswordVerify.code !== code.toString().replaceAll(",", "").toUpperCase()) {
 			req.session.resetPasswordVerify.failsCount++;
 
-			throw new ApiError("invalid verification code", 11);
+			throw new ApiError("Invalid verification code", 11);
 		}
 
 		const email = req.session.resetPasswordVerify.email;
@@ -495,7 +495,7 @@ module.exports.SignupAction = modules => [
 		const errors = helpers.validationResultLog(req, modules.logger);
 
 		if (!errors.isEmpty()) {
-			throw new ApiError("invalid parameter", errors.array()[0].msg);
+			throw new ApiError("Invalid parameter", errors.array()[0].msg);
 		}
 
 		next();
@@ -506,13 +506,13 @@ module.exports.SignupAction = modules => [
 	 */
 	async (req, res, next) => {
 		if (isRegistrationDisabled) {
-			throw new ApiError("registration disabled", 100);
+			throw new ApiError("Registration disabled", 100);
 		}
 
 		if (req.session.captchaVerified) {
 			next();
 		} else {
-			next(new ApiError("captcha error", 15));
+			next(new ApiError("Captcha error", 15));
 		}
 	},
 	[
@@ -544,7 +544,7 @@ module.exports.SignupAction = modules => [
 		const errors = helpers.validationResultLog(req, modules.logger);
 
 		if (!errors.isEmpty()) {
-			throw new ApiError("invalid parameter", errors.array()[0].msg);
+			throw new ApiError("Invalid parameter", errors.array()[0].msg);
 		}
 
 		next();
@@ -582,7 +582,7 @@ module.exports.SignupAction = modules => [
 			}, async (err, html) => {
 				if (err) {
 					modules.logger.error(err);
-					return next(new ApiError("internal error", 1));
+					return next(new ApiError("Internal error", 1));
 				}
 
 				try {
@@ -679,7 +679,7 @@ module.exports.SignupVerifyAction = modules => [
 		const errors = helpers.validationResultLog(req, modules.logger);
 
 		if (!errors.isEmpty()) {
-			throw new ApiError("invalid parameter", errors.array()[0].msg);
+			throw new ApiError("Invalid parameter", errors.array()[0].msg);
 		}
 
 		next();
@@ -690,29 +690,29 @@ module.exports.SignupVerifyAction = modules => [
 	 */
 	async (req, res, next) => {
 		if (isRegistrationDisabled) {
-			throw new ApiError("registration disabled", 100);
+			throw new ApiError("Registration disabled", 100);
 		}
 
 		const { code } = req.body;
 
 		if (!req.session.signupVerify) {
-			throw new ApiError("invalid verification code", 10);
+			throw new ApiError("Invalid verification code", 10);
 		}
 
 		if (moment().isAfter(req.session.signupVerify.ttl)) {
-			throw new ApiError("invalid verification code", 10);
+			throw new ApiError("Invalid verification code", 10);
 		}
 
 		if (req.session.signupVerify.failsCount >= 10) {
 			req.session.signupVerify = null;
 
-			throw new ApiError("attempts has been exceeded", 11);
+			throw new ApiError("Attempts has been exceeded", 11);
 		}
 
 		if (req.session.signupVerify.code !== code.toString().replaceAll(",", "").toUpperCase()) {
 			req.session.signupVerify.failsCount++;
 
-			throw new ApiError("invalid verification code", 10);
+			throw new ApiError("Invalid verification code", 10);
 		}
 
 		const userName = req.session.signupVerify.login;
@@ -786,7 +786,7 @@ module.exports.GetAccountInfoAction = ({ config, localization, logger, rateLimit
 		});
 
 		if (account === null) {
-			throw new ApiError("account not exist", 50000);
+			throw new ApiError("Account not exist", 50000);
 		}
 
 		let bannedByIp = null;
@@ -847,7 +847,7 @@ module.exports.SetAccountLanguageAction = ({ localization, logger, rateLimitter,
 		});
 
 		if (account === null) {
-			throw new ApiError("account not exist", 50000);
+			throw new ApiError("Account not exist", 50000);
 		}
 
 		await accountModel.info.update({
@@ -882,7 +882,7 @@ module.exports.GetCharacterCountAction = ({ logger, rateLimitter, sequelize, acc
 		});
 
 		if (account === null) {
-			throw new ApiError("account not exist", 50000);
+			throw new ApiError("Account not exist", 50000);
 		}
 
 		let characters = [];
@@ -991,7 +991,7 @@ module.exports.ReportAction = ({ rateLimitter, accountModel, reportModel }) => [
 		});
 
 		if (account === null) {
-			throw new ApiError("account not exist", 50000);
+			throw new ApiError("Account not exist", 50000);
 		}
 
 		let action = req.body.action;

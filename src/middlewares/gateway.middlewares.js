@@ -16,7 +16,7 @@ module.exports.validationHandler = logger =>
 		const result = helpers.validationResultLog(req, logger);
 
 		if (!result.isEmpty()) {
-			throw new ApiError("invalid parameter: ".concat(result.array()
+			throw new ApiError("Invalid parameter: ".concat(result.array()
 				.map(e => `${e.location}:${e.param}=${e.msg}`).join(", ")
 			), 2);
 		}
