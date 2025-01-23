@@ -368,27 +368,30 @@ module.exports.ActivatePromoCodeByUserNo = modules => [
 			});
 		});
 
-		await modules.sequelize.transaction(async () => {
+		// no awaiting
+		modules.sequelize.transaction(async () => {
 			const actions = new PromoCodeActions(
 				modules,
 				account.get("lastLoginServer"),
 				account.get("accountDBID")
 			);
 
-			return await actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
-		}).catch(err => {
+			await actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
+		}).catch(async err => {
 			modules.logger.error(err);
 
-			return modules.shopModel.promoCodeActivated.destroy({
+			await modules.shopModel.promoCodeActivated.destroy({
 				where: {
 					promoCodeId: promocode.get("promoCodeId"),
 					accountDBID: account.get("accountDBID")
 				}
-			}).then(() => modules.shopModel.promoCodes.decrement({
+			});
+
+			await modules.shopModel.promoCodes.decrement({
 				currentActivations: 1
 			}, {
 				where: { promoCodeId: promocode.get("promoCodeId") }
-			}));
+			});
 		});
 
 		next();
