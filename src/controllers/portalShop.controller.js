@@ -751,8 +751,12 @@ module.exports.PurchaseAction = modules => [
 			finalPrice = helpers.subtractPercentage(finalPrice, req.session.lastProduct.productDiscount);
 		}
 
+		let isPriceChangedByCoupon = false;
+
 		if (req.session.lastProduct.couponDiscount > 0) {
+			const beforePrice = finalPrice;
 			finalPrice = helpers.subtractPercentage(finalPrice, req.session.lastProduct.couponDiscount);
+			isPriceChangedByCoupon = finalPrice < beforePrice;
 		}
 
 		if (req.session.lastProduct.accountDiscount > 0) {
@@ -787,7 +791,7 @@ module.exports.PurchaseAction = modules => [
 				where: { accountDBID: req.user.accountDBID }
 			});
 
-			if (req.session.lastProduct.couponId) {
+			if (isPriceChangedByCoupon && req.session.lastProduct.couponId) {
 				await modules.shopModel.couponActivated.create({
 					couponId: req.session.lastProduct.couponId,
 					accountDBID: req.user.accountDBID,
