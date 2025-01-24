@@ -102,9 +102,11 @@ function requestPromoCodeStatus(promoCodeId) {
 
 	$(function() {
 		$('#promocode').change(function() {
+			$('#promocode_success').hide();
 			$('#promocode_error').hide();
 		});
-		$('#promocode_activate').click(function() {
+		$('#promocode_activate').click(function(e) {
+			e.preventDefault();
 			activatePromocode($('#promocode').val())
 		});
 	});

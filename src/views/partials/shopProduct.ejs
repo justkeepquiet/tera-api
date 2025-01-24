@@ -112,10 +112,10 @@
 						<input type="text" placeholder="<%= __("Enter your coupon") %>" name="coupon" id="coupon" style="margin-top: 10px;">
 						<button class="btn btn-primary" id="coupon_accept"><%= __("Accept") %></button>&nbsp;
 						<button class="btn btn-secondary" id="coupon_cancel"><%= __("Cancel") %></button>
-						<div class="alert alert-error fade in" style="display: none;" id="coupon_error">
+						<div class="alert alert-error coupon-error fade in" style="display: none;" id="coupon_error">
 							<strong></strong>
 						</div>
-						<div id="coupon_descr">
+						<div class="coupon-descr" id="coupon_descr">
 							<%= __("Here you can enter your coupon, which will give you a discount on this purchase.") %>
 						</div>
 					</div>
@@ -321,21 +321,25 @@
 			$(this).val(product.quantity);
 			setPriceAndQuantityValues(product, false);
 		});
-		$('#buy').click(function() {
+		$('#buy').click(function(e) {
+			e.preventDefault();
 			purchaseProduct(product);
 		});
 		$('#coupon').change(function() {
 			$('#coupon_error').hide();
 			$('#coupon_descr').show();
 		});
-		$('#coupon_use').click(function() {
+		$('#coupon_use').click(function(e) {
+			e.preventDefault();
 			$('#buy_descr').hide();
 			$('#coupon_form').show();
 		});
-		$('#coupon_accept').click(function() {
+		$('#coupon_accept').click(function(e) {
+			e.preventDefault();
 			couponAccept(product);
 		});
-		$('#coupon_cancel').click(function() {
+		$('#coupon_cancel').click(function(e) {
+			e.preventDefault();
 			couponCancel(product);
 		});
 		$('input[type="number"]').numberInput();

@@ -519,12 +519,12 @@ a, a:focus {
 	letter-spacing: normal;
 }
 
-.coupon-form #coupon_error {
+.coupon-form .coupon-error {
 	margin-right: 9px;
 	padding: 1px 8px;
 }
 
-.coupon-form #coupon_descr {
+.coupon-form .coupon-descr {
 	margin-top: 4px;
 }
 
