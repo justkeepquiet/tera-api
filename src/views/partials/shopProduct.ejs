@@ -238,7 +238,7 @@
 					product.originalPrice,
 					[product.productDiscount, result.Discount, product.accountDiscount]
 				);
-				setPriceAndQuantityValues(product, false);
+				setPriceAndQuantityValues(product, true);
 				$('#coupon_use').html(result.Discount + "<%= '% ' + __('discount applied') %>");
 				$('#coupon_form').hide();
 				$('#buy_descr').show();
@@ -275,7 +275,7 @@
 				product.originalPrice,
 				[product.productDiscount, product.accountDiscount]
 			);
-			setPriceAndQuantityValues(product, false);
+			setPriceAndQuantityValues(product, true);
 			$('#coupon_use').html("<%= __('Use coupon') %>");
 			$('#coupon_accept').prop('disabled', false);
 			$('#coupon_cancel').prop('disabled', false);
