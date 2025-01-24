@@ -36,6 +36,9 @@
 <%_ } _%>
 <script type="text/javascript">
 	$(function() {
+		$('#promocode').change(function() {
+			$('#promocode_error').hide();
+		});
 		$('#promocode_activate').click(function() {
 			$('#promocode_success').hide();
 			$('#promocode_error').hide();
@@ -44,6 +47,7 @@
 				$('#promocode_error strong').html("<%= __('Please enter your promo code.') %>");
 				return;
 			}
+			$('#promocode_error').hide();
 			shopPromoCodeAction($('#promocode').val(), function(result) {
 				if (result.ReturnCode == 0) {
 					loadPromoCodes(function() {
