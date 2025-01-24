@@ -204,7 +204,7 @@
 									"<td>" + report.serverId + "</td>" +
 									"<td><a href=\"/shop_products/edit?id=" + report.productId + "\">" + report.productId + "</a></td>" +
 									"<td>" + report.amount + "</td>" +
-									"<td class=\"text-" + (report.status == "completed" ? "success" : "danger") + "\">" + report.statusString + "</td>" +
+									"<td class=\"text-" + (report.status == "completed" ? "success" : (report.status == "deposit" ? "primary" : "danger")) + "\">" + report.statusString + "</td>" +
 								"</tr>"
 							);
 						});

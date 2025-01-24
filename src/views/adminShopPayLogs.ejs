@@ -53,7 +53,7 @@ logs.forEach(log => {
 		log.get("price"),
 		log.get("quantity"),
 		log.get("price") * log.get("quantity"),
-		`<span class="text-${log.get("status") == "completed" ? "success" : "danger"}">${__(log.get("status"))}</span>`,
+		`<span class="text-${log.get("status") == "completed" ? "success" : (log.get("status") == "deposit" ? "primary" : "danger")}">${__(log.get("status"))}</span>`,
 		moment(log.get("updatedAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss")
 	]);
 });
