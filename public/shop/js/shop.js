@@ -140,8 +140,8 @@ function subtractPercentage(number, percentage) {
 }
 
 function calculatePriceWithDiscounts(price, discounts) {
-	for (var discount of discounts) {
-		price = subtractPercentage(price, discount);
+	for (var i = 0; i < discounts.length; i++) {
+		price = subtractPercentage(price, discounts[i]);
 	}
 
 	return price;
