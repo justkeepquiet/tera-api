@@ -184,29 +184,14 @@ module.exports.addAction = modules => [
 			}, {
 				where: { promoCodeId: promocode.get("promoCodeId") }
 			});
-		});
 
-		await modules.sequelize.transaction(async () => {
 			const actions = new PromoCodeActions(
 				modules,
 				account.get("lastLoginServer"),
 				account.get("accountDBID")
 			);
 
-			return await actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
-		}).catch(err => {
-			modules.logger.error(err);
-
-			return modules.shopModel.promoCodeActivated.destroy({
-				where: {
-					promoCodeId: promocode.get("promoCodeId"),
-					accountDBID: account.get("accountDBID")
-				}
-			}).then(() => modules.shopModel.promoCodes.decrement({
-				currentActivations: 1
-			}, {
-				where: { promoCodeId: promocode.get("promoCodeId") }
-			}));
+			await actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
 		});
 
 		next();
