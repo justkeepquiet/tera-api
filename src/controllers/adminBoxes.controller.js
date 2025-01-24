@@ -951,12 +951,13 @@ module.exports.logs = ({ serverModel, accountModel, reportModel }) => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { accountDBID, serverId } = req.query;
+		const { id, accountDBID, serverId } = req.query;
 		const from = req.query.from ? moment.tz(req.query.from, req.user.tz) : moment().subtract(30, "days");
 		const to = req.query.to ? moment.tz(req.query.to, req.user.tz) : moment().add(30, "days");
 
 		const logs = await reportModel.boxes.findAll({
 			where: {
+				...id ? { id } : {},
 				...accountDBID ? { accountDBID } : {},
 				...serverId ? { [Op.or]: [{ serverId }, { serverId: null }] } : {},
 				createdAt: {
