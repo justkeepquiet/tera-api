@@ -48,6 +48,9 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.INTEGER(11),
 			allowNull: false,
 			defaultValue: 0
+		},
+		accountDBID: {
+			type: DataTypes.BIGINT(20)
 		}
 	}, {
 		indexes: [
@@ -80,6 +83,11 @@ module.exports = (sequelize, DataTypes) =>
 				name: "maxActivations",
 				unique: false,
 				fields: ["maxActivations"]
+			},
+			{
+				name: "accountDBID",
+				unique: false,
+				fields: ["accountDBID"]
 			}
 		],
 		timestamps: true

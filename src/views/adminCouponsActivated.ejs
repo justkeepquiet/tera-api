@@ -75,7 +75,7 @@ _%>
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
 			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, null, { className: "text-nowrap text-monospace" }, null, null, { className: "text-right text-nowrap" }]
+			columns: [null, null, { className: "text-nowrap text-monospace" }, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});

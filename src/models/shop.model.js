@@ -107,6 +107,13 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		as: "account"
 	});
 
+	// coupons
+	model.coupons.hasOne(modules.accountModel.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "account"
+	});
+
 	// couponActivated
 	model.couponActivated.hasOne(model.coupons, {
 		foreignKey: "couponId",

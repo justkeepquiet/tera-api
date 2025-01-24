@@ -24,6 +24,8 @@
 											<th><%= __("Valid to") %></th>
 											<th><%= __("Active") %></th>
 											<th><%= __("Valid") %></th>
+											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
 											<th></th>
 										</tr>
 									</thead>
@@ -55,6 +57,8 @@ coupons.forEach(coupon => {
 		moment(coupon.get("validBefore")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
 		coupon.get("active") ? __("Yes") : __("No"),
 		`<span class="text-${valid ? "success" : "danger"}">${valid ? __("Yes") : __("No")}</span>`,
+		coupon.get("accountDBID") || "-",
+		coupon.get("account")?.get("userName") || "-",
 		`<a class="btn btn-secondary btn-sm" href="/coupons/edit?couponId=${coupon.get("couponId")}"><i class="fa fa-pencil"></i></a> ` +
 			`<a class="btn btn-secondary btn-sm" href="/coupons/delete?couponId=${coupon.get("couponId")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
 	]);
@@ -67,7 +71,7 @@ _%>
 			data: serializedTable,
 			order: [[0, "desc"]],
 			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, { className: "text-nowrap text-monospace" }, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
+			columns: [null, { className: "text-nowrap text-monospace" }, null, null, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});

@@ -22,14 +22,21 @@ const {
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ shopModel }) => [
+module.exports.index = ({ accountModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const coupons = await shopModel.coupons.findAll();
+		const coupons = await shopModel.coupons.findAll({
+			include: [{
+				as: "account",
+				model: accountModel.info,
+				required: false,
+				attributes: ["userName"]
+			}]
+		});
 
 		// Correct the `currentActivations` value
 		for (const coupon of coupons) {
@@ -91,7 +98,7 @@ module.exports.add = ({ shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
+module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
 	[
 		body("coupon").trim()
@@ -112,14 +119,23 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 		body("maxActivations").trim()
 			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("active").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("The field has invalid value."))
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value.")),
+		body("accountDBID").trim().optional({ checkFalsy: true }).trim()
+			.isInt().withMessage(i18n.__("The field must contain a valid number."))
+			.custom(value => accountModel.info.findOne({
+				where: { accountDBID: value }
+			}).then(data => {
+				if (value && data === null) {
+					return Promise.reject(i18n.__("The field contains not existing account ID."));
+				}
+			}))
 	],
 	formValidationHandler(logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { coupon, discount, validAfter, validBefore, maxActivations, active } = req.body;
+		const { coupon, discount, validAfter, validBefore, maxActivations, active, accountDBID } = req.body;
 
 		await await shopModel.coupons.create({
 			coupon,
@@ -127,7 +143,8 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 			validAfter: moment.tz(validAfter, req.user.tz).toDate(),
 			validBefore: moment.tz(validBefore, req.user.tz).toDate(),
 			active: active == "on",
-			maxActivations
+			maxActivations,
+			accountDBID: accountDBID || null
 		});
 
 		next();
@@ -170,7 +187,8 @@ module.exports.edit = ({ logger, shopModel }) => [
 			validAfter: moment(coupon.get("validAfter")),
 			validBefore: moment(coupon.get("validBefore")),
 			active: coupon.get("active"),
-			maxActivations: coupon.get("maxActivations")
+			maxActivations: coupon.get("maxActivations"),
+			accountDBID: coupon.get("accountDBID")
 		});
 	}
 ],
@@ -178,7 +196,7 @@ module.exports.edit = ({ logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
+module.exports.editAction = ({ i18n, logger, reportModel, accountModel, shopModel }) => [
 	accessFunctionHandler,
 	[
 		query("couponId").trim().notEmpty(),
@@ -191,7 +209,16 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 		body("maxActivations").trim()
 			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("active").optional().trim()
-			.isIn(["on"]).withMessage(i18n.__("The field has invalid value."))
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value.")),
+		body("accountDBID").trim().optional({ checkFalsy: true }).trim()
+			.isInt().withMessage(i18n.__("The field must contain a valid number."))
+			.custom(value => accountModel.info.findOne({
+				where: { accountDBID: value }
+			}).then(data => {
+				if (value && data === null) {
+					return Promise.reject(i18n.__("The field contains not existing account ID."));
+				}
+			}))
 	],
 	formValidationHandler(logger),
 	/**
@@ -199,7 +226,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	 */
 	async (req, res, next) => {
 		const { couponId } = req.query;
-		const { discount, validAfter, validBefore, maxActivations, active } = req.body;
+		const { discount, validAfter, validBefore, maxActivations, active, accountDBID } = req.body;
 
 		const coupon = await shopModel.coupons.findOne({
 			where: { couponId }
@@ -214,7 +241,8 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 			validAfter: moment.tz(validAfter, req.user.tz).toDate(),
 			validBefore: moment.tz(validBefore, req.user.tz).toDate(),
 			active: active == "on",
-			maxActivations
+			maxActivations,
+			accountDBID: accountDBID || null
 		}, {
 			where: { couponId }
 		});
