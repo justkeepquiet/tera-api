@@ -223,7 +223,7 @@ module.exports.generateVerificationCode = () =>
 ;
 
 /**
- * @param {string} length
+ * @param {number} length
  * @return {string}
  */
 module.exports.generateRandomWord = length => {
