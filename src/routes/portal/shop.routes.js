@@ -132,7 +132,10 @@ module.exports = modules => {
 		.post("/PartialProduct", portalShopController.PartialProductHtml(mod))
 		.post("/GetAccountInfo", portalShopController.GetAccountInfo(mod))
 		.post("/PurchaseAction", portalShopController.PurchaseAction(mod))
+		.post("/PurchaseStatusAction", portalShopController.PurchaseStatusAction(mod))
 		.post("/PromoCodeAction", portalShopController.PromoCodeAction(mod))
+		.post("/CouponAcceptAction", portalShopController.CouponAcceptAction(mod))
+		.post("/CouponCancelAction", portalShopController.CouponCancelAction(mod))
 
 		.use(
 			/**

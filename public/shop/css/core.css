@@ -150,6 +150,16 @@ h2 {
 	line-height: 16px;
 }
 
+/* TBD */
+
+/* .product-header .text-block {
+	width: 420px !important;
+}
+
+.text-right {
+	float: right;
+} */
+
 .buy-block {
 	display: block;
 	float: right;
@@ -448,6 +458,11 @@ a, a:focus {
 	line-height: 18px;
 }
 
+.buy-block-left .btn-small {
+	line-height: 14px;
+	margin-top: -4px;
+}
+
 .buy-block-right {
 	width: 30%!important;
 	text-align: center;
@@ -456,9 +471,24 @@ a, a:focus {
 	background-color: #4d1e1e;
 }
 
-.buy-description {
+.buy-descr .buy-descr-header {
 	font-size: 13px;
 	margin-bottom: 10px;
+}
+
+.coupon-form legend {
+	line-height: 24px!important;
+	margin-bottom: 2px;
+	border-bottom: 0;
+}
+
+.coupon-form #coupon_error {
+	margin-right: 9px;
+	padding: 1px 8px;
+}
+
+.coupon-form #coupon_descr {
+	margin-top: 4px;
 }
 
 .quantity {

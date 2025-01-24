@@ -1,3 +1,4 @@
+
 /**
  * Init
  */
@@ -20,6 +21,10 @@ function loadAccountInfo() {
 			$("#search_form").fadeIn();
 		}
 	});
+}
+
+function getAccountBalance() {
+	return parseInt($("#shop_balance").html());
 }
 
 function catalogSearchAction(search) {
@@ -50,10 +55,10 @@ function loadContent(page, params) {
 	$(".navbar-fixed-top .nav li a[data-page='" + page.split("?")[0] + "']").parent().addClass("active");
 
 	apiRequest("Partial" + page, params, "html", function(result) {
-		if (page === "Error") {
+		if (page == "Error") {
 			$("#menu").html("");
 		}
-		if (page !== "Catalog" && page !== "Product" && page !== "Error") {
+		if (page != "Catalog" && page != "Product" && page != "Error") {
 			loadMenu();
 		}
 		$("#content_product").empty().hide();
@@ -88,8 +93,20 @@ function shopPurchaseAction(productId, quantity, callback) {
 	return apiRequest("PurchaseAction", { productId: productId, quantity: quantity }, "json", callback);
 }
 
+function shopPurchaseStatusAction(logId, callback) {
+	return apiRequest("PurchaseStatusAction", { logId: logId }, "json", callback);
+}
+
 function shopPromoCodeAction(promoCode, callback) {
 	return apiRequest("PromoCodeAction", { promoCode: promoCode }, "json", callback);
+}
+
+function shopCouponAcceptAction(coupon, productId, callback) {
+	return apiRequest("CouponAcceptAction", { coupon: coupon, productId: productId }, "json", callback);
+}
+
+function shopCouponCancelAction(callback) {
+	return apiRequest("CouponCancelAction", {}, "json", callback);
 }
 
 function apiRequest(event, params, dataType, callback) {
@@ -112,4 +129,20 @@ function apiRequest(event, params, dataType, callback) {
 			loadContent("Error");
 		}
 	});
+}
+
+/**
+ * Util
+ */
+
+function subtractPercentage(number, percentage) {
+	return Math.round(number - (number * (percentage / 100)));
+}
+
+function calculatePriceWithDiscounts(price, discounts) {
+	for (var discount of discounts) {
+		price = subtractPercentage(price, discount);
+	}
+
+	return price;
 }

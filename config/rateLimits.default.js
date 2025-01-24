@@ -108,18 +108,26 @@ module.exports.portalApi = {
 	// In-game Shop
 	shop: {
 		// endpoint: POST /shop/PurchaseAction
-		// 10 requests per 1 hour with block for 1 hour
+		// 1 request per 5 seconds with block for 1 minute
 		purchaseAction: {
-			points: 60,
-			duration: 300,
-			blockDuration: 3600
+			points: 1,
+			duration: 5,
+			blockDuration: 60
 		},
 
 		// endpoint: POST /shop/PromoCodeAction
-		// 10 requests per 1 hour with block for 1 hour
+		// 1 request per 5 seconds with block for 1 minute
 		promoCodeAction: {
-			points: 10,
-			duration: 3600,
+			points: 1,
+			duration: 5,
+			blockDuration: 60
+		},
+
+		// endpoint: POST /shop/CouponAcceptAction
+		// 60 requests per 3 minutes with block for 1 hour
+		couponAcceptAction: {
+			points: 60,
+			duration: 180,
 			blockDuration: 3600
 		}
 	}

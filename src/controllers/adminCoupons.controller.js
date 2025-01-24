@@ -1,0 +1,257 @@
+"use strict";
+
+/**
+ * @typedef {import("../app").modules} modules
+ * @typedef {import("express").RequestHandler} RequestHandler
+ */
+
+const expressLayouts = require("express-ejs-layouts");
+const { query, body } = require("express-validator");
+const moment = require("moment-timezone");
+
+const { generateRandomWord } = require("../utils/helpers");
+const {
+	accessFunctionHandler,
+	validationHandler,
+	formValidationHandler,
+	formResultErrorHandler,
+	formResultSuccessHandler,
+	writeOperationReport
+} = require("../middlewares/admin.middlewares");
+
+/**
+ * @param {modules} modules
+ */
+module.exports.index = ({ shopModel }) => [
+	accessFunctionHandler,
+	expressLayouts,
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const coupons = await shopModel.coupons.findAll();
+
+		// Correct the `currentActivations` value
+		for (const coupon of coupons) {
+			if (coupon.get("currentActivations") === 0) {
+				const currentActivations = await shopModel.couponActivated.count({
+					where: { couponId: coupon.get("couponId") }
+				});
+
+				await shopModel.coupons.update({
+					currentActivations
+				}, {
+					where: { couponId: coupon.get("couponId") }
+				});
+			}
+		}
+
+		res.render("adminCoupons", {
+			layout: "adminLayout",
+			moment,
+			coupons
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.add = ({ shopModel }) => [
+	accessFunctionHandler,
+	expressLayouts,
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		let coupon = null;
+		let couponCount = 0;
+
+		do {
+			coupon = generateRandomWord(10);
+			couponCount = await shopModel.coupons.count({
+				where: { coupon }
+			});
+		} while (couponCount > 0);
+
+		res.render("adminCouponsAdd", {
+			layout: "adminLayout",
+			moment,
+			coupon
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
+	accessFunctionHandler,
+	[
+		body("coupon").trim()
+			.isLength({ min: 6, max: 20 }).withMessage(i18n.__("The field must be between 6 and 20 characters."))
+			.custom(value => shopModel.coupons.findOne({
+				where: { coupon: value }
+			}).then(data => {
+				if (data) {
+					return Promise.reject(i18n.__("The field contains an existing coupon."));
+				}
+			})),
+		body("discount").trim()
+			.isInt({ min: 0, max: 100 }).withMessage(i18n.__("The field must contain a valid number.")),
+		body("validAfter").trim()
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+		body("validBefore").trim()
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+		body("maxActivations").trim()
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
+		body("active").optional().trim()
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value."))
+	],
+	formValidationHandler(logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { coupon, discount, validAfter, validBefore, maxActivations, active } = req.body;
+
+		await await shopModel.coupons.create({
+			coupon,
+			discount: discount,
+			validAfter: moment.tz(validAfter, req.user.tz).toDate(),
+			validBefore: moment.tz(validBefore, req.user.tz).toDate(),
+			active: active == "on",
+			maxActivations
+		});
+
+		next();
+	},
+	writeOperationReport(reportModel),
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/coupons")
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.edit = ({ logger, shopModel }) => [
+	accessFunctionHandler,
+	expressLayouts,
+	[
+		query("couponId").trim().notEmpty()
+	],
+	validationHandler(logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { couponId } = req.query;
+
+		const coupon = await shopModel.coupons.findOne({
+			where: { couponId }
+		});
+
+		if (coupon === null) {
+			throw Error("Object not found");
+		}
+
+		res.render("adminCouponsEdit", {
+			layout: "adminLayout",
+			errors: null,
+			couponId: coupon.get("couponId"),
+			coupon: coupon.get("coupon"),
+			discount: coupon.get("discount"),
+			validAfter: moment(coupon.get("validAfter")),
+			validBefore: moment(coupon.get("validBefore")),
+			active: coupon.get("active"),
+			maxActivations: coupon.get("maxActivations")
+		});
+	}
+],
+
+/**
+ * @param {modules} modules
+ */
+module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
+	accessFunctionHandler,
+	[
+		query("couponId").trim().notEmpty(),
+		body("discount").trim()
+			.isInt({ min: 0, max: 100 }).withMessage(i18n.__("The field must contain a valid number.")),
+		body("validAfter").trim()
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+		body("validBefore").trim()
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+		body("maxActivations").trim()
+			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
+		body("active").optional().trim()
+			.isIn(["on"]).withMessage(i18n.__("The field has invalid value."))
+	],
+	formValidationHandler(logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { couponId } = req.query;
+		const { discount, validAfter, validBefore, maxActivations, active } = req.body;
+
+		const coupon = await shopModel.coupons.findOne({
+			where: { couponId }
+		});
+
+		if (coupon === null) {
+			throw Error("Object not found");
+		}
+
+		await shopModel.coupons.update({
+			discount,
+			validAfter: moment.tz(validAfter, req.user.tz).toDate(),
+			validBefore: moment.tz(validBefore, req.user.tz).toDate(),
+			active: active == "on",
+			maxActivations
+		}, {
+			where: { couponId }
+		});
+
+		next();
+	},
+	writeOperationReport(reportModel),
+	formResultErrorHandler(logger),
+	formResultSuccessHandler("/coupons")
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.deleteAction = ({ logger, sequelize, reportModel, shopModel }) => [
+	accessFunctionHandler,
+	expressLayouts,
+	[
+		query("couponId").trim().notEmpty()
+	],
+	validationHandler(logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { couponId } = req.query;
+
+		await sequelize.transaction(async () => {
+			await shopModel.coupons.destroy({
+				where: { couponId }
+			});
+			await shopModel.couponActivated.destroy({
+				where: { couponId }
+			});
+		});
+
+		next();
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
+		res.redirect("/coupons");
+	}
+];

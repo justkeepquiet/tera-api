@@ -36,6 +36,8 @@ const adminReportController = require("../../controllers/adminReport.controller"
 const adminShopAccountsController = require("../../controllers/adminShopAccounts.controller");
 const adminShopCategoriesController = require("../../controllers/adminShopCategories.controller");
 const adminShopProductsController = require("../../controllers/adminShopProducts.controller");
+const adminCouponsController = require("../../controllers/adminCoupons.controller");
+const adminCouponsActivatedController = require("../../controllers/adminCouponsActivated.controller");
 const adminPromocodesController = require("../../controllers/adminPromocodes.controller");
 const adminPromocodesActivatedController = require("../../controllers/adminPromocodesActivated.controller");
 const adminBoxesController = require("../../controllers/adminBoxes.controller");
@@ -303,6 +305,16 @@ module.exports = modules => {
 		// Shop Logs
 		.get("/shop_fund_logs", adminShopLogsController.fund(mod))
 		.get("/shop_pay_logs", adminShopLogsController.pay(mod))
+		// Coupons
+		.get("/coupons", adminCouponsController.index(mod))
+		.get("/coupons/add", adminCouponsController.add(mod))
+		.post("/coupons/add", adminCouponsController.addAction(mod))
+		.get("/coupons/edit", adminCouponsController.edit(mod))
+		.post("/coupons/edit", adminCouponsController.editAction(mod))
+		.get("/coupons/delete", adminCouponsController.deleteAction(mod))
+		// Coupons Procmocodes
+		.get("/coupons_activated", adminCouponsActivatedController.index(mod))
+		.get("/coupons_activated/delete", adminCouponsActivatedController.deleteAction(mod))
 		// Promocodes
 		.get("/promocodes", adminPromocodesController.index(mod))
 		.get("/promocodes/add", adminPromocodesController.add(mod))

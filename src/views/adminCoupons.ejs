@@ -1,0 +1,74 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Shop Coupons") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-success" title="" href="/coupons/add"><%= __("Create new coupon") %></a>
+	</section>
+	<section class="section" style="display: none;">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-json mt-5">
+									<thead>
+										<tr>
+											<th><%= __("ID") %></th>
+											<th><%= __("Coupon") %></th>
+											<th><%= __("Discount") %></th>
+											<th><%= __("Activations") %></th>
+											<th><%= __("Valid from") %></th>
+											<th><%= __("Valid to") %></th>
+											<th><%= __("Active") %></th>
+											<th><%= __("Valid") %></th>
+											<th></th>
+										</tr>
+									</thead>
+								</table>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+coupons.forEach(coupon => {
+	const valid = coupon.get("active") &&
+		(coupon.get("maxActivations") === 0 || coupon.get("currentActivations") < coupon.get("maxActivations")) &&
+		moment().isSameOrAfter(moment(coupon.get("validAfter"))) &&
+		moment().isSameOrBefore(moment(coupon.get("validBefore")));
+
+	tableData.push([
+		coupon.get("couponId"),
+		`<a href="/coupons/edit?couponId=${coupon.get("couponId")}">${coupon.get("coupon")}</a>`,
+		`${coupon.get("discount")}%`,
+		`<a href="/coupons_activated?coupon=${coupon.get("coupon")}">${coupon.get("maxActivations") > 0 ? `${coupon.get("currentActivations")}/${coupon.get("maxActivations")}` : coupon.get("currentActivations")}</a>`,
+		moment(coupon.get("validAfter")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
+		moment(coupon.get("validBefore")).tz(user.tz).format("YYYY-MM-DD HH:mm"),
+		coupon.get("active") ? __("Yes") : __("No"),
+		`<span class="text-${valid ? "success" : "danger"}">${valid ? __("Yes") : __("No")}</span>`,
+		`<a class="btn btn-secondary btn-sm" href="/coupons/edit?couponId=${coupon.get("couponId")}"><i class="fa fa-pencil"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/coupons/delete?couponId=${coupon.get("couponId")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]],
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, { className: "text-nowrap text-monospace" }, null, null, null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".section").show();
+	});
+</script>

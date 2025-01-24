@@ -11,8 +11,8 @@
 			<div class="text-block text-light" style="width: 520px;">
 				<h5 class="item_grade_<%= product.rareGrade %>">
 					<%- product.title || __("[unknown]") %>
-					<%_ if (product.discount > 0) { _%>
-					<span class="badge discount-badge"><%= __("%s% off", product.discount) %></span>
+					<%_ if (product.productDiscount > 0) { _%>
+					<span class="badge discount-badge"><%= __("%s% off", product.productDiscount) %></span>
 					<%_ } _%>
 					<%_ if (product.accountDiscount > 0) { _%>
 					<span class="badge user-discount-badge"><%= __("%s% off", product.accountDiscount) %></span>
@@ -22,6 +22,7 @@
 			</div>
 			<div class="text-right text-light">
 			<%_ if (back !== false) { _%>
+				<!-- <a href="#" class="btn btn-primary" id="gift"><%= __("Buy as a gift") %></a>&nbsp; -->
 				<a href="#" class="btn btn2" id="back"><i class="fas fa-angle-double-left"></i> <%= __("Back") %>&nbsp;</a>
 			<%_ } _%>
 			</div>
@@ -53,9 +54,9 @@
 		<%_ if (product.thumbnail) { _%>
 		<br><a href="#" class="thumbnail" style="max-width: 280px;"><img src="/public/shop/images/screenshots/<%= product.thumbnail %>.jpg" alt="screenshot" style="max-height: 175px;"></a>
 		<%_ } _%>
-		<%_ if (items.length > 0) { _%>
+		<%_ if (product.items.length > 0) { _%>
 		<br><table class="table" style="margin-bottom: 0;">
-			<%_ items.forEach(item => { _%>
+			<%_ product.items.forEach(item => { _%>
 			<tr>
 				<td style="width: 30px;">
 					<div class="item-icon-block2">
@@ -70,10 +71,10 @@
 			<%_ }) _%>
 		</table>
 		<%_ } _%>
-		<%_ if (conversions.length > 0) { _%>
+		<%_ if (product.conversions.length > 0) { _%>
 		<hr><%= __("Possible items") %>:<br>
 		<br><table class="table" style="margin-bottom: 0;">
-			<%_ conversions.forEach(conversion => { _%>
+			<%_ product.conversions.forEach(conversion => { _%>
 			<tr>
 				<td style="width: 30px;">
 					<div class="item-icon-block2">
@@ -90,32 +91,51 @@
 		<%_ } _%>
 		<hr>
 		<div class="row buy-info white-text">
-			<div class="span9 buy-block-left">
-				<div class="buy-description">
-					<%- __("Click the &quot;Buy&quot; button to get the item") %>:<br>
-					&ndash; <b class="item_grade_<%= product.rareGrade %>"><%- product.title %></b> <small>&#10005;</small> <b class="quantity-value">1</b>
+			<div class="span9 buy-block-left" id="buy_info">
+				<div id="buy_descr" class="buy-descr">
+					<div class="buy-descr-header">
+						<%- __("Click the &quot;Buy&quot; button to get the item") %>:<br>&nbsp;
+						&ndash; <b class="item_grade_<%= product.rareGrade %>"><%- product.title %></b> <small>&#10005;</small> <b class="quantity-value">1</b>
+					</div>
+					<div class="buy-descr-content">
+						<%- __("Your account will be debited") %>: <b class="price-value gold2"><%= product.price %></b> <s><b class="price-orig-value gold2"></b></s> <i class="fas fa-coins gold2"></i>&nbsp;
+						<button class="btn btn-small btn-success" id="coupon_use"><%= __("Use coupon") %></button><br>
+						<%- __("The item will appear in the &quot;Item Claim&quot; window.") %><br>
+						<%- __("You can open it from the main menu in the &quot;Shop&quot; section the &quot;Item Claim&quot; option.") %>
+					</div>
 				</div>
-				<div>
-					<%- __("Your account will be debited") %>: <b class="price-value gold2"><%= product.price %></b> <s><b class="price-value2 gold2"></b></s> <i class="fas fa-coins gold2"></i><br>
-					<%- __("The item will appear in the &quot;Item Claim&quot; window.") %><br>
-					<%- __("You can open it from the main menu in the &quot;Shop&quot; section the &quot;Item Claim&quot; option.") %>
+				<div id="coupon_form" class="coupon-form" style="display: none;">
+					<div>
+						<legend class="white-text"><%= __("Use Coupon") %></legend>
+					</div>
+					<div>
+						<input type="text" placeholder="<%= __("Enter your coupon") %>" name="coupon" id="coupon" style="margin-top: 10px;">
+						<button class="btn btn-primary" id="coupon_accept"><%= __("Accept") %></button>&nbsp;
+						<button class="btn btn-secondary" id="coupon_cancel"><%= __("Cancel") %></button>
+						<div class="alert alert-error fade in" style="display: none;" id="coupon_error">
+							<strong></strong>
+						</div>
+						<div id="coupon_descr">
+							<%= __("Here you can enter your coupon, which will give you a discount on this purchase.") %>
+						</div>
+					</div>
 				</div>
 			</div>
 			<div class="span3 buy-block-right" id="buy_block">
 				<div id="buy_available" style="margin-top: 10px;">
-					<%= __("Your price") %>: <span class="gold"><strong class="price-value"><%= product.price %></strong> <i class="fas fa-coins"></i></span><br>
-					<input id="quantity" type="number" value="1" min="1" max="99" step="1" class="quantity"> <button class="btn btn-large btn-danger" href="#" id="buy"><%= __("Buy") %></button>
+					<%= __("Your price") %>: <span class="gold"><strong class="price-value"></strong> <i class="fas fa-coins"></i></span><br>
+					<input id="quantity" type="number" value="1" min="1" max="99" step="1" class="quantity"> <button class="btn btn-large btn-danger" id="buy"><%= __("Buy") %></button>
 				</div>
 				<div id="buy_inprogress" style="display: none; margin-top: 45px;">
 					<%= __("Purchase in progress") %>...
 				</div>
 				<div id="buy_nocoins" style="display: none; margin-top: 12px;">
 					<%= __("You don't have enough funds to buy.") %><br><br>
-					<span class="gold"><strong class="price-value"><%= product.price %></strong> <i class="fas fa-coins"></i></span>
+					<span class="gold"><strong class="price-value"></strong> <i class="fas fa-coins"></i></span>
 				</div>
 				<div id="buy_success" style="display: none; margin-top: 12px;">
 					<%= __("You have success purchased an item.") %><br><br>
-					<%= __("Spent") %>: <span class="gold"><strong class="price-value"><%= product.price %></strong> <i class="fas fa-coins"></i></span>
+					<%= __("Spent") %>: <span class="gold"><strong class="price-value"></strong> <i class="fas fa-coins"></i></span>
 				</div>
 				<div id="buy_error" style="display: none; margin-top: 20px;">
 					<%= __("An error occurred while purchasing the product") %>: 
@@ -134,60 +154,189 @@
 </script>
 <%_ } _%>
 <script type="text/javascript">
-	$(document).ready(function() {
-		function purchaseProduct(productId, quantity) {
-			$('#buy_available').hide();
-			$('#buy_inprogress').show();
-			shopPurchaseAction(productId, quantity, function(result) {
-				$('#buy_inprogress').hide();
-				if (result.ReturnCode == 0) {
-					loadAccountInfo();
-					$('#buy_success').show();
-				} else if (result.ReturnCode == 1000) {
-					$('#buy_available').hide();
-					$('#buy_nocoins').show();
-				} else {
-					$('#buy_error').show().append(' #' + result.ReturnCode);
-				}
-			});
-		}
-		var quantity = 1;
-		$(".quantity-value").html(quantity);
-		$(".price-value").html(<%= product.price %> * quantity);
-		<%_ if (product.price !== product.originalPrice) { _%>
-		$(".price-value2").html(<%= product.originalPrice %> * quantity);
-		<% } %>
-		$("#quantity").change(function() {
-			quantity = $(this).val();
-			if (quantity < 1) quantity = 1;
-			if (quantity > 99) quantity = 99;
-			$(this).val(quantity);
-			$(".quantity-value").html(quantity);
-			$(".price-value").html(<%= product.price %> * quantity);
-			<%_ if (product.price !== product.originalPrice) { _%>
-			$(".price-value2").html(<%= product.originalPrice %> * quantity);
-			<% } %>
-			if (parseInt($('#shop_balance').html()) < parseInt('<%= product.price %>') * quantity) {
-				$('#buy').prop("disabled", true);
+	function setPriceAndQuantityValues(product, hideBuyForm) {
+		var accountBalance = getAccountBalance();
+		if (hideBuyForm) {
+			if (accountBalance < product.finalPrice * product.quantity) {
+				$('#buy_available').hide();
+				$('#buy_nocoins').show();
 			} else {
-				$('#buy').prop("disabled", false);
+				$('#buy_available').show();
+				$('#buy_nocoins').hide();
 			}
-		})
-		if (parseInt($('#shop_balance').html()) < parseInt('<%= product.price %>') * quantity) {
-			$('#buy_available').hide();
-			$('#buy_nocoins').show();
 		}
-		$('#buy').click(function() {
-			purchaseProduct(<%= product.id %>, quantity);
+		$('.quantity-value').html(product.quantity);
+		$('.price-value').html(product.finalPrice * product.quantity);
+		if (product.finalPrice != product.originalPrice) {
+			$('.price-orig-value').html(product.originalPrice * product.quantity);
+		}
+		if (accountBalance < product.finalPrice * product.quantity) {
+			$('#buy').prop('disabled', true);
+		} else {
+			$('#buy').prop('disabled', false);
+		}
+	}
+	function requestProductStatus(logId) {
+		var requestStatusInterval = setInterval(shopPurchaseStatusAction, 1000, logId, function(result) {
+			$('#buy_available').hide();
+			$('#buy_inprogress').hide();
+			if (result.ReturnCode == 0) {
+				if (result.Status == "deposit") {
+					$('#buy_inprogress').show();
+					return;
+				}
+				else if (result.Status == "completed") {
+					$('#buy_success').show();
+				}
+				else if (result.Status == "rejected") {
+					$('#buy_error').show().append('<br>#0 Transaction rejected');
+				}
+				loadAccountInfo();
+			} else {
+				$('#buy_error').show().append('<br>#' + result.ReturnCode + " " + result.Msg);
+			}
+			clearInterval(requestStatusInterval);
 		});
+	}
+	function purchaseProduct(product) {
+		$('#buy').prop('disabled', true);
+		$('#quantity').prop('disabled', true);
+		$('#coupon_use').prop('disabled', true);
+		$('#coupon_form').hide();
+		$('#buy_descr').show();
+		shopPurchaseAction(product.productId, product.quantity, function(result) {
+			if (result.ReturnCode == 0) {
+				$('#buy_available').hide();
+				$('#buy_inprogress').show();
+				requestProductStatus(result.LogId);
+			} else if (result.ReturnCode == 1000) {
+				$('#buy_available').hide();
+				$('#buy_nocoins').show();
+			} else {
+				$('#buy_error').show().append('<br>#' + result.ReturnCode + " " + result.Msg);
+			}
+		});
+	}
+	function couponAccept(product) {
+		if ($('#coupon').val() == "") {
+			$('#coupon_error').show();
+			$('#coupon_descr').hide();
+			$('#coupon_error strong').html("<%= __('Please enter your coupon.') %>");
+			return;
+		}
+		$('#coupon_accept').prop('disabled', true);
+		$('#coupon_cancel').prop('disabled', true);
+		$('#coupon_error').hide();
+		$('#coupon_descr').show();
+		shopCouponAcceptAction($('#coupon').val(), product.productId, function(result) {
+			$('#coupon_accept').prop('disabled', false);
+			$('#coupon_cancel').prop('disabled', false);
+			if (result.ReturnCode == 0) {
+				product.finalPrice = calculatePriceWithDiscounts(
+					product.originalPrice,
+					[product.productDiscount, result.Discount, product.accountDiscount]
+				);
+				setPriceAndQuantityValues(product, false);
+				$('#coupon_use').html(result.Discount + "<%= '% ' + __('discount applied') %>");
+				$('#coupon_form').hide();
+				$('#buy_descr').show();
+			} else {
+				$('#coupon_error').show();
+				$('#coupon_descr').hide();
+				switch(result.ReturnCode) {
+					case 9:
+						$('#coupon_error strong').html("<%= __('Too many requests.') %>");
+						break;
+					case 1000:
+						$('#coupon_error strong').html("<%= __('The specified coupon does not exist.') %>");
+						break;
+					case 1001:
+						$('#coupon_error strong').html("<%= __('The specified coupon has expired.') %>");
+						break;
+					case 1002:
+						$('#coupon_error strong').html("<%= __('The specified coupon has reached its activation limit.') %>");
+						break;
+					case 1010:
+						$('#coupon_error strong').html("<%= __('The specified coupon has already been activated.') %>");
+						break;
+					default:
+						$('#coupon_error strong').html("<%= __('Activation error') %>:<br>#" + result.ReturnCode + " " + result.Msg);
+				}
+			}
+		});
+	}
+	function couponCancel(product) {
+		$('#coupon_accept').prop('disabled', true);
+		$('#coupon_cancel').prop('disabled', true);
+		shopCouponCancelAction(function(result) {
+			product.finalPrice = calculatePriceWithDiscounts(
+				product.originalPrice,
+				[product.productDiscount, product.accountDiscount]
+			);
+			setPriceAndQuantityValues(product, false);
+			$('#coupon_use').html("<%= __('Use coupon') %>");
+			$('#coupon_accept').prop('disabled', false);
+			$('#coupon_cancel').prop('disabled', false);
+			$('#coupon').val("");
+			$('#coupon_error').hide();
+			$('#coupon_descr').show();
+			$('#coupon_form').hide();
+			$('#buy_descr').show();
+		});
+	}
+
+	$(function() {
+		var product = {
+			productId: <%= product.id %>,
+			balance: getAccountBalance(),
+			quantity: 1,
+			productDiscount: <%= product.productDiscount %>,
+			accountDiscount: <%= product.accountDiscount %>,
+			originalPrice: <%= product.price %>,
+			finalPrice: <%= product.price %>,
+		};
+
+		product.finalPrice = calculatePriceWithDiscounts(
+			product.originalPrice, 
+			[product.productDiscount, product.accountDiscount]
+		);
+
+		setPriceAndQuantityValues(product, true);
 		$('#back').click(backToCatalog);
+		$('#gift').click(function() {
+			// TBD
+		});
 		$('a.thumbnail').click(function(e) {
 			e.preventDefault();
 			$('#image-modal .modal-body img').attr('src', $(this).find('img').attr('src'));
-			$("#image-modal").modal('show');
+			$('#image-modal').modal('show');
 		});
 		$('#image-modal .modal-body img').click(function() {
-			$("#image-modal").modal('hide');
+			$('#image-modal').modal('hide');
+		});
+		$('#quantity').change(function() {
+			product.quantity = $(this).val();
+			if (product.quantity < 1) product.quantity = 1;
+			if (product.quantity > 99) product.quantity = 99;
+			$(this).val(product.quantity);
+			setPriceAndQuantityValues(product, false);
+		});
+		$('#buy').click(function() {
+			purchaseProduct(product);
+		});
+		$('#coupon').change(function() {
+			$('#coupon_error').hide();
+			$('#coupon_descr').show();
+		});
+		$('#coupon_use').click(function() {
+			$('#buy_descr').hide();
+			$('#coupon_form').show();
+		});
+		$('#coupon_accept').click(function() {
+			couponAccept(product);
+		});
+		$('#coupon_cancel').click(function() {
+			couponCancel(product);
 		});
 		$('input[type="number"]').numberInput();
 	});

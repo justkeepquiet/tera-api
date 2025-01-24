@@ -1,0 +1,66 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Add Shop Coupon") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-secondary history-back" title="" href="#"><i class="fa fa-chevron-left"></i> <%= __("Back to list") %></a>
+	</section>
+	<section class="section">
+		<div class="row">
+			<div class="col form">
+				<div class="card card-block">
+					<form id="form">
+						<div class="alert alert-danger" id="errors" style="display: none;"></div>
+						<div class="title-block">
+							<h3 class="title"><%= __("Coupon Information") %></h3>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="coupon"><%= __("Coupon") %></label>
+								<input type="text" class="form-control boxed text-monospace" name="coupon" value="<%= coupon %>" minlength="6" maxlength="20">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="discount"><%= __("Discount") %> (%)</label>
+								<input type="number" class="form-control boxed" name="discount" value="10" min="0" max="100">
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="maxActivations"><%= __("Maximum of activations") %></label>
+								<input type="number" class="form-control boxed" name="maxActivations" value="1" min="0" max="100000000">
+								<i>0 &mdash; <%= __("no limit on the number of activations.") %></i>
+							</div>
+						</div>
+						<div class="form-group row">
+							<div class="col-sm-6">
+								<label class="control-label" for="validAfter"><%= __("Valid from") %></label>
+								<input type="datetime-local" class="form-control boxed" name="validAfter" value="<%= moment().tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
+							</div>
+							<div class="col-sm-6">
+								<label class="control-label" for="validBefore"><%= __("Valid to") %></label>
+								<input type="datetime-local" class="form-control boxed" name="validBefore" value="<%= moment().add(365, "days").tz(user.tz).format("YYYY-MM-DDTHH:mm") %>">
+							</div>
+						</div>
+						<div class="form-group ">
+							<label>
+								<input type="checkbox" class="checkbox" name="active" checked="checked">
+								<span><%= __("Active") %></span>
+							</label>
+						</div>
+						<div class="form-group row"></div>
+						<div class="form-group">
+							<button type="submit" class="btn btn-primary"><%= __("Add") %></button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>
+<%- contentFor("scripts") %>
+<script>
+	$(function() {
+		$("#form").validate(config.validations);
+	});
+</script>

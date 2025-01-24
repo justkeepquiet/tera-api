@@ -1,0 +1,80 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Shop Activated Coupons") %></h1>
+	</div>
+	<section class="section">
+		<form class="form-inline" action="" method="GET">
+			<div class="form-group">
+				<label for="accountDBID"><%= __("Account ID") %></label>
+				<input type="text" class="form-control boxed" name="accountDBID" value="<%= accountDBID %>">
+			</div>
+			<div class="form-group">
+				<label for="couponId"><%= __("Coupon") %></label>
+				<input type="text" class="form-control boxed text-monospace" name="coupon" value="<%= coupon %>">
+				</select>
+			</div>
+			<button type="submit" class="btn btn-primary"><%= __("Show") %></button>
+		</form>
+	</section>
+	<%_ if (couponsActivated === null) { _%>
+	<section class="section">
+		<div class="alert alert-info">
+			<%= __("Please enter account ID or coupon ID.") %>
+		</div>
+	</section>
+	<%_ } else { _%>
+	<section class="section" style="display: none;">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-json mt-5">
+									<thead>
+										<tr>
+											<th><%= __("Activation time") %></th>
+											<th><%= __("Coupon ID") %></th>
+											<th><%= __("Coupon") %></th>
+											<th><%= __("Account ID") %></th>
+											<th><%= __("User name") %></th>
+											<th></th>
+										</tr>
+									</thead>
+								</table>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<%_ } _%>
+</article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+(couponsActivated || []).forEach(activated => {
+	tableData.push([
+		moment(activated.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
+		activated.get("couponId"),
+		activated.get("info").get("coupon"),
+		activated.get("accountDBID"),
+		activated.get("account")?.get("userName") || "-",
+		`<a class="btn btn-secondary btn-sm" href="/coupons_activated/delete?id=${activated.get("id")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [null, null, { className: "text-nowrap text-monospace" }, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".section").show();
+	});
+</script>

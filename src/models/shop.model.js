@@ -17,6 +17,8 @@
  * @property {import("sequelize").ModelCtor<Model<any, any>>} promoCodeActivated
  * @property {import("sequelize").ModelCtor<Model<any, any>>} boxes
  * @property {import("sequelize").ModelCtor<Model<any, any>>} boxItems
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} coupons
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} couponActivated
  */
 
 /**
@@ -34,7 +36,9 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		productItems: require("./shop/shopProductItems.model")(sequelize, DataTypes),
 		promoCodes: require("./shop/shopPromoCodes.model")(sequelize, DataTypes),
 		promoCodeStrings: require("./shop/shopPromoCodeStrings.model")(sequelize, DataTypes),
-		promoCodeActivated: require("./shop/shopPromoCodeActivated.model")(sequelize, DataTypes)
+		promoCodeActivated: require("./shop/shopPromoCodeActivated.model")(sequelize, DataTypes),
+		coupons: require("./shop/shopCoupons.model")(sequelize, DataTypes),
+		couponActivated: require("./shop/shopCouponActivated.model")(sequelize, DataTypes)
 	};
 
 	if (syncTables) {
@@ -47,6 +51,8 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		await model.promoCodes.sync();
 		await model.promoCodeStrings.sync();
 		await model.promoCodeActivated.sync();
+		await model.coupons.sync();
+		await model.couponActivated.sync();
 	}
 
 	// accounts
@@ -75,7 +81,7 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		as: "strings"
 	});
 
-	// promoCode
+	// promoCodes
 	model.promoCodes.hasMany(model.promoCodeStrings, {
 		foreignKey: "promoCodeId",
 		sourceKey: "promoCodeId",
@@ -96,6 +102,19 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 	});
 
 	model.promoCodeActivated.hasOne(modules.accountModel.info, {
+		foreignKey: "accountDBID",
+		sourceKey: "accountDBID",
+		as: "account"
+	});
+
+	// couponActivated
+	model.couponActivated.hasOne(model.coupons, {
+		foreignKey: "couponId",
+		sourceKey: "couponId",
+		as: "info"
+	});
+
+	model.couponActivated.hasOne(modules.accountModel.info, {
 		foreignKey: "accountDBID",
 		sourceKey: "accountDBID",
 		as: "account"

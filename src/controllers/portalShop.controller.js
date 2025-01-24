@@ -23,33 +23,48 @@ const {
 	rateLimitterHandler
 } = require("../middlewares/portalShop.middlewares");
 
-const calculatePriceWithDiscount = (shopProduct, shopAccount = null, session = null) => {
-	const discount = { product: 0, coupon: 0, account: 0 };
-	const initialPrice = shopProduct.get("price");
+/**
+ * @param {modules} modules
+ */
+const _getCouponData = async (modules, accountDBID, coupon) => {
+	const shopCoupon = await modules.shopModel.coupons.findOne({
+		attributes: {
+			include: [[modules.sequelize.fn("NOW"), "dateNow"]]
+		},
+		where: {
+			coupon,
+			active: 1
+		}
+	});
 
-	let finalPrice = initialPrice;
+	if (shopCoupon === null) {
+		throw new ApiError("This coupon was not found", 1000);
+	}
 
-	if (shopProduct.get("discount") > 0 &&
-		shopProduct.get("discountValidAfter") &&
-		shopProduct.get("discountValidBefore") &&
-		moment(shopProduct.get("dateNow")).isSameOrAfter(shopProduct.get("discountValidAfter")) &&
-		moment(shopProduct.get("dateNow")).isSameOrBefore(shopProduct.get("discountValidBefore"))
+	if (moment(shopCoupon.get("dateNow")).isBefore(shopCoupon.get("validAfter")) ||
+		moment(shopCoupon.get("dateNow")).isAfter(shopCoupon.get("validBefore"))
 	) {
-		discount.product = shopProduct.get("discount");
-		finalPrice = helpers.subtractPercentage(finalPrice, discount.product);
+		throw new ApiError("Coupon has expired or has not started yet", 1001);
 	}
 
-	if (session?.usedCoupon && session.usedCoupon.discount > 0) {
-		discount.coupon = session.usedCoupon.discount;
-		finalPrice = helpers.subtractPercentage(finalPrice, discount.coupon);
+	if (shopCoupon.get("maxActivations") > 0 &&
+		shopCoupon.get("currentActivations") >= shopCoupon.get("maxActivations")
+	) {
+		throw new ApiError("Activation limit for this coupon has been exceeded", 1002);
 	}
 
-	if (shopAccount !== null && shopAccount.get("discount") > 0) {
-		discount.account = shopAccount.get("discount");
-		finalPrice = helpers.subtractPercentage(finalPrice, discount.account);
+	const couponActivated = await modules.shopModel.couponActivated.findOne({
+		where: {
+			accountDBID,
+			couponId: shopCoupon.get("couponId")
+		}
+	});
+
+	if (couponActivated !== null) {
+		throw new ApiError("This coupon has already been activated", 1010);
 	}
 
-	return { initialPrice, finalPrice, discount };
+	return shopCoupon;
 };
 
 /**
@@ -224,33 +239,44 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 			]
 		});
 
-		shopProducts.forEach(product => {
-			const { finalPrice, discount } = calculatePriceWithDiscount(product, null, null);
+		shopProducts.forEach(shopProduct => {
+			let finalPrice = shopProduct.get("price");
+			let productDiscount = 0;
+
+			if (shopProduct.get("discount") > 0 &&
+				shopProduct.get("discountValidAfter") &&
+				shopProduct.get("discountValidBefore") &&
+				moment(shopProduct.get("dateNow")).isSameOrAfter(shopProduct.get("discountValidAfter")) &&
+				moment(shopProduct.get("dateNow")).isSameOrBefore(shopProduct.get("discountValidBefore"))
+			) {
+				productDiscount = shopProduct.get("discount");
+				finalPrice = helpers.subtractPercentage(finalPrice, shopProduct.get("discount"));
+			}
 
 			let tag = null;
 
-			if (product.get("tag") !== null &&
-				product.get("tagValidAfter") &&
-				product.get("tagValidBefore") &&
-				moment(product.get("dateNow")).isSameOrAfter(product.get("tagValidAfter")) &&
-				moment(product.get("dateNow")).isSameOrBefore(product.get("tagValidBefore"))
+			if (shopProduct.get("tag") !== null &&
+				shopProduct.get("tagValidAfter") &&
+				shopProduct.get("tagValidBefore") &&
+				moment(shopProduct.get("dateNow")).isSameOrAfter(shopProduct.get("tagValidAfter")) &&
+				moment(shopProduct.get("dateNow")).isSameOrBefore(shopProduct.get("tagValidBefore"))
 			) {
-				tag = product.get("tag");
+				tag = shopProduct.get("tag");
 			}
 
 			const productInfo = {
 				price: finalPrice,
-				discount: discount.product,
-				title: product.get("strings")[0]?.get("title"),
-				description: product.get("strings")[0]?.get("description"),
-				icon: product.get("icon"),
-				rareGrade: product.get("rareGrade"),
+				productDiscount: productDiscount,
+				title: shopProduct.get("strings")[0]?.get("title"),
+				description: shopProduct.get("strings")[0]?.get("description"),
+				icon: shopProduct.get("icon"),
+				rareGrade: shopProduct.get("rareGrade"),
 				tag,
-				itemsCount: product.get("itemsCount"), // TODO
-				itemCount: product.get("item").length
+				itemsCount: shopProduct.get("itemsCount"), // TODO
+				itemCount: shopProduct.get("item").length
 			};
 
-			product.get("item").forEach(productItem => {
+			shopProduct.get("item").forEach(productItem => {
 				const itemData = datasheetModel.itemData.get(i18n.getLocale())?.getOne(productItem.get("itemTemplateId"));
 				const strSheetItem = datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(productItem.get("itemTemplateId"));
 
@@ -280,7 +306,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 			});
 
 			if (productInfo.icon && (!search || (search && productInfo.title))) {
-				products.set(product.get("id"), productInfo);
+				products.set(shopProduct.get("id"), productInfo);
 			}
 		});
 
@@ -312,7 +338,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 	async (req, res, next) => {
 		const { id, search, back } = req.body;
 
-		const product = await shopModel.products.findOne({
+		const shopProduct = await shopModel.products.findOne({
 			where: {
 				id,
 				active: 1,
@@ -330,7 +356,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 			}]
 		});
 
-		if (product === null) {
+		if (shopProduct === null) {
 			return res.status(500).send();
 		}
 
@@ -338,35 +364,50 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 			where: { accountDBID: req.user.accountDBID }
 		});
 
-		const { finalPrice, discount } = calculatePriceWithDiscount(product, shopAccount, null);
-
-		let tag = null;
-
-		if (product.get("tag") !== null &&
-			product.get("tagValidAfter") &&
-			product.get("tagValidBefore") &&
-			moment(product.get("dateNow")).isSameOrAfter(product.get("tagValidAfter")) &&
-			moment(product.get("dateNow")).isSameOrBefore(product.get("tagValidBefore"))
-		) {
-			tag = product.get("tag");
+		let accountDiscount = 0;
+		if (shopAccount !== null) {
+			accountDiscount = shopAccount.get("discount");
 		}
 
-		const productObj = {
-			id: product.get("id"),
-			categoryId: product.get("categoryId"),
-			price: finalPrice,
-			originalPrice: product.get("price"),
-			discount: discount.product,
-			accountDiscount: discount.account,
-			title: product.get("strings")[0]?.get("title"),
-			description: product.get("strings")[0]?.get("description"),
-			icon: product.get("icon"),
-			rareGrade: product.get("rareGrade"),
-			tag
+		let productDiscount = 0;
+		if (shopProduct.get("discount") > 0 &&
+			shopProduct.get("discountValidAfter") &&
+			shopProduct.get("discountValidBefore") &&
+			moment(shopProduct.get("dateNow")).isSameOrAfter(shopProduct.get("discountValidAfter")) &&
+			moment(shopProduct.get("dateNow")).isSameOrBefore(shopProduct.get("discountValidBefore"))
+		) {
+			productDiscount = shopProduct.get("discount");
+		}
+
+		let tag = null;
+		if (shopProduct.get("tag") !== null &&
+			shopProduct.get("tagValidAfter") &&
+			shopProduct.get("tagValidBefore") &&
+			moment(shopProduct.get("dateNow")).isSameOrAfter(shopProduct.get("tagValidAfter")) &&
+			moment(shopProduct.get("dateNow")).isSameOrBefore(shopProduct.get("tagValidBefore"))
+		) {
+			tag = shopProduct.get("tag");
+		}
+
+		const product = {
+			id: shopProduct.get("id"),
+			categoryId: shopProduct.get("categoryId"),
+			title: shopProduct.get("strings")[0]?.get("title"),
+			description: shopProduct.get("strings")[0]?.get("description"),
+			icon: shopProduct.get("icon"),
+			rareGrade: shopProduct.get("rareGrade"),
+			price: shopProduct.get("price"),
+			couponId: null,
+			couponDiscount: 0,
+			accountDiscount,
+			productDiscount,
+			tag,
+			items: [],
+			conversions: []
 		};
 
 		const productItems = await shopModel.productItems.findAll({
-			where: { productId: product.get("id") },
+			where: { productId: shopProduct.get("id") },
 			order: [
 				["createdAt", "ASC"]
 			]
@@ -376,14 +417,12 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 			return res.status(500).send();
 		}
 
-		const items = [];
-		const conversions = [];
-
 		productItems.forEach(item => {
 			const itemData = datasheetModel.itemData.get(i18n.getLocale())?.getOne(item.get("itemTemplateId"));
 			const strSheetItem = datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(item.get("itemTemplateId"));
 
-			items.push({
+			product.items.push({
+				id: item.get("id"),
 				itemTemplateId: item.get("itemTemplateId"),
 				boxItemId: item.get("boxItemId"),
 				boxItemCount: item.get("boxItemCount"),
@@ -398,38 +437,40 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 					...datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(itemTemplateId) || {}
 				}));
 
-			conversions.push(...conversion);
+			product.conversions.push(...conversion);
 		});
 
-		const itemData = datasheetModel.itemData.get(i18n.getLocale())?.getOne(items[0].itemTemplateId);
-		const strSheetItem = datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(items[0].itemTemplateId);
+		const itemData = datasheetModel.itemData.get(i18n.getLocale())?.getOne(product.items[0].itemTemplateId);
+		const strSheetItem = datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(product.items[0].itemTemplateId);
 
-		if (!productObj.title) {
-			productObj.title = strSheetItem.string;
+		if (!product.title) {
+			product.title = strSheetItem.string;
 		}
 
-		if (!productObj.description) {
-			productObj.description = strSheetItem.toolTip;
+		if (!product.description) {
+			product.description = strSheetItem.toolTip;
 		}
 
-		if (!productObj.icon) {
-			productObj.icon = itemData.icon;
+		if (!product.icon) {
+			product.icon = itemData.icon;
 		}
 
-		if (!productObj.rareGrade) {
-			productObj.rareGrade = itemData.rareGrade;
+		if (!product.rareGrade) {
+			product.rareGrade = itemData.rareGrade;
 		}
 
-		productObj.requiredLevel = itemData.requiredLevel;
-		productObj.requiredClass = itemData.requiredClass?.split(";") || [];
-		productObj.requiredGender = itemData.requiredGender;
-		productObj.requiredRace = (itemData.requiredRace?.split(";") || [])
-			.map(race => (race === "popori" && productObj.requiredGender === "female" ? "elin" : race));
+		product.requiredLevel = itemData.requiredLevel;
+		product.requiredClass = itemData.requiredClass?.split(";") || [];
+		product.requiredGender = itemData.requiredGender;
+		product.requiredRace = (itemData.requiredRace?.split(";") || [])
+			.map(race => (race === "popori" && product.requiredGender === "female" ? "elin" : race));
 
-		productObj.tradable = itemData.tradable;
-		productObj.warehouseStorable = itemData.warehouseStorable;
+		product.tradable = itemData.tradable;
+		product.warehouseStorable = itemData.warehouseStorable;
 
-		res.render("partials/shopProduct", { helpers, product: productObj, items, conversions, search, back });
+		req.session.lastProduct = product; // add product to session
+
+		res.render("partials/shopProduct", { helpers, product, search, back });
 	},
 	/**
 	 * @type {ErrorRequestHandler}
@@ -563,7 +604,7 @@ module.exports.PurchaseAction = modules => [
 	[
 		body("productId").trim().notEmpty().isNumeric(),
 		body("quantity").trim().notEmpty().isInt({ min: 1, max: 99 }),
-		body("userNo").optional({ checkFalsy: true }).trim().isInt()
+		body("recipientUserId").optional({ checkFalsy: true }).trim().isInt()
 	],
 	validationHandler(modules.logger),
 	rateLimitterHandler(modules.rateLimitter, "portalApi.shop.purchaseAction"),
@@ -571,39 +612,30 @@ module.exports.PurchaseAction = modules => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { productId, quantity, userNo } = req.body;
-		const serviceItem = new ServiceItem(modules);
+		const { productId, quantity, recipientUserId } = req.body;
+
+		if (!req.session.lastProduct || req.session.lastProduct.id !== parseInt(productId)) {
+			throw new ApiError("Product request invalidated", 2000);
+		}
 
 		const shopProduct = await modules.shopModel.products.findOne({
 			where: {
-				id: productId,
+				id: req.session.lastProduct.id,
 				active: 1,
 				validAfter: { [Op.lt]: modules.sequelize.fn("NOW") },
 				validBefore: { [Op.gt]: modules.sequelize.fn("NOW") }
-			},
-			attributes: {
-				include: [[modules.sequelize.fn("NOW"), "dateNow"]]
-			},
-			include: [{
-				as: "item",
-				model: modules.shopModel.productItems
-			}]
+			}
 		});
 
 		if (shopProduct === null) {
-			throw new ApiError("product not exists", 2000);
-		}
-
-		const recipientAccount = await modules.accountModel.info.findOne({
-			where: { accountDBID: userNo || req.user.accountDBID }
-		});
-
-		if (recipientAccount === null) {
-			throw new ApiError("recipient account not exists", 5000);
+			throw new ApiError("Product was not found", 2001);
 		}
 
 		let shopAccount = await modules.shopModel.accounts.findOne({
-			where: { accountDBID: req.user.accountDBID, active: 1 }
+			where: {
+				accountDBID: req.user.accountDBID,
+				active: 1
+			}
 		});
 
 		if (shopAccount === null) {
@@ -614,30 +646,23 @@ module.exports.PurchaseAction = modules => [
 			});
 		}
 
-		const { finalPrice } = calculatePriceWithDiscount(shopProduct, shopAccount, req.session);
-
-		const logResult = await modules.reportModel.shopPay.create({
-			accountDBID: req.user.accountDBID,
-			serverId: req.user.lastLoginServer,
-			ip: req.user.lastLoginIP,
-			productId: shopProduct.get("id"),
-			quantity,
-			price: finalPrice,
-			status: "deposit"
+		const recipientAccount = await modules.accountModel.info.findOne({
+			where: { accountDBID: recipientUserId || req.user.accountDBID }
 		});
 
-		if (logResult === null) {
-			throw new ApiError("internal error", 1);
+		if (recipientAccount === null) {
+			throw new ApiError("Recipient account was not found", 5000);
 		}
 
+		const serviceItem = new ServiceItem(modules);
 		const items = [];
 
-		for (const item of shopProduct.get("item")) {
-			const strSheetItem = modules.datasheetModel.strSheetItem.get(modules.i18n.getLocale())?.getOne(item.get("itemTemplateId"));
+		for (const item of req.session.lastProduct.items) {
+			const strSheetItem = modules.datasheetModel.strSheetItem.get(modules.i18n.getLocale())?.getOne(item.itemTemplateId);
 
 			const boxItemId = await serviceItem.checkCreate(
-				item.get("boxItemId"),
-				item.get("itemTemplateId"),
+				item.boxItemId,
+				item.itemTemplateId,
 				strSheetItem?.string,
 				helpers.formatStrsheet(strSheetItem?.toolTip),
 				0
@@ -645,48 +670,87 @@ module.exports.PurchaseAction = modules => [
 
 			items.push({
 				item_id: boxItemId,
-				item_count: item.get("boxItemCount") * quantity,
-				item_template_id: item.get("itemTemplateId")
+				item_count: item.boxItemCount * quantity,
+				item_template_id: item.itemTemplateId
 			});
 
-			if (boxItemId != item.get("boxItemId")) {
+			if (boxItemId != item.boxItemId) {
 				await modules.shopModel.productItems.update({ boxItemId }, {
-					where: { id: item.get("id") }
+					where: { id: item.id }
 				});
 			}
 		}
 
 		if (items.length === 0) {
-			throw new ApiError("items not exists", 3000);
+			throw new ApiError("Product does not contain any items", 3000);
 		}
 
-		const cost = finalPrice * quantity;
+		// calculate final price
+		let finalPrice = req.session.lastProduct.price;
 
-		await modules.shopModel.accounts.decrement({
-			balance: cost
-		}, {
-			where: { accountDBID: shopAccount.get("accountDBID") }
+		if (req.session.lastProduct.productDiscount > 0) {
+			finalPrice = helpers.subtractPercentage(finalPrice, req.session.lastProduct.productDiscount);
+		}
+
+		if (req.session.lastProduct.couponDiscount > 0) {
+			finalPrice = helpers.subtractPercentage(finalPrice, req.session.lastProduct.couponDiscount);
+		}
+
+		if (req.session.lastProduct.accountDiscount > 0) {
+			finalPrice = helpers.subtractPercentage(finalPrice, req.session.lastProduct.accountDiscount);
+		}
+
+		const currentBalance = shopAccount.get("balance"); // current balance
+		const finalCost = finalPrice * quantity; // final cost
+
+		const logResult = await modules.reportModel.shopPay.create({
+			accountDBID: req.user.accountDBID,
+			serverId: req.user.lastLoginServer,
+			ip: req.ip,
+			productId: req.session.lastProduct.id,
+			quantity,
+			price: finalPrice,
+			status: "deposit"
 		});
 
 		await modules.reportModel.shopFund.create({
-			accountDBID: shopAccount.get("accountDBID"),
-			amount: -cost,
-			balance: shopAccount.get("balance") - cost,
-			description: `Buy,ID: ${shopProduct.get("id")},Log ID: ${logResult.get("id")}`
+			accountDBID: req.user.accountDBID,
+			amount: -finalCost,
+			balance: currentBalance - finalCost,
+			description: `Buy,ID: ${req.session.lastProduct.id},Log ID: ${logResult.get("id")}`
 		});
-
-		const itemClaim = new ItemClaim(
-			modules,
-			recipientAccount.get("accountDBID"),
-			recipientAccount.get("lastLoginServer"),
-			{
-				logType: 3,
-				logId: logResult.get("id")
-			}
-		);
 
 		// no awaiting
 		modules.sequelize.transaction(async () => {
+			await modules.shopModel.accounts.decrement({
+				balance: finalCost
+			}, {
+				where: { accountDBID: req.user.accountDBID }
+			});
+
+			if (req.session.lastProduct.couponId) {
+				await modules.shopModel.couponActivated.create({
+					couponId: req.session.lastProduct.couponId,
+					accountDBID: req.user.accountDBID
+				});
+
+				await modules.shopModel.coupons.increment({
+					currentActivations: 1
+				}, {
+					where: { couponId: req.session.lastProduct.couponId }
+				});
+			}
+
+			const itemClaim = new ItemClaim(
+				modules,
+				recipientAccount.get("accountDBID"),
+				recipientAccount.get("lastLoginServer"), // TODO
+				{
+					logType: 3,
+					logId: logResult.get("id")
+				}
+			);
+
 			const boxId = await itemClaim.makeBox({
 				title: modules.i18n.__("_box_title_"),
 				content: modules.i18n.__("_box_content_"),
@@ -701,28 +765,159 @@ module.exports.PurchaseAction = modules => [
 			}, {
 				where: { id: logResult.get("id") }
 			});
+
+			req.session.lastProduct = null;
 		}).catch(async err => {
 			modules.logger.error(err);
 
-			await modules.shopModel.accounts.increment({
-				balance: cost
-			}, {
-				where: { accountDBID: shopAccount.get("accountDBID") }
-			});
+			try {
+				await modules.reportModel.shopPay.update({
+					status: "rejected"
+				}, {
+					where: { id: logResult.get("id") }
+				});
 
-			await modules.reportModel.shopPay.update({
-				status: "rejected"
-			}, {
-				where: { id: logResult.get("id") }
-			});
+				await modules.reportModel.shopFund.create({
+					accountDBID: req.user.accountDBID,
+					amount: finalCost,
+					balance: currentBalance,
+					description: `BuyCancel,ID: ${req.session.lastProduct.id},Log ID: ${logResult.get("id")}`
+				});
+			} catch (e) {
+				modules.logger.error(e);
+			}
 
-			await modules.reportModel.shopFund.create({
-				accountDBID: shopAccount.get("accountDBID"),
-				amount: cost,
-				balance: shopAccount.get("balance"),
-				description: `BuyCancel,ID: ${shopProduct.get("id")},Log ID: ${logResult.get("id")}`
-			});
+			req.session.lastProduct = null;
 		});
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			LogId: logResult.get("id")
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.PurchaseStatusAction = modules => [
+	shopStatusHandler,
+	authSessionHandler(modules.logger),
+	[
+		body("logId").trim().notEmpty().isNumeric()
+	],
+	validationHandler(modules.logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { logId } = req.body;
+
+		const logResult = await modules.reportModel.shopPay.findOne({
+			where: { id: logId }
+		});
+
+		if (logResult === null) {
+			throw new ApiError("Transaction was not found", 2000);
+		}
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			Status: logResult.get("status")
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.CouponAcceptAction = modules => [
+	shopStatusHandler,
+	authSessionHandler(modules.logger, modules.accountModel),
+	[
+		body("coupon").trim().notEmpty(),
+		body("productId").trim().notEmpty().isNumeric()
+	],
+	validationHandler(modules.logger),
+	rateLimitterHandler(modules.rateLimitter, "portalApi.shop.couponAcceptAction"),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { coupon, productId } = req.body;
+
+		if (!req.session.lastProduct || req.session.lastProduct.id !== parseInt(productId)) {
+			throw new ApiError("Product request invalidated", 2000);
+		}
+
+		const shopCoupon = await modules.shopModel.coupons.findOne({
+			attributes: {
+				include: [[modules.sequelize.fn("NOW"), "dateNow"]]
+			},
+			where: {
+				coupon,
+				active: 1
+			}
+		});
+
+		if (shopCoupon === null) {
+			throw new ApiError("This coupon was not found", 1000);
+		}
+
+		if (moment(shopCoupon.get("dateNow")).isBefore(shopCoupon.get("validAfter")) ||
+			moment(shopCoupon.get("dateNow")).isAfter(shopCoupon.get("validBefore"))
+		) {
+			throw new ApiError("Coupon has expired or has not started yet", 1001);
+		}
+
+		if (shopCoupon.get("maxActivations") > 0 &&
+			shopCoupon.get("currentActivations") >= shopCoupon.get("maxActivations")
+		) {
+			throw new ApiError("Activation limit for this coupon has been exceeded", 1002);
+		}
+
+		const couponActivated = await modules.shopModel.couponActivated.findOne({
+			where: {
+				accountDBID: req.user.accountDBID,
+				couponId: shopCoupon.get("couponId")
+			}
+		});
+
+		if (couponActivated !== null) {
+			throw new ApiError("This coupon has already been activated", 1010);
+		}
+
+		req.session.lastProduct.couponId = shopCoupon.get("couponId");
+		req.session.lastProduct.couponDiscount = shopCoupon.get("discount");
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			Discount: shopCoupon.get("discount")
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.CouponCancelAction = modules => [
+	shopStatusHandler,
+	authSessionHandler(modules.logger, modules.accountModel),
+	validationHandler(modules.logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		if (req.session.lastProduct) {
+			req.session.lastProduct.couponId = null;
+			req.session.lastProduct.couponDiscount = 0;
+		}
 
 		res.json({
 			Return: true,
@@ -752,25 +947,25 @@ module.exports.PromoCodeAction = modules => [
 				include: [[modules.sequelize.fn("NOW"), "dateNow"]]
 			},
 			where: {
-				promoCode: promoCode,
+				promoCode,
 				active: 1
 			}
 		});
 
 		if (promocode === null) {
-			throw new ApiError("invalid promocode", 1000);
+			throw new ApiError("Promo code was not found", 1000);
 		}
 
 		if (moment(promocode.get("dateNow")).isBefore(promocode.get("validAfter")) ||
 			moment(promocode.get("dateNow")).isAfter(promocode.get("validBefore"))
 		) {
-			throw new ApiError("expired promocode", 1001);
+			throw new ApiError("Promo code has expired or has not started yet", 1001);
 		}
 
 		if (promocode.get("maxActivations") > 0 &&
 			promocode.get("currentActivations") >= promocode.get("maxActivations")
 		) {
-			throw new ApiError("reached promocode", 1002);
+			throw new ApiError("Activation limit for this promo code has been exceeded", 1002);
 		}
 
 		const promocodeActivated = await modules.shopModel.promoCodeActivated.findOne({
@@ -781,10 +976,11 @@ module.exports.PromoCodeAction = modules => [
 		});
 
 		if (promocodeActivated !== null) {
-			throw new ApiError("invalid promocode", 1010);
+			throw new ApiError("Promo code has already been activated", 1010);
 		}
 
-		await modules.sequelize.transaction(async () => {
+		// no awaiting
+		modules.sequelize.transaction(async () => {
 			await modules.shopModel.promoCodeActivated.create({
 				promoCodeId: promocode.get("promoCodeId"),
 				accountDBID: req.user.accountDBID
@@ -795,10 +991,7 @@ module.exports.PromoCodeAction = modules => [
 			}, {
 				where: { promoCodeId: promocode.get("promoCodeId") }
 			});
-		});
 
-		// no awaiting
-		modules.sequelize.transaction(async () => {
 			const actions = new PromoCodeActions(
 				modules,
 				req.user.lastLoginServer,
@@ -806,22 +999,9 @@ module.exports.PromoCodeAction = modules => [
 			);
 
 			await actions.execute(promocode.get("function"), promocode.get("promoCodeId"));
-		}).catch(async err => {
-			modules.logger.error(err);
-
-			await modules.shopModel.promoCodeActivated.destroy({
-				where: {
-					promoCodeId: promocode.get("promoCodeId"),
-					accountDBID: req.user.accountDBID
-				}
-			});
-
-			await modules.shopModel.promoCodes.decrement({
-				currentActivations: 1
-			}, {
-				where: { promoCodeId: promocode.get("promoCodeId") }
-			});
-		});
+		}).catch(async err =>
+			modules.logger.error(err)
+		);
 
 		res.json({
 			Return: true,
