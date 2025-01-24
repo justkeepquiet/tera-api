@@ -124,11 +124,11 @@ module.exports.portalApi = {
 		},
 
 		// endpoint: POST /shop/CouponAcceptAction
-		// 60 requests per 3 minutes with block for 1 hour
+		// 60 requests per 3 minutes with block for 5 minutes
 		couponAcceptAction: {
 			points: 60,
 			duration: 180,
-			blockDuration: 3600
+			blockDuration: 300
 		}
 	}
 };
