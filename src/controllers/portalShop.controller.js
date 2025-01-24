@@ -23,48 +23,13 @@ const {
 	rateLimitterHandler
 } = require("../middlewares/portalShop.middlewares");
 
-/**
- * @param {modules} modules
- */
-const _getCouponData = async (modules, accountDBID, coupon) => {
-	const shopCoupon = await modules.shopModel.coupons.findOne({
-		attributes: {
-			include: [[modules.sequelize.fn("NOW"), "dateNow"]]
-		},
-		where: {
-			coupon,
-			active: 1
-		}
-	});
+const lockedCoupons = new Map();
 
-	if (shopCoupon === null) {
-		throw new ApiError("This coupon was not found", 1000);
+const clearLastProduct = req => {
+	if (req.session.lastProduct) {
+		lockedCoupons.delete(req.session.lastProduct.couponId);
+		req.session.lastProduct = undefined;
 	}
-
-	if (moment(shopCoupon.get("dateNow")).isBefore(shopCoupon.get("validAfter")) ||
-		moment(shopCoupon.get("dateNow")).isAfter(shopCoupon.get("validBefore"))
-	) {
-		throw new ApiError("Coupon has expired or has not started yet", 1001);
-	}
-
-	if (shopCoupon.get("maxActivations") > 0 &&
-		shopCoupon.get("currentActivations") >= shopCoupon.get("maxActivations")
-	) {
-		throw new ApiError("Activation limit for this coupon has been exceeded", 1002);
-	}
-
-	const couponActivated = await modules.shopModel.couponActivated.findOne({
-		where: {
-			accountDBID,
-			couponId: shopCoupon.get("couponId")
-		}
-	});
-
-	if (couponActivated !== null) {
-		throw new ApiError("This coupon has already been activated", 1010);
-	}
-
-	return shopCoupon;
 };
 
 /**
@@ -113,6 +78,8 @@ module.exports.MainHtml = () => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
+		clearLastProduct(req);
+
 		res.render("shopMain");
 	}
 ];
@@ -310,6 +277,8 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 			}
 		});
 
+		clearLastProduct(req);
+
 		res.render("partials/shopCatalog", { helpers, products, search: search || "" });
 	},
 	/**
@@ -468,6 +437,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 		product.tradable = itemData.tradable;
 		product.warehouseStorable = itemData.warehouseStorable;
 
+		clearLastProduct(req);
 		req.session.lastProduct = product; // add product to session
 
 		res.render("partials/shopProduct", { helpers, product, search, back });
@@ -546,6 +516,8 @@ module.exports.PartialPromoCodeHtml = ({ i18n, logger, shopModel }) => [
 			]
 		});
 
+		clearLastProduct(req);
+
 		res.render("partials/shopPromoCode", { moment, promoCodesAcrivated, tzOffset: Number(tzOffset) });
 	},
 	/**
@@ -565,6 +537,8 @@ module.exports.PartialErrorHtml = () => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
+		clearLastProduct(req);
+
 		res.render("partials/shopError");
 	}
 ];
@@ -685,6 +659,27 @@ module.exports.PurchaseAction = modules => [
 			throw new ApiError("Product does not contain any items", 3000);
 		}
 
+		if (req.session.lastProduct.couponId) {
+			const lockedCoupon = lockedCoupons.get(req.session.lastProduct.couponId);
+
+			if (lockedCoupon &&
+				lockedCoupon.accountDBID !== req.user.accountDBID &&
+				lockedCoupon.expiriesTime >= Date.now()
+			) {
+				throw new ApiError("This coupon has already been activated", 1010);
+			}
+
+			const couponActivated = await modules.shopModel.couponActivated.findOne({
+				where: {
+					couponId: req.session.lastProduct.couponId
+				}
+			});
+
+			if (couponActivated !== null) {
+				throw new ApiError("This coupon has already been activated", 1010);
+			}
+		}
+
 		// calculate final price
 		let finalPrice = req.session.lastProduct.price;
 
@@ -766,7 +761,7 @@ module.exports.PurchaseAction = modules => [
 				where: { id: logResult.get("id") }
 			});
 
-			req.session.lastProduct = null;
+			clearLastProduct(req);
 		}).catch(async err => {
 			modules.logger.error(err);
 
@@ -787,7 +782,7 @@ module.exports.PurchaseAction = modules => [
 				modules.logger.error(e);
 			}
 
-			req.session.lastProduct = null;
+			clearLastProduct(req);
 		});
 
 		res.json({
@@ -889,6 +884,20 @@ module.exports.CouponAcceptAction = modules => [
 			throw new ApiError("This coupon has already been activated", 1010);
 		}
 
+		const lockedCoupon = lockedCoupons.get(shopCoupon.get("couponId"));
+
+		if (lockedCoupon &&
+			lockedCoupon.accountDBID !== req.user.accountDBID &&
+			lockedCoupon.expiriesTime >= Date.now()
+		) {
+			throw new ApiError("This coupon has already been activated", 1010);
+		}
+
+		lockedCoupons.set(shopCoupon.get("couponId"), {
+			accountDBID: req.user.accountDBID,
+			expiriesTime: Date.now() + 3600000 // 1 hour
+		});
+
 		req.session.lastProduct.couponId = shopCoupon.get("couponId");
 		req.session.lastProduct.couponDiscount = shopCoupon.get("discount");
 
@@ -913,6 +922,8 @@ module.exports.CouponCancelAction = modules => [
 	 */
 	async (req, res, next) => {
 		if (req.session.lastProduct) {
+			lockedCoupons.delete(req.session.lastProduct.couponId);
+
 			req.session.lastProduct.couponId = null;
 			req.session.lastProduct.couponDiscount = 0;
 		}
