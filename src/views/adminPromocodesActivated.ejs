@@ -11,7 +11,7 @@
 			</div>
 			<div class="form-group">
 				<label for="promoCodeId"><%= __("Promo code ID") %></label>
-				<select class="form-control boxed" name="promoCodeId">
+				<select class="form-control boxed text-monospace" name="promoCodeId">
 					<option value="">- <%= __("No") %> -</option>
 				<%_ promocodes.forEach(p => { _%>
 					<option value="<%= p.get("promoCodeId") %>" <%= p.get("promoCodeId") == promoCodeId ? "selected" : "" %>>(<%= p.get("promoCodeId") %>) <%= p.get("promoCode") %></option>
@@ -80,7 +80,7 @@ _%>
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
 			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [null, null, null, null, null, { className: "text-right text-nowrap" }]
+			columns: [null, null, { className: "text-nowrap text-monospace" }, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});
