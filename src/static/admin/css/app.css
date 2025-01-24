@@ -2924,14 +2924,14 @@ pre {
   position: absolute;
   display: block;
   width: 100%;
-  margin-top: -37px;
-  padding-right: 31px;
+  margin-top: -32px;
+  padding-right: 40px;
   text-align: right;
   background-color: transparent;
   pointer-events: none;
   color: #000; }
   .text-random i {
-    padding: 10px 14px 10px 10px;
+    padding: 5px;
     background-color: transparent;
     pointer-events: auto !important; }
 
