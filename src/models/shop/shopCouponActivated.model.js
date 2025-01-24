@@ -26,6 +26,10 @@ module.exports = (sequelize, DataTypes) =>
 			type: DataTypes.BIGINT(20),
 			unique: "unique",
 			allowNull: false
+		},
+		logId: {
+			type: DataTypes.BIGINT(20),
+			allowNull: false
 		}
 	}, {
 		indexes: [

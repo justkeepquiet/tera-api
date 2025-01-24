@@ -790,7 +790,8 @@ module.exports.PurchaseAction = modules => [
 			if (req.session.lastProduct.couponId) {
 				await modules.shopModel.couponActivated.create({
 					couponId: req.session.lastProduct.couponId,
-					accountDBID: req.user.accountDBID
+					accountDBID: req.user.accountDBID,
+					logId: logResult.get("id")
 				});
 
 				await modules.shopModel.coupons.increment({

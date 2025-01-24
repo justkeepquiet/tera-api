@@ -39,6 +39,7 @@
 											<th><%= __("Coupon") %></th>
 											<th><%= __("Account ID") %></th>
 											<th><%= __("User name") %></th>
+											<th><%= __("Log ID") %></th>
 											<th></th>
 										</tr>
 									</thead>
@@ -63,6 +64,7 @@ const tableData = [];
 		activated.get("info").get("coupon"),
 		activated.get("accountDBID"),
 		activated.get("account")?.get("userName") || "-",
+		`<a href="/shop_pay_logs?id=${activated.get("logId")}">${activated.get("logId")}</a>`,
 		`<a class="btn btn-secondary btn-sm" href="/coupons_activated/delete?id=${activated.get("id")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
 	]);
 });

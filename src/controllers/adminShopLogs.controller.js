@@ -21,12 +21,13 @@ module.exports.fund = ({ accountModel, reportModel }) => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { accountDBID } = req.query;
+		const { id, accountDBID } = req.query;
 		const from = req.query.from ? moment.tz(req.query.from, req.user.tz) : moment().subtract(30, "days");
 		const to = req.query.to ? moment.tz(req.query.to, req.user.tz) : moment().add(30, "days");
 
 		const logs = await reportModel.shopFund.findAll({
 			where: {
+				...id ? { id } : {},
 				...accountDBID ? { accountDBID } : {},
 				createdAt: {
 					[Op.gt]: from.toDate(),
@@ -65,12 +66,13 @@ module.exports.pay = ({ serverModel, accountModel, reportModel }) => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { accountDBID, serverId } = req.query;
+		const { id, accountDBID, serverId } = req.query;
 		const from = req.query.from ? moment.tz(req.query.from, req.user.tz) : moment().subtract(30, "days");
 		const to = req.query.to ? moment.tz(req.query.to, req.user.tz) : moment().add(30, "days");
 
 		const logs = await reportModel.shopPay.findAll({
 			where: {
+				...id ? { id } : {},
 				...accountDBID ? { accountDBID } : {},
 				...serverId ? { serverId } : {},
 				createdAt: {
