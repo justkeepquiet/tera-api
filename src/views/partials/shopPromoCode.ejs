@@ -1,8 +1,8 @@
 <div class="main hero-unit white-text">
-	<form id="promoForm">
+	<form id="promoForm" class="promocode-form">
 		<fieldset>
 			<legend class="white-text"><%= __("Redeem Promo Code") %></legend>
-			<input type="text" placeholder="<%= __("Enter promo code") %>" name="promocode" id="promocode" style="margin-top: 20px;">
+			<input type="text" placeholder="<%= __("Enter promo code") %>" name="promocode" id="promocode" style="margin-top: 20px;" size="200">
 			<div id="alert">
 				<div class="alert alert-succes fade in" style="display: none;" id="promocode_success">
 					<strong><%= __("Promo code activated successfully!") %></strong>
@@ -12,7 +12,7 @@
 				</div>
 			</div>
 			<span class="help-block text-light"><%= __("Promo code must be entered with the signs of separation.") %></span>
-			<a href="#" class="btn btn-large btn-info" id="promocode_activate"><%= __("Activate") %></a>
+			<button href="#" class="btn btn-large btn-info" id="promocode_activate"><%= __("Activate") %></button>
 		</fieldset>
 	</form>
 </div>
@@ -35,47 +35,53 @@
 </div>
 <%_ } _%>
 <script type="text/javascript">
+	function activatePromocode(promocode) {
+		$('#promocode_success').hide();
+		$('#promocode_error').hide();
+		if (promocode == "") {
+			$('#promocode_error').show();
+			$('#promocode_error strong').html("<%= __('Please enter your promo code.') %>");
+			return;
+		}
+		$('#promocode_activate').prop('disabled', true);
+		$('#promocode_error').hide();
+		shopPromoCodeAction(promocode, function(result) {
+			if (result.ReturnCode == 0) {
+				loadPromoCodes(function() {
+					$('#promocode_success').show();
+				});
+			} else {
+				$('#promocode_error').show();
+				$('#promocode_activate').prop('disabled', false);
+				switch(result.ReturnCode) {
+					case 9:
+						$('#promocode_error strong').html("<%= __('Too many requests.') %>");
+						break;
+					case 1000:
+						$('#promocode_error strong').html("<%= __('The specified promo code does not exist.') %>");
+						break;
+					case 1001:
+						$('#promocode_error strong').html("<%= __('The specified promo code has expired.') %>");
+						break;
+					case 1002:
+						$('#promocode_error strong').html("<%= __('The specified promo code has reached its activation limit.') %>");
+						break;
+					case 1010:
+						$('#promocode_error strong').html("<%= __('The specified promo code has already been activated.') %>");
+						break;
+					default:
+						$('#promocode_error strong').html("<%= __('Activation error') %>: #" + result.ReturnCode);
+				}
+			}
+		});
+	}
+
 	$(function() {
 		$('#promocode').change(function() {
 			$('#promocode_error').hide();
 		});
 		$('#promocode_activate').click(function() {
-			$('#promocode_success').hide();
-			$('#promocode_error').hide();
-			if ($('#promocode').val() == "") {
-				$('#promocode_error').show();
-				$('#promocode_error strong').html("<%= __('Please enter your promo code.') %>");
-				return;
-			}
-			$('#promocode_error').hide();
-			shopPromoCodeAction($('#promocode').val(), function(result) {
-				if (result.ReturnCode == 0) {
-					loadPromoCodes(function() {
-						$('#promocode_success').show();
-					});
-				} else {
-					$('#promocode_error').show();
-					switch(result.ReturnCode) {
-						case 9:
-							$('#promocode_error strong').html("<%= __('Too many requests.') %>");
-							break;
-						case 1000:
-							$('#promocode_error strong').html("<%= __('The specified promo code does not exist.') %>");
-							break;
-						case 1001:
-							$('#promocode_error strong').html("<%= __('The specified promo code has expired.') %>");
-							break;
-						case 1002:
-							$('#promocode_error strong').html("<%= __('The specified promo code has reached its activation limit.') %>");
-							break;
-						case 1010:
-							$('#promocode_error strong').html("<%= __('The specified promo code has already been activated.') %>");
-							break;
-						default:
-							$('#promocode_error strong').html("<%= __('Activation error') %>: #" + result.ReturnCode);
-					}
-				}
-			});
+			activatePromocode($('#promocode').val())
 		});
 	});
 </script>
