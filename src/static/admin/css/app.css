@@ -2920,6 +2920,21 @@ pre {
   .datetime-local-reset i {
     pointer-events: auto !important; }
 
+.text-random {
+  position: absolute;
+  display: block;
+  width: 100%;
+  margin-top: -37px;
+  padding-right: 31px;
+  text-align: right;
+  background-color: transparent;
+  pointer-events: none;
+  color: #000; }
+  .text-random i {
+    padding: 10px 14px 10px 10px;
+    background-color: transparent;
+    pointer-events: auto !important; }
+
 table.dataTable {
   border-collapse: collapse !important; }
   table.dataTable td .btn {

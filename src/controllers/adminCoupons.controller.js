@@ -64,15 +64,21 @@ module.exports.add = ({ shopModel }) => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
+
 		let coupon = null;
 		let couponCount = 0;
 
 		do {
-			coupon = generateRandomWord(10);
+			coupon = generateRandomWord(8);
 			couponCount = await shopModel.coupons.count({
 				where: { coupon }
 			});
 		} while (couponCount > 0);
+
+		if (req.query.generate === "true") {
+			res.json({ result_code: 0, msg: "success", coupon });
+			return;
+		}
 
 		res.render("adminCouponsAdd", {
 			layout: "adminLayout",

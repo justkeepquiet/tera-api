@@ -703,6 +703,24 @@ $(function() {
 	});
 });
 
+var typingTimer = null;
+
+function typeText(element, text, delay) {
+	if (typingTimer) {
+		clearTimeout(typingTimer);
+	}
+	element.val("");
+	var index = 0;
+	function typeChar() {
+		if (index < text.length) {
+			element.val(element.val() + text[index]);
+			index++;
+			typingTimer = setTimeout(typeChar, delay);
+		}
+	}
+	typeChar();
+}
+
 $(function() {
 	$("body").addClass("loaded");
 });

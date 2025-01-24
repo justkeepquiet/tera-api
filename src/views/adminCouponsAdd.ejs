@@ -19,6 +19,7 @@
 							<div class="col-sm-6">
 								<label class="control-label" for="coupon"><%= __("Coupon") %></label>
 								<input type="text" class="form-control boxed text-monospace" name="coupon" value="<%= coupon %>" minlength="6" maxlength="20">
+								<span class="text-random"><i class="fa fa-refresh"></i></span>
 							</div>
 							<div class="col-sm-6">
 								<label class="control-label" for="discount"><%= __("Discount") %> (%)</label>
@@ -61,6 +62,18 @@
 <%- contentFor("scripts") %>
 <script>
 	$(function() {
+		$("span.text-random i").click(function() {
+			var input = $(this).closest("span").prev();
+			$.ajax({
+				type: "GET",
+				url: location + "?generate=true",
+				success: function(reply) {
+					if (reply.result_code === 0) {
+						typeText(input, reply.coupon, 50);
+					}
+				}
+			});
+		});
 		$("#form").validate(config.validations);
 	});
 </script>
