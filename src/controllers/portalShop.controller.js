@@ -23,13 +23,53 @@ const {
 	rateLimitterHandler
 } = require("../middlewares/portalShop.middlewares");
 
-const lockedCoupons = new Map();
+/**
+ * @type {Map<number, Map<number, object>>}
+ */
+const lockedCoupons = new Map(); // <couponId, accounts>
 
-const clearLastProduct = req => {
-	if (req.session.lastProduct) {
-		lockedCoupons.delete(req.session.lastProduct.couponId);
-		req.session.lastProduct = undefined;
+const lockLockedCoupon = (req, couponId, expiriesTime) => {
+	if (!lockedCoupons.has(couponId)) {
+		lockedCoupons.set(couponId, new Map()); // <accountDBID, params>
 	}
+
+	lockedCoupons.get(couponId).set(req.user.accountDBID, {
+		accountDBID: req.user.accountDBID,
+		expiriesTime
+	});
+};
+
+const unlockLockedCoupon = req => {
+	if (!req.session.lastProduct) {
+		return;
+	}
+
+	const lockedCoupon = lockedCoupons.get(req.session.lastProduct.couponId);
+
+	if (lockedCoupon) {
+		lockedCoupon.delete(req.user.accountDBID);
+	}
+};
+
+const checkLockedCoupon = (req, couponId, maxActivations, currentActivations) => {
+	const lockedCoupon = lockedCoupons.get(couponId);
+
+	if (lockedCoupon) {
+		lockedCoupon.forEach((coupon, accountDBID) => {
+			// delete expired
+			if (coupon.expiriesTime < Date.now() || accountDBID === req.user.accountDBID) {
+				lockedCoupon.delete(accountDBID);
+			}
+		});
+
+		if (maxActivations === 0) {
+			return false;
+		}
+
+		return lockedCoupon.size >= (maxActivations - currentActivations);
+	}
+
+	return false;
 };
 
 /**
@@ -78,7 +118,8 @@ module.exports.MainHtml = () => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		clearLastProduct(req);
+		unlockLockedCoupon(req);
+		req.session.lastProduct = undefined;
 
 		res.render("shopMain");
 	}
@@ -277,7 +318,8 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 			}
 		});
 
-		clearLastProduct(req);
+		unlockLockedCoupon(req);
+		req.session.lastProduct = undefined;
 
 		res.render("partials/shopCatalog", { helpers, products, search: search || "" });
 	},
@@ -437,7 +479,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 		product.tradable = itemData.tradable;
 		product.warehouseStorable = itemData.warehouseStorable;
 
-		clearLastProduct(req);
+		unlockLockedCoupon(req);
 		req.session.lastProduct = product; // add product to session
 
 		res.render("partials/shopProduct", { helpers, product, search, back });
@@ -516,7 +558,8 @@ module.exports.PartialPromoCodeHtml = ({ i18n, logger, shopModel }) => [
 			]
 		});
 
-		clearLastProduct(req);
+		unlockLockedCoupon(req);
+		req.session.lastProduct = undefined;
 
 		res.render("partials/shopPromoCode", { moment, promoCodesAcrivated, tzOffset: Number(tzOffset) });
 	},
@@ -537,7 +580,8 @@ module.exports.PartialErrorHtml = () => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		clearLastProduct(req);
+		unlockLockedCoupon(req);
+		req.session.lastProduct = undefined;
 
 		res.render("partials/shopError");
 	}
@@ -659,14 +703,29 @@ module.exports.PurchaseAction = modules => [
 			throw new ApiError("Product does not contain any items", 3000);
 		}
 
+		// re-validate coupon
 		if (req.session.lastProduct.couponId) {
-			const lockedCoupon = lockedCoupons.get(req.session.lastProduct.couponId);
+			const shopCoupon = await modules.shopModel.coupons.findOne({
+				where: {
+					couponId: req.session.lastProduct.couponId,
+					active: 1
+				}
+			});
 
-			if (lockedCoupon &&
-				lockedCoupon.accountDBID !== req.user.accountDBID &&
-				lockedCoupon.expiriesTime >= Date.now()
+			if (shopCoupon === null) {
+				throw new ApiError("This coupon was not found", 1000);
+			}
+
+			if (moment(shopCoupon.get("dateNow")).isBefore(shopCoupon.get("validAfter")) ||
+				moment(shopCoupon.get("dateNow")).isAfter(shopCoupon.get("validBefore"))
 			) {
-				throw new ApiError("This coupon has already been activated", 1010);
+				throw new ApiError("Coupon has expired or has not started yet", 1001);
+			}
+
+			if (shopCoupon.get("maxActivations") > 0 &&
+				shopCoupon.get("currentActivations") >= shopCoupon.get("maxActivations")
+			) {
+				throw new ApiError("Activation limit for this coupon has been exceeded", 1002);
 			}
 
 			const couponActivated = await modules.shopModel.couponActivated.findOne({
@@ -676,6 +735,11 @@ module.exports.PurchaseAction = modules => [
 			});
 
 			if (couponActivated !== null) {
+				throw new ApiError("This coupon has already been activated", 1010);
+			}
+
+			// check locking
+			if (checkLockedCoupon(req, shopCoupon.get("couponId"), shopCoupon.get("maxActivations"), shopCoupon.get("currentActivations"))) {
 				throw new ApiError("This coupon has already been activated", 1010);
 			}
 		}
@@ -761,7 +825,8 @@ module.exports.PurchaseAction = modules => [
 				where: { id: logResult.get("id") }
 			});
 
-			clearLastProduct(req);
+			unlockLockedCoupon(req);
+			req.session.lastProduct = undefined;
 		}).catch(async err => {
 			modules.logger.error(err);
 
@@ -782,7 +847,8 @@ module.exports.PurchaseAction = modules => [
 				modules.logger.error(e);
 			}
 
-			clearLastProduct(req);
+			unlockLockedCoupon(req);
+			req.session.lastProduct = undefined;
 		});
 
 		res.json({
@@ -884,19 +950,11 @@ module.exports.CouponAcceptAction = modules => [
 			throw new ApiError("This coupon has already been activated", 1010);
 		}
 
-		const lockedCoupon = lockedCoupons.get(shopCoupon.get("couponId"));
-
-		if (lockedCoupon &&
-			lockedCoupon.accountDBID !== req.user.accountDBID &&
-			lockedCoupon.expiriesTime >= Date.now()
-		) {
+		if (checkLockedCoupon(req, shopCoupon.get("couponId"), shopCoupon.get("maxActivations"), shopCoupon.get("currentActivations"))) {
 			throw new ApiError("This coupon has already been activated", 1010);
 		}
 
-		lockedCoupons.set(shopCoupon.get("couponId"), {
-			accountDBID: req.user.accountDBID,
-			expiriesTime: Date.now() + 3600000 // 1 hour
-		});
+		lockLockedCoupon(req, shopCoupon.get("couponId"), Date.now() + 3600000); // 1 hour
 
 		req.session.lastProduct.couponId = shopCoupon.get("couponId");
 		req.session.lastProduct.couponDiscount = shopCoupon.get("discount");
