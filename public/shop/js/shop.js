@@ -101,6 +101,10 @@ function shopPromoCodeAction(promoCode, callback) {
 	return apiRequest("PromoCodeAction", { promoCode: promoCode }, "json", callback);
 }
 
+function shopPromoCodeStatusAction(promoCodeId, callback) {
+	return apiRequest("PromoCodeStatusAction", { promoCodeId: promoCodeId }, "json", callback);
+}
+
 function shopCouponAcceptAction(coupon, productId, callback) {
 	return apiRequest("CouponAcceptAction", { coupon: coupon, productId: productId }, "json", callback);
 }

@@ -35,6 +35,32 @@
 </div>
 <%_ } _%>
 <script type="text/javascript">
+function requestPromoCodeStatus(promoCodeId) {
+		var requestStatusTimeout = null;
+		var requestStatusInterval = setInterval(shopPromoCodeStatusAction, 1000, promoCodeId, function(result) {
+			$('#promocode_success').hide();
+			$('#promocode_error').hide();
+			if (result.ReturnCode == 0) {
+				if (result.Status == "activated") {
+					clearTimeout(requestStatusTimeout);
+					loadPromoCodes(function() {
+						$('#promocode_success').show();
+					});
+				} else {
+					return;
+				}
+			} else {
+				$('#promocode_error').show();
+				$('#promocode_error strong').show().append("<%= __('Activation error') %>: #" + result.ReturnCode);
+			}
+			clearInterval(requestStatusInterval);
+		});
+		requestStatusTimeout = setTimeout(function() {
+			clearInterval(requestStatusInterval);
+			$('#promocode_error').show();
+			$('#promocode_error strong').show().append('<%= __('Activation error') %>: #0');
+		}, 5000);
+	}
 	function activatePromocode(promocode) {
 		$('#promocode_success').hide();
 		$('#promocode_error').hide();
@@ -47,9 +73,7 @@
 		$('#promocode_error').hide();
 		shopPromoCodeAction(promocode, function(result) {
 			if (result.ReturnCode == 0) {
-				loadPromoCodes(function() {
-					$('#promocode_success').show();
-				});
+				requestPromoCodeStatus(result.PromoCodeId);
 			} else {
 				$('#promocode_error').show();
 				$('#promocode_activate').prop('disabled', false);

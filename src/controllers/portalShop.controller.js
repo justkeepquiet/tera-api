@@ -805,9 +805,7 @@ module.exports.PurchaseAction = modules => [
 module.exports.PurchaseStatusAction = modules => [
 	shopStatusHandler,
 	authSessionHandler(modules.logger),
-	[
-		body("logId").trim().notEmpty().isNumeric()
-	],
+	[body("logId").trim().notEmpty().isNumeric()],
 	validationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
@@ -1006,7 +1004,37 @@ module.exports.PromoCodeAction = modules => [
 		res.json({
 			Return: true,
 			ReturnCode: 0,
-			Msg: "success"
+			Msg: "success",
+			PromoCodeId: promocode.get("promoCodeId")
+		});
+	}
+];
+
+module.exports.PromoCodeStatusAction = modules => [
+	shopStatusHandler,
+	authSessionHandler(modules.logger, modules.accountModel),
+	[body("promoCodeId").trim().notEmpty()],
+	validationHandler(modules.logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { promoCodeId } = req.body;
+
+		const promocodeActivatedCount = await modules.shopModel.promoCodeActivated.count({
+			where: {
+				promoCodeId,
+				accountDBID: req.user.accountDBID
+			}
+		});
+
+		const status = promocodeActivatedCount !== 0 ? "activated" : "notfound";
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			Status: status
 		});
 	}
 ];
