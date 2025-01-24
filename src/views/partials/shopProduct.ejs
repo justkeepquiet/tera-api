@@ -213,6 +213,8 @@
 				$('#buy_available').hide();
 				$('#buy_nocoins').show();
 			} else {
+				$('#buy_available').hide();
+				$('#buy_inprogress').hide();
 				$('#buy_error').show().append('<br>#' + result.ReturnCode + " " + result.Msg);
 			}
 		});
