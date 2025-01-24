@@ -18,7 +18,7 @@
 						</div>
 						<div class="form-group">
 							<label class="control-label" for="promoCodeId"><%= __("Promo code ID") %></label>
-							<select class="form-control boxed text-monospace" name="promoCodeId">
+							<select class="form-control boxed" name="promoCodeId">
 							<%_ promocodes.forEach(promocode => { _%>
 								<option value="<%= promocode.get("promoCodeId") %>" <%= promoCodeId == promocode.get("promoCodeId") ? 'selected' : "" %>>(<%= promocode.get("promoCodeId") %>) <%= promocode.get("promoCode") %></option>
 							<%_ }) _%>
