@@ -630,7 +630,8 @@ module.exports.PurchaseAction = modules => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { productId, quantity, recipientUserId } = req.body;
+		const { productId, recipientUserId } = req.body;
+		let quantity = req.body.quantity;
 
 		if (!req.session.lastProduct || req.session.lastProduct.id !== parseInt(productId)) {
 			throw new ApiError("Product request invalidated", 2000);
@@ -672,37 +673,6 @@ module.exports.PurchaseAction = modules => [
 			throw new ApiError("Recipient account was not found", 5000);
 		}
 
-		const serviceItem = new ServiceItem(modules);
-		const items = [];
-
-		for (const item of req.session.lastProduct.items) {
-			const strSheetItem = modules.datasheetModel.strSheetItem.get(modules.i18n.getLocale())?.getOne(item.itemTemplateId);
-
-			const boxItemId = await serviceItem.checkCreate(
-				item.boxItemId,
-				item.itemTemplateId,
-				strSheetItem?.string,
-				helpers.formatStrsheet(strSheetItem?.toolTip),
-				0
-			);
-
-			items.push({
-				item_id: boxItemId,
-				item_count: item.boxItemCount * quantity,
-				item_template_id: item.itemTemplateId
-			});
-
-			if (boxItemId != item.boxItemId) {
-				await modules.shopModel.productItems.update({ boxItemId }, {
-					where: { id: item.id }
-				});
-			}
-		}
-
-		if (items.length === 0) {
-			throw new ApiError("Product does not contain any items", 3000);
-		}
-
 		// re-validate coupon
 		if (req.session.lastProduct.couponId) {
 			const shopCoupon = await modules.shopModel.coupons.findOne({
@@ -742,6 +712,39 @@ module.exports.PurchaseAction = modules => [
 			if (checkLockedCoupon(req, shopCoupon.get("couponId"), shopCoupon.get("maxActivations"), shopCoupon.get("currentActivations"))) {
 				throw new ApiError("This coupon has already been activated", 1010);
 			}
+
+			quantity = 1;
+		}
+
+		const serviceItem = new ServiceItem(modules);
+		const items = [];
+
+		for (const item of req.session.lastProduct.items) {
+			const strSheetItem = modules.datasheetModel.strSheetItem.get(modules.i18n.getLocale())?.getOne(item.itemTemplateId);
+
+			const boxItemId = await serviceItem.checkCreate(
+				item.boxItemId,
+				item.itemTemplateId,
+				strSheetItem?.string,
+				helpers.formatStrsheet(strSheetItem?.toolTip),
+				0
+			);
+
+			items.push({
+				item_id: boxItemId,
+				item_count: item.boxItemCount * quantity,
+				item_template_id: item.itemTemplateId
+			});
+
+			if (boxItemId != item.boxItemId) {
+				await modules.shopModel.productItems.update({ boxItemId }, {
+					where: { id: item.id }
+				});
+			}
+		}
+
+		if (items.length === 0) {
+			throw new ApiError("Product does not contain any items", 3000);
 		}
 
 		// calculate final price

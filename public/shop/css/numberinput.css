@@ -22,6 +22,12 @@ input[type="number"]::-webkit-outer-spin-button, input[type="number"]::-webkit-i
 	margin-top: -1.25em;
 }
 
+.custom-arrows .disabled {
+	cursor: not-allowed;
+	color: #55556d;
+	background-color: #eeeeee;
+}
+
 .arrow-up, .arrow-down {
 	cursor: pointer;
 	color: black;
