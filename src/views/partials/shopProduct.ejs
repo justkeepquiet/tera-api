@@ -254,6 +254,7 @@
 				setPriceAndQuantityValues(product, true);
 				$('#coupon_use').html(result.Discount + "<%= '% ' + __('discount applied') %>");
 				$('#coupon_use').prop('disabled', false);
+				$('#buy').prop('disabled', false);
 				$('#quantity').prop('disabled', true).trigger('disabledChange');
 				$('#coupon_form').hide();
 				$('#buy_descr').show();
@@ -292,6 +293,7 @@
 			);
 			setPriceAndQuantityValues(product, true);
 			$('#coupon_use').html("<%= __('Use coupon') %>");
+			$('#buy').prop('disabled', false);
 			$('#quantity').prop('disabled', false).trigger('disabledChange');
 			$('#coupon_accept').prop('disabled', false);
 			$('#coupon_cancel').prop('disabled', false);
@@ -374,6 +376,8 @@
 		});
 		$('#coupon_use').click(function(e) {
 			e.preventDefault();
+			$('#buy').prop('disabled', true);
+			$('#quantity').prop('disabled', true).trigger('disabledChange');
 			$('#buy_descr').hide();
 			$('#coupon_form').show();
 		});
