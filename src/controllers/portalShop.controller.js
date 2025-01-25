@@ -482,7 +482,33 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 		unlockLockedCoupon(req);
 		req.session.lastProduct = product; // add product to session
 
-		res.render("partials/shopProduct", { helpers, product, search, back });
+		const couponsActivated = await shopModel.couponActivated.findAll({
+			where: { accountDBID: req.user.accountDBID },
+			include: [{
+				as: "info",
+				model: shopModel.coupons
+			}]
+		});
+
+		const activatedCouponIds = couponsActivated.map(coupon => coupon.couponId);
+		const coupons = await shopModel.coupons.findAll({
+			where: {
+				accountDBID: req.user.accountDBID,
+				active: 1,
+				validAfter: { [Op.lte]: sequelize.fn("NOW") },
+				validBefore: { [Op.gte]: sequelize.fn("NOW") },
+				couponId: { [Op.notIn]: activatedCouponIds },
+				[Op.or]: [
+					{ maxActivations: { [Op.lte]: 0 } },
+					sequelize.where(
+						sequelize.col("currentActivations"),
+						{ [Op.lt]: sequelize.col("maxActivations") }
+					)
+				]
+			}
+		});
+
+		res.render("partials/shopProduct", { helpers, product, coupons, search, back });
 	},
 	/**
 	 * @type {ErrorRequestHandler}

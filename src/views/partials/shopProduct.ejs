@@ -106,10 +106,21 @@
 				</div>
 				<div id="coupon_form" class="coupon-form" style="display: none;">
 					<div>
-						<legend class="white-text"><%= __("Use Coupon") %></legend>
+						<legend class="white-text">
+							<%= __("Use Coupon") %>
+						<%_ if (coupons.length > 0) { _%>
+							<button class="btn btn-small btn-secondary" id="coupon_toggle_select" style="display: none;"><%= __("Choose from my coupons") %></button>
+							<button class="btn btn-small btn-secondary" id="coupon_toggle_input"><%= __("Enter coupon manually") %></button>
+						<%_ } _%>
+						</legend>
 					</div>
 					<div>
-						<input type="text" placeholder="<%= __("Enter your coupon") %>" name="coupon" id="coupon" style="margin-top: 10px;">
+						<select name="coupon_select" id="coupon_select" style="margin-top: 10px;<%= coupons.length === 0 ? ' display: none;' : '' %>">
+						<%_ coupons.forEach(coupon => { _%>
+							<option value="<%= coupon.get("coupon") %>"><%= coupon.get("coupon") %> (<%= __("%s% off", coupon.get("discount")) %>)</option>
+						<%_ }) _%>
+						</select>
+						<input type="text" placeholder="<%= __("Enter your coupon") %>" name="coupon" id="coupon" style="margin-top: 10px;<%= coupons.length > 0 ? ' display: none;' : '' %>">
 						<button class="btn btn-primary" id="coupon_accept"><%= __("Accept") %></button>&nbsp;
 						<button class="btn btn-secondary" id="coupon_cancel"><%= __("Cancel") %></button>
 						<div class="alert alert-error coupon-error fade in" style="display: none;" id="coupon_error">
@@ -220,7 +231,7 @@
 		});
 	}
 	function couponAccept(product) {
-		if ($('#coupon').val() == "") {
+		if (product.coupon.val() == "") {
 			$('#coupon_error').show();
 			$('#coupon_descr').hide();
 			$('#coupon_error strong').html("<%= __('Please enter your coupon.') %>");
@@ -230,7 +241,7 @@
 		$('#coupon_cancel').prop('disabled', true);
 		$('#coupon_error').hide();
 		$('#coupon_descr').show();
-		shopCouponAcceptAction($('#coupon').val(), product.productId, function(result) {
+		shopCouponAcceptAction(product.coupon.val(), product.productId, function(result) {
 			$('#coupon_accept').prop('disabled', false);
 			$('#coupon_cancel').prop('disabled', false);
 			if (result.ReturnCode == 0) {
@@ -284,11 +295,12 @@
 			$('#quantity').prop('disabled', false).trigger('disabledChange');
 			$('#coupon_accept').prop('disabled', false);
 			$('#coupon_cancel').prop('disabled', false);
-			$('#coupon').val("");
 			$('#coupon_error').hide();
 			$('#coupon_descr').show();
 			$('#coupon_form').hide();
 			$('#buy_descr').show();
+			$('#coupon').val("");
+			$('#coupon_select').prop("selectedIndex", 0);
 		});
 	}
 
@@ -301,7 +313,12 @@
 			accountDiscount: <%= product.accountDiscount %>,
 			originalPrice: <%= product.price %>,
 			finalPrice: <%= product.price %>,
+			coupon: $('#coupon')
 		};
+
+		<%_ if (coupons.length > 0) { _%>
+		product.coupon = $('#coupon_select');
+		<%_ } _%>
 
 		product.finalPrice = calculatePriceWithDiscounts(
 			product.originalPrice, 
@@ -333,7 +350,25 @@
 			e.preventDefault();
 			purchaseProduct(product);
 		});
-		$('#coupon').change(function() {
+
+		$('#coupon_toggle_select').click(function(e) {
+			e.preventDefault();
+			$(this).hide();
+			$('#coupon').hide();
+			$('#coupon_select').show();
+			$('#coupon_toggle_input').show();
+			product.coupon = $('#coupon_select');
+		});
+		$('#coupon_toggle_input').click(function(e) {
+			e.preventDefault();
+			$(this).hide();
+			$('#coupon_select').hide();
+			$('#coupon').show();
+			$('#coupon_toggle_select').show();
+			product.coupon = $('#coupon');
+		});
+
+		$('#coupon, #coupon_select').change(function() {
 			$('#coupon_error').hide();
 			$('#coupon_descr').show();
 		});
@@ -351,5 +386,6 @@
 			couponCancel(product);
 		});
 		$('input[type="number"]').numberInput();
+		$('select').customSelect();
 	});
 </script>
