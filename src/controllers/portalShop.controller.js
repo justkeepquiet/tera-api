@@ -1014,6 +1014,7 @@ module.exports.CouponAcceptAction = modules => [
 			throw new ApiError("This coupon has already been activated", 1010);
 		}
 
+		unlockLockedCoupon(req);
 		lockLockedCoupon(req, shopCoupon.get("couponId"), Date.now() + 3600000); // 1 hour
 
 		req.session.lastProduct.couponId = shopCoupon.get("couponId");
