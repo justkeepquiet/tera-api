@@ -5,6 +5,7 @@ data/*
 !data/captcha-images/*.jpg
 !data/datasheets/*.txt
 !data/geoip/*.txt
+!data/shop-slides-bg/*.txt
 !data/tera-icons/*.txt
 logs/*
 sessions/*

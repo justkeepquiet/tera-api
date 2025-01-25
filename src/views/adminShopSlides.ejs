@@ -1,0 +1,69 @@
+<%- contentFor("content") %>
+<article class="content">
+	<div class="title-block">
+		<h1 class="title"><%= __("Shop Slides") %></h1>
+	</div>
+	<section class="section">
+		<a class="btn btn-success" title="" href="/shop_slides/add"><%= __("Add new slide") %></a>
+	</section>
+	<section class="section" style="display: none;">
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-block">
+						<section>
+							<div class="table-responsive">
+								<table class="table table-hover data-table-json mt-5">
+									<thead>
+										<tr>
+											<th><%= __("Prio.") %></th>
+											<th><%= __("ID") %></th>
+											<th><%= __("Background image") %></th>
+											<th><%= __("Product ID") %></th>
+											<th><%= __("Active") %></th>
+											<th><%= __("Published") %></th>
+											<th></th>
+										</tr>
+									</thead>
+								</table>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</article>
+<%- contentFor("scripts") %>
+<%_
+const tableData = [];
+
+slides.forEach(slide => {
+	const published = slide.get("active") &&
+		moment().isSameOrAfter(moment(slide.get("displayDateStart"))) &&
+		moment().isSameOrBefore(moment(slide.get("displayDateEnd")));
+
+	tableData.push([
+		slide.get("priority"),
+		slide.get("id"),
+		`<a href="/shop_slides/edit?id=${slide.get("id")}"><img src="/static/images/shop-slides-bg/${slide.get("image")}" height="85"></a>`,
+		slide.get("productId"),
+		slide.get("active") ? __("Yes") : __("No"),
+		`<span class="text-${published ? "success" : "danger"}">${published ? __("Yes") : __("No")}</span>`,
+		`<a class="btn btn-secondary btn-sm" href="/shop_slides/edit?id=${slide.get("id")}"><i class="fa fa-pencil"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/shop_slides/delete?id=${slide.get("id")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
+	]);
+});
+_%>
+<script>
+	var serializedTable = <%- JSON.stringify(tableData) %>;
+	$(function() {
+		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
+			data: serializedTable,
+			order: [[0, "desc"]],
+			columnDefs: [{ orderable: false, targets: -1 }],
+			columns: [{ width: "1%" }, null, null, null, null, null, { className: "text-right text-nowrap" }]
+		}));
+		$(".section").show();
+	});
+</script>

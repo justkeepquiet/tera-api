@@ -26,9 +26,9 @@ _%>
 </div>
 <div id="carousel" class="carousel slide">
 	<div class="carousel-inner">
-		<%_ shopConfig.welcomeCarousel.forEach((item, i) => { _%>
-		<div class="item<%= i == 0 ? " active" : "" %>">
-			<a href="#" data-id="<%= item.productId %>" class="carousel-item"><img src="<%= item.slide %>" alt="" class="img-rounded" style="width: 100%;"></a>
+		<%_ let i = 0; slides.forEach(slide => { i++; _%>
+		<div class="item<%= i == 1 ? " active" : "" %>">
+			<a href="#" data-id="<%= slide.get("productId") %>" class="carousel-item"><img src="/public/shop/images/shop-slides-bg/<%= slide.get("image") %>" alt="" class="img-rounded" style="width: 100%;"></a>
 		</div>
 		<% }) %>
 	</div>

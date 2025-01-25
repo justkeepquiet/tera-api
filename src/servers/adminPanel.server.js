@@ -39,6 +39,7 @@ module.exports = async modules => {
 	});
 
 	es.setStatic("/static/images/tera-icons", "data/tera-icons");
+	es.setStatic("/static/images/shop-slides-bg", "data/shop-slides-bg");
 	es.setStatic("/static", "src/static/admin");
 	modules.pluginsLoader.loadComponent("static.adminPanel", es);
 

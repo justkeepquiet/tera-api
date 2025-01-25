@@ -39,6 +39,7 @@ module.exports = async modules => {
 
 	if (env.bool("API_PORTAL_PUBLIC_FOLDER_ENABLE")) {
 		es.setStatic("/public/shop/images/tera-icons", "data/tera-icons");
+		es.setStatic("/public/shop/images/shop-slides-bg", "data/shop-slides-bg");
 		es.setStatic("/public", "public");
 		modules.pluginsLoader.loadComponent("static.portalApi", es);
 	}

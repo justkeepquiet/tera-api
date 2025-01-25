@@ -36,6 +36,7 @@ const adminReportController = require("../../controllers/adminReport.controller"
 const adminShopAccountsController = require("../../controllers/adminShopAccounts.controller");
 const adminShopCategoriesController = require("../../controllers/adminShopCategories.controller");
 const adminShopProductsController = require("../../controllers/adminShopProducts.controller");
+const adminShopSlidesController = require("../../controllers/adminShopSlides.controller");
 const adminCouponsController = require("../../controllers/adminCoupons.controller");
 const adminCouponsActivatedController = require("../../controllers/adminCouponsActivated.controller");
 const adminPromocodesController = require("../../controllers/adminPromocodes.controller");
@@ -302,6 +303,13 @@ module.exports = modules => {
 		.post("/shop_products/edit/all", adminShopProductsController.editAllAction(mod))
 		.get("/shop_products/delete", adminShopProductsController.deleteAction(mod))
 		.post("/shop_products/delete/all", adminShopProductsController.deleteAction(mod))
+		// Shop Slides
+		.get("/shop_slides", adminShopSlidesController.index(mod))
+		.get("/shop_slides/add", adminShopSlidesController.add(mod))
+		.post("/shop_slides/add", adminShopSlidesController.addAction(mod))
+		.get("/shop_slides/edit", adminShopSlidesController.edit(mod))
+		.post("/shop_slides/edit", adminShopSlidesController.editAction(mod))
+		.get("/shop_slides/delete", adminShopSlidesController.deleteAction(mod))
 		// Shop Logs
 		.get("/shop_fund_logs", adminShopLogsController.fund(mod))
 		.get("/shop_pay_logs", adminShopLogsController.pay(mod))

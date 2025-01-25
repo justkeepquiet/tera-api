@@ -12,6 +12,7 @@
  * @property {import("sequelize").ModelCtor<Model<any, any>>} products
  * @property {import("sequelize").ModelCtor<Model<any, any>>} productStrings
  * @property {import("sequelize").ModelCtor<Model<any, any>>} productItems
+ * @property {import("sequelize").ModelCtor<Model<any, any>>} slides
  * @property {import("sequelize").ModelCtor<Model<any, any>>} promoCodes
  * @property {import("sequelize").ModelCtor<Model<any, any>>} promoCodeStrings
  * @property {import("sequelize").ModelCtor<Model<any, any>>} promoCodeActivated
@@ -34,6 +35,7 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		products: require("./shop/shopProducts.model")(sequelize, DataTypes),
 		productStrings: require("./shop/shopProductStrings.model")(sequelize, DataTypes),
 		productItems: require("./shop/shopProductItems.model")(sequelize, DataTypes),
+		slides: require("./shop/shopSlides.model")(sequelize, DataTypes),
 		promoCodes: require("./shop/shopPromoCodes.model")(sequelize, DataTypes),
 		promoCodeStrings: require("./shop/shopPromoCodeStrings.model")(sequelize, DataTypes),
 		promoCodeActivated: require("./shop/shopPromoCodeActivated.model")(sequelize, DataTypes),
@@ -48,6 +50,7 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		await model.products.sync();
 		await model.productStrings.sync();
 		await model.productItems.sync();
+		await model.slides.sync();
 		await model.promoCodes.sync();
 		await model.promoCodeStrings.sync();
 		await model.promoCodeActivated.sync();
@@ -79,6 +82,13 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		foreignKey: "categoryId",
 		sourceKey: "id",
 		as: "strings"
+	});
+
+	// slides
+	model.slides.hasOne(model.products, {
+		foreignKey: "id",
+		sourceKey: "productId",
+		as: "product"
 	});
 
 	// promoCodes

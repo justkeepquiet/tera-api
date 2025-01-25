@@ -528,7 +528,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 /**
  * @param {modules} modules
  */
-module.exports.PartialWelcomeHtml = ({ config, logger, accountModel, serverModel }) => [
+module.exports.PartialWelcomeHtml = ({ config, logger, sequelize, accountModel, serverModel, shopModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	/**
@@ -543,10 +543,22 @@ module.exports.PartialWelcomeHtml = ({ config, logger, accountModel, serverModel
 			where: { accountDBID: req.user.accountDBID }
 		});
 
+		const slides = await shopModel.slides.findAll({
+			where: {
+				active: 1,
+				displayDateStart: { [Op.lt]: sequelize.fn("NOW") },
+				displayDateEnd: { [Op.gt]: sequelize.fn("NOW") }
+			},
+			order: [
+				["priority", "DESC"]
+			]
+		});
+
 		res.render("partials/shopWelcome", {
 			moment,
 			server,
 			benefits,
+			slides,
 			shopConfig: config.get("shop")
 		});
 	},
