@@ -368,7 +368,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 		});
 
 		if (shopProduct === null) {
-			return res.status(500).send();
+			throw Error("Product was not found");
 		}
 
 		const shopAccount = await shopModel.accounts.findOne({
@@ -425,7 +425,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 		});
 
 		if (productItems.length === 0) {
-			return res.status(500).send();
+			throw Error("Product does not contain any items");
 		}
 
 		productItems.forEach(item => {
@@ -454,19 +454,25 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 		const itemData = datasheetModel.itemData.get(i18n.getLocale())?.getOne(product.items[0].itemTemplateId);
 		const strSheetItem = datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(product.items[0].itemTemplateId);
 
-		if (!product.title) {
-			product.title = strSheetItem.string;
+		if (!itemData) {
+			throw Error("Item data for the product was not found");
 		}
 
-		if (!product.description) {
-			product.description = strSheetItem.toolTip;
+		if (strSheetItem) {
+			if (!product.title) {
+				product.title = strSheetItem.string;
+			}
+
+			if (!product.description) {
+				product.description = strSheetItem.toolTip;
+			}
 		}
 
 		if (!product.icon) {
 			product.icon = itemData.icon;
 		}
 
-		if (!product.rareGrade) {
+		if (product.rareGrade === null) {
 			product.rareGrade = itemData.rareGrade;
 		}
 
