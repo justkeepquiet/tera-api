@@ -16,18 +16,18 @@
 		</fieldset>
 	</form>
 </div>
-<%_ if (promoCodesAcrivated.length > 0) { _%>
+<%_ if (promoCodesActivated.length > 0) { _%>
 <div class="main hero-unit white-text">
 	<h2><%= __("Activated Promo Codes") %></h2>
 	<table class="table promocode-list" style="margin-bottom: 0;">
-		<%_ promoCodesAcrivated.forEach(promoCodeAcrivated => { _%>
+		<%_ promoCodesActivated.forEach(promoCodeActivated => { _%>
 		<tr>
 			<td style="width: 1%; white-space: nowrap; text-align: center;">
-				<span class="promocode"><%= promoCodeAcrivated.get("info").get("promoCode") %></span><br>
-				<span class="date"><%= moment.utc(promoCodeAcrivated.get("createdAt")).utcOffset(-tzOffset).format("DD.MM.YYYY HH:mm:ss") %></span> 
+				<span class="promocode"><%= promoCodeActivated.get("info").get("promoCode") %></span><br>
+				<span class="date"><%= moment.utc(promoCodeActivated.get("createdAt")).utcOffset(-tzOffset).format("DD.MM.YYYY HH:mm:ss") %></span> 
 			</td>
 			<td>
-				<%= promoCodeAcrivated.get("strings")[0]?.get("description") || "Activated promocode." %>
+				<%= promoCodeActivated.get("strings")[0]?.get("description") || "Activated promocode." %>
 			</td>
 		</tr>
 		<%_ }) _%>

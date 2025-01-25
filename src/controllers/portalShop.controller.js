@@ -539,7 +539,7 @@ module.exports.PartialPromoCodeHtml = ({ i18n, logger, shopModel }) => [
 	async (req, res, next) => {
 		const { tzOffset } = req.query;
 
-		const promoCodesAcrivated = await shopModel.promoCodeActivated.findAll({
+		const promoCodesActivated = await shopModel.promoCodeActivated.findAll({
 			where: { accountDBID: req.user.accountDBID },
 			include: [
 				{
@@ -561,7 +561,59 @@ module.exports.PartialPromoCodeHtml = ({ i18n, logger, shopModel }) => [
 		unlockLockedCoupon(req);
 		req.session.lastProduct = undefined;
 
-		res.render("partials/shopPromoCode", { moment, promoCodesAcrivated, tzOffset: Number(tzOffset) });
+		res.render("partials/shopPromoCode", { moment, promoCodesActivated, tzOffset: Number(tzOffset) });
+	},
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		logger.error(err);
+		res.render("partials/shopError");
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.PartialCouponsHtml = ({ sequelize, logger, shopModel }) => [
+	shopStatusHandler,
+	authSessionHandler(logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { tzOffset } = req.query;
+
+		const coupons = await shopModel.coupons.findAll({
+			where: {
+				accountDBID: req.user.accountDBID,
+				active: 1,
+				validAfter: { [Op.lte]: sequelize.fn("NOW") },
+				validBefore: { [Op.gte]: sequelize.fn("NOW") },
+				[Op.or]: [
+					{ maxActivations: { [Op.lte]: 0 } },
+					sequelize.where(
+						sequelize.col("currentActivations"),
+						{ [Op.lt]: sequelize.col("maxActivations") }
+					)
+				]
+			}
+		});
+
+		const couponsActivated = await shopModel.couponActivated.findAll({
+			where: { accountDBID: req.user.accountDBID },
+			include: [
+				{
+					as: "info",
+					model: shopModel.coupons
+				}
+			]
+		});
+
+		unlockLockedCoupon(req);
+		req.session.lastProduct = undefined;
+
+		res.render("partials/shopCoupons", { moment, couponsActivated, coupons, tzOffset: Number(tzOffset) });
 	},
 	/**
 	 * @type {ErrorRequestHandler}

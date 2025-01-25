@@ -126,6 +126,7 @@ module.exports = modules => {
 		.get("/Main", portalShopController.MainHtml(mod))
 		.get("/PartialError", portalShopController.PartialErrorHtml(mod))
 		.get("/PartialPromoCode", portalShopController.PartialPromoCodeHtml(mod))
+		.get("/PartialCoupons", portalShopController.PartialCouponsHtml(mod))
 		.get("/PartialMenu", portalShopController.PartialMenuHtml(mod))
 		.get("/PartialWelcome", portalShopController.PartialWelcomeHtml(mod))
 		.post("/PartialCatalog", portalShopController.PartialCatalogHtml(mod))

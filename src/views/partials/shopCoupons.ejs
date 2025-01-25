@@ -1,0 +1,29 @@
+<div class="main hero-unit white-text">
+	<h2><%= __("Available Coupons") %></h2>
+	<%_ if (coupons.length > 0) { _%>
+		<div class="table coupons-list">
+		<%_ coupons.forEach(coupon => { _%>
+			<div class="available">
+				<span class="coupon"><%= coupon.get("coupon") %></span><br>
+				<span class="discount"><%= __("Discount: %s%", coupon.get("discount")) %></span> 
+			</div>
+		<%_ }) _%>
+		</div>
+	<%_ } else { _%>
+		<hr><%= __("You have no coupons available.") %>
+	<%_ } _%>
+</div>
+<%_ if (couponsActivated.length > 0) { _%>
+<div class="main hero-unit white-text left-test">
+	<h2><%= __("Activated Coupons") %></h2>
+	<div class="table coupons-list">
+	<%_ couponsActivated.forEach(couponActivated => { _%>
+		<div class="activated">
+			<span class="coupon"><%= couponActivated.get("info").get("coupon") %></span><br>
+			<span class="discount"><%= __("Discount: %s%", couponActivated.get("info").get("discount")) %></span><br>
+			<span class="date"><%= moment.utc(couponActivated.get("createdAt")).utcOffset(-tzOffset).format("DD.MM.YYYY HH:mm:ss") %></span> 
+		</div>
+	<%_ }) _%>
+	</div>
+</div>
+<%_ } _%>
