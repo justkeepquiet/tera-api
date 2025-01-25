@@ -355,14 +355,14 @@
 			e.preventDefault();
 			$(this).hide();
 			$('#coupon').hide();
-			$('#coupon_select').show();
+			$('#coupon_select').trigger('showCustomSelect');
 			$('#coupon_toggle_input').show();
 			product.coupon = $('#coupon_select');
 		});
 		$('#coupon_toggle_input').click(function(e) {
 			e.preventDefault();
 			$(this).hide();
-			$('#coupon_select').hide();
+			$('#coupon_select').trigger('hideCustomSelect');
 			$('#coupon').show();
 			$('#coupon_toggle_select').show();
 			product.coupon = $('#coupon');
