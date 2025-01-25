@@ -334,7 +334,10 @@ var Launcher = {
 		if ((QA_MODE && QA_MODE_NOCHECK) || START_NO_CHECK || PATCH_NO_CHECK) { // no check files in QA mode
 			Launcher.status = 0;
 			Launcher.sendCommand("execute|" + REGION);
-			Launcher.logAction("enter_game", "BHS");
+
+			setTimeout(function() {
+				Launcher.logAction("enter_game", "BHS");
+			}, 1000);
 		} else {
 			Launcher.sendCommand("start_p|0");
 		}
@@ -472,7 +475,10 @@ function l2w_patchResult(patch_result, patch_error, file, reason, code) {
 				Launcher.disableLaunchButton("btn-wait");
 				Launcher.status = 4;
 				Launcher.sendCommand("execute|" + REGION);
-				Launcher.logAction("enter_game", "BHS");
+
+				setTimeout(function() {
+					Launcher.logAction("enter_game", "BHS");
+				}, 1000);
 			} else {
 				Launcher.status = 0;
 				Launcher.enableLaunchButton("btn-gamestart");
