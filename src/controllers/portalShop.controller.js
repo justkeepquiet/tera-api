@@ -584,12 +584,22 @@ module.exports.PartialCouponsHtml = ({ sequelize, logger, shopModel }) => [
 	async (req, res, next) => {
 		const { tzOffset } = req.query;
 
+		const couponsActivated = await shopModel.couponActivated.findAll({
+			where: { accountDBID: req.user.accountDBID },
+			include: [{
+				as: "info",
+				model: shopModel.coupons
+			}]
+		});
+
+		const activatedCouponIds = couponsActivated.map(coupon => coupon.couponId);
 		const coupons = await shopModel.coupons.findAll({
 			where: {
 				accountDBID: req.user.accountDBID,
 				active: 1,
 				validAfter: { [Op.lte]: sequelize.fn("NOW") },
 				validBefore: { [Op.gte]: sequelize.fn("NOW") },
+				couponId: { [Op.notIn]: activatedCouponIds },
 				[Op.or]: [
 					{ maxActivations: { [Op.lte]: 0 } },
 					sequelize.where(
@@ -598,16 +608,6 @@ module.exports.PartialCouponsHtml = ({ sequelize, logger, shopModel }) => [
 					)
 				]
 			}
-		});
-
-		const couponsActivated = await shopModel.couponActivated.findAll({
-			where: { accountDBID: req.user.accountDBID },
-			include: [
-				{
-					as: "info",
-					model: shopModel.coupons
-				}
-			]
 		});
 
 		unlockLockedCoupon(req);
