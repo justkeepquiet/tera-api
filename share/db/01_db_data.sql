@@ -20,24 +20,24 @@ INSERT IGNORE INTO `server_strings` (`language`, `categoryPvE`, `categoryPvP`, `
 /*!40000 ALTER TABLE `server_strings` ENABLE KEYS */;
 
 /*!40000 ALTER TABLE `shop_categories` DISABLE KEYS */;
-INSERT IGNORE INTO `shop_categories` (`id`, `sort`, `active`) VALUES
-	(1, 0, 1),
-	(2, 0, 1),
-	(3, 0, 1),
-	(4, 0, 1),
-	(5, 0, 1),
-	(6, 0, 1),
-	(7, 0, 1),
-	(8, 0, 1),
-	(9, 0, 1),
-	(10, 0, 1),
-	(11, 0, 1),
-	(12, 0, 1),
-	(13, 0, 1),
-	(14, 0, 1),
-	(15, 0, 1),
-	(16, 0, 1),
-	(17, 0, 1);
+INSERT IGNORE INTO `shop_categories` (`id`, `sort`, `active`, `createdAt`, `updatedAt`) VALUES
+	(1, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(2, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(3, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(4, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(5, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(6, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(7, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(8, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(9, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(10, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(11, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(12, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(13, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(14, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(15, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(16, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(17, 0, 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00');
 /*!40000 ALTER TABLE `shop_categories` ENABLE KEYS */;
 
 /*!40000 ALTER TABLE `shop_category_strings` DISABLE KEYS */;
@@ -79,10 +79,10 @@ INSERT IGNORE INTO `shop_category_strings` (`id`, `language`, `categoryId`, `tit
 /*!40000 ALTER TABLE `shop_category_strings` ENABLE KEYS */;
 
 /*!40000 ALTER TABLE `shop_promocodes` DISABLE KEYS */;
-INSERT IGNORE INTO `shop_promocodes` (`promoCodeId`, `promoCode`, `function`, `validAfter`, `validBefore`, `active`) VALUES
-	(1, 'FREE-70-LVLUP', 'add_item_70_scroll', '2023-01-01 00:00:00', '2033-01-01 00:00:00', 1),
-	(2, 'FREE-100-COINS', 'fund_100_coins', '2023-01-01 00:00:00', '2033-01-01 00:00:00', 1),
-	(3, 'FREE-VIP-30DAY', 'add_benefit_vip_30', '2023-01-01 00:00:00', '2033-01-01 00:00:00', 1);
+INSERT IGNORE INTO `shop_promocodes` (`promoCodeId`, `promoCode`, `function`, `validAfter`, `validBefore`, `active`, `createdAt`, `updatedAt`) VALUES
+	(1, 'FREE-70-LVLUP', 'add_item_70_scroll', '2025-01-01 00:00:00', '2035-01-01 00:06:00', 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(2, 'FREE-100-COINS', 'fund_100_coins', '2025-01-01 00:00:00', '2035-01-01 00:06:00', 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(3, 'FREE-VIP-30DAY', 'add_benefit_vip_30', '2025-01-01 00:00:00', '2035-01-01 00:06:00', 1, '2025-01-01 00:00:00', '2025-01-01 00:00:00');
 /*!40000 ALTER TABLE `shop_promocodes` ENABLE KEYS */;
 
 /*!40000 ALTER TABLE `shop_promocode_strings` DISABLE KEYS */;
@@ -94,6 +94,14 @@ INSERT IGNORE INTO `shop_promocode_strings` (`id`, `language`, `promoCodeId`, `d
 	(3, 'ru', 2, '100 бесплатных монет на ваш счет.'),
 	(6, 'ru', 3, 'Активация VIP-статуса на 30 дней.');
 /*!40000 ALTER TABLE `shop_promocode_strings` ENABLE KEYS */;
+
+/*!40000 ALTER TABLE `shop_slides` DISABLE KEYS */;
+INSERT IGNORE INTO `shop_slides` (`id`, `active`, `priority`, `productId`, `image`, `displayDateStart`, `displayDateEnd`, `createdAt`, `updatedAt`) VALUES
+	(1, 1, 0, 195, 'slide-01.jpg', '2025-01-01 00:00:00', '2035-01-01 00:06:00', '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(2, 1, 0, 185, 'slide-02.jpg', '2025-01-01 00:00:00', '2035-01-01 00:06:00', '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(3, 1, 0, 97, 'slide-03.jpg', '2025-01-01 00:00:00', '2035-01-01 00:06:00', '2025-01-01 00:00:00', '2025-01-01 00:00:00'),
+	(4, 1, 0, 162, 'slide-04.jpg', '2025-01-01 00:00:00', '2035-01-01 00:06:00', '2025-01-01 00:00:00', '2025-01-01 00:00:00');
+/*!40000 ALTER TABLE `shop_slides` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
