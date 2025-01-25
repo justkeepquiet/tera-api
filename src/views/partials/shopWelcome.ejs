@@ -24,17 +24,19 @@ _%>
 	<%_ } _%>
 	<%- __("Founder account") %>: <b><%= founder.length ? __("Yes") : __("No") %></b>
 </div>
+<%_ if (slides.length) { _%>
 <div id="carousel" class="carousel slide">
 	<div class="carousel-inner">
 		<%_ let i = 0; slides.forEach(slide => { i++; _%>
 		<div class="item<%= i == 1 ? " active" : "" %>">
 			<a href="#" data-id="<%= slide.get("productId") %>" class="carousel-item"><img src="/public/shop/images/shop-slides-bg/<%= slide.get("image") %>" alt="" class="img-rounded" style="width: 100%;"></a>
 		</div>
-		<% }) %>
+		<%_ }) _%>
 	</div>
 	<a class="left carousel-control" href="#carousel" data-slide="prev" style="display: none;">&lsaquo;</a>
 	<a class="right carousel-control" href="#carousel" data-slide="next" style="display: none;">&rsaquo;</a>
 </div>
+<%_ } _%>
 <script type="text/javascript">
 	$(function() {
 		$("#carousel").carousel();
