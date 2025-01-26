@@ -361,6 +361,10 @@ a, a:focus {
 	background-color: #051423;
 }
 
+.container-fluid {
+	max-width: 976px;
+}
+
 .container-fluid2 {
 	margin-left: 5px;
 }
