@@ -91,6 +91,18 @@ module.exports = async (sequelize, DataTypes, syncTables, modules) => {
 		as: "product"
 	});
 
+	model.slides.hasMany(model.productStrings, {
+		foreignKey: "productId",
+		sourceKey: "productId",
+		as: "productStrings"
+	});
+
+	model.slides.hasMany(model.productItems, {
+		foreignKey: "productId",
+		sourceKey: "productId",
+		as: "productItems"
+	});
+
 	// promoCodes
 	model.promoCodes.hasMany(model.promoCodeStrings, {
 		foreignKey: "promoCodeId",

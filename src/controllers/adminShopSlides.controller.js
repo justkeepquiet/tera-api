@@ -25,20 +25,79 @@ const imagesPath = path.join(__dirname, "../../data/shop-slides-bg");
 /**
  * @param {modules} modules
  */
-module.exports.index = ({ shopModel }) => [
+module.exports.index = ({ i18n, datasheetModel, shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	async (req, res, next) => {
-		const slides = await shopModel.slides.findAll({
+		const shopSlides = await shopModel.slides.findAll({
+			include: [
+				{
+					as: "product",
+					model: shopModel.products,
+					required: false
+				},
+				{
+					as: "productStrings",
+					model: shopModel.productStrings,
+					where: { language: i18n.getLocale() },
+					required: false
+				},
+				{
+					as: "productItems",
+					model: shopModel.productItems,
+					required: false
+				}
+			],
 			order: [
 				["priority", "DESC"]
 			]
 		});
 
+		const slides = [];
+
+		shopSlides.forEach(shopSlide => {
+			const slide = {
+				id: shopSlide.get("id"),
+				priority: shopSlide.get("priority"),
+				image: shopSlide.get("image"),
+				active: shopSlide.get("active"),
+				published: shopSlide.active &&
+					moment().isSameOrAfter(moment(shopSlide.get("displayDateStart"))) &&
+					moment().isSameOrBefore(moment(shopSlide.get("displayDateEnd"))),
+				productId: shopSlide.get("productId"),
+				product: {
+					id: shopSlide.get("product")?.get("id"),
+					title: shopSlide.get("productStrings")[0]?.get("title"),
+					icon: shopSlide.get("product")?.get("icon"),
+					rareGrade: shopSlide.get("product")?.get("rareGrade")
+				}
+			};
+
+			shopSlide.get("productItems").forEach(productItem => {
+				const itemData = datasheetModel.itemData.get(i18n.getLocale())?.getOne(productItem.get("itemTemplateId"));
+				const strSheetItem = datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(productItem.get("itemTemplateId"));
+
+				if (strSheetItem && !slide.product.title) {
+					slide.product.title = strSheetItem.string;
+				}
+
+				if (itemData) {
+					if (!slide.product.icon) {
+						slide.product.icon = itemData.icon;
+					}
+
+					if (slide.product.rareGrade === null) {
+						slide.product.rareGrade = itemData.rareGrade;
+					}
+				}
+			});
+
+			slides.push(slide);
+		});
+
 		res.render("adminShopSlides", {
 			layout: "adminLayout",
-			slides,
-			moment
+			slides
 		});
 	}
 ];

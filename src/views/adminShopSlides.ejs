@@ -20,6 +20,8 @@
 											<th><%= __("ID") %></th>
 											<th><%= __("Background image") %></th>
 											<th><%= __("Product ID") %></th>
+											<th></th>
+											<th><%= __("Product title") %></th>
 											<th><%= __("Active") %></th>
 											<th><%= __("Published") %></th>
 											<th></th>
@@ -39,19 +41,20 @@
 const tableData = [];
 
 slides.forEach(slide => {
-	const published = slide.get("active") &&
-		moment().isSameOrAfter(moment(slide.get("displayDateStart"))) &&
-		moment().isSameOrBefore(moment(slide.get("displayDateEnd")));
-
 	tableData.push([
-		slide.get("priority"),
-		slide.get("id"),
-		`<a href="/shop_slides/edit?id=${slide.get("id")}"><img src="/static/images/shop-slides-bg/${slide.get("image")}" height="85"></a>`,
-		slide.get("productId"),
-		slide.get("active") ? __("Yes") : __("No"),
-		`<span class="text-${published ? "success" : "danger"}">${published ? __("Yes") : __("No")}</span>`,
-		`<a class="btn btn-secondary btn-sm" href="/shop_slides/edit?id=${slide.get("id")}"><i class="fa fa-pencil"></i></a> ` +
-			`<a class="btn btn-secondary btn-sm" href="/shop_slides/delete?id=${slide.get("id")}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
+		slide.priority,
+		slide.id,
+		`<a href="/shop_slides/edit?id=${slide.id}"><img src="/static/images/shop-slides-bg/${slide.image}" height="85"></a>`,
+		slide.productId,
+		slide.product.id ? '<div class="item-icon-block">' +
+			`<img data-src="/static/images/tera-icons/${slide.product.icon}.png" class="item-icon-grade-${slide.product.rareGrade} item-icon">` +
+			`<img data-src="/static/images/icons/icon_grade_${slide.product.rareGrade}.png" class="item-icon-grade" alt="">` +
+			'</div>' : "",
+		slide.product.id ? `<a class="item-grade-${slide.product.rareGrade}" href="/shop_products/edit?id=${slide.product.id}">${slide.product.title || __("[unknown]")}</a>` : __("[unknown]"),
+		slide.active ? __("Yes") : __("No"),
+		`<span class="text-${slide.published ? "success" : "danger"}">${slide.published ? __("Yes") : __("No")}</span>`,
+		`<a class="btn btn-secondary btn-sm" href="/shop_slides/edit?id=${slide.id}"><i class="fa fa-pencil"></i></a> ` +
+			`<a class="btn btn-secondary btn-sm" href="/shop_slides/delete?id=${slide.id}" data-toggle="modal" data-target="#confirm-del-modal"><i class="fa fa-trash-o "></i></a>`
 	]);
 });
 _%>
@@ -61,8 +64,8 @@ _%>
 		$(".data-table-json").DataTable($.extend({}, dataTablesSettings, {
 			data: serializedTable,
 			order: [[0, "desc"]],
-			columnDefs: [{ orderable: false, targets: -1 }],
-			columns: [{ width: "1%" }, null, null, null, null, null, { className: "text-right text-nowrap" }]
+			columnDefs: [{ orderable: false, targets: [2, 4, -1] }],
+			columns: [{ width: "1%" },  null, null, null, { width: "1%" }, null, null, null, { className: "text-right text-nowrap" }]
 		}));
 		$(".section").show();
 	});
