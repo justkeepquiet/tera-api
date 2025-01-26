@@ -3,7 +3,7 @@
 	<%_ if (coupons.length > 0) { _%>
 		<div class="table coupons-list">
 		<%_ coupons.forEach(coupon => { _%>
-			<div class="available">
+			<div class="coupon-box">
 				<div class="coupon"><%= coupon.get("coupon") %></div>
 				<div class="discount"><%= __("Discount: %s%", coupon.get("discount")) %></div>
 				<div class="date"><%= __("Available until:") %></div>
@@ -17,13 +17,13 @@
 </div>
 <%_ if (couponsActivated.length > 0) { _%>
 <div class="main hero-unit white-text left-test">
-	<h2><%= __("Activated Coupons") %></h2>
+	<h2><%= __("Used Coupons") %></h2>
 	<div class="table coupons-list">
 	<%_ couponsActivated.forEach(couponActivated => { _%>
-		<div class="activated">
+		<div class="coupon-box used">
 			<div class="coupon"><%= couponActivated.get("info").get("coupon") %></div>
 			<div class="discount"><%= __("Discount: %s%", couponActivated.get("info").get("discount")) %></div>
-			<div class="date"><%= __("Activated at:") %></div>
+			<div class="date"><%= __("Used at:") %></div>
 			<div class="date"><%= moment.utc(couponActivated.get("createdAt")).utcOffset(-tzOffset).format("DD.MM.YYYY HH:mm:ss") %></div>
 		</div>
 	<%_ }) _%>
