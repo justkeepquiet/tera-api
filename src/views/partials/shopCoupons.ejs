@@ -4,8 +4,10 @@
 		<div class="table coupons-list">
 		<%_ coupons.forEach(coupon => { _%>
 			<div class="available">
-				<span class="coupon"><%= coupon.get("coupon") %></span><br>
-				<span class="discount"><%= __("Discount: %s%", coupon.get("discount")) %></span> 
+				<div class="coupon"><%= coupon.get("coupon") %></div>
+				<div class="discount"><%= __("Discount: %s%", coupon.get("discount")) %></div>
+				<div class="date"><%= __("Available until:") %></div>
+				<div class="date"><%= moment.utc(coupon.get("validBefore")).utcOffset(-tzOffset).format("DD.MM.YYYY HH:mm:ss") %></div>
 			</div>
 		<%_ }) _%>
 		</div>
@@ -19,9 +21,10 @@
 	<div class="table coupons-list">
 	<%_ couponsActivated.forEach(couponActivated => { _%>
 		<div class="activated">
-			<span class="coupon"><%= couponActivated.get("info").get("coupon") %></span><br>
-			<span class="discount"><%= __("Discount: %s%", couponActivated.get("info").get("discount")) %></span><br>
-			<span class="date"><%= moment.utc(couponActivated.get("createdAt")).utcOffset(-tzOffset).format("DD.MM.YYYY HH:mm:ss") %></span> 
+			<div class="coupon"><%= couponActivated.get("info").get("coupon") %></div>
+			<div class="discount"><%= __("Discount: %s%", couponActivated.get("info").get("discount")) %></div>
+			<div class="date"><%= __("Activated at:") %></div>
+			<div class="date"><%= moment.utc(couponActivated.get("createdAt")).utcOffset(-tzOffset).format("DD.MM.YYYY HH:mm:ss") %></div>
 		</div>
 	<%_ }) _%>
 	</div>
