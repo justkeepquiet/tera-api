@@ -66,6 +66,7 @@
 	"The field contains expired promo code ID.": "Поле содержит просроченный ID промокода.",
 	"The field contains the promo code ID with the activation limit reached.": "Поле содержит ID промокода с достигнутым пределом по количеству активаций.",
 	"The field must be between 6 and 20 characters.": "Поле должно содержать от 6 до 20 символов.",
+	"The field must be between 3 and 8 characters.": "Поле должно содержать от 3 до 8 символов.",
 	"The field contains not existing account ID.": "Поле содержит несуществующий ID.",
 	"The field contains an existing promo code.": "Поле содержит уже существующий промокод.",
 	"The field contains an existing coupon.": "Поле содержит уже существующий купон.",

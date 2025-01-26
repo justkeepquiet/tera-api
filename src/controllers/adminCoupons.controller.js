@@ -102,7 +102,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 	accessFunctionHandler,
 	[
 		body("coupon").trim()
-			.isLength({ min: 6, max: 20 }).withMessage(i18n.__("The field must be between 6 and 20 characters."))
+			.isLength({ min: 3, max: 8 }).withMessage(i18n.__("The field must be between 3 and 8 characters."))
 			.custom(value => shopModel.coupons.findOne({
 				where: { coupon: value }
 			}).then(data => {
