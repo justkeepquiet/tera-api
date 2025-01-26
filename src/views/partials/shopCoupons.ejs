@@ -3,8 +3,8 @@
 	<%_ if (coupons.length > 0) { _%>
 		<div class="table coupons-list">
 		<%_ coupons.forEach(coupon => { _%>
-			<div class="coupon-box">
-				<div class="coupon"><%= coupon.get("coupon") %></div>
+			<div class="coupon-box" data-coupon="<%= coupon.get("coupon") %>">
+				<div class="coupon">******</div>
 				<div class="discount"><%= __("Discount: %s%", coupon.get("discount")) %></div>
 				<div class="date"><%= __("Available until:") %></div>
 				<div class="date"><%= moment.utc(coupon.get("validBefore")).utcOffset(-tzOffset).format("DD.MM.YYYY HH:mm:ss") %></div>
@@ -20,8 +20,8 @@
 	<h2><%= __("Used Coupons") %></h2>
 	<div class="table coupons-list">
 	<%_ couponsActivated.forEach(couponActivated => { _%>
-		<div class="coupon-box used">
-			<div class="coupon"><%= couponActivated.get("info").get("coupon") %></div>
+		<div class="coupon-box used" data-coupon="<%= couponActivated.get("info").get("coupon") %>">
+			<div class="coupon">******</div>
 			<div class="discount"><%= __("Discount: %s%", couponActivated.get("info").get("discount")) %></div>
 			<div class="date"><%= __("Used at:") %></div>
 			<div class="date"><%= moment.utc(couponActivated.get("createdAt")).utcOffset(-tzOffset).format("DD.MM.YYYY HH:mm:ss") %></div>
@@ -30,3 +30,10 @@
 	</div>
 </div>
 <%_ } _%>
+<script type="text/javascript">
+	$(function() {
+		$(".coupon-box").click(function() {
+			$(this).find(".coupon").html($(this).data("coupon"));
+		});
+	});
+</script>
