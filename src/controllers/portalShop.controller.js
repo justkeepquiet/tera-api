@@ -511,7 +511,10 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 						{ [Op.lt]: sequelize.col("maxActivations") }
 					)
 				]
-			}
+			},
+			order: [
+				["createdAt", "DESC"]
+			]
 		});
 
 		res.render("partials/shopProduct", { helpers, product, coupons, search, back });
@@ -633,7 +636,10 @@ module.exports.PartialCouponsHtml = ({ sequelize, logger, shopModel }) => [
 			include: [{
 				as: "info",
 				model: shopModel.coupons
-			}]
+			}],
+			order: [
+				["createdAt", "DESC"]
+			]
 		});
 
 		const activatedCouponIds = couponsActivated.map(coupon => coupon.couponId);
@@ -651,7 +657,10 @@ module.exports.PartialCouponsHtml = ({ sequelize, logger, shopModel }) => [
 						{ [Op.lt]: sequelize.col("maxActivations") }
 					)
 				]
-			}
+			},
+			order: [
+				["createdAt", "DESC"]
+			]
 		});
 
 		unlockLockedCoupon(req);
@@ -846,19 +855,19 @@ module.exports.PurchaseAction = modules => [
 		// calculate final price
 		let finalPrice = req.session.lastProduct.price;
 
-		if (req.session.lastProduct.productDiscount > 0) {
+		if (finalPrice > 0 && req.session.lastProduct.productDiscount > 0) {
 			finalPrice = helpers.subtractPercentage(finalPrice, req.session.lastProduct.productDiscount);
 		}
 
 		let isPriceChangedByCoupon = false;
 
-		if (req.session.lastProduct.couponDiscount > 0) {
+		if (finalPrice > 0 && req.session.lastProduct.couponDiscount > 0) {
 			const beforePrice = finalPrice;
 			finalPrice = helpers.subtractPercentage(finalPrice, req.session.lastProduct.couponDiscount);
-			isPriceChangedByCoupon = finalPrice < beforePrice;
+			isPriceChangedByCoupon = finalPrice < beforePrice && req.session.lastProduct.accountDiscount < 100;
 		}
 
-		if (req.session.lastProduct.accountDiscount > 0) {
+		if (finalPrice > 0 && req.session.lastProduct.accountDiscount > 0) {
 			finalPrice = helpers.subtractPercentage(finalPrice, req.session.lastProduct.accountDiscount);
 		}
 
