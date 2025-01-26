@@ -41,9 +41,9 @@ config.validations = {
 
 	// place after autocomplete tag
 	errorPlacement: function(error, element) {
-		var autocompleteElement = element.next(".autocomplete-result");
-		if (autocompleteElement.length) {
-			autocompleteElement.after(error);
+		var afterElement = element.next(".autocomplete-result, .text-random, .datetime-local-reset");
+		if (afterElement.length) {
+			afterElement.after(error);
 		} else {
 			element.after(error);
 		}
