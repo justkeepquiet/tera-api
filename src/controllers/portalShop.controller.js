@@ -727,7 +727,8 @@ module.exports.PurchaseAction = modules => [
 	[
 		body("productId").trim().notEmpty().isNumeric(),
 		body("quantity").trim().notEmpty().isInt({ min: 1, max: 99 }),
-		body("recipientUserId").optional({ checkFalsy: true }).trim().isInt()
+		body("recipientServerId").optional({ checkFalsy: true }).trim().isInt({ min: 0 }),
+		body("recipientUserId").optional({ checkFalsy: true }).trim().isInt({ min: 0 })
 	],
 	validationHandler(modules.logger),
 	rateLimitterHandler(modules.rateLimitter, "portalApi.shop.purchaseAction"),
@@ -735,7 +736,7 @@ module.exports.PurchaseAction = modules => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { productId, recipientUserId } = req.body;
+		const { productId, recipientServerId, recipientUserId } = req.body;
 		let quantity = req.body.quantity;
 
 		if (!req.session.lastProduct || req.session.lastProduct.id !== parseInt(productId)) {
@@ -770,12 +771,19 @@ module.exports.PurchaseAction = modules => [
 			});
 		}
 
-		const recipientAccount = await modules.accountModel.info.findOne({
-			where: { accountDBID: recipientUserId || req.user.accountDBID }
-		});
+		let recipientCharacter = null;
 
-		if (recipientAccount === null) {
-			throw new ApiError("Recipient account was not found", 5000);
+		if (recipientServerId && recipientUserId) {
+			recipientCharacter = await modules.accountModel.characters.findOne({
+				where: {
+					serverId: recipientServerId,
+					accountDBID: recipientUserId
+				}
+			});
+
+			if (recipientCharacter === null) {
+				throw new ApiError("Recipient account was not found", 5000);
+			}
 		}
 
 		// re-validate coupon
@@ -915,8 +923,8 @@ module.exports.PurchaseAction = modules => [
 
 			const itemClaim = new ItemClaim(
 				modules,
-				recipientAccount.get("accountDBID"),
-				recipientAccount.get("lastLoginServer"), // TODO
+				recipientCharacter ? recipientCharacter.get("accountDBID") : req.user.accountDBID,
+				recipientCharacter ? recipientCharacter.get("serverId") : req.user.lastLoginServer,
 				{
 					logType: 3,
 					logId: logResult.get("id")
