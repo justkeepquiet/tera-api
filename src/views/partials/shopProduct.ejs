@@ -247,7 +247,7 @@
 		$("#content_product").animate({ scrollTop: $(document).height() }, 300);
 	}
 	function giftSearch(product) {
-		if ($('#gift_character').val() == "") {
+		if ($('#gift_character').val() == '') {
 			$('#gift_error').show();
 			$('#gift_descr').hide();
 			$('#gift_error strong').html("<%= __('Please enter character nickname.') %>");
@@ -258,7 +258,7 @@
 		shopReqCharacterAction($('#gift_character').val(), function(result) {
 			if (result.ReturnCode == 0) {
 				product.recipientUserId = result.AccountId;
-				$('#recipient_info #recipient_name').html("<b>" + result.Name + "</b> (" + result.Class + ", " + result.Level + " <%= __("lvl.") %>)");
+				$('#recipient_info #recipient_name').html("<b>" + result.Name + "</b> (" + result.Class + ", " + result.Level + " <%= __('lvl.') %>)");
 				$('#recipient_info').show();
 				$('#gift_error').hide();
 				$('#gift_descr').show();
@@ -285,8 +285,8 @@
 	function giftCancel(product) {
 		product.recipientUserId = null;
 		$('#recipient_info').hide();
-		$('#recipient_name').html("");
-		$('#gift_character').val("");
+		$('#recipient_name').html('');
+		$('#gift_character').val('');
 		$('#gift').attr('disabled', false);
 		$('#gift_error').hide();
 		$('#gift_descr').show();
@@ -370,7 +370,7 @@
 		product.coupon = $('#coupon');
 	}
 	function couponAccept(product) {
-		if (product.coupon.val() == "") {
+		if (product.coupon.val() == '') {
 			$('#coupon_error').show();
 			$('#coupon_descr').hide();
 			$('#coupon_error strong').html("<%= __('Please enter your coupon.') %>");
@@ -440,7 +440,7 @@
 			$('#coupon_descr').show();
 			$('#coupon_form').hide();
 			$('#buy_descr').show();
-			$('#coupon').val("");
+			$('#coupon').val('');
 			$('#coupon_select').prop("selectedIndex", 0);
 		});
 	}
