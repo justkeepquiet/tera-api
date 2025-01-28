@@ -93,7 +93,7 @@
 		<div class="recipient-info btn-warning" id="recipient_info" style="display: none;">
 			<div class="recipient-info-left">
 				<%= __("This product will be sent as a gift to the character:") %> 
-				<span class="recipient-name" id="recipient_name"><b>test</b> (Sorcerer, 70 lvl).</span>
+				<span class="recipient-name" id="recipient_name"></span>
 			</div>
 			<div class="recipient-info-right">
 				<button class="btn btn-small btn-secondary" id="gift_cancel_info"><%= __("Cancel") %></button>
@@ -210,26 +210,10 @@
 		if (product.finalPrice != product.originalPrice) {
 			$('.price-orig-value').html(product.originalPrice * product.quantity);
 		}
-		if (product.couponDiscount > 0) {
-			$('#quantity').prop('disabled', true).trigger('disabledChange');
-		} else {
-			$('#quantity').prop('disabled', false).trigger('disabledChange');
-		}
-		if (accountBalance < product.finalPrice * product.quantity) {
-			$('#buy').prop('disabled', true);
-		} else {
-			$('#buy').prop('disabled', false);
-		}
-		if (product.recipientUserId) {
-			$('#gift').attr('disabled', true);
-		} else {
-			$('#gift').attr('disabled', false);
-		}
-		if (product.quantity > 1) {
-			$('.coupon-use').prop('disabled', true);
-		} else {
-			$('.coupon-use').prop('disabled', false);
-		}
+		$('#quantity').prop('disabled', product.couponDiscount > 0).trigger('disabledChange');
+		$('#buy').prop('disabled', accountBalance < product.finalPrice * product.quantity);
+		$('#gift').attr('disabled', product.recipientUserId);
+		$('.coupon-use').prop('disabled', product.quantity > 1);
 	}
 	function quantityChange(product) {
 		product.quantity = $('#quantity').val();
@@ -239,65 +223,187 @@
 		$('.coupon-use').prop('disabled', product.quantity > 1);
 		initializeAndSetValues(product, false);
 	}
+	function schollDown() {
+		$("#content_product").animate({ scrollTop: $(document).height() }, 300);
+	}
 
 	// Gift
 	function giftUse() {
 		$('.coupon-use').prop('disabled', true);
 		$('#gift').attr('disabled', true);
-		$('#buy').prop('disabled', true);
 		$('#quantity').prop('disabled', true).trigger('disabledChange');
+		$('#buy').prop('disabled', true);
 		$('#buy_descr').hide();
 		$('#gift_form').show();
 		$('#gift_character').focus();
-		$("#content_product").animate({ scrollTop: $(document).height() }, 300);
+		schollDown();
 	}
 	function giftSearch(product) {
 		if ($('#gift_character').val() == '') {
-			$('#gift_error').show();
-			$('#gift_descr').hide();
-			$('#gift_error strong').html("<%= __('Please enter character nickname.') %>");
+			giftErrorShow("<%= __('Please enter character nickname.') %>");
 			return;
 		}
-		$('#gift_error').hide();
-		$('#gift_descr').show();
+		$('#gift_search').prop('disabled', true);
+		$('#gift_cancel').prop('disabled', true);
+		giftErrorHide();
 		shopReqCharacterAction($('#gift_character').val(), function(result) {
+			$('#gift_search').prop('disabled', false);
+			$('#gift_cancel').prop('disabled', false);
 			if (result.ReturnCode == 0) {
 				product.recipientUserId = result.AccountId;
+				giftRecipientInfoShow(result.Name, result.Class, result.Level);
 				initializeAndSetValues(product, false);
-				$('#recipient_info #recipient_name').html("<b>" + result.Name + "</b> (" + result.Class + ", " + result.Level + " <%= __('lvl.') %>)");
-				$('#recipient_info').show();
-				$('#gift_error').hide();
-				$('#gift_descr').show();
 				$('#gift_form').hide();
 				$('#buy_descr').show();
-				$("#content_product").animate({ scrollTop: $(document).height() }, 300);
+				schollDown();
 				return;
 			}
-			$('#gift_error').show();
-			$('#gift_descr').hide();
 			switch (result.ReturnCode) {
 				case 5000:
-					$('#gift_error strong').html("<%= __('The specified character was not found.') %>");
+					giftErrorShow("<%= __('The specified character was not found.') %>");
 					break;
 				case 5010:
-					$('#gift_error strong').html("<%= __('The specified character belongs to you.') %>");
+					giftErrorShow("<%= __('The specified character belongs to you.') %>");
 					break;
 				default:
-					$('#gift_error strong').html("<%= __('Search error') %>: #" + result.ReturnCode + " " + result.Msg);
+					giftErrorShow("<%= __('Search error') %>: #" + result.ReturnCode + " " + result.Msg);
 			}
 		});
 	}
 	function giftCancel(product) {
 		product.recipientUserId = null;
-		$('#recipient_info').hide();
-		$('#recipient_name').html('');
-		$('#gift_character').val('');
+		giftErrorHide();
+		giftRecipientInfoHide();
+		initializeAndSetValues(product, false);
 		$('#gift').attr('disabled', false);
-		$('#gift_error').hide();
-		$('#gift_descr').show();
+		$('#gift_character').val('');
 		$('#gift_form').hide();
 		$('#buy_descr').show();
-		initializeAndSetValues(product, false);
+	}
+	function giftErrorShow(error) {
+		$('#gift_descr').hide();
+		$('#gift_error').show();
+		$('#gift_error strong').html(error);
+	}
+	function giftErrorHide() {
+		$('#gift_error strong').html('');
+		$('#gift_error').hide();
+		$('#gift_descr').show();
+	}
+	function giftRecipientInfoShow(name, class_, level) {
+		$('#recipient_info #recipient_name').html("<b>" + name + "</b> (" + class_ + ", " + level + " <%= __('lvl.') %>)");
+		$('#recipient_info').show();
+	}
+	function giftRecipientInfoHide() {
+		$('#recipient_info').hide();
+		$('#recipient_name').html('');
+	}
+
+	// Coupon
+	function couponUse() {
+		$('.coupon-use').prop('disabled', true);
+		$('#gift_cancel_info').prop('disabled', true);
+		$('#gift').attr('disabled', true);
+		$('#buy').prop('disabled', true);
+		$('#quantity').prop('disabled', true).trigger('disabledChange');
+		$('#buy_descr').hide();
+		$('#coupon_form').show();
+	}
+	function couponToggleSelect(product) {
+		couponErrorHide();
+		$('#coupon_toggle_select').hide();
+		$('#coupon').hide();
+		$('#coupon_select').trigger('showCustomSelect');
+		$('#coupon_toggle_input').show();
+		product.coupon = $('#coupon_select');
+	}
+	function couponToggleInput(product) {
+		couponErrorHide();
+		$('#coupon_toggle_input').hide();
+		$('#coupon_select').trigger('hideCustomSelect');
+		$('#coupon').show();
+		$('#coupon_toggle_select').show();
+		product.coupon = $('#coupon');
+	}
+	function couponAccept(product) {
+		if (product.coupon.val() == '') {
+			couponErrorShow("<%= __('Please enter your coupon.') %>");
+			return;
+		}
+		$('#coupon_accept').prop('disabled', true);
+		$('#coupon_cancel').prop('disabled', true);
+		couponErrorHide();
+		shopCouponAcceptAction(product.coupon.val(), product.productId, function(result) {
+			$('#coupon_accept').prop('disabled', false);
+			$('#coupon_cancel').prop('disabled', false);
+			if (result.ReturnCode == 0) {
+				product.quantity = 1;
+				product.couponDiscount = result.Discount;
+				product.finalPrice = calculatePriceWithDiscounts(
+					product.originalPrice,
+					[product.productDiscount, product.couponDiscount, product.accountDiscount]
+				);
+				initializeAndSetValues(product, true);
+				$('.coupon-use').html(product.couponDiscount + "<%= '% ' + __('discount applied') %>");
+				$('#gift_cancel_info').prop('disabled', false);
+				$('#quantity').val(product.quantity);
+				$('#buy').prop('disabled', false);
+				$('#coupon_form').hide();
+				$('#buy_descr').show();
+				return;
+			}
+			switch(result.ReturnCode) {
+				case 9:
+					couponErrorShow("<%= __('Too many requests.') %>");
+					break;
+				case 1000:
+					couponErrorShow("<%= __('The specified coupon does not exist.') %>");
+					break;
+				case 1001:
+					couponErrorShow("<%= __('The specified coupon has expired.') %>");
+					break;
+				case 1002:
+					couponErrorShow("<%= __('The specified coupon has reached its activation limit.') %>");
+					break;
+				case 1010:
+					couponErrorShow("<%= __('The specified coupon has already been activated.') %>");
+					break;
+				default:
+					couponErrorShow("<%= __('Activation error') %>: #" + result.ReturnCode + " " + result.Msg);
+			}
+		});
+	}
+	function couponCancel(product) {
+		$('#coupon_accept').prop('disabled', true);
+		$('#coupon_cancel').prop('disabled', true);
+		shopCouponCancelAction(function(result) {
+			product.couponDiscount = 0;
+			product.finalPrice = calculatePriceWithDiscounts(
+				product.originalPrice,
+				[product.productDiscount, product.accountDiscount]
+			);
+			initializeAndSetValues(product, true);
+			couponErrorHide();
+			$('#coupon_accept').prop('disabled', false);
+			$('#coupon_cancel').prop('disabled', false);
+			$('.coupon-use').html("<%= __('Use coupon') %>");
+			$('#buy').prop('disabled', false);
+			$('#coupon_form').hide();
+			$('#buy_descr').show();
+			$('#coupon').val('');
+			$('#coupon_select').prop("selectedIndex", 0);
+			$('#gift_cancel_info').prop('disabled', false);
+		});
+	}
+	function couponErrorShow(error) {
+		$('#coupon_descr').hide();
+		$('#coupon_error').show();
+		$('#coupon_error strong').html(error);
+	}
+	function couponErrorHide() {
+		$('#coupon_error strong').html('');
+		$('#coupon_error').hide();
+		$('#coupon_descr').show();
 	}
 
 	// Purchase
@@ -330,123 +436,16 @@
 		$('#buy').prop('disabled', true);
 		$('#quantity').prop('disabled', true).trigger('disabledChange');
 		shopPurchaseAction(product.productId, product.quantity, product.recipientUserId, function(result) {
+			$('#buy_available').hide();
 			if (result.ReturnCode == 0) {
-				$('#buy_available').hide();
 				$('#buy_inprogress').show();
 				requestPurchaseStatus(result.LogId);
 			} else if (result.ReturnCode == 1000) {
-				$('#buy_available').hide();
 				$('#buy_nocoins').show();
 			} else {
-				$('#buy_available').hide();
 				$('#buy_inprogress').hide();
 				$('#buy_error').show().append('<br>#' + result.ReturnCode + " " + result.Msg);
 			}
-		});
-	}
-
-	// Coupon
-	function couponUse() {
-		$('.coupon-use').prop('disabled', true);
-		$('#gift_cancel_info').prop('disabled', true);
-		$('#gift').attr('disabled', true);
-		$('#buy').prop('disabled', true);
-		$('#quantity').prop('disabled', true).trigger('disabledChange');
-		$('#buy_descr').hide();
-		$('#coupon_form').show();
-	}
-	function couponToggleSelect(product) {
-		$('#coupon_toggle_select').hide();
-		$('#coupon').hide();
-		$('#coupon_select').trigger('showCustomSelect');
-		$('#coupon_error').hide();
-		$('#coupon_descr').show();
-		$('#coupon_toggle_input').show();
-		product.coupon = $('#coupon_select');
-	}
-	function couponToggleInput(product) {
-		$('#coupon_toggle_input').hide();
-		$('#coupon_select').trigger('hideCustomSelect');
-		$('#coupon_error').hide();
-		$('#coupon_descr').show();
-		$('#coupon').show();
-		$('#coupon_toggle_select').show();
-		product.coupon = $('#coupon');
-	}
-	function couponAccept(product) {
-		if (product.coupon.val() == '') {
-			$('#coupon_error').show();
-			$('#coupon_descr').hide();
-			$('#coupon_error strong').html("<%= __('Please enter your coupon.') %>");
-			return;
-		}
-		$('#coupon_accept').prop('disabled', true);
-		$('#coupon_cancel').prop('disabled', true);
-		$('#coupon_error').hide();
-		$('#coupon_descr').show();
-		shopCouponAcceptAction(product.coupon.val(), product.productId, function(result) {
-			$('#coupon_accept').prop('disabled', false);
-			$('#coupon_cancel').prop('disabled', false);
-			if (result.ReturnCode == 0) {
-				product.couponDiscount = result.Discount;
-				product.quantity = 1;
-				product.finalPrice = calculatePriceWithDiscounts(
-					product.originalPrice,
-					[product.productDiscount, product.couponDiscount, product.accountDiscount]
-				);
-				initializeAndSetValues(product, true);
-				$('.coupon-use').html(product.couponDiscount + "<%= '% ' + __('discount applied') %>");
-				$('#gift_cancel_info').prop('disabled', false);
-				$('#quantity').val(product.quantity);
-				$('#buy').prop('disabled', false);
-				$('#coupon_form').hide();
-				$('#buy_descr').show();
-			} else {
-				$('#coupon_error').show();
-				$('#coupon_descr').hide();
-				switch(result.ReturnCode) {
-					case 9:
-						$('#coupon_error strong').html("<%= __('Too many requests.') %>");
-						break;
-					case 1000:
-						$('#coupon_error strong').html("<%= __('The specified coupon does not exist.') %>");
-						break;
-					case 1001:
-						$('#coupon_error strong').html("<%= __('The specified coupon has expired.') %>");
-						break;
-					case 1002:
-						$('#coupon_error strong').html("<%= __('The specified coupon has reached its activation limit.') %>");
-						break;
-					case 1010:
-						$('#coupon_error strong').html("<%= __('The specified coupon has already been activated.') %>");
-						break;
-					default:
-						$('#coupon_error strong').html("<%= __('Activation error') %>: #" + result.ReturnCode + " " + result.Msg);
-				}
-			}
-		});
-	}
-	function couponCancel(product) {
-		$('#coupon_accept').prop('disabled', true);
-		$('#coupon_cancel').prop('disabled', true);
-		shopCouponCancelAction(function(result) {
-			product.couponDiscount = 0;
-			product.finalPrice = calculatePriceWithDiscounts(
-				product.originalPrice,
-				[product.productDiscount, product.accountDiscount]
-			);
-			initializeAndSetValues(product, true);
-			$('.coupon-use').html("<%= __('Use coupon') %>");
-			$('#buy').prop('disabled', false);
-			$('#coupon_accept').prop('disabled', false);
-			$('#coupon_cancel').prop('disabled', false);
-			$('#coupon_error').hide();
-			$('#coupon_descr').show();
-			$('#coupon_form').hide();
-			$('#buy_descr').show();
-			$('#coupon').val('');
-			$('#coupon_select').prop("selectedIndex", 0);
-			$('#gift_cancel_info').prop('disabled', false);
 		});
 	}
 
@@ -489,17 +488,7 @@
 			giftSearch(product);
 		});
 		$('#gift_character').change(function(e) {
-			$('#gift_error').hide();
-			$('#gift_descr').show();
-		});
-
-		// Buy
-		$('#quantity').change(function() {
-			quantityChange(product);
-		});
-		$('#buy').click(function(e) {
-			e.preventDefault();
-			purchaseProduct(product);
+			giftErrorHide();
 		});
 
 		// Coupon
@@ -512,8 +501,7 @@
 			couponToggleInput(product);
 		});
 		$('#coupon, #coupon_select').change(function() {
-			$('#coupon_error').hide();
-			$('#coupon_descr').show();
+			couponErrorHide();
 		});
 		$('.coupon-use').click(function(e) {
 			e.preventDefault();
@@ -526,6 +514,15 @@
 		$('#coupon_cancel').click(function(e) {
 			e.preventDefault();
 			couponCancel(product);
+		});
+
+		// Buy
+		$('#quantity').change(function() {
+			quantityChange(product);
+		});
+		$('#buy').click(function(e) {
+			e.preventDefault();
+			purchaseProduct(product);
 		});
 
 		$('#back').click(backToCatalog);
