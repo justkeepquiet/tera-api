@@ -329,8 +329,6 @@
 		$('#gift').attr('disabled', true);
 		$('#buy').prop('disabled', true);
 		$('#quantity').prop('disabled', true).trigger('disabledChange');
-		$('#coupon_form').hide();
-		$('#buy_descr').show();
 		shopPurchaseAction(product.productId, product.quantity, product.recipientUserId, function(result) {
 			if (result.ReturnCode == 0) {
 				$('#buy_available').hide();
@@ -397,9 +395,9 @@
 					[product.productDiscount, product.couponDiscount, product.accountDiscount]
 				);
 				initializeAndSetValues(product, true);
+				$('.coupon-use').html(product.couponDiscount + "<%= '% ' + __('discount applied') %>");
 				$('#gift_cancel_info').prop('disabled', false);
 				$('#quantity').val(product.quantity);
-				$('.coupon-use').html(product.couponDiscount + "<%= '% ' + __('discount applied') %>");
 				$('#buy').prop('disabled', false);
 				$('#coupon_form').hide();
 				$('#buy_descr').show();
