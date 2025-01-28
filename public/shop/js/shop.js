@@ -89,8 +89,12 @@ function loadPromoCodes(callback) {
 	});
 }
 
-function shopPurchaseAction(productId, quantity, callback) {
-	return apiRequest("PurchaseAction", { productId: productId, quantity: quantity }, "json", callback);
+function shopPurchaseAction(productId, quantity, recipientUserId, callback) {
+	return apiRequest("PurchaseAction", { productId: productId, quantity: quantity, recipientUserId: recipientUserId }, "json", callback);
+}
+
+function shopReqCharacterAction(name, callback) {
+	return apiRequest("ReqCharacterAction", { name: name }, "json", callback);
 }
 
 function shopPurchaseStatusAction(logId, callback) {

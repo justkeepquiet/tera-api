@@ -335,7 +335,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 /**
  * @param {modules} modules
  */
-module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datasheetModel }) => [
+module.exports.PartialProductHtml = ({ i18n, logger, sequelize, serverModel, shopModel, datasheetModel }) => [
 	shopStatusHandler,
 	authSessionHandler(logger),
 	[
@@ -348,6 +348,14 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 	 */
 	async (req, res, next) => {
 		const { id, search, back } = req.body;
+
+		const servers = await serverModel.info.findAll({
+			attributes: ["serverId", "nameString", "descrString"],
+			where: {
+				isAvailable: 1,
+				isEnabled: 1
+			}
+		});
 
 		const shopProduct = await shopModel.products.findOne({
 			where: {
@@ -517,7 +525,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, shopModel, datas
 			]
 		});
 
-		res.render("partials/shopProduct", { helpers, product, coupons, search, back });
+		res.render("partials/shopProduct", { helpers, servers, product, coupons, search, back });
 	},
 	/**
 	 * @type {ErrorRequestHandler}
@@ -721,13 +729,73 @@ module.exports.GetAccountInfo = ({ logger, shopModel }) => [
 /**
  * @param {modules} modules
  */
+module.exports.ReqCharacterAction = ({ logger, rateLimitter, i18n, accountModel }) => [
+	shopStatusHandler,
+	authSessionHandler(logger),
+	[body("name").trim()],
+	validationHandler(logger),
+	rateLimitterHandler(rateLimitter, "portalApi.shop.reqCharacterAction"),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { name } = req.body;
+
+		const character = await accountModel.characters.findOne({
+			where: {
+				serverId: req.user.lastLoginServer,
+				name
+			}
+		});
+
+		if (character === null) {
+			throw new ApiError("Account was not found", 5000);
+		}
+
+		if (character.get("accountDBID") === req.user.accountDBID) {
+			throw new ApiError("Account matches request session", 5010);
+		}
+
+		// Account matches request session
+
+		const classIds = [
+			i18n.__("warrior"),
+			i18n.__("lancer"),
+			i18n.__("slayer"),
+			i18n.__("berserker"),
+			i18n.__("sorcerer"),
+			i18n.__("archer"),
+			i18n.__("priest"),
+			i18n.__("elementalist"),
+			i18n.__("soulless"),
+			i18n.__("engineer"),
+			i18n.__("fighter"),
+			i18n.__("assassin"),
+			i18n.__("glaiver")
+		];
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			ServerId: character.get("serverId"),
+			AccountId: character.get("accountDBID"),
+			Name: character.get("name"),
+			Level: character.get("level"),
+			Class: classIds[character.get("classId")] || "unknown"
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
 module.exports.PurchaseAction = modules => [
 	shopStatusHandler,
 	authSessionHandler(modules.logger),
 	[
 		body("productId").trim().notEmpty().isNumeric(),
 		body("quantity").trim().notEmpty().isInt({ min: 1, max: 99 }),
-		body("recipientServerId").optional({ checkFalsy: true }).trim().isInt({ min: 0 }),
 		body("recipientUserId").optional({ checkFalsy: true }).trim().isInt({ min: 0 })
 	],
 	validationHandler(modules.logger),
@@ -736,7 +804,7 @@ module.exports.PurchaseAction = modules => [
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { productId, recipientServerId, recipientUserId } = req.body;
+		const { productId, recipientUserId } = req.body;
 		let quantity = req.body.quantity;
 
 		if (!req.session.lastProduct || req.session.lastProduct.id !== parseInt(productId)) {
@@ -773,10 +841,10 @@ module.exports.PurchaseAction = modules => [
 
 		let recipientCharacter = null;
 
-		if (recipientServerId && recipientUserId) {
+		if (recipientUserId) {
 			recipientCharacter = await modules.accountModel.characters.findOne({
 				where: {
-					serverId: recipientServerId,
+					serverId: req.user.lastLoginServer,
 					accountDBID: recipientUserId
 				}
 			});

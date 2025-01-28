@@ -129,6 +129,14 @@ module.exports.portalApi = {
 			points: 60,
 			duration: 180,
 			blockDuration: 300
+		},
+
+		// endpoint: POST /shop/ReqCharacterAction
+		// 60 requests per 3 minutes with block for 5 minutes
+		reqCharacterAction: {
+			points: 60,
+			duration: 180,
+			blockDuration: 300
 		}
 	}
 };

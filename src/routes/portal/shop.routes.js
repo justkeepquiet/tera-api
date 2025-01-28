@@ -132,6 +132,7 @@ module.exports = modules => {
 		.post("/PartialCatalog", portalShopController.PartialCatalogHtml(mod))
 		.post("/PartialProduct", portalShopController.PartialProductHtml(mod))
 		.post("/GetAccountInfo", portalShopController.GetAccountInfo(mod))
+		.post("/ReqCharacterAction", portalShopController.ReqCharacterAction(mod))
 		.post("/PurchaseAction", portalShopController.PurchaseAction(mod))
 		.post("/PurchaseStatusAction", portalShopController.PurchaseStatusAction(mod))
 		.post("/PromoCodeAction", portalShopController.PromoCodeAction(mod))

@@ -150,15 +150,13 @@ h2 {
 	line-height: 16px;
 }
 
-/* TBD */
-
-/* .product-header .text-block {
+.product-header .text-block {
 	width: 420px !important;
 }
 
 .text-right {
 	float: right;
-} */
+}
 
 .buy-block {
 	display: block;
@@ -450,7 +448,7 @@ a, a:focus {
 
 .buy-block-left, .buy-block-right {
 	margin: 0!important;
-	height: 124px;
+	height: 130px;
 	width: 70%!important;
 	border-radius: 6px 0 0 6px;
 	background-color: #0E3756;
@@ -467,23 +465,30 @@ a, a:focus {
 	margin-top: -4px;
 }
 
+.buy-block-left legend {
+	line-height: 24px!important;
+	margin-top: 3px;
+	margin-bottom: 4px;
+	border-bottom: 0;
+}
+
+.buy-block-right .btn-small {
+	line-height: 14px;
+	margin-bottom: 4px;
+}
+
 .buy-block-right {
 	width: 30%!important;
 	text-align: center;
-	padding: 7px;
+	padding: 9px 16px;
 	border-radius: 0 6px 6px 0;
 	background-color: #4d1e1e;
 }
 
 .buy-descr .buy-descr-header {
 	font-size: 13px;
+	line-height: 22px;
 	margin-bottom: 10px;
-}
-
-.coupon-form legend {
-	line-height: 24px!important;
-	margin-bottom: 2px;
-	border-bottom: 0;
 }
 
 .coupon-form input {
@@ -529,7 +534,36 @@ a, a:focus {
 }
 
 .coupon-form .coupon-descr {
-	margin-top: 4px;
+	margin-top: 5px;
+}
+
+
+.buy-gift-form .custom-select {
+	min-width: 150px !important;
+}
+
+.buy-gift-form .custom-select-selected {
+	font-weight: normal;
+	background-color: white;
+	color: #555;
+	border: 1px solid #ccc;
+}
+
+.buy-gift-form .custom-select-arrow {
+	color: #555;
+}
+
+.buy-gift-form .custom-select-option:hover {
+	border: 1px solid #767676;
+}
+
+.buy-gift-form .gift-error {
+	margin-right: 9px;
+	padding: 1px 8px;
+}
+
+.buy-gift-form .gift-descr {
+	margin-top: 5px;
 }
 
 .quantity {
@@ -543,6 +577,29 @@ a, a:focus {
 .buy-info {
 	margin: 0!important;
 	padding: 0!important;
+}
+
+.recipient-info {
+	float: left;
+	width: 100%;
+	margin-top: 10px;
+	margin-bottom: 20px;
+	padding: 10px 0;
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+}
+
+.recipient-info-left {
+	float: left;
+	padding-left: 12px;
+	padding-top: 3px;
+}
+
+.recipient-info-right {
+	float: right;
+	text-align: center;
+	padding-right: 12px;
 }
 
 .name {
