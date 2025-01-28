@@ -112,7 +112,7 @@
 						<%- __("You can open it from the main menu in the &quot;Shop&quot; section the &quot;Item Claim&quot; option.") %>
 					</div>
 				</div>
-				<div id="gift_form" class="buy-gift-form" style="display: none;">
+				<form id="gift_form" class="buy-gift-form" method="POST" action="" style="display: none;">
 					<div>
 						<legend class="white-text">
 							<%= __("Buy a Product as a Gift") %>
@@ -120,7 +120,7 @@
 					</div>
 					<div>
 						<input type="text" placeholder="<%= __("Enter character nickname") %>" id="gift_character" style="margin-top: 10px;">
-						<button class="btn btn-warning" id="gift_search"><%= __("Search") %></button>&nbsp;
+						<button type="submit" class="btn btn-warning" id="gift_search"><%= __("Search") %></button>&nbsp;
 						<button class="btn btn-secondary" id="gift_cancel"><%= __("Cancel") %></button>
 						<div class="alert alert-error gift-error fade in" style="display: none;" id="gift_error">
 							<strong></strong>
@@ -129,14 +129,14 @@
 							<%= __("Enter the nickname of the character you want to buy the product for as a gift.") %>
 						</div>
 					</div>
-				</div>
-				<div id="coupon_form" class="coupon-form" style="display: none;">
+				</form>
+				<form id="coupon_form" class="coupon-form" method="POST" action="" style="display: none;">
 					<div>
 						<legend class="white-text">
 							<%= __("Use Coupon") %>
 						<%_ if (coupons.length > 0) { _%>
-							<button class="btn btn-small btn-secondary" id="coupon_toggle_select" style="display: none;"><%= __("Choose from my coupons") %></button>
-							<button class="btn btn-small btn-secondary" id="coupon_toggle_input"><%= __("Enter coupon manually") %></button>
+							<a href="#" class="btn btn-small btn-secondary" id="coupon_toggle_select" style="display: none;"><%= __("Choose from my coupons") %></a>
+							<a href="#" class="btn btn-small btn-secondary" id="coupon_toggle_input"><%= __("Enter coupon manually") %></a>
 						<%_ } _%>
 						</legend>
 					</div>
@@ -147,7 +147,7 @@
 						<%_ }) _%>
 						</select>
 						<input type="text" placeholder="<%= __("Enter your coupon") %>" name="coupon" id="coupon" style="margin-top: 10px;<%= coupons.length > 0 ? ' display: none;' : '' %>">
-						<button class="btn btn-primary" id="coupon_accept"><%= __("Accept") %></button>&nbsp;
+						<button type="submit" class="btn btn-primary" id="coupon_accept"><%= __("Accept") %></button>&nbsp;
 						<button class="btn btn-secondary" id="coupon_cancel"><%= __("Cancel") %></button>
 						<div class="alert alert-error coupon-error fade in" style="display: none;" id="coupon_error">
 							<strong></strong>
@@ -156,7 +156,7 @@
 							<%= __("Here you can enter your coupon, which will give you a discount on this purchase.") %>
 						</div>
 					</div>
-				</div>
+				</form>
 			</div>
 			<div class="span3 buy-block-right" id="buy_block">
 				<div id="buy_available" style="margin-top: 0;">
@@ -479,16 +479,16 @@
 			e.preventDefault();
 			giftUse();
 		});
-		$('#gift_cancel, #gift_cancel_info').click(function(e) {
-			e.preventDefault();
-			giftCancel(product);
+		$('#gift_character').change(function(e) {
+			giftErrorHide();
 		});
-		$('#gift_search').click(function(e) {
+		$('#gift_form').submit(function(e) {
 			e.preventDefault();
 			giftSearch(product);
 		});
-		$('#gift_character').change(function(e) {
-			giftErrorHide();
+		$('#gift_cancel, #gift_cancel_info').click(function(e) {
+			e.preventDefault();
+			giftCancel(product);
 		});
 
 		// Coupon
@@ -507,7 +507,7 @@
 			e.preventDefault();
 			couponUse();
 		});
-		$('#coupon_accept').click(function(e) {
+		$('#coupon_form').submit(function(e) {
 			e.preventDefault();
 			couponAccept(product);
 		});
