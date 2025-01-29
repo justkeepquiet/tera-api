@@ -5,12 +5,13 @@
  * @typedef {import("express").RequestHandler} RequestHandler
  */
 
+const fs = require("fs");
 const path = require("path");
 const expressLayouts = require("express-ejs-layouts");
 const { query, body } = require("express-validator");
 const moment = require("moment-timezone");
 
-const { getFilenamesFromDirectory } = require("../utils/helpers");
+const { getFilenamesFromDirectory, isSafePath } = require("../utils/helpers");
 const {
 	accessFunctionHandler,
 	validationHandler,
@@ -105,14 +106,48 @@ module.exports.index = ({ i18n, datasheetModel, shopModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.add = () => [
+module.exports.add = ({ shopModel }) => [
 	accessFunctionHandler,
 	expressLayouts,
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const images = getFilenamesFromDirectory(imagesPath);
+		const { id, removeImage } = req.query;
+
+		if (removeImage) {
+			const slidesCount = await shopModel.slides.count({
+				where: { image: removeImage }
+			});
+
+			if (slidesCount !== 0) {
+				res.json({ result_code: 1000, msg: "image used" });
+			} else {
+				const filePath = path.join(imagesPath, removeImage);
+
+				if (!isSafePath(imagesPath, removeImage) || !fs.existsSync(filePath)) {
+					throw Error("File not found");
+				}
+
+				fs.unlinkSync(filePath);
+				res.json({ result_code: 0, msg: "success" });
+			}
+			return;
+		}
+
+		const imagesFromFolder = getFilenamesFromDirectory(imagesPath);
+		const images = [];
+
+		for (const imageFromFolder of imagesFromFolder) {
+			const slidesCount = await shopModel.slides.count({
+				where: { image: imageFromFolder }
+			});
+
+			images.push({
+				name: imageFromFolder,
+				used: slidesCount !== 0
+			});
+		}
 
 		res.render("adminShopSlidesAdd", {
 			layout: "adminLayout",
@@ -136,14 +171,41 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("displayDateEnd").trim()
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
-		body("image").trim()
+		body("image").optional({ checkFalsy: true }).trim()
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("The field must be between 1 and 2048 characters.")),
 		body("productId").trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
 	],
 	formValidationHandler(logger),
 	async (req, res, next) => {
-		const { priority, active, displayDateStart, displayDateEnd, image, productId } = req.body;
+		const { priority, active, displayDateStart, displayDateEnd, productId } = req.body;
+
+		let image = req.body.image;
+
+		if (req.files?.imageFile) {
+			const fileName = `${req.files.imageFile.md5.substring(0, 16)}.jpg`;
+			const filePath = path.join(imagesPath, fileName);
+
+			try {
+				if (!fs.existsSync(filePath)) {
+					req.files.imageFile.mv(filePath);
+				}
+
+				image = fileName;
+			} catch (err) {
+				throw Error(err);
+			}
+		}
+
+		if (!image) {
+			res.json({ result_code: 2, msg: "Invalid parameter",
+				errors: [{
+					msg: i18n.__("Background image file not selected."),
+					param: "imageFile"
+				}]
+			});
+			return;
+		}
 
 		await shopModel.slides.create({
 			priority,
@@ -172,7 +234,27 @@ module.exports.edit = ({ logger, shopModel }) => [
 	],
 	validationHandler(logger),
 	async (req, res, next) => {
-		const { id } = req.query;
+		const { id, removeImage } = req.query;
+
+		if (removeImage) {
+			const slidesCount = await shopModel.slides.count({
+				where: { image: removeImage }
+			});
+
+			if (slidesCount !== 0) {
+				res.json({ result_code: 1000, msg: "image used" });
+			} else {
+				const filePath = path.join(imagesPath, removeImage);
+
+				if (!isSafePath(imagesPath, removeImage) || !fs.existsSync(filePath)) {
+					throw Error("File not found");
+				}
+
+				fs.unlinkSync(filePath);
+				res.json({ result_code: 0, msg: "success" });
+			}
+			return;
+		}
 
 		const slide = await shopModel.slides.findOne({
 			where: { id }
@@ -182,7 +264,19 @@ module.exports.edit = ({ logger, shopModel }) => [
 			throw Error("Object not found");
 		}
 
-		const images = getFilenamesFromDirectory(imagesPath);
+		const imagesFromFolder = getFilenamesFromDirectory(imagesPath);
+		const images = [];
+
+		for (const imageFromFolder of imagesFromFolder) {
+			const slidesCount = await shopModel.slides.count({
+				where: { image: imageFromFolder }
+			});
+
+			images.push({
+				name: imageFromFolder,
+				used: slidesCount !== 0
+			});
+		}
 
 		res.render("adminShopSlidesEdit", {
 			layout: "adminLayout",
@@ -212,7 +306,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("displayDateEnd").trim()
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
-		body("image").trim()
+		body("image").optional({ checkFalsy: true }).trim()
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("The field must be between 1 and 2048 characters.")),
 		body("productId").trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
@@ -220,7 +314,34 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	formValidationHandler(logger),
 	async (req, res, next) => {
 		const { id } = req.query;
-		const { priority, active, displayDateStart, displayDateEnd, image, productId } = req.body;
+		const { priority, active, displayDateStart, displayDateEnd, productId } = req.body;
+
+		let image = req.body.image;
+
+		if (req.files?.imageFile) {
+			const fileName = `${req.files.imageFile.md5.substring(0, 16)}.jpg`;
+			const filePath = path.join(imagesPath, fileName);
+
+			try {
+				if (!fs.existsSync(filePath)) {
+					req.files.imageFile.mv(filePath);
+				}
+
+				image = fileName;
+			} catch (err) {
+				throw Error(err);
+			}
+		}
+
+		if (!image) {
+			res.json({ result_code: 2, msg: "Invalid parameter",
+				errors: [{
+					msg: i18n.__("Background image file not selected."),
+					param: "imageFile"
+				}]
+			});
+			return;
+		}
 
 		const slide = await shopModel.slides.findOne({
 			where: { id }
