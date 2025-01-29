@@ -53,12 +53,18 @@ config.validations = {
 	submitHandler: function(form) {
 		renameFormArrayFields($(form));
 		hideFormErrors();
+		var isMultipart = $(form).attr("enctype") === "multipart/form-data";
+		if (isMultipart) {
+			formData = new FormData(form);
+		} else {
+			formData = $(form).serialize();
+		}
 		$.ajax({
 			type: "POST",
 			url: $(form).attr("action") || location,
-			data: new FormData(form),
-			processData: false,
-			contentType: false,
+			data: formData,
+			processData: !isMultipart,
+			contentType: isMultipart ? false : "application/x-www-form-urlencoded; charset=UTF-8",
 			success: function(reply) {
 				if (reply.result_code === 0) {
 					location.replace(reply.success_url || location);
