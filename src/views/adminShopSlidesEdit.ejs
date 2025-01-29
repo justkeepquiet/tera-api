@@ -10,7 +10,7 @@
 		<div class="row">
 			<div class="col form">
 				<div class="card card-block">
-					<form id="form">
+					<form id="form" enctype="multipart/form-data">
 						<div class="alert alert-danger" id="errors" style="display: none;"></div>
 						<div class="form-group row">
 							<div class="col-sm-6">
@@ -51,13 +51,13 @@
 							<div class="col-sm-6">
 								<div id="image-preview-form" style="display: none;">
 									<label class="control-label" for="imagePreview"><%= __("Preview") %></label>
-									<img id="imagePreview" src="" height="138" style="display: none;">
+									<div><img id="imagePreview" src="" height="138" style="display: none;"></div>
 									<button type="button" class="btn btn-secondary mt-3" id="remove-image" style="display: none;"><i class="fa fa-trash"></i> <%= __("Remove image") %></button>
 								</div>
 								<div id="image-upload-form" style="display: none;">
 									<label class="control-label" for="imageFile"><%= __("File upload") %></label>
 									<input type="file" class="mb-2" id="imageFile" name="imageFile" accept="image/png, image/jpeg">
-									<img class="mb-2" id="imageFilePreview" src="" height="138" class="mt-3" style="display: none;">
+									<div><img class="mb-2" id="imageFilePreview" src="" height="138" class="mt-3" style="display: none;"></div>
 									<dfn><%= __("Recommended resolution:") %> 740x300</dfn>
 								</div>
 							</div>
