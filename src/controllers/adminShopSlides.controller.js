@@ -24,7 +24,22 @@ const {
 } = require("../middlewares/admin.middlewares");
 
 const imagesPath = path.join(__dirname, "../../data/shop-slides-bg");
-const fileUpload = multer({ storage: multer.memoryStorage() });
+
+const fileUpload = multer({
+	storage: multer.memoryStorage(),
+	limits: {
+		fileSize: 5 * 1024 * 1024 // 5 MB
+	},
+	fileFilter: (req, file, cb) => {
+		const allowedMimeTypes = ["image/jpeg", "image/png"];
+
+		if (allowedMimeTypes.includes(file.mimetype)) {
+			cb(null, true);
+		} else {
+			cb(new Error("Only JPG and PNG files are allowed"));
+		}
+	}
+});
 
 /**
  * @param {modules} modules
@@ -181,6 +196,16 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
 	],
 	formValidationHandler(logger),
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		if (err instanceof multer.MulterError) {
+			return res.json({ result_code: 2, msg: i18n.__(err.message) });
+		}
+
+		next();
+	},
 	async (req, res, next) => {
 		const { priority, active, displayDateStart, displayDateEnd, productId } = req.body;
 
@@ -318,6 +343,16 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
 	],
 	formValidationHandler(logger),
+	/**
+	 * @type {ErrorRequestHandler}
+	 */
+	(err, req, res, next) => {
+		if (err instanceof multer.MulterError) {
+			return res.json({ result_code: 2, msg: i18n.__(err.message) });
+		}
+
+		next();
+	},
 	async (req, res, next) => {
 		const { id } = req.query;
 		const { priority, active, displayDateStart, displayDateEnd, productId } = req.body;
