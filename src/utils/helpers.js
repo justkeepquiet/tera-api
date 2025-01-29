@@ -337,3 +337,12 @@ module.exports.loadTranslations = (localesDir, additionalDirs = []) => {
 
 	return translations;
 };
+
+/**
+* @param {string} directory
+* @param {string} file
+* @return {bool}
+*/
+module.exports.isSafePath = (directory, file) =>
+	path.resolve(directory, file).startsWith(path.resolve(directory) + path.sep)
+;
