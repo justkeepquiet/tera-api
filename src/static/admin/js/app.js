@@ -56,7 +56,9 @@ config.validations = {
 		$.ajax({
 			type: "POST",
 			url: $(form).attr("action") || location,
-			data: $(form).serialize(),
+			data: new FormData(form),
+			processData: false,
+			contentType: false,
 			success: function(reply) {
 				if (reply.result_code === 0) {
 					location.replace(reply.success_url || location);
