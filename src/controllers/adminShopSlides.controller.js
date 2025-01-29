@@ -13,7 +13,7 @@ const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const multer = require("multer");
-const sharp = require("sharp");
+const imageSize = require("image-size");
 const expressLayouts = require("express-ejs-layouts");
 const { query, body } = require("express-validator");
 const moment = require("moment-timezone");
@@ -225,9 +225,9 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 			const filePath = path.join(imagesPath, fileName);
 
 			try {
-				const metadata = await sharp(req.file.buffer).metadata();
+				const dimensions = imageSize(req.file.buffer);
 
-				if (metadata.width !== SLIDE_WIDTH || metadata.height !== SLIDE_HEIGHT) {
+				if (dimensions.width !== SLIDE_WIDTH || dimensions.height !== SLIDE_HEIGHT) {
 					res.json({
 						result_code: 2,
 						msg: i18n.__("The resolution must be: %sx%s", SLIDE_WIDTH, SLIDE_HEIGHT)
@@ -386,9 +386,9 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 			const filePath = path.join(imagesPath, fileName);
 
 			try {
-				const metadata = await sharp(req.file.buffer).metadata();
+				const dimensions = imageSize(req.file.buffer);
 
-				if (metadata.width !== SLIDE_WIDTH || metadata.height !== SLIDE_HEIGHT) {
+				if (dimensions.width !== SLIDE_WIDTH || dimensions.height !== SLIDE_HEIGHT) {
 					res.json({
 						result_code: 2,
 						msg: i18n.__("The resolution must be: %sx%s", SLIDE_WIDTH, SLIDE_HEIGHT)
