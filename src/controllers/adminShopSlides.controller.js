@@ -220,21 +220,21 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 		let image = req.body.image;
 
 		if (req.file) {
-			const metadata = await sharp(req.file.buffer).metadata();
-
-			if (metadata.width !== SLIDE_WIDTH || metadata.height !== SLIDE_HEIGHT) {
-				res.json({
-					result_code: 2,
-					msg: i18n.__("The resolution must be: %sx%s", SLIDE_WIDTH, SLIDE_HEIGHT)
-				});
-				return;
-			}
-
 			const fileHash = crypto.createHash("md5").update(req.file.buffer).digest("hex");
 			const fileName = `${fileHash.substring(0, 16)}.jpg`;
 			const filePath = path.join(imagesPath, fileName);
 
 			try {
+				const metadata = await sharp(req.file.buffer).metadata();
+
+				if (metadata.width !== SLIDE_WIDTH || metadata.height !== SLIDE_HEIGHT) {
+					res.json({
+						result_code: 2,
+						msg: i18n.__("The resolution must be: %sx%s", SLIDE_WIDTH, SLIDE_HEIGHT)
+					});
+					return;
+				}
+
 				if (!fs.existsSync(filePath)) {
 					fs.writeFileSync(filePath, req.file.buffer);
 				}
@@ -381,21 +381,21 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 		let image = req.body.image;
 
 		if (req.file) {
-			const metadata = await sharp(req.file.buffer).metadata();
-
-			if (metadata.width !== SLIDE_WIDTH || metadata.height !== SLIDE_HEIGHT) {
-				res.json({
-					result_code: 2,
-					msg: i18n.__("The resolution must be: %sx%s", SLIDE_WIDTH, SLIDE_HEIGHT)
-				});
-				return;
-			}
-
 			const fileHash = crypto.createHash("md5").update(req.file.buffer).digest("hex");
 			const fileName = `${fileHash.substring(0, 16)}.jpg`;
 			const filePath = path.join(imagesPath, fileName);
 
 			try {
+				const metadata = await sharp(req.file.buffer).metadata();
+
+				if (metadata.width !== SLIDE_WIDTH || metadata.height !== SLIDE_HEIGHT) {
+					res.json({
+						result_code: 2,
+						msg: i18n.__("The resolution must be: %sx%s", SLIDE_WIDTH, SLIDE_HEIGHT)
+					});
+					return;
+				}
+
 				if (!fs.existsSync(filePath)) {
 					fs.writeFileSync(filePath, req.file.buffer);
 				}
