@@ -10,7 +10,6 @@ const I18n = require("i18n").I18n;
 const moment = require("moment-timezone");
 const express = require("express");
 const uuid = require("uuid").v4;
-const fileUpload = require("express-fileupload");
 const session = require("express-session");
 const FileStore = require("session-file-store")(session);
 const Passport = require("passport").Passport;
@@ -144,12 +143,6 @@ module.exports = modules => {
 			authenticateUser(req, payload?.login, payload?.password, done);
 		})
 	);
-
-	modules.app.use(fileUpload({
-		limits: {
-			fileSize: 10 * 1024 * 1024 // 10 MB
-		}
-	}));
 
 	modules.app.use((req, res, next) => {
 		res.locals.__quickMenu = adminConfig.quickMenu;
