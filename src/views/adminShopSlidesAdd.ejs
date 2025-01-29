@@ -58,7 +58,7 @@
 									<label class="control-label" for="imageFile"><%= __("File upload") %></label>
 									<input type="file" class="mb-2" id="imageFile" name="imageFile" accept="image/png, image/jpeg">
 									<div><img class="mb-2" id="imageFilePreview" src="" width="350" class="mt-3" style="display: none;"></div>
-									<dfn><%= __("Recommended resolution:") %> 740x300</dfn>
+									<dfn><%= __("Required resolution: %sx%sx", SLIDE_WIDTH, SLIDE_HEIGHT) %></dfn>
 								</div>
 							</div>
 						</div>
@@ -117,19 +117,33 @@
 			});
 		});
 		$("#imageFile").change(function() {
-			const [file] = this.files;
-			const allowedTypes = ["image/jpeg", "image/png"];
-			const maxSize = 5 * 1024 * 1024; // 5 MB
+			var allowedTypes = ["image/jpeg", "image/png"];
+			var maxSize = <%= MAX_SLIDE_SIZE * 1024 * 1024 %>;
+			var width = <%= SLIDE_WIDTH %>;
+			var height = <%= SLIDE_HEIGHT %>;
+			var [file] = this.files;
+			function showError(message) {
+				$("#imageFile").val("");
+				validator.showErrors({ imageFile: message });
+			}
 			if (file) {
 				if (!allowedTypes.includes(file.type)) {
-					validator.showErrors({ imageFile: "<%= __('Only JPG and PNG files are allowed') %>" });
+					showError("<%= __('Only JPG and PNG files are allowed') %>");
 					return;
 				}
 				if (file.size > maxSize) {
-					validator.showErrors({ imageFile: "<%= __('The file is too big! Max size: %s MB', 5) %>" });
+					showError("<%= __('The file is too big! Max size: %s MB', MAX_SLIDE_SIZE) %>");
 					return;
 				}
-				$("#imageFilePreview").attr("src", URL.createObjectURL(file)).show();
+				var img = new Image();
+				img.onload = function() {
+					if (this.width !== width || this.height !== height) {
+						showError("<%= __('The resolution must be: %sx%s', SLIDE_WIDTH, SLIDE_HEIGHT) %>");
+					} else {
+						$("#imageFilePreview").attr("src", URL.createObjectURL(file)).show();
+					}
+				};
+				img.src = URL.createObjectURL(file);
 			} else {
 				$("#imageFilePreview").hide();
 			}

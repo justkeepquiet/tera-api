@@ -5,10 +5,15 @@
  * @typedef {import("express").RequestHandler} RequestHandler
  */
 
+const MAX_SLIDE_SIZE = 5; // MB
+const SLIDE_WIDTH = 740;
+const SLIDE_HEIGHT = 300;
+
 const fs = require("fs");
 const path = require("path");
 const crypto = require("crypto");
 const multer = require("multer");
+const sharp = require("sharp");
 const expressLayouts = require("express-ejs-layouts");
 const { query, body } = require("express-validator");
 const moment = require("moment-timezone");
@@ -28,7 +33,7 @@ const imagesPath = path.join(__dirname, "../../data/shop-slides-bg");
 const fileUpload = multer({
 	storage: multer.memoryStorage(),
 	limits: {
-		fileSize: 5 * 1024 * 1024 // 5 MB
+		fileSize: MAX_SLIDE_SIZE * 1024 * 1024
 	},
 	fileFilter: (req, file, cb) => {
 		const allowedMimeTypes = ["image/jpeg", "image/png"];
@@ -170,7 +175,10 @@ module.exports.add = ({ shopModel }) => [
 		res.render("adminShopSlidesAdd", {
 			layout: "adminLayout",
 			moment,
-			images
+			images,
+			MAX_SLIDE_SIZE,
+			SLIDE_WIDTH,
+			SLIDE_HEIGHT
 		});
 	}
 ];
@@ -212,6 +220,16 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 		let image = req.body.image;
 
 		if (req.file) {
+			const metadata = await sharp(req.file.buffer).metadata();
+
+			if (metadata.width !== SLIDE_WIDTH || metadata.height !== SLIDE_HEIGHT) {
+				res.json({
+					result_code: 2,
+					msg: i18n.__("The resolution must be: %sx%s", SLIDE_WIDTH, SLIDE_HEIGHT)
+				});
+				return;
+			}
+
 			const fileHash = crypto.createHash("md5").update(req.file.buffer).digest("hex");
 			const fileName = `${fileHash.substring(0, 16)}.jpg`;
 			const filePath = path.join(imagesPath, fileName);
@@ -317,7 +335,10 @@ module.exports.edit = ({ logger, shopModel }) => [
 			displayDateEnd: moment(slide.get("displayDateEnd")),
 			productId: slide.get("productId"),
 			image: slide.get("image"),
-			images
+			images,
+			MAX_SLIDE_SIZE,
+			SLIDE_WIDTH,
+			SLIDE_HEIGHT
 		});
 	}
 ],
@@ -360,6 +381,16 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 		let image = req.body.image;
 
 		if (req.file) {
+			const metadata = await sharp(req.file.buffer).metadata();
+
+			if (metadata.width !== SLIDE_WIDTH || metadata.height !== SLIDE_HEIGHT) {
+				res.json({
+					result_code: 2,
+					msg: i18n.__("The resolution must be: %sx%s", SLIDE_WIDTH, SLIDE_HEIGHT)
+				});
+				return;
+			}
+
 			const fileHash = crypto.createHash("md5").update(req.file.buffer).digest("hex");
 			const fileName = `${fileHash.substring(0, 16)}.jpg`;
 			const filePath = path.join(imagesPath, fileName);
