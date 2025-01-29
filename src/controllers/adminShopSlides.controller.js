@@ -7,6 +7,8 @@
 
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
+const multer = require("multer");
 const expressLayouts = require("express-ejs-layouts");
 const { query, body } = require("express-validator");
 const moment = require("moment-timezone");
@@ -22,6 +24,7 @@ const {
 } = require("../middlewares/admin.middlewares");
 
 const imagesPath = path.join(__dirname, "../../data/shop-slides-bg");
+const fileUpload = multer({ storage: multer.memoryStorage() });
 
 /**
  * @param {modules} modules
@@ -162,6 +165,7 @@ module.exports.add = ({ shopModel }) => [
  */
 module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
+	fileUpload.single("imageFile"),
 	[
 		body("priority").trim()
 			.isInt({ min: -1e8, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
@@ -182,13 +186,14 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 
 		let image = req.body.image;
 
-		if (req.files?.imageFile) {
-			const fileName = `${req.files.imageFile.md5.substring(0, 16)}.jpg`;
+		if (req.file) {
+			const fileHash = crypto.createHash("md5").update(req.file.buffer).digest("hex");
+			const fileName = `${fileHash.substring(0, 16)}.jpg`;
 			const filePath = path.join(imagesPath, fileName);
 
 			try {
 				if (!fs.existsSync(filePath)) {
-					req.files.imageFile.mv(filePath);
+					fs.writeFileSync(filePath, req.file.buffer);
 				}
 
 				image = fileName;
@@ -297,6 +302,7 @@ module.exports.edit = ({ logger, shopModel }) => [
  */
 module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 	accessFunctionHandler,
+	fileUpload.single("imageFile"),
 	[
 		body("priority").trim()
 			.isInt({ min: -1e8, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
@@ -318,13 +324,14 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 
 		let image = req.body.image;
 
-		if (req.files?.imageFile) {
-			const fileName = `${req.files.imageFile.md5.substring(0, 16)}.jpg`;
+		if (req.file) {
+			const fileHash = crypto.createHash("md5").update(req.file.buffer).digest("hex");
+			const fileName = `${fileHash.substring(0, 16)}.jpg`;
 			const filePath = path.join(imagesPath, fileName);
 
 			try {
 				if (!fs.existsSync(filePath)) {
-					req.files.imageFile.mv(filePath);
+					fs.writeFileSync(filePath, req.file.buffer);
 				}
 
 				image = fileName;
