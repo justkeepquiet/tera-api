@@ -21,7 +21,7 @@
 		<a class="btn btn-primary mr-2" title="" href="/tasks/restart"><%= __("Restart tasks queue") %></a>
 		<a class="btn btn-warning mr-2" title="" href="/tasks/cancel_failed?handler=<%= handler %>&amp;tag=<%= tag %>" data-toggle="modal" data-target="#confirm-del-modal"><%= __("Cancel failed tasks") %></a>
 		<a class="btn btn-danger mr-3" title="" href="/tasks/cancel_all" data-toggle="modal" data-target="#confirm-del-modal"><%= __("Cancel all tasks") %></a>
-		<a class="btn btn-success" title="" href="/tasks_logs?handler=<%= handler %>&amp;tag=<%= tag %>"><%= __("Show tasks log") %></a>
+		<a class="btn btn-secondary" title="" href="/tasks_logs?handler=<%= handler %>&amp;tag=<%= tag %>"><%= __("Show tasks log") %></a>
 	</section>
 	<section class="section" style="display: none;">
 		<div class="row">
