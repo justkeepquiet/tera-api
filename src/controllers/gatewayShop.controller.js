@@ -6,6 +6,7 @@
  */
 
 const moment = require("moment-timezone");
+const Op = require("sequelize").Op;
 const { query, body } = require("express-validator");
 
 const PromoCodeActions = require("../actions/promoCode.actions");
@@ -147,6 +148,296 @@ module.exports.FundByUserNo = modules => [
 			Return: true,
 			ReturnCode: 0,
 			Msg: "success"
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.ListCoupons = ({ accountModel, shopModel }) => [
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const coupons = await shopModel.coupons.findAll({
+			include: [{
+				as: "account",
+				model: accountModel.info,
+				required: false,
+				attributes: ["userName"]
+			}]
+		});
+
+		const data = [];
+
+		coupons.forEach(coupon => {
+			const valid = coupon.get("active") &&
+				(coupon.get("maxActivations") === 0 || coupon.get("currentActivations") < coupon.get("maxActivations")) &&
+				moment().isSameOrAfter(moment(coupon.get("validAfter"))) &&
+				moment().isSameOrBefore(moment(coupon.get("validBefore")));
+
+			data.push({
+				Id: coupon.get("couponId"),
+				String: coupon.get("coupon"),
+				Discount: coupon.get("discount"),
+				UserNo: coupon.get("accountDBID"),
+				UserName: coupon.get("account")?.get("userName") || null,
+				CurrentActivations: coupon.get("currentActivations"),
+				MaxActivations: coupon.get("maxActivations"),
+				ValidAfterTime: moment(coupon.get("validAfter")).toISOString(),
+				ValidBeforeTime: moment(coupon.get("validBefore")).toISOString(),
+				IsActive: !!coupon.get("active"),
+				IsValid: valid
+			});
+		});
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			Coupons: data
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.ListCouponsAvailableByUserNo = ({ logger, sequelize, accountModel, shopModel }) => [
+	[query("userNo").trim().isNumeric()],
+	validationHandler(logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { userNo } = req.query;
+
+		const couponsActivated = await shopModel.couponActivated.findAll({
+			where: { accountDBID: userNo },
+			include: [{
+				as: "info",
+				model: shopModel.coupons
+			}],
+			order: [
+				["createdAt", "DESC"]
+			]
+		});
+
+		const activatedCouponIds = couponsActivated.map(coupon => coupon.couponId);
+		const coupons = await shopModel.coupons.findAll({
+			where: {
+				accountDBID: userNo,
+				active: 1,
+				validAfter: { [Op.lte]: sequelize.fn("NOW") },
+				validBefore: { [Op.gte]: sequelize.fn("NOW") },
+				couponId: { [Op.notIn]: activatedCouponIds },
+				[Op.or]: [
+					{ maxActivations: { [Op.lte]: 0 } },
+					sequelize.where(
+						sequelize.col("currentActivations"),
+						{ [Op.lt]: sequelize.col("maxActivations") }
+					)
+				]
+			},
+			include: [{
+				as: "account",
+				model: accountModel.info,
+				required: false,
+				attributes: ["userName"]
+			}],
+			order: [
+				["createdAt", "DESC"]
+			]
+		});
+
+		const data = [];
+
+		coupons.forEach(coupon => {
+			data.push({
+				Id: coupon.get("couponId"),
+				String: coupon.get("coupon"),
+				Discount: coupon.get("discount"),
+				UserNo: coupon.get("accountDBID"),
+				UserName: coupon.get("account")?.get("userName") || null,
+				CurrentActivations: coupon.get("currentActivations"),
+				MaxActivations: coupon.get("maxActivations"),
+				ValidAfterTime: moment(coupon.get("validAfter")).toISOString(),
+				ValidBeforeTime: moment(coupon.get("validBefore")).toISOString()
+			});
+		});
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			Coupons: data
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.ListCouponsActivatedByUserNo = ({ logger, accountModel, shopModel }) => [
+	[query("userNo").trim().isNumeric()],
+	validationHandler(logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { userNo } = req.query;
+
+		const couponsActivated = await shopModel.couponActivated.findAll({
+			where: { accountDBID: userNo },
+			include: [
+				{
+					as: "info",
+					model: shopModel.coupons
+				},
+				{
+					as: "account",
+					model: accountModel.info,
+					required: false,
+					attributes: ["userName"]
+				}
+			]
+		});
+
+		const data = [];
+
+		couponsActivated.forEach(activated => {
+			data.push({
+				Id: activated.get("couponId"),
+				String: activated.get("info").get("coupon"),
+				Discount: activated.get("info").get("discount"),
+				UserNo: activated.get("accountDBID"),
+				UserName: activated.get("account")?.get("userName") || null,
+				ActivationTime: moment(activated.get("createdAt")).toISOString()
+			});
+		});
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			CouponsActivated: data
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.ListCouponsActivatedById = ({ logger, accountModel, shopModel }) => [
+	[query("id").trim().isNumeric()],
+	validationHandler(logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { id } = req.query;
+
+		const couponsActivated = await shopModel.couponActivated.findAll({
+			where: { couponId: id },
+			include: [
+				{
+					as: "info",
+					model: shopModel.coupons
+				},
+				{
+					as: "account",
+					model: accountModel.info,
+					required: false,
+					attributes: ["userName"]
+				}
+			]
+		});
+
+		const data = [];
+
+		couponsActivated.forEach(activated => {
+			data.push({
+				Id: activated.get("couponId"),
+				String: activated.get("info").get("coupon"),
+				Discount: activated.get("info").get("discount"),
+				UserNo: activated.get("accountDBID"),
+				UserName: activated.get("account")?.get("userName") || null,
+				ActivationTime: moment(activated.get("createdAt")).toISOString()
+
+			});
+		});
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			CouponsActivated: data
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.AddNewCoupon = ({ logger, reportModel, accountModel, shopModel }) => [
+	[
+		body("coupon").trim()
+			.isLength({ min: 3, max: 8 }).withMessage("Must be between 3 and 8 characters")
+			.custom(value => shopModel.coupons.findOne({
+				where: { coupon: value }
+			}).then(data => {
+				if (data) {
+					return Promise.reject("The field contains an existing coupon");
+				}
+			})),
+		body("discount").trim()
+			.isInt({ min: 0, max: 100 }).withMessage("Must contain a valid number"),
+		body("validAfter").trim()
+			.isISO8601().withMessage("Must contain a valid ISO 8601"),
+		body("validBefore").trim()
+			.isISO8601().withMessage("Must contain a valid ISO 8601"),
+		body("maxActivations").trim()
+			.isInt({ min: 0, max: 1e8 }).withMessage("Must contain the value as a number"),
+		body("userNo").trim().optional({ checkFalsy: true }).trim()
+			.isInt().withMessage("Must contain a valid number")
+			.custom(value => accountModel.info.findOne({
+				where: { accountDBID: value }
+			}).then(data => {
+				if (value && data === null) {
+					return Promise.reject("Contains not existing account ID");
+				}
+			}))
+	],
+	validationHandler(logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { coupon, discount, validAfter, validBefore, maxActivations, userNo } = req.body;
+
+		res.locals.__coupon = await shopModel.coupons.create({
+			coupon,
+			discount: discount,
+			validAfter: moment.tz(validAfter, req.user.tz).toDate(),
+			validBefore: moment.tz(validBefore, req.user.tz).toDate(),
+			active: true,
+			maxActivations,
+			accountDBID: userNo || null
+		});
+
+		next();
+	},
+	writeOperationReport(reportModel),
+	/**
+	 * @type {RequestHandler}
+	 */
+	(req, res, next) => {
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			UserNo: res.locals.__coupon.get("couponId")
 		});
 	}
 ];
