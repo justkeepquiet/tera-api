@@ -646,6 +646,17 @@ function loadNotifications() {
 	});
 }
 
+function showInfoModal(title, body) {
+	var modal = $("#confirm-info-modal");
+	if (title) {
+		modal.find(".modal-title span").text(title);
+	}
+	if (body) {
+		modal.find(".modal-body p").text(body);
+	}
+	modal.modal("show");
+}
+
 $(function() {
 	$(".form-panel-collapse").on("show.bs.collapse", function() {
 		$(this).siblings(".form-panel-heading").addClass("active");
@@ -663,15 +674,29 @@ $(function() {
 	}
 
 	$("#confirm-modal, #confirm-del-modal").on("show.bs.modal", function(event) {
-		$(this).find(".modal-yes").click(function() {
+		var target = $(event.relatedTarget);
+		var title = target.data("title");
+		var body = target.data("body");
+		if (title) {
+			$(this).find(".modal-title span").text(title);
+		}
+		if (body) {
+			$(this).find(".modal-body p").text(body);
+		}
+		$(this).data("targetElement", target);
+		$(this).find(".modal-yes").off("click").on("click", function() {
+			var targetElement = $("#confirm-modal, #confirm-del-modal").data("targetElement");
+			if (!targetElement) return;
 			sessionStorage.setItem("changeScroll", true);
-			if ($(event.relatedTarget).attr("href")) {
-				window.location.href = $(event.relatedTarget).attr("href");
-			} else if ($(event.relatedTarget).is("form")) {
-				$(event.relatedTarget).submit();
+			if (targetElement.attr("href")) {
+				window.location.href = targetElement.attr("href"); // follow link
+			} else if (targetElement.is("form")) {
+				targetElement.submit(); // form submit
+			} else {
+				targetElement.trigger("confirmedAction"); // click event
 			}
 		});
-		$(this).find(".modal-no").click(function() {
+		$(this).find(".modal-no").off("click").on("click", function() {
 			if ($(event.relatedTarget).is("form")) {
 				$(event.relatedTarget).trigger("reset");
 			}
