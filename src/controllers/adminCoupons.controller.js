@@ -137,7 +137,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 	async (req, res, next) => {
 		const { coupon, discount, validAfter, validBefore, maxActivations, active, accountDBID } = req.body;
 
-		await await shopModel.coupons.create({
+		await shopModel.coupons.create({
 			coupon,
 			discount: discount,
 			validAfter: moment.tz(validAfter, req.user.tz).toDate(),
