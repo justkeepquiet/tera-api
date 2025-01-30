@@ -63,8 +63,8 @@ logs.forEach(log => {
 	switch (type) {
 		case "Buy":
 		case "BuyCancel":
-			valueLink = value.replace(/^ID: (\d+)/, `${__('Product ID')}: <a href="/shop_products/edit?id=$1">$1</a>`);
-			infoLink = info.replace(/^Log ID: (\d+)/, `${__('Log ID')}: <a href="/shop_pay_logs?id=$1">$1</a>`);
+			valueLink = `${__('Product ID')}: <a href="/shop_products/edit?id=${value}">${value}</a>`;
+			infoLink = `${__('Log ID')}: <a href="/shop_pay_logs?id=${info}">${info}</a>`;
 			break;
 		case "PromoCode":
 			valueLink = `${__("Function")}: ${valueLink}`;

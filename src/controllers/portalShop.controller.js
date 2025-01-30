@@ -964,7 +964,7 @@ module.exports.PurchaseAction = modules => [
 			accountDBID: req.user.accountDBID,
 			amount: -finalCost,
 			balance: currentBalance - finalCost,
-			description: `Buy,ID: ${req.session.lastProduct.id},Log ID: ${logResult.get("id")}`
+			description: `Buy,${req.session.lastProduct.id},${logResult.get("id")}`
 		});
 
 		// no awaiting
@@ -1030,7 +1030,7 @@ module.exports.PurchaseAction = modules => [
 					accountDBID: req.user.accountDBID,
 					amount: finalCost,
 					balance: currentBalance,
-					description: `BuyCancel,ID: ${req.session.lastProduct.id},Log ID: ${logResult.get("id")}`
+					description: `BuyCancel,${req.session.lastProduct.id},${logResult.get("id")}`
 				});
 			} catch (e) {
 				modules.logger.error(e);
