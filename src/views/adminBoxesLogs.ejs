@@ -42,13 +42,33 @@ const tableData = [];
 
 logs.forEach(log => {
 	const context = JSON.parse(log.get("context"));
+	let logId = log.get("logId");
+	let logType = log.get("logType");
+
+	switch (logType) {
+		case 1:
+			logType = __("Chronoscroll");
+			break;
+		case 2:
+			logType = __("Promo code");
+			logId = `<a href="/promocodes/edit?promoCodeId=${log.get("logId")}">${log.get("logId")}</a>`;
+			break;
+		case 3:
+			logType = __("Shop");
+			logId = `<a href="/shop_pay_logs?id=${log.get("logId")}">${log.get("logId")}</a>`;
+			break;
+		case 4:
+			logType = __("Box");
+			logId = `<a href="/boxes/edit?id=${log.get("logId")}">${log.get("logId")}</a>`;
+			break;
+	}
 
 	tableData.push([
 		moment(log.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
 		log.get("boxId") || "-",
-		log.get("logType") ? __({ 1: "Chronoscroll", 2: "Promo code", 3: "Shop", 4: "Box" }[log.get("logType")]) : "-",
-		log.get("logId") || "-",
-		log.get("accountDBID"),
+		logType || "-",
+		logId || "-",
+		log.get("accountDBID"), 
 		log.get("account")?.get("userName") || "-",
 		log.get("serverId") ? `(${log.get("serverId")}) ${log.get("server")?.get("nameString") || ""}` : __("All"),
 		log.get("characterId") || __("All"),

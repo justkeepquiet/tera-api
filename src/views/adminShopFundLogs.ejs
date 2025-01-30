@@ -56,6 +56,22 @@ const tableData = [];
 
 logs.forEach(log => {
 	const [type, value, info] = log.get("description").split(",");
+
+	let valueLink = value;
+	let infoLink = info;
+
+	switch (type) {
+		case "Buy":
+		case "BuyCancel":
+			valueLink = value.replace(/^ID: (\d+)/, `${__('Product ID')}: <a href="/shop_products/edit?id=$1">$1</a>`);
+			infoLink = info.replace(/^Log ID: (\d+)/, `${__('Log ID')}: <a href="/shop_pay_logs?id=$1">$1</a>`);
+			break;
+		case "PromoCode":
+			valueLink = `${__("Function")}: ${valueLink}`;
+			infoLink = `${__('Promo code ID')}: <a href="/promocodes/edit?promoCodeId=${info}">${info}</a>`;
+			break;
+	}
+
 	tableData.push([
 		log.get("id"),
 		moment(log.get("createdAt")).tz(user.tz).format("YYYY-MM-DD HH:mm:ss"),
@@ -64,8 +80,8 @@ logs.forEach(log => {
 		log.get("amount") > 0 ? `+${log.get("amount")}` : log.get("amount"),
 		log.get("balance"),
 		__(type) || "-",
-		value || "-",
-		info || "-"
+		valueLink || "-",
+		infoLink || "-"
 	]);
 });
 _%>
