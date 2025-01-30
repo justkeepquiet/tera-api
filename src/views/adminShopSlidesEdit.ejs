@@ -52,7 +52,7 @@
 								<div id="image-preview-form" style="display: none;">
 									<label class="control-label" for="imagePreview"><%= __("Preview") %></label>
 									<div><img id="imagePreview" src="" width="350" style="display: none;"></div>
-									<button type="button" class="btn btn-secondary mt-3" id="remove-image" style="display: none;"><i class="fa fa-trash"></i> <%= __("Remove image") %></button>
+									<button type="button" class="btn btn-danger-outline mt-3" id="remove-image" data-toggle="modal" data-target="#confirm-del-modal" style="display: none;"><i class="fa fa-trash"></i> <%= __("Remove image") %></button>
 								</div>
 								<div id="image-upload-form" style="display: none;">
 									<label class="control-label" for="imageFile"><%= __("File upload") %></label>
@@ -97,7 +97,7 @@
 		$("#image").change(function() {
 			updateImage();
 		});
-		$("#remove-image").click(function() {
+		$("#remove-image").on("confirmedAction", function() {
 			var selectedImage = $("#image").val();
 			$.ajax({
 				type: "GET",
