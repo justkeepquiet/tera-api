@@ -167,7 +167,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 				const promises = [];
 
 				benefitIds.forEach((benefitId, i) => {
-					if (availableUntils[i] === undefined) {
+					if (availableUntils?.[i] === undefined) {
 						return;
 					}
 

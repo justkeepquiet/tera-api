@@ -269,7 +269,6 @@ module.exports.addAction = modules => [
 			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("discountValidBefore").optional({ checkFalsy: true }).trim()
 			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date."))
-
 	],
 	formValidationHandler(modules.logger),
 	/**
@@ -316,7 +315,7 @@ module.exports.addAction = modules => [
 					if (!resolvedItems[itemTemplateId]) return;
 
 					promises.push(serviceItem.checkCreate(
-						boxItemIds[index],
+						boxItemIds?.[index],
 						itemTemplateId,
 						resolvedItems[itemTemplateId].string,
 						formatStrsheet(resolvedItems[itemTemplateId].toolTip),
@@ -326,7 +325,7 @@ module.exports.addAction = modules => [
 							productId: product.get("id"),
 							itemTemplateId,
 							boxItemId,
-							boxItemCount: boxItemCounts[index]
+							boxItemCount: boxItemCounts?.[index]
 						})
 					));
 				});
@@ -338,8 +337,8 @@ module.exports.addAction = modules => [
 				languages.forEach(language =>
 					promises.push(modules.shopModel.productStrings.create({
 						productId: product.get("id"),
-						...title[language] ? { title: title[language] } : {},
-						...description[language] ? { description: description[language] } : {},
+						...title?.[language] ? { title: title[language] } : {},
+						...description?.[language] ? { description: description[language] } : {},
 						language
 					}))
 				);
@@ -605,8 +604,8 @@ module.exports.editAction = modules => [
 				const index = Object.keys(itemTemplateIds).find(k => itemTemplateIds[k] == itemTemplateId);
 
 				if (itemTemplateIds[index]) {
-					if (boxItemIds[index] != productItem.get("boxItemId") ||
-						boxItemCounts[index] != productItem.get("boxItemCount")
+					if (boxItemIds?.[index] != productItem.get("boxItemId") ||
+						boxItemCounts?.[index] != productItem.get("boxItemCount")
 					) {
 						if (!resolvedItems[itemTemplateId]) return;
 
@@ -619,7 +618,7 @@ module.exports.editAction = modules => [
 						).then(boxItemId =>
 							modules.shopModel.productItems.update({
 								boxItemId,
-								boxItemCount: boxItemCounts[index] || 1
+								boxItemCount: boxItemCounts?.[index] || 1
 							}, {
 								where: { id: productItem.get("id") }
 							})
@@ -668,7 +667,7 @@ module.exports.editAction = modules => [
 								productId: product.get("id"),
 								itemTemplateId,
 								boxItemId,
-								boxItemCount: boxItemCounts[index] || 1
+								boxItemCount: boxItemCounts?.[index] || 1
 							})
 						);
 					}))
@@ -678,10 +677,10 @@ module.exports.editAction = modules => [
 			product.get("strings").forEach(productString => {
 				const language = productString.get("language");
 
-				if (title[language] || description[language]) {
+				if (title?.[language] || description?.[language]) {
 					promises.push(modules.shopModel.productStrings.update({
-						title: title[language] || null,
-						description: description[language] || null
+						title: title?.[language] || null,
+						description: description?.[language] || null
 					}, {
 						where: {
 							id: productString.get("id"),
@@ -701,11 +700,11 @@ module.exports.editAction = modules => [
 			const languages = getSupportedLanguagesByDirectory(path.join(__dirname, "../locales/shop"), modules.localization);
 
 			languages.forEach(language => {
-				if (title[language] || description[language]) {
+				if (title?.[language] || description?.[language]) {
 					promises.push(modules.shopModel.productStrings.create({
 						productId: product.get("id"),
-						title: title[language] || null,
-						description: description[language] || null,
+						title: title?.[language] || null,
+						description: description?.[language] || null,
 						language
 					}, {
 						ignoreDuplicates: true

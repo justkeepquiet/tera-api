@@ -175,7 +175,7 @@ module.exports.addAction = modules => [
 					if (!resolvedItems[itemTemplateId]) return;
 
 					promises.push(serviceItem.checkCreate(
-						boxItemIds[index],
+						boxItemIds?.[index],
 						itemTemplateId,
 						resolvedItems[itemTemplateId].string,
 						formatStrsheet(resolvedItems[itemTemplateId].toolTip),
@@ -185,7 +185,7 @@ module.exports.addAction = modules => [
 							boxId: box.get("id"),
 							itemTemplateId,
 							boxItemId,
-							boxItemCount: boxItemCounts[index]
+							boxItemCount: boxItemCounts?.[index] || 1
 						})
 					));
 				});
@@ -346,13 +346,13 @@ module.exports.editAction = modules => [
 				const index = Object.keys(itemTemplateIds).find(k => itemTemplateIds[k] == itemTemplateId);
 
 				if (itemTemplateIds[index]) {
-					if (boxItemIds[index] != boxItem.get("boxItemId") ||
-						boxItemCounts[index] != boxItem.get("boxItemCount")
+					if (boxItemIds?.[index] != boxItem.get("boxItemId") ||
+						boxItemCounts?.[index] != boxItem.get("boxItemCount")
 					) {
 						if (!resolvedItems[itemTemplateId]) return;
 
 						promises.push(serviceItem.checkCreate(
-							boxItemIds[index],
+							boxItemIds?.[index],
 							itemTemplateId,
 							resolvedItems[itemTemplateId].string,
 							formatStrsheet(resolvedItems[itemTemplateId].toolTip),
@@ -360,7 +360,7 @@ module.exports.editAction = modules => [
 						).then(boxItemId =>
 							modules.boxModel.items.update({
 								boxItemId,
-								boxItemCount: boxItemCounts[index] || 1
+								boxItemCount: boxItemCounts?.[index] || 1
 							}, {
 								where: { id: boxItem.get("id") }
 							})
@@ -399,7 +399,7 @@ module.exports.editAction = modules => [
 						if (boxItem !== null || !resolvedItems[itemTemplateId]) return;
 
 						return serviceItem.checkCreate(
-							boxItemIds[index],
+							boxItemIds?.[index],
 							itemTemplateId,
 							resolvedItems[itemTemplateId].string,
 							formatStrsheet(resolvedItems[itemTemplateId].toolTip),
@@ -409,7 +409,7 @@ module.exports.editAction = modules => [
 								boxId: box.get("id"),
 								itemTemplateId,
 								boxItemId,
-								boxItemCount: boxItemCounts[index] || 1
+								boxItemCount: boxItemCounts?.[index] || 1
 							})
 						);
 					}))
