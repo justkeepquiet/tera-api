@@ -54,14 +54,14 @@ _%>
 					<%_ if (key !== "validate") { _%>
 						<div class="form-group row">
 							<div class="col-sm-4 mt-2">
-								<label class="control-label"><%= strings[key] || key %></label>
+								<label class="control-label"><%= key %></label>
 							</div>
 							<div class="col-sm-8">
 							<%_ if (body[key].constructor === Array) { _%>
 								<%_ body[key].forEach((v, k) => { _%>
 								<div class="form-group row">
 									<div class="col-sm-2 mt-2">
-										<label class="control-label">#<%= strings[k] || k %></label>
+										<label class="control-label">#<%= k %></label>
 									</div>
 									<div class="col-sm-10">
 										<input type="text" class="form-control boxed" value="<%= v %>" readonly>
@@ -72,7 +72,7 @@ _%>
 								<%_ Object.keys(body[key]).forEach(k => { _%>
 								<div class="form-group row">
 									<div class="col-sm-2 mt-2">
-										<label class="control-label"><%= strings[k] || k %></label>
+										<label class="control-label"><%= k %></label>
 									</div>
 									<div class="col-sm-10">
 										<input type="text" class="form-control boxed" value="<%= body[key][k] %>" readonly>
