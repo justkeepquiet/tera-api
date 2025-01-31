@@ -22,7 +22,7 @@ const expr = {
 	EVERY_MONDAY_AT_MIDNIGHT: "0 0 * * 1",
 	EVERY_FIRST_DAY_OF_MONTH: "0 0 1 * *",
 	EVERY_SUNDAY_AT_NOON: "0 12 * * 0",
-	EVERY_FRIDAY_AT_NOON: "0 12 * * 5"
+	EVERY_WEDNESDAY_AND_SATURDAY: "0 0 * * 6,3"
 };
 
 class Scheduler {
@@ -72,8 +72,8 @@ class Scheduler {
 
 		if (this.logger) {
 			const schedule = Object.keys(expr)
-				.find(key => expr[key] === task.schedule)
-				.toLowerCase() || task.schedule;
+				?.find(key => expr[key] === task.schedule)
+				?.toLowerCase() || task.schedule;
 
 			this.logger.debug(`Added (${taskInternal.id}): ${task.name}, schedule: ${schedule}`);
 		}
