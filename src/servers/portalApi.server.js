@@ -54,4 +54,17 @@ module.exports = async modules => {
 		env.string("API_PORTAL_LISTEN_HOST"),
 		env.number("API_PORTAL_LISTEN_PORT")
 	);
+
+	const geoipConfig = modules.config.get("geoip");
+
+	if (!geoipConfig) {
+		modules.logger.warn("Cannot read configuration: geoip");
+	} else if (geoipConfig.autoDownload?.enabled && geoipConfig.autoDownload?.autoUpdateEnabled) {
+		modules.scheduler.start({
+			name: "updateAndLoadGeoip",
+			schedule: geoipConfig.autoDownload.autoUpdateSchedule
+		}, async () => {
+			modules.geoip = await require("../modules/geoip.module")(modules, false);
+		});
+	}
 };
