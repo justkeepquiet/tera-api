@@ -11,6 +11,7 @@ const { query, body } = require("express-validator");
 
 const PromoCodeActions = require("../actions/promoCode.actions");
 const Shop = require("../actions/handlers/shop");
+const { generateRandomWord } = require("../utils/helpers");
 const { validationHandler, writeOperationReport } = require("../middlewares/gateway.middlewares");
 
 /**
@@ -382,15 +383,6 @@ module.exports.ListCouponsActivatedById = ({ logger, accountModel, shopModel }) 
  */
 module.exports.AddNewCoupon = ({ logger, reportModel, accountModel, shopModel }) => [
 	[
-		body("coupon").trim()
-			.isLength({ min: 3, max: 8 }).withMessage("Must be between 3 and 8 characters")
-			.custom(value => shopModel.coupons.findOne({
-				where: { coupon: value }
-			}).then(data => {
-				if (data) {
-					return Promise.reject("The field contains an existing coupon");
-				}
-			})),
 		body("discount").trim()
 			.isInt({ min: 0, max: 100 }).withMessage("Must contain a valid number"),
 		body("validAfter").trim()
@@ -399,13 +391,22 @@ module.exports.AddNewCoupon = ({ logger, reportModel, accountModel, shopModel })
 			.isISO8601().withMessage("Must contain a valid ISO 8601"),
 		body("maxActivations").trim()
 			.isInt({ min: 0, max: 1e8 }).withMessage("Must contain the value as a number"),
-		body("userNo").trim().optional({ checkFalsy: true }).trim()
+		body("userNo").optional({ checkFalsy: true }).trim()
 			.isInt().withMessage("Must contain a valid number")
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
 			}).then(data => {
 				if (value && data === null) {
 					return Promise.reject("Contains not existing account ID");
+				}
+			})),
+		body("string").optional({ checkFalsy: true }).trim()
+			.isLength({ min: 3, max: 8 }).withMessage("Must be between 3 and 8 characters")
+			.custom(value => shopModel.coupons.findOne({
+				where: { coupon: value }
+			}).then(data => {
+				if (data) {
+					return Promise.reject("The field contains an existing coupon");
 				}
 			}))
 	],
@@ -414,7 +415,19 @@ module.exports.AddNewCoupon = ({ logger, reportModel, accountModel, shopModel })
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
-		const { coupon, discount, validAfter, validBefore, maxActivations, userNo } = req.body;
+		const { discount, validAfter, validBefore, maxActivations, userNo } = req.body;
+		let coupon = req.body.string;
+
+		if (!coupon) {
+			let couponCount = 0;
+
+			do {
+				coupon = generateRandomWord(8);
+				couponCount = await shopModel.coupons.count({
+					where: { coupon }
+				});
+			} while (couponCount > 0);
+		}
 
 		res.locals.__coupon = await shopModel.coupons.create({
 			coupon,

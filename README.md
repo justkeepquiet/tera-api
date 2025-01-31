@@ -126,20 +126,20 @@ Endpoint                                | Method | Arguments                    
 
 ### Shop API Endpoints
 
-Endpoint                                  | Method | Arguments                                                                      | Description
----                                       | ---    | ---                                                                            | ---
-/shopApi/ListAccounts                     | GET    | -                                                                              | Retrieve a list of all shop accounts.
-/shopApi/GetAccountInfoByUserNo           | GET    | `userNo`                                                                       | Request the TERA Shop balance of the specified account ID.
-/shopApi/FundByUserNo                     | POST   | `userNo`, `transactionId`, `amount`                                            | Add funds to the TERA Shop balance of the specified account ID.
-/shopApi/ListCoupons                      | GET    | -                                                                              | Retrieve a list of all coupons.
-/shopApi/ListCouponsAvailableByUserNo     | GET    | `userNo`                                                                       | Retrieve a list of coupons available for a specified account ID.
-/shopApi/ListCouponsActivatedByUserNo     | GET    | `userNo`                                                                       | Retrieve a list of coupons that have been activated by a specified account ID.
-/shopApi/ListCouponsActivatedById         | GET    | `id`                                                                           | Retrieve details of an activated coupon by its ID.
-/shopApi/AddNewCoupon                     | POST   | `coupon`, `discount`, `validAfter`, `validBefore`, `maxActivations`, `userNo?` | Add a new coupon with the specified details.
-/shopApi/ListPromoCodes                   | GET    | -                                                                              | Retrieve a list of all available promo codes.
-/shopApi/ListPromoCodesActivatedByUserNo  | GET    | `userNo`                                                                       | Retrieve a list of promo codes activated by a specific account ID.
-/shopApi/ListPromoCodesActivatedById      | GET    | `id`                                                                           | Retrieve information about a specific activated promo code ID.
-/shopApi/ActivatePromoCodeByUserNo        | POST   | `promoCodeId`, `userNo`                                                        | Activate a specific promo code ID for a specified account ID.
+Endpoint                                  | Method | Arguments                                                                       | Description
+---                                       | ---    | ---                                                                             | ---
+/shopApi/ListAccounts                     | GET    | -                                                                               | Retrieve a list of all shop accounts.
+/shopApi/GetAccountInfoByUserNo           | GET    | `userNo`                                                                        | Request the TERA Shop balance of the specified account ID.
+/shopApi/FundByUserNo                     | POST   | `userNo`, `transactionId`, `amount`                                             | Add funds to the TERA Shop balance of the specified account ID.
+/shopApi/ListCoupons                      | GET    | -                                                                               | Retrieve a list of all coupons.
+/shopApi/ListCouponsAvailableByUserNo     | GET    | `userNo`                                                                        | Retrieve a list of coupons available for a specified account ID.
+/shopApi/ListCouponsActivatedByUserNo     | GET    | `userNo`                                                                        | Retrieve a list of coupons that have been activated by a specified account ID.
+/shopApi/ListCouponsActivatedById         | GET    | `id`                                                                            | Retrieve details of an activated coupon by its ID.
+/shopApi/AddNewCoupon                     | POST   | `discount`, `validAfter`, `validBefore`, `maxActivations`, `userNo?`, `string?` | Add a new coupon with the specified details.
+/shopApi/ListPromoCodes                   | GET    | -                                                                               | Retrieve a list of all available promo codes.
+/shopApi/ListPromoCodesActivatedByUserNo  | GET    | `userNo`                                                                        | Retrieve a list of promo codes activated by a specific account ID.
+/shopApi/ListPromoCodesActivatedById      | GET    | `id`                                                                            | Retrieve information about a specific activated promo code ID.
+/shopApi/ActivatePromoCodeByUserNo        | POST   | `promoCodeId`, `userNo`                                                         | Activate a specific promo code ID for a specified account ID.
 
 ### Box API Endpoints
 
