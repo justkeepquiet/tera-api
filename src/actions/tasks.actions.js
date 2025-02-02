@@ -41,7 +41,7 @@ class TasksActions {
 		const planetDb = this.modules.planetDbs?.get(Number(serverId));
 
 		if (!planetDb) {
-			throw Error(`Cannot find PlanetDB instance for server ID: ${serverId}`);
+			throw Error(`TasksActions: Cannot find PlanetDB instance for server ID: ${serverId}`);
 		}
 
 		const usersTotalCount = await planetDb.model.users.count({

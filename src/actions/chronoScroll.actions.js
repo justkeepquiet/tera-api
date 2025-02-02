@@ -14,15 +14,21 @@ class ChronoScrollActions {
 		this.modules = modules;
 		this.serverId = serverId;
 		this.userId = userId;
+		this.controller = {};
 
-		const config = modules.config.get("chronoScroll");
+		let config = null;
 
-		if (!config) {
-			this.modules.logger.warn("Cannot read configuration: chronoScroll");
+		try {
+			config = modules.config.get("chronoScroll");
+
+			if (!config) {
+				this.modules.logger.warn("ChronoScrollActions: Cannot read configuration: chronoScroll");
+				return;
+			}
+		} catch (err) {
+			this.modules.logger.warn(err);
 			return;
 		}
-
-		this.controller = {};
 
 		Object.keys(config).forEach(itemId => {
 			this.controller[itemId] = (...args) =>
@@ -43,12 +49,12 @@ class ChronoScrollActions {
 		});
 	}
 
-	execute(chronoId) {
+	async execute(chronoId) {
 		if (this.controller[chronoId] === undefined) {
-			return Promise.reject(`invalid chronoId: ${chronoId}`);
+			return Promise.reject(`ChronoScrollActions: Invalid chronoId: ${chronoId}`);
 		}
 
-		return this.controller[chronoId](this.modules, this.userId, this.serverId, {
+		return await this.controller[chronoId](this.modules, this.userId, this.serverId, {
 			report: `ChronoScroll,${chronoId}`,
 			logType: 1,
 			logId: chronoId

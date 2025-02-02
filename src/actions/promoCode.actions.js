@@ -14,22 +14,28 @@ class PromoCodeActions {
 		this.modules = modules;
 		this.serverId = serverId;
 		this.userId = userId;
+		this.controller = {};
 
-		const config = modules.config.get("promoCode");
+		let config = null;
 
-		if (!config) {
-			this.modules.logger.warn("Cannot read configuration: promoCode");
+		try {
+			config = modules.config.get("promoCode");
+
+			if (!config) {
+				this.modules.logger.warn("PromoCodeActions: Cannot read configuration: promoCode");
+				return;
+			}
+		} catch (err) {
+			this.modules.logger.warn(err);
 			return;
 		}
 
-		this.controller = {};
-
-		Object.keys(config).forEach(itemId => {
-			this.controller[itemId] = (...args) =>
+		Object.keys(config).forEach(func => {
+			this.controller[func] = (...args) =>
 				modules.sequelize.transaction(() => {
 					const methods = [];
 
-					config[itemId].forEach(controller => {
+					config[func].forEach(controller => {
 						const instance = new controller[0](...args);
 
 						Object.keys(controller[1]).forEach(method => {
@@ -43,12 +49,12 @@ class PromoCodeActions {
 		});
 	}
 
-	execute(func, promoCode) {
+	async execute(func, promoCode) {
 		if (this.controller[func] === undefined) {
-			return Promise.reject(`invalid promocode function: ${func}`);
+			return Promise.reject(`PromoCodeActions: Invalid promocode function: ${func}`);
 		}
 
-		return this.controller[func](this.modules, this.userId, this.serverId, {
+		return await this.controller[func](this.modules, this.userId, this.serverId, {
 			report: `PromoCode,${func},${promoCode}`,
 			logType: 2,
 			logId: promoCode
