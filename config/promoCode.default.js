@@ -5,6 +5,7 @@
 const Shop = require("../src/actions/handlers/shop");
 const Benefit = require("../src/actions/handlers/benefit");
 const ItemClaim = require("../src/actions/handlers/itemClaim");
+const Custom = require("../src/actions/handlers/custom");
 
 // Default benefit id for Elite Status
 const benefitId = process.env.API_PORTAL_BENEFIT_ID_ELITE_STATUS || 433; // TERA Club
@@ -57,5 +58,18 @@ module.exports = {
 	// COUPON-10-PERCENT
 	add_shop_coupon_10: [
 		[Shop, { addCoupon: [10, 365] }]
+	],
+
+	// CUSTOM-FUNCTION
+	custom_function_demo: [
+		[Custom, { invoke: [
+			/**
+			 * Example of callback function.
+			 * @param {modules} modules
+			 */
+			async (modules, userId, serverId) => {
+				// Implementation here
+			}
+		] }]
 	]
 };
