@@ -52,5 +52,10 @@ module.exports = {
 	// DISCOUNT-10-PERCENT
 	discount_10_percent: [
 		[Shop, { addDiscount: [10] }]
+	],
+
+	// COUPON-10-PERCENT
+	add_shop_coupon_10: [
+		[Shop, { addCoupon: [10, 365] }]
 	]
 };

@@ -4,6 +4,9 @@
  * @typedef {import("../../app").modules} modules
  */
 
+const moment = require("moment-timezone");
+const { generateRandomWord } = require("../../../src/utils/helpers");
+
 class Shop {
 	/**
 	 * @param {modules} modules
@@ -74,6 +77,28 @@ class Shop {
 				discount: percent
 			});
 		}
+	}
+
+	async addCoupon(discount, days) {
+		let coupon = null;
+		let couponCount = 0;
+
+		do {
+			coupon = generateRandomWord(8);
+			couponCount = await this.modules.shopModel.coupons.count({
+				where: { coupon }
+			});
+		} while (couponCount > 0);
+
+		await this.modules.shopModel.coupons.create({
+			coupon,
+			discount,
+			validAfter: moment().toDate(),
+			validBefore: moment().add(days, "days").toDate(),
+			active: true,
+			maxActivations: 1,
+			accountDBID: this.userId
+		});
 	}
 
 	// deprecated call
