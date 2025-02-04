@@ -12,6 +12,7 @@ const Op = require("sequelize").Op;
 const env = require("../utils/env");
 const ApiError = require("../lib/apiError");
 const ChronoScrollActions = require("../actions/chronoScroll.actions");
+const GameEventsActions = require("../actions/gameEvents.actions");
 const { getCharCountString, getBenefitsArray } = require("../utils/helpers");
 const { validationHandler } = require("../middlewares/arbiterApi.middlewares");
 
@@ -127,7 +128,9 @@ module.exports.GetUserInfo = ({ logger, sequelize, accountModel }) => [
 	async (req, res, next) => {
 		const { ip, server_id, user_srl } = req.body;
 
-		const account = await accountModel.info.findOne({ where: { accountDBID: user_srl } });
+		const account = await accountModel.info.findOne({
+			where: { accountDBID: user_srl }
+		});
 
 		if (account === null) {
 			throw new ApiError("account not exist", 50000);
@@ -174,57 +177,75 @@ module.exports.GetUserInfo = ({ logger, sequelize, accountModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.EnterGame = ({ logger, sequelize, accountModel, serverModel, reportModel }) => [
+module.exports.EnterGame = modules => [
 	[
 		body("ip").isIP(),
 		body("server_id").isNumeric(),
 		body("user_srl").isNumeric()
 	],
-	validationHandler(logger),
+	validationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { ip, server_id, user_srl } = req.body;
 
-		const account = await accountModel.info.findOne({ where: { accountDBID: user_srl } });
+		const account = await modules.accountModel.info.findOne({
+			where: { accountDBID: user_srl }
+		});
 
 		if (account === null) {
 			throw new ApiError("account not exist", 50000);
 		}
 
-		await sequelize.transaction(async () => {
-			await accountModel.info.update({
+		const actions = new GameEventsActions(modules, server_id, user_srl);
+
+		try {
+			if (account.get("playCount") === 0) {
+				await actions.execute("enterGameFirst", req.body);
+			}
+		} catch (err) {
+			modules.logger.warn(err);
+		}
+
+		await modules.sequelize.transaction(async () => {
+			await modules.accountModel.info.update({
 				...!ipFromLauncher ? { lastLoginIP: ip } : {},
 				lastLoginTime: moment().toDate(),
 				lastLoginServer: server_id,
-				playCount: sequelize.literal("playCount + 1")
+				playCount: modules.sequelize.literal("playCount + 1")
 			}, {
 				where: { accountDBID: user_srl }
 			});
 
-			await serverModel.info.increment({ usersOnline: 1 }, {
+			await modules.serverModel.info.increment({ usersOnline: 1 }, {
 				where: { serverId: server_id }
 			});
 
-			await accountModel.online.create({
+			await modules.accountModel.online.create({
 				accountDBID: user_srl,
 				serverId: server_id
 			});
 
 			if (reportActivity) {
 				try {
-					await reportModel.activity.create({
+					await modules.reportModel.activity.create({
 						accountDBID: user_srl,
 						serverId: server_id,
 						ip: ipFromLauncher ? account.get("lastLoginIP") : ip,
 						reportType: 1
 					});
 				} catch (err) {
-					logger.error(err);
+					modules.logger.error(err);
 				}
 			}
 		});
+
+		try {
+			await actions.execute("enterGame", req.body);
+		} catch (err) {
+			modules.logger.warn(err);
+		}
 
 		res.json({ result_code: 0 });
 	}
@@ -233,25 +254,27 @@ module.exports.EnterGame = ({ logger, sequelize, accountModel, serverModel, repo
 /**
  * @param {modules} modules
  */
-module.exports.LeaveGame = ({ logger, sequelize, accountModel, serverModel, reportModel }) => [
+module.exports.LeaveGame = modules => [
 	[
 		body("play_time").isNumeric(),
 		body("user_srl").isNumeric()
 	],
-	validationHandler(logger),
+	validationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { play_time, user_srl } = req.body;
 
-		await sequelize.transaction(async () => {
-			const account = await accountModel.info.findOne({ where: { accountDBID: user_srl } });
+		await modules.sequelize.transaction(async () => {
+			const account = await modules.accountModel.info.findOne({
+				where: { accountDBID: user_srl }
+			});
 
 			if (account !== null) {
 				if (reportActivity) {
 					try {
-						await reportModel.activity.create({
+						await modules.reportModel.activity.create({
 							accountDBID: user_srl,
 							serverId: account.get("lastLoginServer"),
 							ip: account.get("lastLoginIP"),
@@ -259,11 +282,11 @@ module.exports.LeaveGame = ({ logger, sequelize, accountModel, serverModel, repo
 							reportType: 2
 						});
 					} catch (err) {
-						logger.error(err);
+						modules.logger.error(err);
 					}
 				}
 
-				await serverModel.info.decrement({ usersOnline: 1 }, {
+				await modules.serverModel.info.decrement({ usersOnline: 1 }, {
 					where: {
 						serverId: account.get("lastLoginServer"),
 						usersOnline: { [Op.gt]: 0 }
@@ -271,17 +294,25 @@ module.exports.LeaveGame = ({ logger, sequelize, accountModel, serverModel, repo
 				});
 			}
 
-			await accountModel.info.update({
+			await modules.accountModel.info.update({
 				playTimeLast: play_time,
-				playTimeTotal: sequelize.literal(`playTimeTotal + ${play_time}`)
+				playTimeTotal: modules.sequelize.literal(`playTimeTotal + ${play_time}`)
 			}, {
 				where: { accountDBID: user_srl }
 			});
 
-			await accountModel.online.destroy({
+			await modules.accountModel.online.destroy({
 				where: { accountDBID: user_srl }
 			});
 		});
+
+		const actions = new GameEventsActions(modules, null, user_srl);
+
+		try {
+			await actions.execute("leaveGame", req.body);
+		} catch (err) {
+			modules.logger.warn(err);
+		}
 
 		res.json({ result_code: 0 });
 	}
@@ -290,7 +321,7 @@ module.exports.LeaveGame = ({ logger, sequelize, accountModel, serverModel, repo
 /**
  * @param {modules} modules
  */
-module.exports.CreateChar = ({ logger, sequelize, accountModel, serverModel, reportModel }) => [
+module.exports.CreateChar = modules => [
 	[
 		body("server_id").isNumeric(),
 		body("user_srl").isNumeric(),
@@ -301,19 +332,19 @@ module.exports.CreateChar = ({ logger, sequelize, accountModel, serverModel, rep
 		body("race_id").isNumeric(),
 		body("char_name").notEmpty()
 	],
-	validationHandler(logger),
+	validationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { char_name, char_srl, class_id, gender_id, level, race_id, server_id, user_srl } = req.body;
 
-		await sequelize.transaction(async () => {
-			await serverModel.info.increment({ usersTotal: 1 }, {
+		await modules.sequelize.transaction(async () => {
+			await modules.serverModel.info.increment({ usersTotal: 1 }, {
 				where: { serverId: server_id }
 			});
 
-			await accountModel.characters.create({
+			await modules.accountModel.characters.create({
 				characterId: char_srl,
 				serverId: server_id,
 				accountDBID: user_srl,
@@ -326,7 +357,7 @@ module.exports.CreateChar = ({ logger, sequelize, accountModel, serverModel, rep
 
 			if (reportCharacters) {
 				try {
-					await reportModel.characters.create({
+					await modules.reportModel.characters.create({
 						characterId: char_srl,
 						serverId: server_id,
 						accountDBID: user_srl,
@@ -338,10 +369,18 @@ module.exports.CreateChar = ({ logger, sequelize, accountModel, serverModel, rep
 						reportType: 1
 					});
 				} catch (err) {
-					logger.error(err);
+					modules.logger.error(err);
 				}
 			}
 		});
+
+		const actions = new GameEventsActions(modules, server_id, user_srl);
+
+		try {
+			await actions.execute("createChar", req.body);
+		} catch (err) {
+			modules.logger.warn(err);
+		}
 
 		res.json({ result_code: 0 });
 	}
@@ -350,7 +389,7 @@ module.exports.CreateChar = ({ logger, sequelize, accountModel, serverModel, rep
 /**
  * @param {modules} modules
  */
-module.exports.ModifyChar = ({ logger, sequelize, accountModel, reportModel }) => [
+module.exports.ModifyChar = modules => [
 	[
 		body("char_srl").isNumeric(),
 		body("server_id").isNumeric(),
@@ -360,7 +399,7 @@ module.exports.ModifyChar = ({ logger, sequelize, accountModel, reportModel }) =
 		body("level").optional().isNumeric(),
 		body("race_id").optional().isNumeric()
 	],
-	validationHandler(logger),
+	validationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -378,10 +417,30 @@ module.exports.ModifyChar = ({ logger, sequelize, accountModel, reportModel }) =
 			return res.json({ result_code: 0 });
 		}
 
-		await sequelize.transaction(async () => {
+		const actions = new GameEventsActions(modules, server_id, user_srl);
+
+		if (fields.level) {
+			try {
+				const character = await modules.accountModel.characters.findOne({
+					where: {
+						characterId: char_srl,
+						serverId: server_id,
+						accountDBID: user_srl
+					}
+				});
+
+				if (character === null || fields.level > character.get("level")) {
+					await actions.execute("charLevelUp", req.body);
+				}
+			} catch (err) {
+				modules.logger.warn(err);
+			}
+		}
+
+		await modules.sequelize.transaction(async () => {
 			if (reportCharacters) {
 				try {
-					await reportModel.characters.create({
+					await modules.reportModel.characters.create({
 						characterId: char_srl,
 						serverId: server_id,
 						accountDBID: user_srl,
@@ -389,11 +448,11 @@ module.exports.ModifyChar = ({ logger, sequelize, accountModel, reportModel }) =
 						reportType: 2
 					});
 				} catch (err) {
-					logger.error(err);
+					modules.logger.error(err);
 				}
 			}
 
-			await accountModel.characters.update(fields, {
+			await modules.accountModel.characters.update(fields, {
 				where: {
 					characterId: char_srl,
 					serverId: server_id,
@@ -401,6 +460,12 @@ module.exports.ModifyChar = ({ logger, sequelize, accountModel, reportModel }) =
 				}
 			});
 		});
+
+		try {
+			await actions.execute("modifyChar", req.body);
+		} catch (err) {
+			modules.logger.warn(err);
+		}
 
 		res.json({ result_code: 0 });
 	}
@@ -409,28 +474,28 @@ module.exports.ModifyChar = ({ logger, sequelize, accountModel, reportModel }) =
 /**
  * @param {modules} modules
  */
-module.exports.DeleteChar = ({ logger, sequelize, accountModel, serverModel, reportModel }) => [
+module.exports.DeleteChar = modules => [
 	[
 		body("char_srl").isNumeric(),
 		body("server_id").isNumeric(),
 		body("user_srl").isNumeric()
 	],
-	validationHandler(logger),
+	validationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
 	async (req, res, next) => {
 		const { char_srl, server_id, user_srl } = req.body;
 
-		await sequelize.transaction(async () => {
-			await serverModel.info.decrement({ usersTotal: 1 }, {
+		await modules.sequelize.transaction(async () => {
+			await modules.serverModel.info.decrement({ usersTotal: 1 }, {
 				where: {
 					serverId: server_id,
 					usersTotal: { [Op.gt]: 0 }
 				}
 			});
 
-			await accountModel.characters.destroy({
+			await modules.accountModel.characters.destroy({
 				where: {
 					characterId: char_srl,
 					serverId: server_id,
@@ -440,17 +505,25 @@ module.exports.DeleteChar = ({ logger, sequelize, accountModel, serverModel, rep
 
 			if (reportCharacters) {
 				try {
-					await reportModel.characters.create({
+					await modules.reportModel.characters.create({
 						characterId: char_srl,
 						serverId: server_id,
 						accountDBID: user_srl,
 						reportType: 3
 					});
 				} catch (err) {
-					logger.error(err);
+					modules.logger.error(err);
 				}
 			}
 		});
+
+		const actions = new GameEventsActions(modules, server_id, user_srl);
+
+		try {
+			await actions.execute("deleteChar", req.body);
+		} catch (err) {
+			modules.logger.warn(err);
+		}
 
 		res.json({ result_code: 0 });
 	}
@@ -495,7 +568,7 @@ module.exports.UseChronoScroll = modules => [
 /**
  * @param {modules} modules
  */
-module.exports.ReportCheater = ({ logger, accountModel, reportModel }) => [
+module.exports.ReportCheater = modules => [
 	[
 		body("cheat_info").isNumeric(),
 		body("ip").isIP(),
@@ -503,7 +576,7 @@ module.exports.ReportCheater = ({ logger, accountModel, reportModel }) => [
 		body("type").isNumeric(),
 		body("usr_srl").isNumeric()
 	],
-	validationHandler(logger),
+	validationHandler(modules.logger),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -514,19 +587,31 @@ module.exports.ReportCheater = ({ logger, accountModel, reportModel }) => [
 			return res.json({ result_code: 0 });
 		}
 
-		const account = await accountModel.info.findOne({ where: { accountDBID: usr_srl } });
+		const account = await modules.accountModel.info.findOne({
+			where: { accountDBID: usr_srl }
+		});
 
 		if (account === null) {
 			throw new ApiError("account not exist", 50000);
 		}
 
-		await reportModel.cheats.create({
+		const userIp = ipFromLauncher ? account.get("lastLoginIP") : ip;
+
+		await modules.reportModel.cheats.create({
 			accountDBID: usr_srl,
 			serverId: svr_id,
-			ip: ipFromLauncher ? account.get("lastLoginIP") : ip,
+			ip: userIp,
 			type,
 			cheatInfo: cheat_info
 		});
+
+		const actions = new GameEventsActions(modules, svr_id, usr_srl);
+
+		try {
+			await actions.execute("reportCheater", { ...req.body, ip: userIp });
+		} catch (err) {
+			modules.logger.warn(err);
+		}
 
 		res.json({ result_code: 0 });
 	}
