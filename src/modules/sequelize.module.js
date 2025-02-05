@@ -71,7 +71,7 @@ module.exports = async modules => {
 
 	sequelizeLogger.info("Connected.");
 
-	const migrationsDir = path.join(__dirname, "migrations");
+	const migrationsDir = path.join(__dirname, "../migrations");
 	const syncTables = await databaseMigrationProcedure(sequelize, sequelizeLogger, migrationsDir, "dbVersion", modules.versions.db);
 
 	if (syncTables) {
