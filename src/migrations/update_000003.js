@@ -44,7 +44,7 @@ module.exports = {
 		});
 
 		// `shop_accounts`
-		await queryInterface.addColumn("shop_accounts", "balance", {
+		await queryInterface.addColumn("shop_accounts", "discount", {
 			type: Sequelize.DataTypes.INTEGER(11),
 			allowNull: false,
 			defaultValue: 0,
@@ -134,7 +134,7 @@ module.exports = {
 		});
 
 		// `report_shop_fund`
-		await queryInterface.addColumn("report_shop_fund", "balance", {
+		await queryInterface.addColumn("report_shop_fund", "discount", {
 			type: Sequelize.DataTypes.INTEGER(11),
 			allowNull: false,
 			after: "amount"
