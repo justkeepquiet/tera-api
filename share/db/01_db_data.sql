@@ -16,6 +16,7 @@ INSERT IGNORE INTO `server_strings` (`language`, `categoryPvE`, `categoryPvP`, `
 	('ru', 'PvE', 'PvP', 'Отключен', 'Низко', 'Средне', 'Высоко', 'Нет', 'Да', 'В настоящее время невозможно войти на сервер.'),
 	('se', 'PvE', 'PvP', 'Offline', 'Låg', 'Medel', 'Hög', 'Nej', 'Ja', 'Kan inte ansluta till servern för tillfället.'),
 	('th', 'PvE', 'PvP', 'ออฟไลน์', 'ต่ำ', 'กลาง', 'สูง', 'ไม่', 'ใช่', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้ในขณะนี้'),
+	('us', 'PvE', 'PvP', 'Offline', 'Low', 'Medium', 'High', 'No', 'Yes', 'Unable to access the server at this time.'),
 	('tw', 'PvE', 'PvP', '離線', '低', '中', '高', '否', '是', '目前無法連線到伺服器。');
 /*!40000 ALTER TABLE `server_strings` ENABLE KEYS */;
 
