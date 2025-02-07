@@ -24,7 +24,7 @@ const portalLauncherController = require("../../controllers/portalLauncher.contr
 /**
  * @param {modules} modules
  */
-module.exports = modules => {
+module.exports = async modules => {
 	if (!modules.config.get("launcher")) {
 		throw "Cannot read configuration: launcher";
 	}

@@ -50,7 +50,7 @@ const adminLauncherLogsController = require("../../controllers/adminLauncherLogs
 /**
 * @param {modules} modules
 */
-module.exports = modules => {
+module.exports = async modules => {
 	const adminConfig = modules.config.get("admin");
 
 	if (!adminConfig) {
@@ -60,7 +60,7 @@ module.exports = modules => {
 	const passport = new Passport();
 	const additionalLocalesDirs = [];
 
-	modules.pluginsLoader.loadComponent("locales.adminPanel", additionalLocalesDirs);
+	await modules.pluginsLoader.loadComponent("locales.adminPanel", additionalLocalesDirs);
 
 	const i18n = new I18n({
 		staticCatalog: helpers.loadTranslations(path.resolve(__dirname, "../../locales/admin"), additionalLocalesDirs),
@@ -358,7 +358,7 @@ module.exports = modules => {
 		.get("/tasks_logs", adminTasksLogsController.index(mod))
 	;
 
-	modules.pluginsLoader.loadComponent("routes.adminPanel.admin", router, mod);
+	await modules.pluginsLoader.loadComponent("routes.adminPanel.admin", router, mod);
 
 	router.use(
 		/**

@@ -13,7 +13,7 @@ const gatewayBoxController = require("../../controllers/gatewayBox.controller");
 /**
  * @param {modules} modules
  */
-module.exports = modules => express.Router()
+module.exports = async modules => express.Router()
 	.get("/ListBoxes", gatewayBoxController.ListBoxes(modules))
 	.post("/SendBoxToAccountByUserNo", gatewayBoxController.SendBoxToAccountByUserNo(modules))
 	.post("/SendBoxesToAllByServerId", gatewayBoxController.SendBoxesToAllByServerId(modules))

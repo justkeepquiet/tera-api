@@ -96,7 +96,7 @@ async function loadModules() {
 		logger: createLogger("Background Queue")
 	});
 
-	modules.pluginsLoader.loadComponent("app.moduleLoader.before");
+	await modules.pluginsLoader.loadComponent("app.moduleLoader.before");
 
 	modules.datasheetModel = await require("./modules/datasheetModel.module")(modules);
 	modules.sequelize = await require("./modules/sequelize.module")(modules);
@@ -107,7 +107,7 @@ async function loadModules() {
 	modules.ipapi = await require("./modules/ipapi.module")(modules);
 	modules.mailer = await require("./modules/mailer.module")(modules);
 
-	modules.pluginsLoader.loadComponent("app.moduleLoader.after");
+	await modules.pluginsLoader.loadComponent("app.moduleLoader.after");
 
 	return modules;
 }
@@ -116,14 +116,14 @@ async function loadModules() {
  * @param {modules} modules
  */
 async function startServers(modules) {
-	modules.pluginsLoader.loadComponent("app.startServers.before", modules);
+	await modules.pluginsLoader.loadComponent("app.startServers.before", modules);
 
 	await require("./servers/arbiterApi.server")(modules);
 	await require("./servers/portalApi.server")(modules);
 	await require("./servers/gatewayApi.server")(modules);
 	await require("./servers/adminPanel.server")(modules);
 
-	modules.pluginsLoader.loadComponent("app.startServers.after", modules);
+	await modules.pluginsLoader.loadComponent("app.startServers.after", modules);
 	modules.logger.info(`Served components: ${cliOptions.component || "all"}`);
 
 	if (global.gc) {

@@ -15,7 +15,7 @@ const portalSlsController = require("../../controllers/portalSls.controller");
 /**
  * @param {modules} modules
  */
-module.exports = modules => {
+module.exports = async modules => {
 	if (!modules.config.get("slsOverride")) {
 		modules.logger.warn("Cannot read configuration: slsOverride");
 	}

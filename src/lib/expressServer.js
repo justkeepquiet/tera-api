@@ -104,8 +104,8 @@ class ExpressServer {
 		this.app.use(endpoint, express.static(directory));
 	}
 
-	setRouter(router) {
-		require(router)(this.modules);
+	async setRouter(router) {
+		await require(router)(this.modules);
 	}
 
 	setViews(views) {

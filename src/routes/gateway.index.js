@@ -7,9 +7,9 @@
 /**
 * @param {modules} modules
 */
-module.exports = modules => {
-	modules.app.use("/serverApi", require("./gateway/serverApi.routes")(modules));
-	modules.app.use("/accountApi", require("./gateway/accountApi.routes")(modules));
-	modules.app.use("/shopApi", require("./gateway/shopApi.routes")(modules));
-	modules.app.use("/boxApi", require("./gateway/boxApi.routes")(modules));
+module.exports = async modules => {
+	modules.app.use("/serverApi", await require("./gateway/serverApi.routes")(modules));
+	modules.app.use("/accountApi", await require("./gateway/accountApi.routes")(modules));
+	modules.app.use("/shopApi", await require("./gateway/shopApi.routes")(modules));
+	modules.app.use("/boxApi", await require("./gateway/boxApi.routes")(modules));
 };

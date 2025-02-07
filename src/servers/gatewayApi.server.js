@@ -32,9 +32,9 @@ module.exports = async modules => {
 
 	es.setLogging();
 
-	modules.pluginsLoader.loadComponent("routers.gatewayApi.before", es);
-	es.setRouter("../routes/gateway.index");
-	modules.pluginsLoader.loadComponent("routers.gatewayApi.after", es);
+	await modules.pluginsLoader.loadComponent("routers.gatewayApi.before", es);
+	await es.setRouter("../routes/gateway.index");
+	await modules.pluginsLoader.loadComponent("routers.gatewayApi.after", es);
 
 	await es.bind(
 		env.string("API_GATEWAY_LISTEN_HOST"),

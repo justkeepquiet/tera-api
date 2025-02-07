@@ -23,7 +23,7 @@ const portalShopController = require("../../controllers/portalShop.controller");
 /**
  * @param {modules} modules
  */
-module.exports = modules => {
+module.exports = async modules => {
 	if (!modules.config.get("shop")) {
 		throw "Cannot read configuration: shop";
 	}

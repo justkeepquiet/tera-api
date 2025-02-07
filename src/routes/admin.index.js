@@ -7,8 +7,8 @@
 /**
 * @param {modules} modules
 */
-module.exports = modules => {
-	modules.app.use("/", require("./admin/admin.routes")(modules));
+module.exports = async modules => {
+	modules.app.use("/", await require("./admin/admin.routes")(modules));
 
 	modules.app.use((req, res) =>
 		res.redirect("/")

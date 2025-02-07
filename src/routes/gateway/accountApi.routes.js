@@ -13,7 +13,7 @@ const gatewayAccountController = require("../../controllers/gatewayAccount.contr
 /**
  * @param {modules} modules
  */
-module.exports = modules => express.Router()
+module.exports = async modules => express.Router()
 	.get("/ListAccounts", gatewayAccountController.ListAccounts(modules))
 	.get("/ListCharactersByUserNo", gatewayAccountController.ListCharactersByUserNo(modules))
 	.get("/ListBenefitsByUserNo", gatewayAccountController.ListBenefitsByUserNo(modules))

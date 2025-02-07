@@ -41,14 +41,14 @@ module.exports = async modules => {
 		es.setStatic("/public/shop/images/tera-icons", "data/tera-icons");
 		es.setStatic("/public/shop/images/shop-slides-bg", "data/shop-slides-bg");
 		es.setStatic("/public", "public");
-		modules.pluginsLoader.loadComponent("static.portalApi", es);
+		await modules.pluginsLoader.loadComponent("static.portalApi", es);
 	}
 
 	es.setLogging();
 
-	modules.pluginsLoader.loadComponent("routers.portalApi.before", es);
-	es.setRouter("../routes/portal.index");
-	modules.pluginsLoader.loadComponent("routers.portalApi.after", es);
+	await modules.pluginsLoader.loadComponent("routers.portalApi.before", es);
+	await es.setRouter("../routes/portal.index");
+	await modules.pluginsLoader.loadComponent("routers.portalApi.after", es);
 
 	await es.bind(
 		env.string("API_PORTAL_LISTEN_HOST"),

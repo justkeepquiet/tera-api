@@ -41,13 +41,13 @@ module.exports = async modules => {
 	es.setStatic("/static/images/tera-icons", "data/tera-icons");
 	es.setStatic("/static/images/shop-slides-bg", "data/shop-slides-bg");
 	es.setStatic("/static", "src/static/admin");
-	modules.pluginsLoader.loadComponent("static.adminPanel", es);
+	await modules.pluginsLoader.loadComponent("static.adminPanel", es);
 
 	es.setLogging();
 
-	modules.pluginsLoader.loadComponent("routers.adminPanel.before", es);
-	es.setRouter("../routes/admin.index");
-	modules.pluginsLoader.loadComponent("routers.adminPanel.after", es);
+	await modules.pluginsLoader.loadComponent("routers.adminPanel.before", es);
+	await es.setRouter("../routes/admin.index");
+	await modules.pluginsLoader.loadComponent("routers.adminPanel.after", es);
 
 	await es.bind(
 		env.string("ADMIN_PANEL_LISTEN_HOST"),

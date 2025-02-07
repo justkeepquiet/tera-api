@@ -13,7 +13,7 @@ const arbiterApiController = require("../../controllers/arbiterApi.controller");
 /**
  * @param {modules} modules
  */
-module.exports = modules => express.Router()
+module.exports = async modules => express.Router()
 	.get("/ServiceTest", arbiterApiController.ServiceTest(modules))
 	.post("/GetServerPermission", arbiterApiController.GetServerPermission(modules))
 	.post("/ServerDown", arbiterApiController.ServerDown(modules))

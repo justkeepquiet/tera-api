@@ -30,7 +30,8 @@ module.exports = async modules => {
 	});
 
 	es.setLogging();
-	es.setRouter("../routes/arbiter.index");
+
+	await es.setRouter("../routes/arbiter.index");
 
 	await es.bind(
 		env.string("API_ARBITER_LISTEN_HOST"),

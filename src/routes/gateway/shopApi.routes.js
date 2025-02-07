@@ -13,7 +13,7 @@ const gatewayShopController = require("../../controllers/gatewayShop.controller"
 /**
  * @param {modules} modules
  */
-module.exports = modules => express.Router()
+module.exports = async modules => express.Router()
 	.get("/ListAccounts", gatewayShopController.ListAccounts(modules))
 	.get("/GetAccountInfoByUserNo", gatewayShopController.GetAccountInfoByUserNo(modules))
 	.post("/FundByUserNo", gatewayShopController.FundByUserNo(modules))

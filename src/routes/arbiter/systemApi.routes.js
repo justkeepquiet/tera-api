@@ -13,7 +13,7 @@ const arbiterAuthController = require("../../controllers/arbiterAuth.controller"
 /**
  * @param {modules} modules
  */
-module.exports = modules => express.Router()
+module.exports = async modules => express.Router()
 	.get("/RequestAPIServerStatusAvailable", arbiterAuthController.RequestAPIServerStatusAvailable(modules))
 
 	.use(
