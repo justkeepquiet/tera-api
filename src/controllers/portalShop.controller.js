@@ -72,6 +72,14 @@ const checkLockedCoupon = (req, couponId, maxActivations, currentActivations) =>
 	return false;
 };
 
+const getMaxProductQuantity = items => {
+	const maxSlots = 40; // max number of box slots
+	const totalSlotsPerCopy = items.reduce((sum, item) =>
+		sum + Math.ceil(item.boxItemCount / item.maxStack || 1), 0);
+
+	return Math.floor(maxSlots / totalSlotsPerCopy);
+};
+
 /**
  * @param {modules} modules
  */
@@ -446,6 +454,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, serverModel, sho
 				boxItemId: item.get("boxItemId"),
 				boxItemCount: item.get("boxItemCount"),
 				icon: itemData?.icon,
+				maxStack: itemData?.maxStack,
 				rareGrade: itemData?.rareGrade,
 				string: strSheetItem?.string
 			});
@@ -492,6 +501,8 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, serverModel, sho
 
 		product.tradable = itemData.tradable;
 		product.warehouseStorable = itemData.warehouseStorable;
+
+		product.maxQuantity = Math.min(99, getMaxProductQuantity(product.items)); // no more than 99 copies
 
 		unlockLockedCoupon(req);
 		req.session.lastProduct = product; // add product to session
@@ -881,6 +892,12 @@ module.exports.PurchaseAction = modules => [
 			}
 
 			quantity = 1;
+		}
+
+		const maxQuantity = Math.min(99, getMaxProductQuantity(req.session.lastProduct.items)); // no more than 99 copies
+
+		if (quantity > maxQuantity) {
+			throw new ApiError("The quantity of the product is greater than that available", 2002);
 		}
 
 		const serviceItem = new ServiceItem(modules);

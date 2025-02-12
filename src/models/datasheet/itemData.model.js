@@ -19,6 +19,7 @@ class ItemDataModel {
 					linkSkillId: attributes.linkSkillId || null,
 					linkSkillPeriodDay: attributes.linkSkillPeriodDay || null,
 					icon: attributes.icon.split(".").at(-1).toLowerCase(),
+					maxStack: attributes.maxStack,
 					rareGrade: attributes.rareGrade,
 					requiredLevel: attributes.requiredLevel || null,
 					requiredClass: attributes.requiredClass?.toLowerCase() || null,
