@@ -866,6 +866,7 @@ module.exports.PurchaseAction = modules => [
 
 			const couponActivated = await modules.shopModel.couponActivated.findOne({
 				where: {
+					accountDBID: req.user.accountDBID,
 					couponId: req.session.lastProduct.couponId
 				}
 			});
@@ -984,6 +985,18 @@ module.exports.PurchaseAction = modules => [
 			});
 
 			if (isPriceChangedByCoupon && req.session.lastProduct.couponId) {
+				const couponActivated = await modules.shopModel.couponActivated.findOne({
+					where: {
+						accountDBID: req.user.accountDBID,
+						couponId: req.session.lastProduct.couponId
+					},
+					lock: transaction.LOCK.UPDATE
+				});
+
+				if (couponActivated !== null) {
+					throw new ApiError("This coupon has already been activated", 4010);
+				}
+
 				await modules.shopModel.couponActivated.create({
 					couponId: req.session.lastProduct.couponId,
 					accountDBID: req.user.accountDBID,
