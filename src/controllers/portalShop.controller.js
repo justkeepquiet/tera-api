@@ -824,21 +824,6 @@ module.exports.PurchaseAction = modules => [
 			throw new ApiError("Product was not found", 2001);
 		}
 
-		let shopAccount = await modules.shopModel.accounts.findOne({
-			where: {
-				accountDBID: req.user.accountDBID,
-				active: 1
-			}
-		});
-
-		if (shopAccount === null) {
-			shopAccount = await modules.shopModel.accounts.create({
-				accountDBID: req.user.accountDBID,
-				balance: 0,
-				active: true
-			});
-		}
-
 		let recipientCharacter = null;
 
 		if (recipientUserId) {
@@ -864,19 +849,19 @@ module.exports.PurchaseAction = modules => [
 			});
 
 			if (shopCoupon === null) {
-				throw new ApiError("This coupon was not found", 1000);
+				throw new ApiError("This coupon was not found", 4000);
 			}
 
 			if (moment(shopCoupon.get("dateNow")).isBefore(shopCoupon.get("validAfter")) ||
 				moment(shopCoupon.get("dateNow")).isAfter(shopCoupon.get("validBefore"))
 			) {
-				throw new ApiError("Coupon has expired or has not started yet", 1001);
+				throw new ApiError("Coupon has expired or has not started yet", 4001);
 			}
 
 			if (shopCoupon.get("maxActivations") > 0 &&
 				shopCoupon.get("currentActivations") >= shopCoupon.get("maxActivations")
 			) {
-				throw new ApiError("Activation limit for this coupon has been exceeded", 1002);
+				throw new ApiError("Activation limit for this coupon has been exceeded", 4002);
 			}
 
 			const couponActivated = await modules.shopModel.couponActivated.findOne({
@@ -886,12 +871,12 @@ module.exports.PurchaseAction = modules => [
 			});
 
 			if (couponActivated !== null) {
-				throw new ApiError("This coupon has already been activated", 1010);
+				throw new ApiError("This coupon has already been activated", 4010);
 			}
 
 			// check locking
 			if (checkLockedCoupon(req, shopCoupon.get("couponId"), shopCoupon.get("maxActivations"), shopCoupon.get("currentActivations"))) {
-				throw new ApiError("This coupon has already been activated", 1010);
+				throw new ApiError("This coupon has already been activated", 4010);
 			}
 
 			quantity = 1;
@@ -947,9 +932,6 @@ module.exports.PurchaseAction = modules => [
 			finalPrice = helpers.subtractPercentage(finalPrice, req.session.lastProduct.accountDiscount);
 		}
 
-		const currentBalance = shopAccount.get("balance"); // current balance
-		const finalCost = finalPrice * quantity; // final cost
-
 		const logResult = await modules.reportModel.shopPay.create({
 			accountDBID: req.user.accountDBID,
 			serverId: req.user.lastLoginServer,
@@ -960,15 +942,41 @@ module.exports.PurchaseAction = modules => [
 			status: "deposit"
 		});
 
-		await modules.reportModel.shopFund.create({
-			accountDBID: req.user.accountDBID,
-			amount: -finalCost,
-			balance: currentBalance - finalCost,
-			description: `Buy,${req.session.lastProduct.id},${logResult.get("id")}`
-		});
+		let currentBalance = null;
+		let finalCost = null;
 
 		// no awaiting
-		modules.sequelize.transaction(async () => {
+		modules.sequelize.transaction(async transaction => {
+			let shopAccount = await modules.shopModel.accounts.findOne({
+				where: {
+					accountDBID: req.user.accountDBID,
+					active: 1
+				},
+				lock: transaction.LOCK.UPDATE
+			});
+
+			if (shopAccount === null) {
+				shopAccount = await modules.shopModel.accounts.create({
+					accountDBID: req.user.accountDBID,
+					balance: 0,
+					active: true
+				});
+			}
+
+			currentBalance = shopAccount.get("balance");
+			finalCost = finalPrice * quantity;
+
+			if (currentBalance < finalCost) {
+				throw new ApiError("Not enough balance to purchase", 1000);
+			}
+
+			await modules.reportModel.shopFund.create({
+				accountDBID: req.user.accountDBID,
+				amount: -finalCost,
+				balance: currentBalance - finalCost,
+				description: `Buy,${req.session.lastProduct.id},${logResult.get("id")}`
+			});
+
 			await modules.shopModel.accounts.decrement({
 				balance: finalCost
 			}, {
@@ -1026,12 +1034,14 @@ module.exports.PurchaseAction = modules => [
 					where: { id: logResult.get("id") }
 				});
 
-				await modules.reportModel.shopFund.create({
-					accountDBID: req.user.accountDBID,
-					amount: finalCost,
-					balance: currentBalance,
-					description: `BuyCancel,${req.session.lastProduct.id},${logResult.get("id")}`
-				});
+				if (finalCost !== null && currentBalance !== null) {
+					await modules.reportModel.shopFund.create({
+						accountDBID: req.user.accountDBID,
+						amount: finalCost,
+						balance: currentBalance,
+						description: `BuyCancel,${req.session.lastProduct.id},${logResult.get("id")}`
+					});
+				}
 			} catch (e) {
 				modules.logger.error(e);
 			}
@@ -1237,7 +1247,19 @@ module.exports.PromoCodeAction = modules => [
 		}
 
 		// no awaiting
-		modules.sequelize.transaction(async () => {
+		modules.sequelize.transaction(async transaction => {
+			const activated = await modules.shopModel.promoCodeActivated.findOne({
+				where: {
+					promoCodeId: promocode.get("promoCodeId"),
+					accountDBID: req.user.accountDBID
+				},
+				lock: transaction.LOCK.UPDATE
+			});
+
+			if (activated !== null) {
+				throw new ApiError("Promo code has already been activated", 1010);
+			}
+
 			await modules.shopModel.promoCodeActivated.create({
 				promoCodeId: promocode.get("promoCodeId"),
 				accountDBID: req.user.accountDBID
