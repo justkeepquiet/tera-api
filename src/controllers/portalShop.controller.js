@@ -83,8 +83,9 @@ const getMaxProductQuantity = items => {
 /**
  * @param {modules} modules
  */
-module.exports.Auth = ({ passport }) => [
+module.exports.Auth = modules => [
 	shopStatusHandler,
+	rateLimitterHandler(modules.rateLimitter, "portalApi.shop.auth"),
 	/**
 	 * @type {RequestHandler}
 	 */
@@ -93,7 +94,7 @@ module.exports.Auth = ({ passport }) => [
 			return res.redirect("Main");
 		}
 
-		passport.authenticate("custom", (error, user) => {
+		modules.passport.authenticate("custom", (error, user) => {
 			if (error) {
 				return res.status(401).send(error);
 			}
