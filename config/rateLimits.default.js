@@ -6,7 +6,7 @@
 
 // ATTENTION!
 // The client's IP address is used as an identifier. Therefore, if the API is behind a reverse
-// proxy (nginx, CloudFlare), make sure that parameter "LOG_IP_ADDRESSES_FORWARDED_FOR" is
+// proxy (nginx, CloudFlare), make sure that parameter "API_PORTAL_TRUSTPROXY_ENABLE" is
 // set to "TRUE" so that the client's IP address is determined correctly.
 
 // Configuration parameters can be found here:

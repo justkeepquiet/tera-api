@@ -6,7 +6,7 @@
 
 // ATTENTION!
 // If the API is behind a reverse proxy (nginx, CloudFlare), make sure that parameter
-// "LOG_IP_ADDRESSES_FORWARDED_FOR" is set to "TRUE" so that the client's IP address is
+// "API_PORTAL_TRUSTPROXY_ENABLE" is set to "TRUE" so that the client's IP address is
 // determined correctly.
 
 // NOTE:
