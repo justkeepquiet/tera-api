@@ -16,21 +16,28 @@ class ExpressServer {
 
 		this.logger = params.logger || console;
 		this.logLevel = params.logLevel || "debug";
-		this.logIpAddresses = !!params.logIpAddresses;
-		this.logRequests = !!params.logRequests;
-		this.disableCache = !!params.disableCache;
-		this.enableCompression = params.enableCompression !== undefined ?
-			!!params.enableCompression : false;
+		this.logIpAddressesEnabled = !!params.logIpAddressesEnabled;
+		this.logRequestsEnabled = !!params.logRequestsEnabled;
+		this.cacheEnabled = !!params.cacheEnabled;
+		this.compressionEnabled = !!params.compressionEnabled;
 		this.viewsPath = params.viewsPath;
 
 		this.modules = { ...modules, app: this.app, logger: this.logger };
 		this.views = new Set();
 
-		if (params.trustProxy) {
-			this.app.enable("trust proxy");
+		if (params.trustProxyEnabled) {
+			const trustProxyHosts = params.trustProxyHosts || [];
+
+			if (trustProxyHosts.length > 0) {
+				this.app.set("trust proxy", trustProxyHosts);
+			} else {
+				this.app.set("trust proxy", true);
+			}
 		}
 
 		this.app.disable("x-powered-by");
+		this.app.disable("etag");
+
 		this.app.use(express.json());
 		this.app.use(express.urlencoded({ extended: true }));
 		this.app.use(cookieParser());
@@ -38,20 +45,12 @@ class ExpressServer {
 		this.app.use((req, res, next) => {
 			res.locals.__req = req;
 			res.locals.__endpoint = req.path;
+
 			next();
 		});
 
-		if (this.enableCompression) {
+		if (this.compressionEnabled) {
 			this.app.use(compression());
-		}
-
-		if (this.disableCache) {
-			this.app.use((req, res, next) => {
-				res.set("Cache-Control", "no-store");
-				next();
-			});
-
-			this.app.set("etag", false);
 		}
 
 		this.app.set("view engine", "ejs");
@@ -74,10 +73,10 @@ class ExpressServer {
 	}
 
 	setLogging() {
-		if (this.logRequests) {
+		if (this.logRequestsEnabled) {
 			let logFormat = ":method :url :status - :response-time ms";
 
-			if (this.logIpAddresses) {
+			if (this.logIpAddressesEnabled) {
 				logFormat = ":remote-addr :method :url :status - :response-time ms";
 			}
 
@@ -94,12 +93,20 @@ class ExpressServer {
 	}
 
 	setStatic(endpoint, directory) {
-		if (!this.disableCache) {
-			this.app.use(endpoint, (req, res, next) => {
-				res.set("Cache-Control", "public, max-age=300");
-				next();
-			});
-		}
+		this.app.use(endpoint, (req, res, next) => {
+			if (this.cacheEnabled) {
+				const maxAge = 300;
+				const expires = new Date(Date.now() + maxAge * 1000).toUTCString();
+
+				res.set("Cache-Control", `public, max-age=${maxAge}`);
+				res.set("Expires", expires);
+			} else {
+				res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+				res.set("Expires", 0);
+			}
+
+			next();
+		});
 
 		this.app.use(endpoint, express.static(directory));
 	}

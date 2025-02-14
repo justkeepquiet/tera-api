@@ -30,11 +30,13 @@ module.exports = async modules => {
 	const es = new ExpressServer(modules, {
 		logger: createLogger("Portal API", { colors: { debug: "blue" } }),
 		viewsPath: path.resolve(__dirname, "../views"),
-		disableCache: env.bool("API_PORTAL_ENABLE_CACHE"),
-		trustProxy: env.bool("LOG_IP_ADDRESSES_FORWARDED_FOR"),
+		compressionEnabled: false,
+		cacheEnabled: env.bool("API_PORTAL_ENABLE_CACHE"),
+		trustProxyEnabled: env.bool("API_PORTAL_TRUSTPROXY_ENABLE"),
+		trustProxyHosts: env.array("API_PORTAL_TRUSTPROXY_HOSTS", []),
 		logLevel: env.string("LOG_LEVEL"),
-		logRequests: env.bool("LOG_API_REQUESTS"),
-		logIpAddresses: env.bool("LOG_IP_ADDRESSES")
+		logRequestsEnabled: env.bool("LOG_API_REQUESTS"),
+		logIpAddressesEnabled: env.bool("LOG_IP_ADDRESSES")
 	});
 
 	if (env.bool("API_PORTAL_PUBLIC_FOLDER_ENABLE")) {

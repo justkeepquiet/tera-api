@@ -30,11 +30,13 @@ module.exports = async modules => {
 
 	const es = new ExpressServer(modules, {
 		logger: createLogger("Admin Panel", { colors: { debug: "dim blue" } }),
-		enableCompression: true,
 		viewsPath: path.resolve(__dirname, "../views"),
-		trustProxy: env.bool("LOG_IP_ADDRESSES_FORWARDED_FOR"),
+		compressionEnabled: true,
+		cacheEnabled: true,
+		trustProxyEnabled: env.bool("ADMIN_PANEL_TRUSTPROXY_ENABLE"),
+		trustProxyHosts: env.array("ADMIN_PANEL_TRUSTPROXY_HOSTS", []),
 		logLevel: env.string("LOG_LEVEL"),
-		logRequests: env.bool("LOG_API_REQUESTS"),
+		logRequestsEnabled: env.bool("LOG_API_REQUESTS"),
 		logIpAddresses: env.bool("LOG_IP_ADDRESSES")
 	});
 
