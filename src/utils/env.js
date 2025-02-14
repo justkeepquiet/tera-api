@@ -13,5 +13,5 @@ module.exports.number = (parameter, def = undefined) => (
 );
 
 module.exports.array = (parameter, def = undefined, separator = ",") => (
-	process.env[parameter] !== undefined ? process.env[parameter].split(separator).map(el => el.trim()) : def
+	process.env[parameter] !== undefined ? process.env[parameter].split(separator).map(el => el.trim()).filter(el => el.length > 0) : def
 );
