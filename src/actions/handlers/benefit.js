@@ -6,6 +6,10 @@
 
 const moment = require("moment-timezone");
 
+const ApiError = require("../../lib/apiError");
+
+const MAX_BENEFIT_DAYS = 3650;
+
 class Benefit {
 	/**
 	 * @param {modules} modules
@@ -18,18 +22,22 @@ class Benefit {
 	}
 
 	async addBenefit(benefitId, days) {
+		let totalDays = parseInt(days);
+
+		if (totalDays < 1) {
+			throw new ApiError("Invalid days value", 2);
+		}
+
 		const benefit = await this.modules.accountModel.benefits.findOne({
 			attributes: ["availableUntil", [this.modules.sequelize.fn("NOW"), "dateNow"]],
 			where: { accountDBID: this.userId, benefitId }
 		});
 
-		let totalDays = parseInt(days);
-
-		if (totalDays < 1) {
-			throw Error("Invalid days value");
-		}
-
 		if (benefit === null) {
+			if (totalDays > MAX_BENEFIT_DAYS) {
+				throw new ApiError(`Days value cannot be greater than ${MAX_BENEFIT_DAYS} days`, 2);
+			}
+
 			await this.modules.accountModel.benefits.create({
 				accountDBID: this.userId,
 				benefitId,
@@ -38,18 +46,27 @@ class Benefit {
 			});
 		} else {
 			const currentDate = moment(benefit.get("dateNow")).isAfter(benefit.get("availableUntil")) ?
-				this.modules.sequelize.fn("NOW") :
-				this.modules.sequelize.col("availableUntil");
+				moment(benefit.get("dateNow")) :
+				moment(benefit.get("availableUntil"));
+
+			const availableUntil = currentDate.add(totalDays, "days");
+			const dateLimit = moment(benefit.get("dateNow")).add(MAX_BENEFIT_DAYS, "days");
+
+			if (availableUntil.isAfter(dateLimit)) {
+				throw new ApiError(`Benefit date with added days value must not exceed ${MAX_BENEFIT_DAYS} days`, 2);
+			}
 
 			await this.modules.accountModel.benefits.update({
-				availableUntil: this.modules.sequelize.fn("ADDDATE", currentDate, totalDays)
+				availableUntil: availableUntil.toISOString()
 			}, {
 				where: { accountDBID: this.userId, benefitId }
 			});
 
-			totalDays += Math.round(moment.duration(moment(benefit.get("availableUntil"))
-				.diff(moment(benefit.get("dateNow"))))
-				.asDays());
+			totalDays = Math.round(
+				moment.duration(
+					currentDate.diff(moment(benefit.get("dateNow")))
+				).asDays()
+			);
 		}
 
 		if (this.serverId !== null) {

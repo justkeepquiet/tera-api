@@ -5,7 +5,9 @@
  */
 
 const moment = require("moment-timezone");
-const { generateRandomWord } = require("../../../src/utils/helpers");
+
+const ApiError = require("../../lib/apiError");
+const { generateRandomWord } = require("../../utils/helpers");
 
 class Shop {
 	/**
@@ -22,7 +24,7 @@ class Shop {
 		let balance = parseInt(amount);
 
 		if (balance < 1) {
-			throw Error("Invalid percent value");
+			throw new ApiError("Invalid percent value", 2);
 		}
 
 		const account = await this.modules.shopModel.accounts.findOne({
@@ -56,7 +58,7 @@ class Shop {
 		let discount = parseInt(percent);
 
 		if (discount < 1 || discount > 100) {
-			throw Error("Invalid percent value");
+			throw new ApiError("Invalid percent value", 2);
 		}
 
 		const account = await this.modules.shopModel.accounts.findOne({
