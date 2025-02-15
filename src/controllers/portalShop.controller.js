@@ -208,7 +208,7 @@ module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datas
 		let whereSearch = {};
 
 		if (searchParts.length !== 0) {
-			const foundItems = datasheetModel.strSheetItem.get(i18n.getLocale())?.findAll(search);
+			const foundItems = datasheetModel.strSheetItem.get(i18n.getLocale())?.findAll(search, { limit: Infinity });
 
 			const foundProducts = await shopModel.products.findAll({
 				where: whereProduct,
