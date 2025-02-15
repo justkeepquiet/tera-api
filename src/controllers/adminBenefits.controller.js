@@ -75,6 +75,7 @@ module.exports.add = ({ logger, i18n, accountModel, datasheetModel }) => [
 				if (value && data === null) {
 					return Promise.reject(i18n.__("The field contains not existing account ID."));
 				}
+				return true;
 			}))
 	],
 	validationHandler(logger),
@@ -108,6 +109,7 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 				if (value && data === null) {
 					return Promise.reject(i18n.__("The field contains not existing account ID."));
 				}
+				return true;
 			})),
 		body("benefitId").trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
@@ -120,9 +122,16 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 				if (data !== null) {
 					return Promise.reject(i18n.__("The field contains existing benefit ID on account."));
 				}
+				return true;
 			})),
 		body("availableUntil").trim()
 			.isISO8601().withMessage("The field must contain a valid date.")
+			.custom(value => {
+				if (moment(value).isAfter(moment().add(10, "years"))) {
+					return Promise.reject(`${i18n.__("The field contains a date that is too late.")}`);
+				}
+				return true;
+			})
 	],
 	formValidationHandler(logger),
 	/**
@@ -202,13 +211,19 @@ module.exports.edit = ({ logger, i18n, accountModel, datasheetModel }) => [
 /**
  * @param {modules} modules
  */
-module.exports.editAction = ({ logger, hub, reportModel, accountModel }) => [
+module.exports.editAction = ({ logger, i18n, hub, reportModel, accountModel }) => [
 	accessFunctionHandler,
 	[
 		query("accountDBID").trim().notEmpty(),
 		query("benefitId").trim().notEmpty(),
 		body("availableUntil").trim()
 			.isISO8601().withMessage("The field must contain a valid date.")
+			.custom(value => {
+				if (moment(value).isAfter(moment().add(10, "years"))) {
+					return Promise.reject(`${i18n.__("The field contains a date that is too late.")}`);
+				}
+				return true;
+			})
 	],
 	formValidationHandler(logger),
 	/**

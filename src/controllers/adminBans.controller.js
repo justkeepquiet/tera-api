@@ -64,6 +64,7 @@ module.exports.add = ({ logger, i18n, accountModel }) => [
 				if (value && data === null) {
 					return Promise.reject(i18n.__("The field contains not existing account ID."));
 				}
+				return true;
 			}))
 	],
 	validationHandler(logger),
@@ -95,6 +96,7 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 				if (value && data !== null) {
 					return Promise.reject(i18n.__("The field contains already banned account ID."));
 				}
+				return true;
 			}))
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
@@ -102,11 +104,18 @@ module.exports.addAction = ({ i18n, logger, hub, reportModel, accountModel }) =>
 				if (value && data === null) {
 					return Promise.reject(i18n.__("The field contains not existing account ID."));
 				}
+				return true;
 			})),
 		body("startTime").trim()
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("endTime").trim()
-			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.startTime)) {
+					return Promise.reject(`${i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("ip").optional().trim()
 			.custom(value => {
 				const ip = helpers.unserializeRange(value);
@@ -199,7 +208,13 @@ module.exports.editAction = ({ i18n, logger, hub, reportModel, accountModel }) =
 		body("startTime").trim()
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("endTime").trim()
-			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.startTime)) {
+					return Promise.reject(`${i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("ip").optional().trim()
 			.custom(value => {
 				const ip = helpers.unserializeRange(value);

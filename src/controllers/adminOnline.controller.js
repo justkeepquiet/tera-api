@@ -61,6 +61,7 @@ module.exports.kickAction = ({ i18n, logger, hub, reportModel, accountModel, ser
 				if (data === null) {
 					return Promise.reject(i18n.__("The field contains not existing account ID."));
 				}
+				return true;
 			})),
 		query("serverId").trim()
 			.isInt({ min: 0 }).withMessage(i18n.__("The field must contain a valid number."))
@@ -70,6 +71,7 @@ module.exports.kickAction = ({ i18n, logger, hub, reportModel, accountModel, ser
 				if (data === null) {
 					return Promise.reject(i18n.__("The field contains not existing server ID."));
 				}
+				return true;
 			}))
 	],
 	/**
@@ -111,6 +113,7 @@ module.exports.kickAllAction = ({ i18n, logger, hub, reportModel, serverModel })
 				if (data === null) {
 					return Promise.reject(i18n.__("The field contains not existing server ID."));
 				}
+				return true;
 			}))
 	],
 	/**

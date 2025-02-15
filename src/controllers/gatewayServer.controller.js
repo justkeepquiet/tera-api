@@ -105,6 +105,7 @@ module.exports.GetServerInfoByServerId = ({ logger, serverModel, accountModel })
 				if (value && data === null) {
 					return Promise.reject("Not existing server ID");
 				}
+				return true;
 			}))
 	],
 	validationHandler(logger),
@@ -158,6 +159,7 @@ module.exports.KickAccountByUserNo = ({ logger, hub, reportModel, accountModel, 
 				if (value && data === null) {
 					return Promise.reject("Not existing account ID");
 				}
+				return true;
 			})),
 		body("serverId").trim().isNumeric()
 			.custom(value => serverModel.info.findOne({
@@ -166,6 +168,7 @@ module.exports.KickAccountByUserNo = ({ logger, hub, reportModel, accountModel, 
 				if (value && data === null) {
 					return Promise.reject("Not existing server ID");
 				}
+				return true;
 			}))
 	],
 	validationHandler(logger),
@@ -204,6 +207,7 @@ module.exports.KickAllAccountsByServerId = ({ logger, hub, reportModel, serverMo
 				if (value && data === null) {
 					return Promise.reject("Not existing server ID");
 				}
+				return true;
 			}))
 	],
 	validationHandler(logger),

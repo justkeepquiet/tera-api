@@ -86,6 +86,7 @@ module.exports.addAction = ({ localization, i18n, logger, reportModel, serverMod
 				if (data) {
 					return Promise.reject(i18n.__("The field contains an existing server ID."));
 				}
+				return true;
 			})),
 		body("loginIp").trim()
 			.isIP().withMessage(i18n.__("The field must contain a valid IP value.")),

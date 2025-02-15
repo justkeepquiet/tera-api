@@ -54,6 +54,7 @@
 	"The field must be between 1 and 50 characters.": "Поле должно содержать от 1 до 50 символов.",
 	"The field must be between 1 and 2048 characters.": "Поле должно содержать от 1 до 2048 символов.",
 	"The field must contain a valid date.": "Поле должно содержать верную дату.",
+	"The field contains a date that is too late.": "Поле содержит слишком позднюю дату.",
 	"The field must be between 3 and 24 characters.": "Поле должно содержать от 3 до 24 символов.",
 	"The field must be between 8 and 128 characters.": "Поле должно содержать от 8 до 128 символов.",
 	"The field must contain a valid email.": "Поле должно содержать адрес электронной почты.",

@@ -257,6 +257,7 @@ module.exports.ResetPasswordAction = ({ app, logger, rateLimitter, mailer, i18n,
 				if (account === null || !account.get("email")) {
 					return Promise.reject(11);
 				}
+				return true;
 			}))
 	],
 	/**
@@ -525,6 +526,7 @@ module.exports.SignupAction = modules => [
 				if (user) {
 					return Promise.reject(10);
 				}
+				return true;
 			})),
 		body("email").trim()
 			.custom(value => modules.accountModel.info.findOne({
@@ -535,6 +537,7 @@ module.exports.SignupAction = modules => [
 				if (user) {
 					return Promise.reject(14);
 				}
+				return true;
 			}))
 	],
 	/**
@@ -831,7 +834,7 @@ module.exports.SetAccountLanguageAction = ({ localization, logger, rateLimitter,
 				if (localization.listClientLanguages().every(language => language !== value)) {
 					return Promise.reject("language code not allowed");
 				}
-				return Promise.resolve();
+				return true;
 			})
 	],
 	validationHandler(logger),

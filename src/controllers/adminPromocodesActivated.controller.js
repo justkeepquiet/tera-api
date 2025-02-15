@@ -137,6 +137,7 @@ module.exports.addAction = modules => [
 						return Promise.reject(modules.i18n.__("The field contains the promo code ID with the activation limit reached."));
 					}
 				}
+				return true;
 			}))
 			.custom((value, { req }) => modules.shopModel.promoCodeActivated.findOne({
 				where: {
@@ -147,6 +148,7 @@ module.exports.addAction = modules => [
 				if (data) {
 					return Promise.reject(modules.i18n.__("This promo code has already been activated on the specified account ID."));
 				}
+				return true;
 			})),
 		body("accountDBID").trim()
 			.isInt({ min: 0 }).withMessage(modules.i18n.__("The field must contain a valid number."))
@@ -156,6 +158,7 @@ module.exports.addAction = modules => [
 				if (value && data === null) {
 					return Promise.reject(modules.i18n.__("Account ID contains not existing account ID."));
 				}
+				return true;
 			}))
 	],
 	formValidationHandler(modules.logger),

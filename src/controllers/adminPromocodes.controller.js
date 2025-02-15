@@ -97,6 +97,7 @@ module.exports.addAction = ({ config, i18n, logger, sequelize, reportModel, shop
 				if (data) {
 					return Promise.reject(i18n.__("The field contains an existing promo code."));
 				}
+				return true;
 			})),
 		body("aFunction").trim()
 			.custom(value => getPromocodeFunctionsNames(config).includes(value))
@@ -104,7 +105,13 @@ module.exports.addAction = ({ config, i18n, logger, sequelize, reportModel, shop
 		body("validAfter").trim()
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("validBefore").trim()
-			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.validAfter)) {
+					return Promise.reject(`${i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("maxActivations").trim()
 			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("active").optional().trim()
@@ -217,7 +224,13 @@ module.exports.editAction = ({ config, localization, i18n, logger, sequelize, re
 		body("validAfter").trim()
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("validBefore").trim()
-			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.validAfter)) {
+					return Promise.reject(`${i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("maxActivations").trim()
 			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("active").optional().trim()

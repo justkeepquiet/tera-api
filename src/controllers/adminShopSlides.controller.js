@@ -197,7 +197,13 @@ module.exports.addAction = ({ i18n, logger, reportModel, shopModel }) => [
 		body("displayDateStart").trim()
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("displayDateEnd").trim()
-			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.displayDateStart)) {
+					return Promise.reject(`${i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("image").optional({ checkFalsy: true }).trim()
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("The field must be between 1 and 2048 characters.")),
 		body("productId").trim()
@@ -357,7 +363,13 @@ module.exports.editAction = ({ i18n, logger, reportModel, shopModel }) => [
 		body("displayDateStart").trim()
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("displayDateEnd").trim()
-			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.displayDateStart)) {
+					return Promise.reject(`${i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("image").optional({ checkFalsy: true }).trim()
 			.isLength({ min: 1, max: 2048 }).withMessage(i18n.__("The field must be between 1 and 2048 characters.")),
 		body("productId").trim()

@@ -109,13 +109,20 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 				if (data) {
 					return Promise.reject(i18n.__("The field contains an existing coupon."));
 				}
+				return true;
 			})),
 		body("discount").trim()
 			.isInt({ min: 0, max: 100 }).withMessage(i18n.__("The field must contain a valid number.")),
 		body("validAfter").trim()
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("validBefore").trim()
-			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.validAfter)) {
+					return Promise.reject(`${i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("maxActivations").trim()
 			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("active").optional().trim()
@@ -128,6 +135,7 @@ module.exports.addAction = ({ i18n, logger, reportModel, accountModel, shopModel
 				if (value && data === null) {
 					return Promise.reject(i18n.__("The field contains not existing account ID."));
 				}
+				return true;
 			}))
 	],
 	formValidationHandler(logger),
@@ -205,7 +213,13 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel, shopMode
 		body("validAfter").trim()
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("validBefore").trim()
-			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.validAfter)) {
+					return Promise.reject(`${i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("maxActivations").trim()
 			.isInt({ min: 0, max: 1e8 }).withMessage(i18n.__("The field must contain the value as a number.")),
 		body("active").optional().trim()
@@ -218,6 +232,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel, shopMode
 				if (value && data === null) {
 					return Promise.reject(i18n.__("The field contains not existing account ID."));
 				}
+				return true;
 			}))
 	],
 	formValidationHandler(logger),

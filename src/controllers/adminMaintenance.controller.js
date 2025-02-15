@@ -64,7 +64,13 @@ module.exports.addAction = ({ i18n, logger, reportModel, serverModel }) => [
 		body("startTime").trim()
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("endTime").trim()
-			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.startTime)) {
+					return Promise.reject(`${i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("description").optional().trim()
 			.isLength({ max: 1024 }).withMessage(i18n.__("The field must be between 1 and 1024 characters."))
 	],
@@ -130,7 +136,13 @@ module.exports.editAction = ({ i18n, logger, reportModel, serverModel }) => [
 		body("startTime").trim()
 			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
 		body("endTime").trim()
-			.isISO8601().withMessage(i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.startTime)) {
+					return Promise.reject(`${i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("description").optional().trim()
 			.isLength({ max: 1024 }).withMessage(i18n.__("The field must be between 1 and 1024 characters."))
 	],

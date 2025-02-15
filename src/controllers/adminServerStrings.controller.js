@@ -72,6 +72,7 @@ module.exports.addAction = ({ localization, i18n, logger, reportModel, serverMod
 				if (data) {
 					return Promise.reject(i18n.__("The field contains already existing language code."));
 				}
+				return true;
 			})),
 		body("categoryPvE").trim()
 			.isLength({ min: 1, max: 50 }).withMessage(i18n.__("The field must be between 1 and 50 characters.")),

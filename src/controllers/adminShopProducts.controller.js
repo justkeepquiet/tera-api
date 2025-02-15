@@ -218,11 +218,18 @@ module.exports.addAction = modules => [
 				if (!data) {
 					return Promise.reject(modules.i18n.__("The field must contain an existing category ID."));
 				}
+				return true;
 			})),
 		body("validAfter").trim()
 			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("validBefore").trim()
-			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.validAfter)) {
+					return Promise.reject(`${modules.i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("active").optional().trim()
 			.isIn(["on"]).withMessage(modules.i18n.__("The field has invalid value.")),
 		// Items
@@ -262,13 +269,25 @@ module.exports.addAction = modules => [
 		body("tagValidAfter").optional({ checkFalsy: true }).trim()
 			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("tagValidBefore").optional({ checkFalsy: true }).trim()
-			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.tagValidAfter)) {
+					return Promise.reject(`${modules.i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("discount").trim()
 			.isInt({ min: 0, max: 100 }).withMessage(modules.i18n.__("The field must contain a valid number.")),
 		body("discountValidAfter").optional({ checkFalsy: true }).trim()
 			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("discountValidBefore").optional({ checkFalsy: true }).trim()
 			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.discountValidAfter)) {
+					return Promise.reject(`${modules.i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			})
 	],
 	formValidationHandler(modules.logger),
 	/**
@@ -481,11 +500,18 @@ module.exports.editAction = modules => [
 				if (!data) {
 					return Promise.reject(modules.i18n.__("The field must contain an existing category ID."));
 				}
+				return true;
 			})),
 		body("validAfter").trim()
 			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("validBefore").trim()
-			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.validAfter)) {
+					return Promise.reject(`${modules.i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("active").optional().trim()
 			.isIn(["on"]).withMessage(modules.i18n.__("The field has invalid value.")),
 		// Items
@@ -525,13 +551,25 @@ module.exports.editAction = modules => [
 		body("tagValidAfter").optional({ checkFalsy: true }).trim()
 			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("tagValidBefore").optional({ checkFalsy: true }).trim()
-			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.tagValidAfter)) {
+					return Promise.reject(`${modules.i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("discount").trim()
 			.isInt({ min: 0, max: 100 }).withMessage(modules.i18n.__("The field must contain a valid number.")),
 		body("discountValidAfter").optional({ checkFalsy: true }).trim()
 			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("discountValidBefore").optional({ checkFalsy: true }).trim()
 			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.discountValidAfter)) {
+					return Promise.reject(`${modules.i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			})
 	],
 	formValidationHandler(modules.logger),
 	/**
@@ -747,11 +785,18 @@ module.exports.editAllAction = modules => [
 				if (!data) {
 					return Promise.reject(modules.i18n.__("The field must contain an existing category ID."));
 				}
+				return true;
 			})),
 		body("validAfter").optional({ checkFalsy: true }).trim()
 			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
 		body("validBefore").optional({ checkFalsy: true }).trim()
-			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date.")),
+			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date."))
+			.custom((value, { req }) => {
+				if (moment(value).isSameOrBefore(req.body.validAfter)) {
+					return Promise.reject(`${modules.i18n.__("The field must contain a valid date.")}`);
+				}
+				return true;
+			}),
 		body("active").optional({ checkFalsy: true }).trim()
 			.isIn(["on", "off"]).withMessage(modules.i18n.__("The field has invalid value."))
 	],

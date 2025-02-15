@@ -54,6 +54,7 @@
 	"The field must be between 1 and 50 characters.": "The field must be between 1 and 50 characters.",
 	"The field must be between 1 and 2048 characters.": "The field must be between 1 and 2048 characters.",
 	"The field must contain a valid date.": "The field must contain a valid date.",
+	"The field contains a date that is too late.": "The field contains a date that is too late.",
 	"The field must be between 3 and 24 characters.": "The field must be between 3 and 24 characters.",
 	"The field must be between 8 and 128 characters.": "The field must be between 8 and 128 characters.",
 	"The field must contain a valid email.": "The field must contain a valid email.",

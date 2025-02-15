@@ -141,7 +141,7 @@ module.exports.ListBenefitsByUserNo = ({ logger, accountModel }) => [
 				UserName: benefit.get("info")?.get("userName") || null,
 				BenefitId: benefit.get("benefitId"),
 				IsAvailable: isAvailable,
-				AvailableUntil: moment(benefit.get("availableUntil")).unix()
+				AvailableUntil: moment(benefit.get("availableUntil")).toISOString()
 			});
 		});
 
@@ -166,6 +166,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, accountModel }) => [
 				if (value && data === null) {
 					return Promise.reject("Not existing account ID");
 				}
+				return true;
 			}))
 	],
 	validationHandler(logger),
@@ -187,8 +188,8 @@ module.exports.GetAccountInfoByUserNo = ({ logger, accountModel }) => [
 			UserName: account.get("userName"),
 			AuthKey: account.get("authKey"),
 			Email: account.get("email"),
-			RegisterTime: moment(account.get("registerTime")).unix(),
-			LastLoginTime: moment(account.get("lastLoginTime")).unix(),
+			RegisterTime: moment(account.get("registerTime")).toISOString(),
+			LastLoginTime: moment(account.get("lastLoginTime")).toISOString(),
 			LastLoginIP: account.get("lastLoginIP"),
 			LastLoginServer: account.get("lastLoginServer"),
 			PlayTimeLast: account.get("playTimeLast"),
@@ -213,6 +214,7 @@ module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => 
 				if (value && data === null) {
 					return Promise.reject("Not existing account ID");
 				}
+				return true;
 			})),
 		query("clientIP").optional().trim()
 	],
@@ -261,8 +263,8 @@ module.exports.GetAccountBanByUserNo = ({ logger, sequelize, accountModel }) => 
 			UserNo: account?.get("accountDBID") || null,
 			Description: account?.get("banned")?.get("description") ?? null,
 			Ip: account?.get("banned") ? JSON.parse(account.get("banned").get("ip")) : null,
-			StartTime: account?.get("banned") ? moment(account.get("banned").get("startTime")).unix() : null,
-			EndTime: account?.get("banned") ? moment(account.get("banned").get("endTime")).unix() : null
+			StartTime: account?.get("banned") ? moment(account.get("banned").get("startTime")).toISOString() : null,
+			EndTime: account?.get("banned") ? moment(account.get("banned").get("endTime")).toISOString() : null
 		});
 	}
 ];
@@ -281,6 +283,7 @@ module.exports.RegisterNewAccount = modules => [
 				if (user) {
 					return Promise.reject("Contains an existing login");
 				}
+				return true;
 			})),
 		body("email").trim()
 			.isLength({ max: 128 }).withMessage("Should not be more than 128 characters length")
@@ -291,6 +294,7 @@ module.exports.RegisterNewAccount = modules => [
 				if (user) {
 					return Promise.reject("Contains an existing email");
 				}
+				return true;
 			})),
 		body("password").trim()
 			.isLength({ min: 8, max: 128 }).withMessage("Must contain a string between 8 and 128 characters long")
@@ -339,6 +343,7 @@ module.exports.AddBenefitByUserNo = modules => [
 				if (value && data === null) {
 					return Promise.reject("Contains not existing account ID");
 				}
+				return true;
 			})),
 		body("benefitId").trim()
 			.isInt({ min: 0 }).withMessage("Must contain a valid number"),
@@ -389,6 +394,7 @@ module.exports.RemoveBenefitByUserNo = modules => [
 				if (value && data === null) {
 					return Promise.reject("Contains not existing account ID");
 				}
+				return true;
 			})),
 		body("benefitId").trim()
 			.isInt({ min: 0 }).withMessage("Must contain a valid number")
@@ -436,6 +442,7 @@ module.exports.BanAccountByUserNo = ({ logger, hub, reportModel, accountModel })
 				if (value && data !== null) {
 					return Promise.reject("Already banned account ID");
 				}
+				return true;
 			}))
 			.custom(value => accountModel.info.findOne({
 				where: { accountDBID: value }
@@ -443,6 +450,7 @@ module.exports.BanAccountByUserNo = ({ logger, hub, reportModel, accountModel })
 				if (value && data === null) {
 					return Promise.reject("Not existing account ID");
 				}
+				return true;
 			})),
 		body("startTime").trim()
 			.isISO8601().withMessage("Must contain a valid ISO 8601"),

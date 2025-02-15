@@ -65,6 +65,7 @@ module.exports.GetAccountInfoByUserNo = ({ logger, accountModel, shopModel }) =>
 				if (value && data === null) {
 					return Promise.reject("Not existing account ID");
 				}
+				return true;
 			}))
 	],
 	validationHandler(logger),
@@ -110,6 +111,7 @@ module.exports.FundByUserNo = modules => [
 				if (value && data === null) {
 					return Promise.reject("Not existing account ID");
 				}
+				return true;
 			})),
 		body("transactionId").trim().isNumeric(),
 		body("amount").trim().isInt({ min: 1 })
@@ -399,6 +401,7 @@ module.exports.AddNewCoupon = ({ logger, reportModel, accountModel, shopModel })
 				if (value && data === null) {
 					return Promise.reject("Contains not existing account ID");
 				}
+				return true;
 			})),
 		body("string").optional({ checkFalsy: true }).trim()
 			.isLength({ min: 3, max: 8 }).withMessage("Must be between 3 and 8 characters")
@@ -408,6 +411,7 @@ module.exports.AddNewCoupon = ({ logger, reportModel, accountModel, shopModel })
 				if (data) {
 					return Promise.reject("The field contains an existing coupon");
 				}
+				return true;
 			}))
 	],
 	validationHandler(logger),
@@ -624,6 +628,7 @@ module.exports.ActivatePromoCodeByUserNo = modules => [
 						return Promise.reject("Promo code ID with the activation limit reached");
 					}
 				}
+				return true;
 			})),
 		body("userNo").trim().isNumeric()
 			.custom(value => modules.accountModel.info.findOne({
@@ -632,6 +637,7 @@ module.exports.ActivatePromoCodeByUserNo = modules => [
 				if (value && data === null) {
 					return Promise.reject("Not existing account ID");
 				}
+				return true;
 			}))
 			.custom((value, { req }) => modules.shopModel.promoCodeActivated.findOne({
 				where: {
@@ -642,6 +648,7 @@ module.exports.ActivatePromoCodeByUserNo = modules => [
 				if (data) {
 					return Promise.reject("Already been activated on the specified account ID");
 				}
+				return true;
 			}))
 	],
 	validationHandler(modules.logger),

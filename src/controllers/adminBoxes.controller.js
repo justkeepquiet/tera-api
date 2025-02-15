@@ -575,6 +575,7 @@ module.exports.sendAction = modules => [
 				if (data === null) {
 					return Promise.reject(modules.i18n.__("The field contains not existing server ID."));
 				}
+				return true;
 			})),
 		body("accountDBID").trim()
 			.isInt().withMessage(modules.i18n.__("The field must contain a valid number."))
@@ -584,6 +585,7 @@ module.exports.sendAction = modules => [
 				if (value && data === null) {
 					return Promise.reject(modules.i18n.__("The field contains not existing account ID."));
 				}
+				return true;
 			})),
 		body("characterId").optional({ checkFalsy: true }).trim()
 			.isInt().withMessage(modules.i18n.__("The field must contain a valid number."))
@@ -597,6 +599,7 @@ module.exports.sendAction = modules => [
 				if (req.body.characterId && data === null) {
 					return Promise.reject(modules.i18n.__("The field contains not existing character ID."));
 				}
+				return true;
 			}))
 	],
 	formValidationHandler(modules.logger),
@@ -804,6 +807,7 @@ module.exports.sendAllAction = modules => [
 				if (data === null) {
 					return Promise.reject(modules.i18n.__("The field contains not existing server ID."));
 				}
+				return true;
 			})),
 		body("loginAfterTime").trim()
 			.isISO8601().withMessage(modules.i18n.__("The field must contain a valid date."))

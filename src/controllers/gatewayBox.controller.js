@@ -82,6 +82,7 @@ module.exports.SendBoxToAccountByUserNo = modules => [
 				if (value && data === null) {
 					return Promise.reject("Contains not existing account ID");
 				}
+				return true;
 			})),
 		body("characterId").optional({ checkFalsy: true }).trim()
 			.isInt().withMessage("Must contain a valid number")
@@ -95,6 +96,7 @@ module.exports.SendBoxToAccountByUserNo = modules => [
 				if (req.body.characterId && data === null) {
 					return Promise.reject("Contains not existing character ID");
 				}
+				return true;
 			})),
 		body("serverId").optional({ checkFalsy: true }).trim()
 			.isInt().withMessage("Must contain a valid number")
@@ -104,6 +106,7 @@ module.exports.SendBoxToAccountByUserNo = modules => [
 				if (data === null) {
 					return Promise.reject("Contains not existing server ID");
 				}
+				return true;
 			}))
 	],
 	validationHandler(modules.logger),
@@ -230,6 +233,7 @@ module.exports.SendBoxesToAllByServerId = modules => [
 				if (data === null) {
 					return Promise.reject("Contains not existing server ID");
 				}
+				return true;
 			}))
 	],
 	validationHandler(modules.logger),

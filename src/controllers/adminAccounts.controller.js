@@ -117,6 +117,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 				if (data) {
 					return Promise.reject(i18n.__("The field contains already existing name."));
 				}
+				return true;
 			})),
 		body("passWord").trim()
 			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("The field must be between 8 and 128 characters.")),
@@ -129,6 +130,7 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 				if (data) {
 					return Promise.reject(i18n.__("The field contains already existing email."));
 				}
+				return true;
 			})),
 		body("permission").trim()
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("The field must contain a valid number.")),
@@ -146,6 +148,12 @@ module.exports.addAction = ({ i18n, logger, sequelize, reportModel, accountModel
 			.withMessage(i18n.__("Added benefit already exists.")),
 		body("availableUntils.*").optional().trim()
 			.isISO8601().withMessage("The field until must contain a valid date.")
+			.custom(value => {
+				if (moment(value).isAfter(moment().add(10, "years"))) {
+					return Promise.reject(`${i18n.__("The field contains a date that is too late.")}`);
+				}
+				return true;
+			})
 	],
 	formValidationHandler(logger),
 	/**
@@ -245,6 +253,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 				if (data) {
 					return Promise.reject(i18n.__("The field contains already existing name."));
 				}
+				return true;
 			})),
 		body("passWord").optional({ checkFalsy: true }).trim()
 			.isLength({ min: 8, max: 128 }).withMessage(i18n.__("The field must be between 8 and 128 characters.")),
@@ -260,6 +269,7 @@ module.exports.editAction = ({ i18n, logger, reportModel, accountModel }) => [
 				if (data) {
 					return Promise.reject(i18n.__("The field contains already existing email."));
 				}
+				return true;
 			})),
 		body("permission").trim()
 			.isInt({ min: 0, max: 1e10 }).withMessage(i18n.__("The field must contain a valid number.")),
