@@ -196,6 +196,7 @@
 	function getAccountBalance() {
 		return parseInt($("#shop_balance").html());
 	}
+
 	// Product
 	function initializeAndSetValues(product, hideBuyForm) {
 		var accountBalance = getAccountBalance();
@@ -229,6 +230,7 @@
 	function schollDown() {
 		$("#content_product").animate({ scrollTop: $(document).height() }, 300);
 	}
+
 	// Gift
 	function giftUse() {
 		$('.coupon-use').prop('disabled', true);

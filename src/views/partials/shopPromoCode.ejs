@@ -35,7 +35,7 @@
 </div>
 <%_ } _%>
 <script type="text/javascript">
-function requestPromoCodeStatus(promoCodeId) {
+	function requestPromoCodeStatus(promoCodeId) {
 		var requestStatusTimeout = null;
 		var requestStatusInterval = setInterval(shopPromoCodeStatusAction, 1000, promoCodeId, function(result) {
 			$('#promocode_success').hide();
