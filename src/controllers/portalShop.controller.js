@@ -14,7 +14,7 @@ const ApiError = require("../lib/apiError");
 const PromoCodeActions = require("../actions/promoCode.actions");
 const ItemClaim = require("../actions/handlers/itemClaim");
 const ServiceItem = require("../utils/boxHelper").ServiceItem;
-const helpers = require("../utils/helpers");
+const { formatStrsheet, subtractPercentage } = require("../utils/helpers");
 
 const {
 	validationHandler,
@@ -292,6 +292,8 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, serverModel, sho
 			}
 		}
 
+		product.description = formatStrsheet(product.description);
+
 		if (!product.icon) {
 			product.icon = itemData.icon;
 		}
@@ -343,7 +345,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, serverModel, sho
 			]
 		});
 
-		res.render("partials/shopProduct", { helpers, servers, product, coupons, search, back });
+		res.render("partials/shopProduct", { servers, product, coupons, search, back });
 	},
 	/**
 	 * @type {ErrorRequestHandler}
@@ -637,7 +639,7 @@ module.exports.GetCatalog = ({ i18n, logger, sequelize, shopModel, datasheetMode
 				moment(shopProduct.get("dateNow")).isSameOrBefore(shopProduct.get("discountValidBefore"))
 			) {
 				productDiscount = shopProduct.get("discount");
-				finalPrice = helpers.subtractPercentage(finalPrice, shopProduct.get("discount"));
+				finalPrice = subtractPercentage(finalPrice, shopProduct.get("discount"));
 			}
 
 			let tag = null;
@@ -693,7 +695,7 @@ module.exports.GetCatalog = ({ i18n, logger, sequelize, shopModel, datasheetMode
 				}
 			});
 
-			productInfo.description = helpers.formatStrsheet(productInfo.description);
+			productInfo.description = formatStrsheet(productInfo.description);
 
 			if (productInfo.icon && (!search || (search && productInfo.title))) {
 				products.push(productInfo);
@@ -886,7 +888,7 @@ module.exports.PurchaseAction = modules => [
 				item.boxItemId,
 				item.itemTemplateId,
 				strSheetItem?.string,
-				helpers.formatStrsheet(strSheetItem?.toolTip),
+				formatStrsheet(strSheetItem?.toolTip),
 				0
 			);
 
@@ -911,19 +913,19 @@ module.exports.PurchaseAction = modules => [
 		let finalPrice = req.session.lastProduct.price;
 
 		if (finalPrice > 0 && req.session.lastProduct.productDiscount > 0) {
-			finalPrice = helpers.subtractPercentage(finalPrice, req.session.lastProduct.productDiscount);
+			finalPrice = subtractPercentage(finalPrice, req.session.lastProduct.productDiscount);
 		}
 
 		let isPriceChangedByCoupon = false;
 
 		if (finalPrice > 0 && req.session.lastProduct.couponDiscount > 0) {
 			const beforePrice = finalPrice;
-			finalPrice = helpers.subtractPercentage(finalPrice, req.session.lastProduct.couponDiscount);
+			finalPrice = subtractPercentage(finalPrice, req.session.lastProduct.couponDiscount);
 			isPriceChangedByCoupon = finalPrice < beforePrice && req.session.lastProduct.accountDiscount < 100;
 		}
 
 		if (finalPrice > 0 && req.session.lastProduct.accountDiscount > 0) {
-			finalPrice = helpers.subtractPercentage(finalPrice, req.session.lastProduct.accountDiscount);
+			finalPrice = subtractPercentage(finalPrice, req.session.lastProduct.accountDiscount);
 		}
 
 		const logResult = await modules.reportModel.shopPay.create({
