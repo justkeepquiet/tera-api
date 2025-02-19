@@ -151,7 +151,8 @@ h2 {
 }
 
 .product-header .text-block {
-	width: 420px !important;
+	width: 420px!important;
+	padding-top: 0!important;
 }
 
 .text-right {
@@ -731,6 +732,7 @@ a, a:focus {
 	position: relative;
 	top: -1px;
 	margin-left: 3px;
+	margin-top: 5px;
 	background: #cc3333;
 }
 
@@ -738,8 +740,8 @@ a, a:focus {
 	position: relative;
 	top: -1px;
 	margin-left: 3px;
+	margin-top: 5px;
 	background: #e08a00;
-	/* ffa414 */
 }
 
 .icon_grade_0 {
