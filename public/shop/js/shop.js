@@ -2,9 +2,9 @@
 /**
  * Init
  */
+
 $(function() {
 	loadAccountInfo();
-	setInterval(loadAccountInfo, 5000);
 	loadContent("Welcome");
 });
 
@@ -18,6 +18,8 @@ function loadAccountInfo() {
 			$("#shop_balance").html(result.shopBalance);
 			$("#navbar_right").fadeIn();
 			$("#search_form").fadeIn();
+
+			setTimeout(loadAccountInfo, 5000);
 		}
 	});
 }
@@ -50,7 +52,9 @@ function loadContentProduct(params) {
 }
 
 function loadPromoCodes(callback) {
-	apiRequest("PartialPromoCode", null, "html", function(result) {
+	var tzOffset = new Date().getTimezoneOffset();
+
+	apiRequest("PartialPromoCode?tzOffset=" + tzOffset, null, "html", function(result) {
 		$("#content").html(result);
 		callback();
 	});
