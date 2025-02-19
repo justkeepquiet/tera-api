@@ -77,7 +77,7 @@
 	<script type="text/javascript">
 		function renderProducts(products) {
 			if (products.length == 0) {
-				$("#content").append("<div class='alert alert-error fade in'><%= __("No products were found matching your request. Try looking for something else.") %></div>");
+				$("#content").append("<div class='main alert alert-error fade in'><%= __("No products were found matching your request. Try looking for something else.") %></div>");
 			}
 			var productHtml = "<div class='main'>";
 			for (var i = 0; i < products.length; i++) {
