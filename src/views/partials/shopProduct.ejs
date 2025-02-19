@@ -193,6 +193,9 @@
 </script>
 <%_ } _%>
 <script type="text/javascript">
+	function getAccountBalance() {
+		return parseInt($("#shop_balance").html());
+	}
 	// Product
 	function initializeAndSetValues(product, hideBuyForm) {
 		var accountBalance = getAccountBalance();
@@ -475,61 +478,61 @@
 		initializeAndSetValues(product, true);
 
 		// Gift
-		$('#gift').click(function(e) {
-			e.preventDefault();
+		$('#gift').click(function() {
 			giftUse();
+			return false;
 		});
-		$('#gift_character').change(function(e) {
+		$('#gift_character').change(function() {
 			giftErrorHide();
 		});
-		$('#gift_form').submit(function(e) {
-			e.preventDefault();
+		$('#gift_form').submit(function() {
 			giftSearch(product);
+			return false;
 		});
-		$('#gift_cancel, #gift_cancel_info').click(function(e) {
-			e.preventDefault();
+		$('#gift_cancel, #gift_cancel_info').click(function() {
 			giftCancel(product);
+			return false;
 		});
 
 		// Coupon
-		$('#coupon_toggle_select').click(function(e) {
-			e.preventDefault();
+		$('#coupon_toggle_select').click(function() {
 			couponToggleSelect(product);
+			return false;
 		});
-		$('#coupon_toggle_input').click(function(e) {
-			e.preventDefault();
+		$('#coupon_toggle_input').click(function() {
 			couponToggleInput(product);
+			return false;
 		});
 		$('#coupon, #coupon_select').change(function() {
 			couponErrorHide();
 		});
-		$('.coupon-use').click(function(e) {
-			e.preventDefault();
+		$('.coupon-use').click(function() {
 			couponUse();
+			return false;
 		});
-		$('#coupon_form').submit(function(e) {
-			e.preventDefault();
+		$('#coupon_form').submit(function() {
 			couponAccept(product);
+			return false;
 		});
-		$('#coupon_cancel').click(function(e) {
-			e.preventDefault();
+		$('#coupon_cancel').click(function() {
 			couponCancel(product);
+			return false;
 		});
 
 		// Buy
 		$('#quantity').change(function() {
 			quantityChange(product);
 		});
-		$('#buy').click(function(e) {
-			e.preventDefault();
+		$('#buy').click(function() {
 			purchaseProduct(product);
+			return false;
 		});
 
 		$('#back').click(backToCatalog);
-		$('a.thumbnail').click(function(e) {
-			e.preventDefault();
+		$('a.thumbnail').click(function() {
 			$('#image-modal .modal-body img').attr('src', $(this).find('img').attr('src'));
 			$('#image-modal').modal('show');
+			return false;
 		});
 		$('#image-modal .modal-body img').click(function() {
 			$('#image-modal').modal('hide');
