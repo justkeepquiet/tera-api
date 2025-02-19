@@ -121,17 +121,23 @@ module.exports = async modules => {
 	const mod = { ...modules, i18n, passport };
 
 	return express.Router()
+		// Auth
 		.get("/Auth", portalShopController.Auth(mod))
+
+		// Pages
 		.get("/Disabled", portalShopController.DisabledHtml(mod))
 		.get("/Main", portalShopController.MainHtml(mod))
+
+		// Partials
 		.get("/PartialError", portalShopController.PartialErrorHtml(mod))
 		.get("/PartialPromoCode", portalShopController.PartialPromoCodeHtml(mod))
 		.get("/PartialCoupons", portalShopController.PartialCouponsHtml(mod))
-		.get("/PartialMenu", portalShopController.PartialMenuHtml(mod))
 		.get("/PartialWelcome", portalShopController.PartialWelcomeHtml(mod))
-		.post("/PartialCatalog", portalShopController.PartialCatalogHtml(mod))
 		.post("/PartialProduct", portalShopController.PartialProductHtml(mod))
+
+		// API
 		.post("/GetAccountInfo", portalShopController.GetAccountInfo(mod))
+		.post("/GetCatalog", portalShopController.GetCatalog(mod))
 		.post("/ReqCharacterAction", portalShopController.ReqCharacterAction(mod))
 		.post("/PurchaseAction", portalShopController.PurchaseAction(mod))
 		.post("/PurchaseStatusAction", portalShopController.PurchaseStatusAction(mod))

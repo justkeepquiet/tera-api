@@ -23,13 +23,13 @@
 <body>
 	<div class="navbar navbar-inverse navbar-fixed-top">
 		<div class="navbar-inner">
-			<div class="container-fluid">
+			<div class="container-fluid" id="header">
 				<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="brand" href="#" onclick="loadContent('Welcome')">TERA SHOP</a>
+				<a class="brand" href="#" id="brand">TERA SHOP</a>
 				<div class="nav-collapse collapse">
 					<div class="navbar-text pull-right" style="display: none;" id="navbar_right">
 						<p class="chip chip-lg">
@@ -54,7 +54,15 @@
 	</div>
 	<div class="container-fluid2">
 		<div class="row-fluid">
-			<div class="span3" id="menu"></div>
+			<div class="span3" id="menu">
+				<div class="well sidebar-nav" style="display: none;">
+					<ul class="nav nav-list">
+					<%_ categories.forEach(category => { _%>
+						<li><a href="#" data-id="<%= category.get("id") %>"><%= category.get("strings")[0]?.get("title") || __("[unknown]") %></a></li>
+					<%_ }) _%>
+					</ul>
+				</div>
+			</div>
 			<div class="span9 height-100" id="content" style="display: none;"></div>
 			<div class="span9 height-100" id="content_product" style="display: none;"></div>
 		</div>
@@ -67,14 +75,98 @@
 	<script type="text/javascript" src="/public/shop/js/imagesloaded.min.js"></script>
 	<script type="text/javascript" src="/public/shop/js/shop.js"></script>
 	<script type="text/javascript">
-		$(function() {
-			$(".nav li a").click(function() {
-				loadContent($(this).data("page") + "?tzOffset=" +
-					new Date().getTimezoneOffset()
-				);
+		function renderProducts(products) {
+			if (products.length == 0) {
+				$("#content").append("<div class='alert alert-error fade in'><%= __("No products were found matching your request. Try looking for something else.") %></div>");
+			}
+			var productHtml = "<div class='main'>";
+			for (var i = 0; i < products.length; i++) {
+				var product = products[i];
+				productHtml += "<div class='row well well-small'>";
+				productHtml += "<div class='btn-info item-icon-block'>";
+				productHtml += "<a class='buy' data-id='" + product.id + "' href='#'>";
+				productHtml += "<img data-src='/public/shop/images/tera-icons/" + product.icon + ".png' class='icon_grade_" + product.rareGrade + " item-icon' alt=''>";
+				productHtml += "<img data-src='/public/shop/images/icons/icon_grade_" + product.rareGrade + ".png' class='item-icon-grade' alt=''>";
+				if (product.tag !== null) {
+					productHtml += "<img data-src='/public/shop/images/icons/icon_tag_" + product.tag + ".png' class='item-icon-tag' alt=''>";
+				}
+				productHtml += "</a>";
+				productHtml += "<div class='text-center'><span class='gold'><strong>" + product.price + "</strong> <i class='fas fa-coins'></i></span></div>";
+				productHtml += "</div>";
+				productHtml += "<div class='text-block text-light'>";
+				productHtml += "<h5>";
+				productHtml += "<a class='item_grade_" + product.rareGrade + " buy' href='#' data-id='" + product.id + "' title=''>" + (product.title || "<%= __('[unknown]') %>") + "</a>";
+				if (product.itemCount > 1 && product.itemsCount === 1) {
+					productHtml += " " + "<%= __('pc.') %>";
+				}
+				if (product.productDiscount > 0) {
+					productHtml += " <span class='badge discount-badge'>" + "<%= __('%s% off') %>".replace("%s", product.productDiscount) + "</span>";
+				}
+				productHtml += "</h5>";
+				productHtml += "<small>" + product.description + "</small>";
+				productHtml += "</div>";
+				productHtml += "<div class='buy-block text-center'><a class='btn btn-large btn-info buy' href='#' data-id='" + product.id + "'><%= __('Buy') %></a></div>";
+				productHtml += "</div>";
+			}
+			productHtml += "</div>";
+			$("#content").append(productHtml);
+			$("#content").show().animate({ scrollTop: 0 }, 0);
+			$("#content .item-icon, #content .item-icon-grade, #content .item-icon-tag").lazy({
+				appendScroll: $("#content"),
+				visibleOnly: true
 			});
+			$(".buy").click(function() {
+				loadContentProduct({ id: $(this).data("id") });
+				return false;
+			});
+		}
+		function backToCatalog() {
+			$("#content_product").hide();
+			$("#content").show();
+			return false;
+		}
+
+		$(function() {
 			$("#search_form").submit(function() {
-				catalogSearchAction($('#search_input').val());
+				shopGetCatalog({ search: $('#search_input').val() }, function(result) {
+					$("#menu li").removeClass("active");
+					$("#content_product").empty().hide();
+					$("#content").empty();
+					if (result.ReturnCode == 0) {
+						renderProducts(result.Products);
+					} else if (result.ReturnCode == 1000) {
+						$("#content").append("<div class='main alert alert-error fade in'><%= __("Enter a search keyword that is at least 3 letters long.") %></div>");
+					} else {
+						loadContent("Error");
+					}
+				});
+				return false;
+			});
+
+			$("#header .nav li a").click(function() {
+				loadContent($(this).data("page") + "?tzOffset=" + new Date().getTimezoneOffset());
+				return false;
+			});
+
+			$("#brand").click(function() {
+				loadContent("Welcome");
+				return false;
+			});
+
+			$("#menu .nav li a").click(function() {
+				var li = $(this).parent();
+				shopGetCatalog({ category: $(this).data("id") }, function(result) {
+					$("#menu li").removeClass("active");
+					$("#search_input").val("");
+					$("#content_product").empty().hide();
+					$("#content").empty();
+					li.addClass("active");
+					if (result.ReturnCode == 0) {
+						renderProducts(result.Products);
+					} else {
+						loadContent("Error");
+					}
+				});
 				return false;
 			});
 		});

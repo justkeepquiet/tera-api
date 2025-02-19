@@ -3,14 +3,13 @@
  * Init
  */
 $(function() {
-	loadMenu();
-	loadContent("Welcome");
 	loadAccountInfo();
 	setInterval(loadAccountInfo, 5000);
+	loadContent("Welcome");
 });
 
 /**
- * API calls
+ * Load content
  */
 function loadAccountInfo() {
 	shopGetAccountInfo(function(result) {
@@ -23,44 +22,19 @@ function loadAccountInfo() {
 	});
 }
 
-function getAccountBalance() {
-	return parseInt($("#shop_balance").html());
-}
-
-function catalogSearchAction(search) {
-	return apiRequest("PartialCatalog", { search: search }, "html", function(result) {
-		$("#content_product").empty().hide();
-		$("#content").html(result).show().animate({ scrollTop: 0 }, 0);
-		loadMenu();
-	});
-}
-
-function shopGetAccountInfo(callback) {
-	return apiRequest("GetAccountInfo", {}, "json", callback);
-}
-
-function loadMenu(active) {
-	if (!active) {
-		active = 0;
-	}
-
-	apiRequest("PartialMenu?active=" + active, null, "html", function(result) {
-		$("#menu").html(result);
-	});
-}
-
 function loadContent(page, params) {
-	// $(".item-icon").attr("src", "");
-	$(".navbar-fixed-top .nav li").removeClass("active");
-	$(".navbar-fixed-top .nav li a[data-page='" + page.split("?")[0] + "']").parent().addClass("active");
+	$("#header .nav li").removeClass("active");
+	$("#header .nav li a[data-page='" + page.split("?")[0] + "']").parent().addClass("active");
+	$("#menu li").removeClass("active");
 
 	apiRequest("Partial" + page, params, "html", function(result) {
 		if (page == "Error") {
-			$("#menu").html("");
+			$("#menu div").hide();
 		}
-		if (page != "Catalog" && page != "Product" && page != "Error") {
-			loadMenu();
+		if (page != "Product" && page != "Error") {
+			$("#menu div").show();
 		}
+
 		$("#content_product").empty().hide();
 		$("#content").html(result).show().animate({ scrollTop: 0 }, 0);
 		$("#search_input").val("");
@@ -75,18 +49,23 @@ function loadContentProduct(params) {
 	});
 }
 
-function backToCatalog() {
-	$("#content_product").hide();
-	$("#content").show();
-}
-
 function loadPromoCodes(callback) {
-	var tzOffset = new Date().getTimezoneOffset();
-
-	apiRequest("PartialPromoCode?tzOffset=" + tzOffset, null, "html", function(result) {
+	apiRequest("PartialPromoCode", null, "html", function(result) {
 		$("#content").html(result);
 		callback();
 	});
+}
+
+/**
+ * API calls
+ */
+
+function shopGetAccountInfo(callback) {
+	return apiRequest("GetAccountInfo", {}, "json", callback);
+}
+
+function shopGetCatalog(params, callback) {
+	return apiRequest("GetCatalog", params, "json", callback);
 }
 
 function shopPurchaseAction(productId, quantity, recipientUserId, callback) {

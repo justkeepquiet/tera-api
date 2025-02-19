@@ -121,7 +121,7 @@ module.exports.DisabledHtml = () => [
 /**
  * @param {modules} modules
  */
-module.exports.MainHtml = () => [
+module.exports.MainHtml = ({ i18n, shopModel }) => [
 	shopStatusHandler,
 	/**
 	 * @type {RequestHandler}
@@ -129,24 +129,6 @@ module.exports.MainHtml = () => [
 	async (req, res, next) => {
 		unlockLockedCoupon(req);
 		req.session.lastProduct = undefined;
-
-		res.render("shopMain");
-	}
-];
-
-/**
- * @param {modules} modules
- */
-module.exports.PartialMenuHtml = ({ i18n, logger, shopModel }) => [
-	shopStatusHandler,
-	authSessionHandler(logger),
-	[query("active").optional().trim().isNumeric()],
-	validationHandler(logger),
-	/**
-	 * @type {RequestHandler}
-	 */
-	async (req, res, next) => {
-		const { active } = req.query;
 
 		const categories = await shopModel.categories.findAll({
 			where: { active: 1 },
@@ -161,183 +143,7 @@ module.exports.PartialMenuHtml = ({ i18n, logger, shopModel }) => [
 			]
 		});
 
-		res.render("partials/shopMenu", { categories, active });
-	},
-	/**
-	 * @type {ErrorRequestHandler}
-	 */
-	(err, req, res, next) => {
-		logger.error(err);
-		res.render("partials/shopError");
-	}
-];
-
-/**
- * @param {modules} modules
- */
-module.exports.PartialCatalogHtml = ({ i18n, logger, sequelize, shopModel, datasheetModel }) => [
-	shopStatusHandler,
-	authSessionHandler(logger),
-	[
-		body("category").optional().trim().isNumeric(),
-		body("search").optional().trim().isLength({ max: 128 })
-	],
-	validationHandler(logger),
-	/**
-	 * @type {RequestHandler}
-	 */
-	async (req, res, next) => {
-		const { category, search } = req.body;
-
-		if (search !== undefined && search.length < 3) {
-			return res.render("partials/shopErrorSearch", {
-				message: i18n.__("Enter a search keyword that is at least 3 letters long.")
-			});
-		}
-
-		const products = new Map();
-		const searchParts = search ? search.replace(/[-_+:\\"\\']/g, " ").split(" ") : [];
-
-		const whereProduct = {
-			active: 1,
-			validAfter: { [Op.lt]: sequelize.fn("NOW") },
-			validBefore: { [Op.gt]: sequelize.fn("NOW") },
-			...category ? { categoryId: category } : {}
-		};
-
-		let whereSearch = {};
-
-		if (searchParts.length !== 0) {
-			const foundItems = datasheetModel.strSheetItem.get(i18n.getLocale())?.findAll(search, { limit: Infinity });
-
-			const foundProducts = await shopModel.products.findAll({
-				where: whereProduct,
-				attributes: ["id"],
-				include: [{
-					as: "item",
-					model: shopModel.productItems,
-					attributes: ["itemTemplateId"],
-					where: [
-						{ itemTemplateId: { [Op.in]: foundItems.map(item => item.itemTemplateId) } }
-					],
-					required: true
-				}]
-			});
-
-			whereSearch = {
-				[Op.or]: [
-					{ [Op.and]: searchParts.map(s => sequelize.where(sequelize.fn("lower", sequelize.col("strings.title")), Op.like, `%${s}%`)) },
-					{ id: { [Op.in]: foundProducts.map(item => item.get("id")) } }
-				]
-			};
-		}
-
-		const shopProducts = await shopModel.products.findAll({
-			where: { ...whereProduct, ...whereSearch },
-			attributes: {
-				include: [[sequelize.fn("NOW"), "dateNow"]]
-			},
-			include: [
-				{
-					as: "strings",
-					model: shopModel.productStrings,
-					where: { language: i18n.getLocale() },
-					required: false
-				},
-				{
-					as: "item",
-					model: shopModel.productItems
-				}
-			],
-			order: [
-				["sort", "DESC"],
-				["id", "ASC"],
-				[{ as: "item", model: shopModel.productItems }, "createdAt", "ASC"]
-			]
-		});
-
-		shopProducts.forEach(shopProduct => {
-			let finalPrice = shopProduct.get("price");
-			let productDiscount = 0;
-
-			if (shopProduct.get("discount") > 0 &&
-				shopProduct.get("discountValidAfter") &&
-				shopProduct.get("discountValidBefore") &&
-				moment(shopProduct.get("dateNow")).isSameOrAfter(shopProduct.get("discountValidAfter")) &&
-				moment(shopProduct.get("dateNow")).isSameOrBefore(shopProduct.get("discountValidBefore"))
-			) {
-				productDiscount = shopProduct.get("discount");
-				finalPrice = helpers.subtractPercentage(finalPrice, shopProduct.get("discount"));
-			}
-
-			let tag = null;
-
-			if (shopProduct.get("tag") !== null &&
-				shopProduct.get("tagValidAfter") &&
-				shopProduct.get("tagValidBefore") &&
-				moment(shopProduct.get("dateNow")).isSameOrAfter(shopProduct.get("tagValidAfter")) &&
-				moment(shopProduct.get("dateNow")).isSameOrBefore(shopProduct.get("tagValidBefore"))
-			) {
-				tag = shopProduct.get("tag");
-			}
-
-			const productInfo = {
-				price: finalPrice,
-				productDiscount: productDiscount,
-				title: shopProduct.get("strings")[0]?.get("title"),
-				description: shopProduct.get("strings")[0]?.get("description"),
-				icon: shopProduct.get("icon"),
-				rareGrade: shopProduct.get("rareGrade"),
-				tag,
-				itemsCount: shopProduct.get("itemsCount"), // TODO
-				itemCount: shopProduct.get("item").length
-			};
-
-			shopProduct.get("item").forEach(productItem => {
-				const itemData = datasheetModel.itemData.get(i18n.getLocale())?.getOne(productItem.get("itemTemplateId"));
-				const strSheetItem = datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(productItem.get("itemTemplateId"));
-
-				if (strSheetItem) {
-					if (!productInfo.title) {
-						productInfo.title = strSheetItem.string;
-					}
-
-					if (!productInfo.description) {
-						productInfo.description = strSheetItem.toolTip;
-					}
-				}
-
-				if (itemData) {
-					if (!productInfo.icon) {
-						productInfo.icon = itemData.icon;
-					}
-
-					if (productInfo.rareGrade === null) {
-						productInfo.rareGrade = itemData.rareGrade;
-					}
-				}
-
-				if (!productInfo.itemCount) {
-					productInfo.itemCount = productItem.get("boxItemCount");
-				}
-			});
-
-			if (productInfo.icon && (!search || (search && productInfo.title))) {
-				products.set(shopProduct.get("id"), productInfo);
-			}
-		});
-
-		unlockLockedCoupon(req);
-		req.session.lastProduct = undefined;
-
-		res.render("partials/shopCatalog", { helpers, products, search: search || "" });
-	},
-	/**
-	 * @type {ErrorRequestHandler}
-	 */
-	(err, req, res, next) => {
-		logger.error(err);
-		res.render("partials/shopError");
+		res.render("shopMain", { categories });
 	}
 ];
 
@@ -734,6 +540,175 @@ module.exports.GetAccountInfo = ({ logger, shopModel }) => [
 			userName: req.user.userName,
 			shopBalance: shopAccount !== null ? shopAccount.get("balance") : 0,
 			shopDiscount: shopAccount !== null ? shopAccount.get("discount") : 0
+		});
+	}
+];
+
+/**
+ * @param {modules} modules
+ */
+module.exports.GetCatalog = ({ i18n, logger, sequelize, shopModel, datasheetModel }) => [
+	shopStatusHandler,
+	authSessionHandler(logger),
+	[
+		body("category").optional().trim().isNumeric(),
+		body("search").optional().trim().isLength({ max: 128 })
+	],
+	validationHandler(logger),
+	/**
+	 * @type {RequestHandler}
+	 */
+	async (req, res, next) => {
+		const { category, search } = req.body;
+
+		if (search !== undefined && search.length < 3) {
+			throw new ApiError("Search string must be more than 3 characters", 1000);
+		}
+
+		const products = [];
+		const searchParts = search ? search.replace(/[-_+:\\"\\']/g, " ").split(" ") : [];
+
+		const whereProduct = {
+			active: 1,
+			validAfter: { [Op.lt]: sequelize.fn("NOW") },
+			validBefore: { [Op.gt]: sequelize.fn("NOW") },
+			...category ? { categoryId: category } : {}
+		};
+
+		let whereSearch = {};
+
+		if (searchParts.length !== 0) {
+			const foundItems = datasheetModel.strSheetItem.get(i18n.getLocale())?.findAll(search, { limit: Infinity });
+
+			const foundProducts = await shopModel.products.findAll({
+				where: whereProduct,
+				attributes: ["id"],
+				include: [{
+					as: "item",
+					model: shopModel.productItems,
+					attributes: ["itemTemplateId"],
+					where: [
+						{ itemTemplateId: { [Op.in]: foundItems.map(item => item.itemTemplateId) } }
+					],
+					required: true
+				}]
+			});
+
+			whereSearch = {
+				[Op.or]: [
+					{ [Op.and]: searchParts.map(s => sequelize.where(sequelize.fn("lower", sequelize.col("strings.title")), Op.like, `%${s}%`)) },
+					{ id: { [Op.in]: foundProducts.map(item => item.get("id")) } }
+				]
+			};
+		}
+
+		const shopProducts = await shopModel.products.findAll({
+			where: { ...whereProduct, ...whereSearch },
+			attributes: {
+				include: [[sequelize.fn("NOW"), "dateNow"]]
+			},
+			include: [
+				{
+					as: "strings",
+					model: shopModel.productStrings,
+					where: { language: i18n.getLocale() },
+					required: false
+				},
+				{
+					as: "item",
+					model: shopModel.productItems
+				}
+			],
+			order: [
+				["sort", "DESC"],
+				["id", "ASC"],
+				[{ as: "item", model: shopModel.productItems }, "createdAt", "ASC"]
+			]
+		});
+
+		shopProducts.forEach(shopProduct => {
+			let finalPrice = shopProduct.get("price");
+			let productDiscount = 0;
+
+			if (shopProduct.get("discount") > 0 &&
+				shopProduct.get("discountValidAfter") &&
+				shopProduct.get("discountValidBefore") &&
+				moment(shopProduct.get("dateNow")).isSameOrAfter(shopProduct.get("discountValidAfter")) &&
+				moment(shopProduct.get("dateNow")).isSameOrBefore(shopProduct.get("discountValidBefore"))
+			) {
+				productDiscount = shopProduct.get("discount");
+				finalPrice = helpers.subtractPercentage(finalPrice, shopProduct.get("discount"));
+			}
+
+			let tag = null;
+
+			if (shopProduct.get("tag") !== null &&
+				shopProduct.get("tagValidAfter") &&
+				shopProduct.get("tagValidBefore") &&
+				moment(shopProduct.get("dateNow")).isSameOrAfter(shopProduct.get("tagValidAfter")) &&
+				moment(shopProduct.get("dateNow")).isSameOrBefore(shopProduct.get("tagValidBefore"))
+			) {
+				tag = shopProduct.get("tag");
+			}
+
+			const productInfo = {
+				id: shopProduct.get("id"),
+				price: finalPrice,
+				productDiscount: productDiscount,
+				title: shopProduct.get("strings")[0]?.get("title"),
+				description: shopProduct.get("strings")[0]?.get("description"),
+				icon: shopProduct.get("icon"),
+				rareGrade: shopProduct.get("rareGrade"),
+				tag,
+				itemsCount: shopProduct.get("itemsCount"), // TODO
+				itemCount: shopProduct.get("item").length
+			};
+
+			shopProduct.get("item").forEach(productItem => {
+				const itemData = datasheetModel.itemData.get(i18n.getLocale())?.getOne(productItem.get("itemTemplateId"));
+				const strSheetItem = datasheetModel.strSheetItem.get(i18n.getLocale())?.getOne(productItem.get("itemTemplateId"));
+
+				if (strSheetItem) {
+					if (!productInfo.title) {
+						productInfo.title = strSheetItem.string;
+					}
+
+					if (!productInfo.description) {
+						productInfo.description = strSheetItem.toolTip;
+					}
+				}
+
+				if (itemData) {
+					if (!productInfo.icon) {
+						productInfo.icon = itemData.icon;
+					}
+
+					if (productInfo.rareGrade === null) {
+						productInfo.rareGrade = itemData.rareGrade;
+					}
+				}
+
+				if (!productInfo.itemCount) {
+					productInfo.itemCount = productItem.get("boxItemCount");
+				}
+			});
+
+			productInfo.description = helpers.formatStrsheet(productInfo.description);
+
+			if (productInfo.icon && (!search || (search && productInfo.title))) {
+				products.push(productInfo);
+			}
+		});
+
+		unlockLockedCoupon(req);
+		req.session.lastProduct = undefined;
+
+		res.json({
+			Return: true,
+			ReturnCode: 0,
+			Msg: "success",
+			Products: products,
+			Search: search
 		});
 	}
 ];
