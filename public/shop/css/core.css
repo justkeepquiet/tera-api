@@ -309,9 +309,23 @@ a, a:focus {
 }
 
 .nav-list>.active>a,.nav-list>.active>a:focus,.nav-list>.active>a:hover {
-	color: #f8f9fa;
+	color: #f8f9fa!important;
 	text-shadow: 0 -1px 0 rgba(0,0,0,.2);
-	background-color: #13426D;
+	background-color: #13426D!important;
+}
+
+.nav-list>li>a:hover {
+	color: #081b2c!important;
+	background-color: #fff!important;
+}
+
+.nav-list>li>a,.nav-list>li>a:focus {
+	color: #f8f9fa;
+	background-color: transparent;
+}
+
+.nav-list>li>a:focus {
+	background-color: transparent;
 }
 
 .item_grade_0 {
