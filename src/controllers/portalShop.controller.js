@@ -72,12 +72,31 @@ const checkLockedCoupon = (req, couponId, maxActivations, currentActivations) =>
 	return false;
 };
 
-const getMaxProductQuantity = items => {
-	const maxSlots = 40; // max number of box slots
-	const totalSlotsPerCopy = items.reduce((sum, item) =>
-		sum + Math.ceil(item.boxItemCount / item.maxStack || 1), 0);
+const getMaxProductQuantity = (items, maxSlots = 40) => {
+	function canFit(copies) {
+		const totalSlots = items.reduce((sum, item) =>
+			sum + Math.ceil((copies * item.boxItemCount) / (item.maxStack || 1)), 0);
 
-	return Math.floor(maxSlots / totalSlotsPerCopy);
+		return totalSlots <= maxSlots;
+	}
+
+	let low = 0, high = 1;
+
+	while (canFit(high)) {
+		high *= 2;
+	}
+
+	while (low < high) {
+		const mid = Math.floor((low + high + 1) / 2);
+
+		if (canFit(mid)) {
+			low = mid;
+		} else {
+			high = mid - 1;
+		}
+	}
+
+	return low;
 };
 
 /**
