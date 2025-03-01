@@ -49,6 +49,13 @@ class ExpressServer {
 			next();
 		});
 
+		this.app.use((req, res, next) => {
+			res.set("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+			res.set("Expires", 0);
+
+			next();
+		});
+
 		if (this.compressionEnabled) {
 			this.app.use(compression());
 		}
