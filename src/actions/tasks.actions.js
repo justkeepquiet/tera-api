@@ -58,6 +58,7 @@ class TasksActions {
 		}
 
 		const usersCharacters = await planetDb.model.users.findAll({
+			attributes: ["userDBID", "accountDBID", "userName", "class", "gender", "race", "userLevel"],
 			where: {
 				deletionStatus: 0,
 				class: { [Op.lte]: 12 } // server can set class 13, ignore it
@@ -86,6 +87,7 @@ class TasksActions {
 		}
 
 		const usersOnline = await planetDb.model.users.findAll({
+			attributes: ["accountDBID"],
 			where: {
 				loginStatus: 1
 			}
