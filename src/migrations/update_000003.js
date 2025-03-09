@@ -48,7 +48,7 @@ module.exports = {
 			type: Sequelize.DataTypes.INTEGER(11),
 			allowNull: false,
 			defaultValue: 0,
-			after: "active"
+			after: "balance"
 		});
 
 		// `shop_products`
@@ -77,6 +77,28 @@ module.exports = {
 		await queryInterface.addColumn("shop_products", "discountValidBefore", {
 			type: Sequelize.DataTypes.DATE,
 			after: "discountValidAfter"
+		});
+
+		// `shop_promocodes`
+		await queryInterface.addColumn("shop_promocodes", "currentActivations", {
+			type: Sequelize.DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0,
+			after: "active"
+		});
+		await queryInterface.addColumn("shop_promocodes", "maxActivations", {
+			type: Sequelize.DataTypes.INTEGER(11),
+			allowNull: false,
+			defaultValue: 0,
+			after: "currentActivations"
+		});
+		await queryInterface.addIndex("shop_promocodes", ["currentActivations"], {
+			unique: false,
+			name: "currentActivations"
+		});
+		await queryInterface.addIndex("shop_promocodes", ["maxActivations"], {
+			unique: false,
+			name: "maxActivations"
 		});
 
 		// `shop_promocode_strings`
@@ -134,7 +156,7 @@ module.exports = {
 		});
 
 		// `report_shop_fund`
-		await queryInterface.addColumn("report_shop_fund", "discount", {
+		await queryInterface.addColumn("report_shop_fund", "balance", {
 			type: Sequelize.DataTypes.INTEGER(11),
 			allowNull: false,
 			after: "amount"
@@ -144,40 +166,8 @@ module.exports = {
 		await queryInterface.addColumn("report_shop_pay", "quantity", {
 			type: Sequelize.DataTypes.INTEGER(11),
 			allowNull: false,
-			defaultValue: 1
-		});
-
-		// `shop_accounts`
-		await queryInterface.removeColumn("shop_accounts", "discount");
-
-		// `shop_products`
-		await queryInterface.removeColumn("shop_products", "discountValidBefore");
-		await queryInterface.removeColumn("shop_products", "discountValidAfter");
-		await queryInterface.removeColumn("shop_products", "discount");
-		await queryInterface.removeColumn("shop_products", "tagValidBefore");
-		await queryInterface.removeColumn("shop_products", "tagValidAfter");
-		await queryInterface.removeColumn("shop_products", "tag");
-
-		// `shop_promocodes`
-		await queryInterface.addColumn("shop_promocodes", "currentActivations", {
-			type: Sequelize.DataTypes.INTEGER(11),
-			allowNull: false,
-			defaultValue: 0,
-			after: "active"
-		});
-		await queryInterface.addColumn("shop_promocodes", "maxActivations", {
-			type: Sequelize.DataTypes.INTEGER(11),
-			allowNull: false,
-			defaultValue: 0,
-			after: "currentActivations"
-		});
-		await queryInterface.addIndex("shop_promocodes", ["currentActivations"], {
-			unique: false,
-			name: "currentActivations"
-		});
-		await queryInterface.addIndex("shop_promocodes", ["maxActivations"], {
-			unique: false,
-			name: "maxActivations"
+			defaultValue: 1,
+			after: "price"
 		});
 	},
 
@@ -197,6 +187,23 @@ module.exports = {
 			unique: false,
 			name: "authKey"
 		});
+
+		// `shop_accounts`
+		await queryInterface.removeColumn("shop_accounts", "discount");
+
+		// `shop_products`
+		await queryInterface.removeColumn("shop_products", "discountValidBefore");
+		await queryInterface.removeColumn("shop_products", "discountValidAfter");
+		await queryInterface.removeColumn("shop_products", "discount");
+		await queryInterface.removeColumn("shop_products", "tagValidBefore");
+		await queryInterface.removeColumn("shop_products", "tagValidAfter");
+		await queryInterface.removeColumn("shop_products", "tag");
+
+		// `shop_promocodes`
+		await queryInterface.removeIndex("shop_promocodes", "currentActivations");
+		await queryInterface.removeIndex("shop_promocodes", "maxActivations");
+		await queryInterface.removeColumn("shop_promocodes", "currentActivations");
+		await queryInterface.removeColumn("shop_promocodes", "maxActivations");
 
 		// `shop_promocode_strings`
 		await queryInterface.removeIndex("shop_promocode_strings", "unique");
@@ -227,11 +234,5 @@ module.exports = {
 
 		// `report_shop_pay`
 		await queryInterface.removeColumn("report_shop_pay", "quantity");
-
-		// `shop_promocodes`
-		await queryInterface.removeIndex("shop_promocodes", "currentActivations");
-		await queryInterface.removeIndex("shop_promocodes", "maxActivations");
-		await queryInterface.removeColumn("shop_promocodes", "currentActivations");
-		await queryInterface.removeColumn("shop_promocodes", "maxActivations");
 	}
 };
