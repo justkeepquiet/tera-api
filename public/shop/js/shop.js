@@ -4,8 +4,9 @@
  */
 
 $(function() {
-	loadAccountInfo();
 	loadContent("Welcome");
+	loadAccountInfo();
+	setInterval(loadAccountInfo, 5000);
 });
 
 /**
@@ -18,8 +19,6 @@ function loadAccountInfo() {
 			$("#shop_balance").html(result.shopBalance);
 			$("#navbar_right").fadeIn();
 			$("#search_form").fadeIn();
-
-			setTimeout(loadAccountInfo, 5000);
 		}
 	});
 }
