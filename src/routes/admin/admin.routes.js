@@ -67,6 +67,13 @@ module.exports = async modules => {
 		defaultLocale: env.string("ADMIN_PANEL_LOCALE")
 	});
 
+	if (!modules.datasheetModel.strSheetAccountBenefit?.get(i18n.getLocale()) ||
+		!modules.datasheetModel.itemData?.get(i18n.getLocale()) ||
+		!modules.datasheetModel.strSheetItem?.get(i18n.getLocale())
+	) {
+		throw `Could not find datasheets for Admin Panel language: ${i18n.getLocale()}. Probably the binary file "DataCenter_Final_${modules.localization.getRegionByLanguage(i18n.getLocale())}.dat" is missing in the "data/datasheets" directory.`;
+	}
+
 	passport.serializeUser((user, done) => {
 		done(null, user);
 	});

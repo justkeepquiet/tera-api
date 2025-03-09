@@ -36,6 +36,24 @@ module.exports = async modules => {
 		header: undefined
 	});
 
+	if (!modules.datasheetModel.itemData?.get(i18n.getLocale()) ||
+		!modules.datasheetModel.strSheetItem?.get(i18n.getLocale()) ||
+		!modules.datasheetModel.itemConversion?.get(i18n.getLocale())
+	) {
+		throw `Could not find datasheets for Portal API language: ${i18n.getLocale()}. Probably the binary file "DataCenter_Final_${modules.localization.getRegionByLanguage(i18n.getLocale())}.dat" is missing in the "data/datasheets" directory.`;
+	}
+
+	const shopLanguages = helpers.getSupportedLanguagesByDirectory(path.resolve(__dirname, "../../locales/shop"), modules.localization);
+
+	shopLanguages.forEach(language => {
+		if (!modules.datasheetModel.itemData?.get(language) ||
+			!modules.datasheetModel.strSheetItem?.get(language) ||
+			!modules.datasheetModel.itemConversion?.get(language)
+		) {
+			modules.logger.warn(`Could not find datasheets for configured language: ${language}. Probably the binary file "DataCenter_Final_${modules.localization.getRegionByLanguage(language)}.dat" is missing in the "data/datasheets" directory.`);
+		}
+	});
+
 	passport.serializeUser((user, done) => {
 		done(null, user);
 	});
