@@ -97,6 +97,8 @@ module.exports = async ({ gcCollect, checkComponent, pluginsLoader, localization
 
 		pluginsLoader.loadComponent("datasheetModel.after", addModel);
 
+		let dirty = false;
+
 		if (datasheetLoader.loader.sections.length !== 0) {
 			datasheetLoader.load();
 
@@ -110,10 +112,18 @@ module.exports = async ({ gcCollect, checkComponent, pluginsLoader, localization
 				}
 			}
 
-			return true;
+			dirty = true;
 		}
 
-		return false;
+		for (const [section, locales] of Object.entries(datasheetModel)) {
+			if (!locales.has("en") && locales.has("us")) {
+				locales.set("en", locales.get("us"));
+
+				datasheetLoader.logger.debug(`Model linked: ${section} (en) -> ${section} (us)`);
+			}
+		}
+
+		return dirty;
 	};
 
 	const datasheetLogger = createLogger("Datasheet", { colors: { debug: "gray" } });
