@@ -72,7 +72,7 @@ const checkLockedCoupon = (req, couponId, maxActivations, currentActivations) =>
 	return false;
 };
 
-const getMaxProductQuantity = (items, maxSlots = 40) => {
+const getMaxProductQuantity = (items, maxSlots) => {
 	function canFit(copies) {
 		const totalSlots = items.reduce((sum, item) =>
 			sum + Math.ceil((copies * item.boxItemCount) / (item.maxStack || 1)), 0);
@@ -330,7 +330,7 @@ module.exports.PartialProductHtml = ({ i18n, logger, sequelize, serverModel, sho
 		product.tradable = itemData.tradable;
 		product.warehouseStorable = itemData.warehouseStorable;
 
-		product.maxQuantity = Math.min(99, getMaxProductQuantity(product.items)); // no more than 99 copies
+		product.maxQuantity = Math.min(99, getMaxProductQuantity(product.items, 20)); // no more than 99 copies
 
 		unlockLockedCoupon(req);
 		req.session.lastProduct = product; // add product to session
@@ -891,7 +891,7 @@ module.exports.PurchaseAction = modules => [
 			quantity = 1;
 		}
 
-		const maxQuantity = Math.min(99, getMaxProductQuantity(req.session.lastProduct.items)); // no more than 99 copies
+		const maxQuantity = Math.min(99, getMaxProductQuantity(req.session.lastProduct.items, 20)); // no more than 99 copies
 
 		if (quantity > maxQuantity) {
 			throw new ApiError("The quantity of the product is greater than that available", 2002);
