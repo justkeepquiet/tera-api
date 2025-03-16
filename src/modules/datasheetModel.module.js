@@ -135,7 +135,7 @@ module.exports = async ({ gcCollect, checkComponent, pluginsLoader, localization
 	try {
 		if (useBinary) {
 			fs.readdirSync(directory).forEach(file => {
-				const match = file.match(/_(\w{3})\.dat$/);
+				const match = file.match(/_([A-Z]+)\.dat$/);
 
 				if (match) {
 					variants.push({ region: match[1], locale: localization.getLanguageByRegion(match[1]) });
