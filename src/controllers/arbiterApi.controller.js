@@ -594,13 +594,17 @@ module.exports.ReportCheater = modules => [
 		const userIp = ipFromLauncher ? account.get("lastLoginIP") : ip;
 
 		if (reportCheats) {
-			await modules.reportModel.cheats.create({
-				accountDBID: usr_srl,
-				serverId: svr_id,
-				ip: userIp,
-				type,
-				cheatInfo: cheat_info
-			});
+			try {
+				await modules.reportModel.cheats.create({
+					accountDBID: usr_srl,
+					serverId: svr_id,
+					ip: userIp,
+					type,
+					cheatInfo: cheat_info
+				});
+			} catch (err) {
+				modules.logger.error(err);
+			}
 		}
 
 		const actions = new GameEventsActions(modules, svr_id, usr_srl);
