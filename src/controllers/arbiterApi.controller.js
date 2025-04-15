@@ -570,7 +570,7 @@ module.exports.UseChronoScroll = modules => [
  */
 module.exports.ReportCheater = modules => [
 	[
-		body("cheat_info").isNumeric(),
+		body("cheat_info").notEmpty(),
 		body("ip").isIP(),
 		body("svr_id").isNumeric(),
 		body("type").isNumeric(),
