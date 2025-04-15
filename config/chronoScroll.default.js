@@ -2,6 +2,10 @@
 
 // THE CHANGES MADE ARE APPLIED WITHOUT RESTARTING THE PROCESS.
 
+/**
+ * @typedef {import("../src/app").modules} modules
+ */
+
 const Shop = require("../src/actions/handlers/shop");
 const Benefit = require("../src/actions/handlers/benefit");
 const ItemClaim = require("../src/actions/handlers/itemClaim");
