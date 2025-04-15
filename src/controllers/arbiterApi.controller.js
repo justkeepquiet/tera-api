@@ -583,10 +583,6 @@ module.exports.ReportCheater = modules => [
 	async (req, res, next) => {
 		const { cheat_info, ip, svr_id, type, usr_srl } = req.body;
 
-		if (!reportCheats) {
-			return res.json({ result_code: 0 });
-		}
-
 		const account = await modules.accountModel.info.findOne({
 			where: { accountDBID: usr_srl }
 		});
@@ -597,13 +593,15 @@ module.exports.ReportCheater = modules => [
 
 		const userIp = ipFromLauncher ? account.get("lastLoginIP") : ip;
 
-		await modules.reportModel.cheats.create({
-			accountDBID: usr_srl,
-			serverId: svr_id,
-			ip: userIp,
-			type,
-			cheatInfo: cheat_info
-		});
+		if (reportCheats) {
+			await modules.reportModel.cheats.create({
+				accountDBID: usr_srl,
+				serverId: svr_id,
+				ip: userIp,
+				type,
+				cheatInfo: cheat_info
+			});
+		}
 
 		const actions = new GameEventsActions(modules, svr_id, usr_srl);
 
