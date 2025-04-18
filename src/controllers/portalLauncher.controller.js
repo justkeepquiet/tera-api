@@ -599,6 +599,12 @@ module.exports.SignupAction = modules => [
 					modules.logger.error(error);
 				}
 			});
+
+			res.json({
+				Return: true,
+				ReturnCode: 0,
+				Msg: "success"
+			});
 		} else {
 			await modules.sequelize.transaction(async () => {
 				// Create user account
@@ -627,14 +633,17 @@ module.exports.SignupAction = modules => [
 
 					await shop.fund(initialShopBalance);
 				}
+
+				// Login account
+				req.login(account, () => {
+					res.json({
+						Return: true,
+						ReturnCode: 0,
+						Msg: "success"
+					});
+				});
 			});
 		}
-
-		res.json({
-			Return: true,
-			ReturnCode: 0,
-			Msg: "success"
-		});
 	}
 ];
 
