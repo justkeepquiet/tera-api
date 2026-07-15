@@ -238,14 +238,24 @@ module.exports.generateRandomWord = length => {
 
 /**
 * @param {string} email
-* @return {string}
+* @return {string|null}
 */
 module.exports.maskEmail = email => {
-	const [localPart, domain] = email.split("@");
-	const hiddenLocal = localPart.slice(0, 2) + "*".repeat(localPart.length - 2);
-	const [domainName, domainSuffix] = domain.split(".");
-	const hiddenDomain = `${domainName[0] + "*".repeat(domainName.length - 1)}.${domainSuffix}`;
-	return `${hiddenLocal}@${hiddenDomain}`;
+	if (typeof email !== "string") return null;
+
+	const match = /^([^@\s]+)@([^@\s]+\.([^@\s.]+))$/.exec(email);
+	if (!match) return null;
+
+	const localPart = match[1];
+	const domain = match[2];
+	const domainSuffix = match[3];
+	const domainName = domain.slice(0, -(domainSuffix.length + 1));
+	const visibleLocal = localPart.slice(0, Math.min(2, localPart.length));
+	const hiddenLocal = "*".repeat(Math.max(1, localPart.length - visibleLocal.length));
+	const visibleDomain = domainName.slice(0, 1);
+	const hiddenDomain = "*".repeat(Math.max(1, domainName.length - visibleDomain.length));
+
+	return `${visibleLocal}${hiddenLocal}@${visibleDomain}${hiddenDomain}.${domainSuffix}`;
 };
 
 /**
