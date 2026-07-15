@@ -63,7 +63,8 @@
         formText: 'I am human',
         loadingText: 'Loading...',
         barText: 'Slide To Verify',
-        serverUrl: '/api/captcha'
+        serverUrl: '/api/captcha',
+        csrfToken: null
     };
 
     function Plugin(option) {
@@ -359,6 +360,10 @@
 
             xhr.open('POST', that.options.serverUrl + '?ts=' + Date.now(), true);
             xhr.setRequestHeader('Content-Type', 'application/json');
+
+            if (that.options.csrfToken) {
+                xhr.setRequestHeader('X-CSRF-Token', that.options.csrfToken);
+            }
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
