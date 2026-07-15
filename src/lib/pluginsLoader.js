@@ -74,9 +74,14 @@ class PluginsLoader {
 
 			if (componentObject !== undefined) {
 				if (typeof componentObject === "function") {
-					const componentResult = await componentObject.call(null, ...args, this.modules);
+					const componentResult = componentObject.call(null, ...args, this.modules);
 
-					results.set(plugin, componentResult);
+					results.set(
+						plugin,
+						typeof componentResult?.then === "function"
+							? await componentResult
+							: componentResult
+					);
 				} else {
 					results.set(plugin, componentObject);
 				}
@@ -84,6 +89,8 @@ class PluginsLoader {
 				this.logger.debug(`Loaded: plugin: ${plugin}, component: ${component}`);
 			}
 		}
+
+		return results;
 	}
 }
 
